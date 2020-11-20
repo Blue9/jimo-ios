@@ -1,0 +1,887 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		082CE6B0FD32B3F8FBB97633 /* Pods_JimoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727CAFB0303F5578E431865 /* Pods_JimoTests.framework */; };
+		438A1670E527DAA708281518 /* Pods_Jimo_JimoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78073DC17CE0DED79C31F861 /* Pods_Jimo_JimoUITests.framework */; };
+		8C29627DFA9DE0BE27207212 /* Pods_Jimo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D57CD23A6F0021266E79AA7 /* Pods_Jimo.framework */; };
+		C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70367052557629900F970DE /* NavigationViewModifier.swift */; };
+		C703670E255764FD00F970DE /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C703670D255764FD00F970DE /* Profile.swift */; };
+		C7106AF5256084E200C10EFF /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106AF4256084E200C10EFF /* Place.swift */; };
+		C7106AFA256095B200C10EFF /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106AF9256095B200C10EFF /* AppViewModel.swift */; };
+		C7106B072560C7BC00C10EFF /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */; };
+		C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */; };
+		C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721D896255B653C00FFC4E6 /* LocationSelection.swift */; };
+		C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7318C902560E1F000E75BE6 /* HideKeyboard.swift */; };
+		C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */; };
+		C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7493980255663E100D1E8D3 /* RoundedButton.swift */; };
+		C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EDE25561309009B6ADA /* JimoApp.swift */; };
+		C75C2EE125561309009B6ADA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EE025561309009B6ADA /* ContentView.swift */; };
+		C75C2EE325561309009B6ADA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C75C2EE225561309009B6ADA /* Assets.xcassets */; };
+		C75C2EE625561309009B6ADA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C75C2EE525561309009B6ADA /* Preview Assets.xcassets */; };
+		C75C2EF125561309009B6ADA /* JimoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EF025561309009B6ADA /* JimoTests.swift */; };
+		C75C2EFC25561309009B6ADA /* JimoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EFB25561309009B6ADA /* JimoUITests.swift */; };
+		C75C2F1025561359009B6ADA /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2F0F25561359009B6ADA /* MapView.swift */; };
+		C75C2F202556166D009B6ADA /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2F1F2556166D009B6ADA /* User.swift */; };
+		C75C2F25255616CC009B6ADA /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2F24255616CC009B6ADA /* Post.swift */; };
+		C75C2F2A25561711009B6ADA /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2F2925561711009B6ADA /* AppModel.swift */; };
+		C75C2F3F255617CA009B6ADA /* CreatePost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2F3E255617CA009B6ADA /* CreatePost.swift */; };
+		C768E9382558B3CB0068FCD5 /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C768E9372558B3CB0068FCD5 /* FeedItem.swift */; };
+		C76DEA33255E559C008A9E1B /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76DEA32255E559C008A9E1B /* Search.swift */; };
+		C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77321DB2557EF390087FAA6 /* URLImage.swift */; };
+		C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */; };
+		C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */; };
+		C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */; };
+		C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D4F5255A397600E8D216 /* Comment.swift */; };
+		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C75C2EED25561309009B6ADA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C75C2ED325561308009B6ADA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C75C2EDA25561309009B6ADA;
+			remoteInfo = GoodplacesApp;
+		};
+		C75C2EF825561309009B6ADA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C75C2ED325561308009B6ADA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C75C2EDA25561309009B6ADA;
+			remoteInfo = GoodplacesApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.debug.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.debug.xcconfig"; sourceTree = "<group>"; };
+		1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.release.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.release.xcconfig"; sourceTree = "<group>"; };
+		46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		6727CAFB0303F5578E431865 /* Pods_JimoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JimoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		78073DC17CE0DED79C31F861 /* Pods_Jimo_JimoUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Jimo_JimoUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D57CD23A6F0021266E79AA7 /* Pods_Jimo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Jimo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.debug.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.release.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.release.xcconfig"; sourceTree = "<group>"; };
+		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C70367052557629900F970DE /* NavigationViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModifier.swift; sourceTree = "<group>"; };
+		C703670D255764FD00F970DE /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		C7106AF4256084E200C10EFF /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
+		C7106AF9256095B200C10EFF /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
+		C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		C721D896255B653C00FFC4E6 /* LocationSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelection.swift; sourceTree = "<group>"; };
+		C7318C902560E1F000E75BE6 /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
+		C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextInput.swift; sourceTree = "<group>"; };
+		C7493980255663E100D1E8D3 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
+		C75C2EDB25561309009B6ADA /* Jimo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jimo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C75C2EDE25561309009B6ADA /* JimoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JimoApp.swift; sourceTree = "<group>"; };
+		C75C2EE025561309009B6ADA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C75C2EE225561309009B6ADA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C75C2EE525561309009B6ADA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C75C2EE725561309009B6ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C75C2EEC25561309009B6ADA /* JimoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JimoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C75C2EF025561309009B6ADA /* JimoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JimoTests.swift; sourceTree = "<group>"; };
+		C75C2EF225561309009B6ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C75C2EF725561309009B6ADA /* JimoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JimoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C75C2EFB25561309009B6ADA /* JimoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JimoUITests.swift; sourceTree = "<group>"; };
+		C75C2EFD25561309009B6ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C75C2F0F25561359009B6ADA /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		C75C2F1F2556166D009B6ADA /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		C75C2F24255616CC009B6ADA /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
+		C75C2F2925561711009B6ADA /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		C75C2F3E255617CA009B6ADA /* CreatePost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePost.swift; sourceTree = "<group>"; };
+		C768E9372558B3CB0068FCD5 /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
+		C76DEA32255E559C008A9E1B /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
+		C77321DB2557EF390087FAA6 /* URLImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImage.swift; sourceTree = "<group>"; };
+		C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearch.swift; sourceTree = "<group>"; };
+		C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearch.swift; sourceTree = "<group>"; };
+		C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
+		C7F6D4F5255A397600E8D216 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C75C2ED825561309009B6ADA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C29627DFA9DE0BE27207212 /* Pods_Jimo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C75C2EE925561309009B6ADA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				082CE6B0FD32B3F8FBB97633 /* Pods_JimoTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C75C2EF425561309009B6ADA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				438A1670E527DAA708281518 /* Pods_Jimo_JimoUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08D0F93A6A0254024999DD24 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */,
+				1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */,
+				46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */,
+				C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */,
+				9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */,
+				C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		C70367042557628200F970DE /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				C70367052557629900F970DE /* NavigationViewModifier.swift */,
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
+		C75C2ED225561308009B6ADA = {
+			isa = PBXGroup;
+			children = (
+				C75C2EDD25561309009B6ADA /* Jimo */,
+				C75C2EEF25561309009B6ADA /* JimoTests */,
+				C75C2EFA25561309009B6ADA /* JimoUITests */,
+				C75C2EDC25561309009B6ADA /* Products */,
+				08D0F93A6A0254024999DD24 /* Pods */,
+				C7CDED1B011467E29D97C765 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C75C2EDC25561309009B6ADA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C75C2EDB25561309009B6ADA /* Jimo.app */,
+				C75C2EEC25561309009B6ADA /* JimoTests.xctest */,
+				C75C2EF725561309009B6ADA /* JimoUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C75C2EDD25561309009B6ADA /* Jimo */ = {
+			isa = PBXGroup;
+			children = (
+				C7A898A0255E503F00C3F6B6 /* Extensions */,
+				C75C2F0E25561345009B6ADA /* ViewModels */,
+				C75C2F0D25561342009B6ADA /* Views */,
+				C75C2F0C2556131B009B6ADA /* Models */,
+				C75C2EDE25561309009B6ADA /* JimoApp.swift */,
+				C75C2EE025561309009B6ADA /* ContentView.swift */,
+				C75C2EE225561309009B6ADA /* Assets.xcassets */,
+				C75C2EE725561309009B6ADA /* Info.plist */,
+				C75C2EE425561309009B6ADA /* Preview Content */,
+			);
+			path = Jimo;
+			sourceTree = "<group>";
+		};
+		C75C2EE425561309009B6ADA /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C75C2EE525561309009B6ADA /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C75C2EEF25561309009B6ADA /* JimoTests */ = {
+			isa = PBXGroup;
+			children = (
+				C75C2EF025561309009B6ADA /* JimoTests.swift */,
+				C75C2EF225561309009B6ADA /* Info.plist */,
+			);
+			path = JimoTests;
+			sourceTree = "<group>";
+		};
+		C75C2EFA25561309009B6ADA /* JimoUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C75C2EFB25561309009B6ADA /* JimoUITests.swift */,
+				C75C2EFD25561309009B6ADA /* Info.plist */,
+			);
+			path = JimoUITests;
+			sourceTree = "<group>";
+		};
+		C75C2F0C2556131B009B6ADA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */,
+				C75C2F1F2556166D009B6ADA /* User.swift */,
+				C75C2F24255616CC009B6ADA /* Post.swift */,
+				C75C2F2925561711009B6ADA /* AppModel.swift */,
+				C7F6D4F5255A397600E8D216 /* Comment.swift */,
+				C7106AF4256084E200C10EFF /* Place.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C75C2F0D25561342009B6ADA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C70367042557628200F970DE /* Modifiers */,
+				C7614B4A25561AB400A376DF /* Components */,
+				C75C2F43255619D4009B6ADA /* Screens */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C75C2F0E25561345009B6ADA /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				C7106AF9256095B200C10EFF /* AppViewModel.swift */,
+				C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C75C2F43255619D4009B6ADA /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				C75C2F0F25561359009B6ADA /* MapView.swift */,
+				C75C2F3E255617CA009B6ADA /* CreatePost.swift */,
+				C703670D255764FD00F970DE /* Profile.swift */,
+				C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */,
+				C721D896255B653C00FFC4E6 /* LocationSelection.swift */,
+				C76DEA32255E559C008A9E1B /* Search.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		C7614B4A25561AB400A376DF /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */,
+				C7493980255663E100D1E8D3 /* RoundedButton.swift */,
+				C77321DB2557EF390087FAA6 /* URLImage.swift */,
+				C768E9372558B3CB0068FCD5 /* FeedItem.swift */,
+				C7F6D502255A42BA00E8D216 /* SearchBar.swift */,
+				C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */,
+				C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C7A898A0255E503F00C3F6B6 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				C7318C902560E1F000E75BE6 /* HideKeyboard.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		C7CDED1B011467E29D97C765 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8D57CD23A6F0021266E79AA7 /* Pods_Jimo.framework */,
+				78073DC17CE0DED79C31F861 /* Pods_Jimo_JimoUITests.framework */,
+				6727CAFB0303F5578E431865 /* Pods_JimoTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C75C2EDA25561309009B6ADA /* Jimo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C75C2F0025561309009B6ADA /* Build configuration list for PBXNativeTarget "Jimo" */;
+			buildPhases = (
+				582AA55124FF262E1F953149 /* [CP] Check Pods Manifest.lock */,
+				C75C2ED725561309009B6ADA /* Sources */,
+				C75C2ED825561309009B6ADA /* Frameworks */,
+				C75C2ED925561309009B6ADA /* Resources */,
+				F37A51EC779531EA3409CBD1 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Jimo;
+			productName = GoodplacesApp;
+			productReference = C75C2EDB25561309009B6ADA /* Jimo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C75C2EEB25561309009B6ADA /* JimoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C75C2F0325561309009B6ADA /* Build configuration list for PBXNativeTarget "JimoTests" */;
+			buildPhases = (
+				44F0A8C6D1D6928AEEF86D01 /* [CP] Check Pods Manifest.lock */,
+				C75C2EE825561309009B6ADA /* Sources */,
+				C75C2EE925561309009B6ADA /* Frameworks */,
+				C75C2EEA25561309009B6ADA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C75C2EEE25561309009B6ADA /* PBXTargetDependency */,
+			);
+			name = JimoTests;
+			productName = GoodplacesAppTests;
+			productReference = C75C2EEC25561309009B6ADA /* JimoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C75C2EF625561309009B6ADA /* JimoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C75C2F0625561309009B6ADA /* Build configuration list for PBXNativeTarget "JimoUITests" */;
+			buildPhases = (
+				A8F3AED62A6753F859A442DD /* [CP] Check Pods Manifest.lock */,
+				C75C2EF325561309009B6ADA /* Sources */,
+				C75C2EF425561309009B6ADA /* Frameworks */,
+				C75C2EF525561309009B6ADA /* Resources */,
+				B37F295BA7957B72169EEA8D /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C75C2EF925561309009B6ADA /* PBXTargetDependency */,
+			);
+			name = JimoUITests;
+			productName = GoodplacesAppUITests;
+			productReference = C75C2EF725561309009B6ADA /* JimoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C75C2ED325561308009B6ADA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1200;
+				LastUpgradeCheck = 1200;
+				TargetAttributes = {
+					C75C2EDA25561309009B6ADA = {
+						CreatedOnToolsVersion = 12.0.1;
+					};
+					C75C2EEB25561309009B6ADA = {
+						CreatedOnToolsVersion = 12.0.1;
+						TestTargetID = C75C2EDA25561309009B6ADA;
+					};
+					C75C2EF625561309009B6ADA = {
+						CreatedOnToolsVersion = 12.0.1;
+						TestTargetID = C75C2EDA25561309009B6ADA;
+					};
+				};
+			};
+			buildConfigurationList = C75C2ED625561308009B6ADA /* Build configuration list for PBXProject "Jimo" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C75C2ED225561308009B6ADA;
+			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C75C2EDA25561309009B6ADA /* Jimo */,
+				C75C2EEB25561309009B6ADA /* JimoTests */,
+				C75C2EF625561309009B6ADA /* JimoUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C75C2ED925561309009B6ADA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C75C2EE625561309009B6ADA /* Preview Assets.xcassets in Resources */,
+				C75C2EE325561309009B6ADA /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C75C2EEA25561309009B6ADA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C75C2EF525561309009B6ADA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		44F0A8C6D1D6928AEEF86D01 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-JimoTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		582AA55124FF262E1F953149 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Jimo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A8F3AED62A6753F859A442DD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Jimo-JimoUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B37F295BA7957B72169EEA8D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F37A51EC779531EA3409CBD1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C75C2ED725561309009B6ADA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C75C2F3F255617CA009B6ADA /* CreatePost.swift in Sources */,
+				C75C2F202556166D009B6ADA /* User.swift in Sources */,
+				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
+				C75C2EE125561309009B6ADA /* ContentView.swift in Sources */,
+				C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */,
+				C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */,
+				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
+				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,
+				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
+				C7106AFA256095B200C10EFF /* AppViewModel.swift in Sources */,
+				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
+				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
+				C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */,
+				C768E9382558B3CB0068FCD5 /* FeedItem.swift in Sources */,
+				C7106B072560C7BC00C10EFF /* ActivityIndicator.swift in Sources */,
+				C75C2F1025561359009B6ADA /* MapView.swift in Sources */,
+				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
+				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
+				C75C2F2A25561711009B6ADA /* AppModel.swift in Sources */,
+				C703670E255764FD00F970DE /* Profile.swift in Sources */,
+				C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */,
+				C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */,
+				C76DEA33255E559C008A9E1B /* Search.swift in Sources */,
+				C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */,
+				C75C2F25255616CC009B6ADA /* Post.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C75C2EE825561309009B6ADA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C75C2EF125561309009B6ADA /* JimoTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C75C2EF325561309009B6ADA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C75C2EFC25561309009B6ADA /* JimoUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C75C2EEE25561309009B6ADA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C75C2EDA25561309009B6ADA /* Jimo */;
+			targetProxy = C75C2EED25561309009B6ADA /* PBXContainerItemProxy */;
+		};
+		C75C2EF925561309009B6ADA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C75C2EDA25561309009B6ADA /* Jimo */;
+			targetProxy = C75C2EF825561309009B6ADA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C75C2EFE25561309009B6ADA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C75C2EFF25561309009B6ADA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C75C2F0125561309009B6ADA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"Jimo/Preview Content\"";
+				DEVELOPMENT_TEAM = FL6G2R3Q86;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Jimo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		C75C2F0225561309009B6ADA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"Jimo/Preview Content\"";
+				DEVELOPMENT_TEAM = FL6G2R3Q86;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Jimo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C75C2F0425561309009B6ADA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FL6G2R3Q86;
+				INFOPLIST_FILE = JimoTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.JimoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Jimo.app/Jimo";
+			};
+			name = Debug;
+		};
+		C75C2F0525561309009B6ADA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FL6G2R3Q86;
+				INFOPLIST_FILE = JimoTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.JimoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Jimo.app/Jimo";
+			};
+			name = Release;
+		};
+		C75C2F0725561309009B6ADA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FL6G2R3Q86;
+				INFOPLIST_FILE = JimoUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.JimoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Jimo;
+			};
+			name = Debug;
+		};
+		C75C2F0825561309009B6ADA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = FL6G2R3Q86;
+				INFOPLIST_FILE = JimoUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.JimoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Jimo;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C75C2ED625561308009B6ADA /* Build configuration list for PBXProject "Jimo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C75C2EFE25561309009B6ADA /* Debug */,
+				C75C2EFF25561309009B6ADA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C75C2F0025561309009B6ADA /* Build configuration list for PBXNativeTarget "Jimo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C75C2F0125561309009B6ADA /* Debug */,
+				C75C2F0225561309009B6ADA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C75C2F0325561309009B6ADA /* Build configuration list for PBXNativeTarget "JimoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C75C2F0425561309009B6ADA /* Debug */,
+				C75C2F0525561309009B6ADA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C75C2F0625561309009B6ADA /* Build configuration list for PBXNativeTarget "JimoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C75C2F0725561309009B6ADA /* Debug */,
+				C75C2F0825561309009B6ADA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C75C2ED325561308009B6ADA /* Project object */;
+}
