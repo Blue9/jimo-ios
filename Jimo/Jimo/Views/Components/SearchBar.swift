@@ -10,7 +10,9 @@ import SwiftUI
 // From https://www.albertomoral.com/blog/uisearchbar-and-swiftui
 struct SearchBar: UIViewRepresentable {
     @Binding var text: String
+    var minimal = false
     var placeholder: String = ""
+    var textFieldColor: UIColor? = nil
 
     class Coordinator: NSObject, UISearchBarDelegate {
         @Binding var text: String
@@ -44,6 +46,11 @@ struct SearchBar: UIViewRepresentable {
         let searchBar = UISearchBar(frame: .zero)
         searchBar.delegate = context.coordinator
         searchBar.placeholder = placeholder
+        searchBar.searchBarStyle = minimal ? .minimal : .default;
+        if let textFieldColor = textFieldColor {
+            searchBar.searchTextField.backgroundColor = textFieldColor;
+            searchBar.searchTextField.borderStyle = .roundedRect
+        }
         return searchBar
     }
 
