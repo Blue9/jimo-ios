@@ -20,6 +20,10 @@
 		C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7318C902560E1F000E75BE6 /* HideKeyboard.swift */; };
 		C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */; };
 		C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7493980255663E100D1E8D3 /* RoundedButton.swift */; };
+		C74BC926256E17370095A2BA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC925256E17370095A2BA /* SessionStore.swift */; };
+		C74BC92B256E198C0095A2BA /* FirebaseUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC92A256E198C0095A2BA /* FirebaseUser.swift */; };
+		C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC93E256E1F4C0095A2BA /* AuthView.swift */; };
+		C74BC944256E25CD0095A2BA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */; };
 		C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EDE25561309009B6ADA /* JimoApp.swift */; };
 		C75C2EE125561309009B6ADA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EE025561309009B6ADA /* ContentView.swift */; };
 		C75C2EE325561309009B6ADA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C75C2EE225561309009B6ADA /* Assets.xcassets */; };
@@ -78,6 +82,10 @@
 		C7318C902560E1F000E75BE6 /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextInput.swift; sourceTree = "<group>"; };
 		C7493980255663E100D1E8D3 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
+		C74BC925256E17370095A2BA /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
+		C74BC92A256E198C0095A2BA /* FirebaseUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUser.swift; sourceTree = "<group>"; };
+		C74BC93E256E1F4C0095A2BA /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C75C2EDB25561309009B6ADA /* Jimo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jimo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C75C2EDE25561309009B6ADA /* JimoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JimoApp.swift; sourceTree = "<group>"; };
 		C75C2EE025561309009B6ADA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -179,6 +187,7 @@
 		C75C2EDD25561309009B6ADA /* Jimo */ = {
 			isa = PBXGroup;
 			children = (
+				C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */,
 				C7A898A0255E503F00C3F6B6 /* Extensions */,
 				C75C2F0E25561345009B6ADA /* ViewModels */,
 				C75C2F0D25561342009B6ADA /* Views */,
@@ -227,6 +236,8 @@
 				C75C2F2925561711009B6ADA /* AppModel.swift */,
 				C7F6D4F5255A397600E8D216 /* Comment.swift */,
 				C7106AF4256084E200C10EFF /* Place.swift */,
+				C74BC925256E17370095A2BA /* SessionStore.swift */,
+				C74BC92A256E198C0095A2BA /* FirebaseUser.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -259,6 +270,7 @@
 				C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */,
 				C721D896255B653C00FFC4E6 /* LocationSelection.swift */,
 				C76DEA32255E559C008A9E1B /* Search.swift */,
+				C74BC93E256E1F4C0095A2BA /* AuthView.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -307,6 +319,7 @@
 				C75C2ED825561309009B6ADA /* Frameworks */,
 				C75C2ED925561309009B6ADA /* Resources */,
 				F37A51EC779531EA3409CBD1 /* [CP] Embed Pods Frameworks */,
+				43F84AF732442B64C6227273 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -345,6 +358,7 @@
 				C75C2EF425561309009B6ADA /* Frameworks */,
 				C75C2EF525561309009B6ADA /* Resources */,
 				B37F295BA7957B72169EEA8D /* [CP] Embed Pods Frameworks */,
+				71139F8842D6A46E5FEFA6BE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -405,6 +419,7 @@
 			files = (
 				C75C2EE625561309009B6ADA /* Preview Assets.xcassets in Resources */,
 				C75C2EE325561309009B6ADA /* Assets.xcassets in Resources */,
+				C74BC944256E25CD0095A2BA /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +440,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		43F84AF732442B64C6227273 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		44F0A8C6D1D6928AEEF86D01 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -467,6 +499,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		71139F8842D6A46E5FEFA6BE /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A8F3AED62A6753F859A442DD /* [CP] Check Pods Manifest.lock */ = {
@@ -532,6 +581,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C74BC926256E17370095A2BA /* SessionStore.swift in Sources */,
 				C75C2F3F255617CA009B6ADA /* CreatePost.swift in Sources */,
 				C75C2F202556166D009B6ADA /* User.swift in Sources */,
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
@@ -539,11 +589,13 @@
 				C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */,
 				C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */,
 				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
+				C74BC92B256E198C0095A2BA /* FirebaseUser.swift in Sources */,
 				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
 				C7106AFA256095B200C10EFF /* AppViewModel.swift in Sources */,
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
+				C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */,
 				C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */,
 				C768E9382558B3CB0068FCD5 /* FeedItem.swift in Sources */,
 				C7106B072560C7BC00C10EFF /* ActivityIndicator.swift in Sources */,

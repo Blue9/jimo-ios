@@ -7,8 +7,9 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    let viewModel = RemoteVM()
+struct MainAppView: View {
+    @EnvironmentObject var session: SessionStore
+    let viewModel = LocalVM()
 
     var body: some View {
         TabView {
@@ -41,8 +42,38 @@ struct ContentView: View {
     }
 }
 
+struct ContentView: View {
+    @EnvironmentObject var session: SessionStore
+    
+    func getUser() {
+        session.listen()
+    }
+    
+    var body: some View {
+        ZStack {
+            if (!session.initialized) {
+                Text("Loading...")
+            }
+            else if (session.session != nil) {
+                MainAppView()
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .leading)))
+            } else {
+                AuthView()
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .leading),
+                            removal: .move(edge: .trailing)))
+            }
+        }
+        .onAppear(perform: getUser)
+    }
+}
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView().environmentObject(SessionStore())
     }
 }

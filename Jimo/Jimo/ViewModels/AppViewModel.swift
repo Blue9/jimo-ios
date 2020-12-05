@@ -25,10 +25,7 @@ class LocalVM: AppVM {
             profilePicture: nil,
             postCount: 150,
             followerCount: 800,
-            followingCount: 800,
-            email: nil,
-            createdAt: nil,
-            loginMethods: nil))
+            followingCount: 800))
     }
     
     func getName(user: User) -> String {

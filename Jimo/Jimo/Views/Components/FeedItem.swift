@@ -50,14 +50,14 @@ struct FeedItem: View {
                         Spacer()
                         VStack {
                             Image(systemName: "heart")
-                                .font(.system(size: 30, weight: .ultraLight))
+                                .font(.system(size: 30))
                             Text(String(likeCount))
                         }
                         Spacer()
                             .frame(width: 40)
                         VStack {
-                            Image(systemName: "text.bubble")
-                                .font(.system(size: 30, weight: .ultraLight))
+                            Image(systemName: "bubble.left")
+                                .font(.system(size: 30))
                             Text(String(commentCount))
                         }
                     }

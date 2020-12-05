@@ -18,11 +18,6 @@ struct User {
     var postCount: Int
     var followerCount: Int
     var followingCount: Int
-    
-    // If the user is me
-    var email: String?
-    var createdAt: Date?
-    var loginMethods: [String]?
 }
 
 extension User {
@@ -44,8 +39,5 @@ extension User {
         self.postCount = postCount
         self.followerCount = followerCount
         self.followingCount = followingCount
-        self.email = json["email"] as? String
-        self.createdAt = nil // TODO
-        self.loginMethods = nil // TODO
     }
 }

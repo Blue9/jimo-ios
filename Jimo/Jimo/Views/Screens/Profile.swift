@@ -85,6 +85,7 @@ private struct PlaceholderText: View {
 
 
 struct Profile: View {
+    @EnvironmentObject var session: SessionStore
     @ObservedObject var profileVM: ProfileVM
     
     func refresh() {
@@ -113,6 +114,11 @@ struct Profile: View {
                 navBody
             }
             .navigationBarTitle("Profile", displayMode: .inline)
+            .navigationBarItems(trailing: Button(action: session.signOut) {
+                Image(systemName: "lock.circle")
+                    .resizable()
+                    .frame(width: 30, height: 30)
+            })
         }
     }
 }
@@ -120,5 +126,6 @@ struct Profile: View {
 struct Profile_Previews: PreviewProvider {
     static var previews: some View {
         Profile(profileVM: ProfileVM(appVM: LocalVM(), username: "gautam"))
+            .environmentObject(SessionStore())
     }
 }

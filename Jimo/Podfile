@@ -7,6 +7,7 @@ target 'Jimo' do
 
   # Pods for Jimo
   pod 'Firebase/Auth'
+  pod 'GoogleSignIn'
 
   target 'JimoTests' do
     inherit! :search_paths
