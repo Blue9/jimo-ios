@@ -178,6 +178,7 @@ struct CreatePost: View {
     @State var category: String = ""
     @State var content: String = ""
     @ObservedObject var createPostVM = CreatePostVM()
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         NavigationView {
@@ -212,6 +213,8 @@ struct CreatePost: View {
                     .padding(.bottom, 40)
             }
             .navigationBarTitle("Create Post", displayMode: .inline)
+            .navigationBarItems(leading: Button("Cancel") { self.presentationMode.wrappedValue.dismiss()
+            })
         }
     }
 }

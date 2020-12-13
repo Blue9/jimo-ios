@@ -13,7 +13,6 @@
 		C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70367052557629900F970DE /* NavigationViewModifier.swift */; };
 		C703670E255764FD00F970DE /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C703670D255764FD00F970DE /* Profile.swift */; };
 		C7106AF5256084E200C10EFF /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106AF4256084E200C10EFF /* Place.swift */; };
-		C7106AFA256095B200C10EFF /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106AF9256095B200C10EFF /* AppViewModel.swift */; };
 		C7106B072560C7BC00C10EFF /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */; };
 		C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */; };
 		C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721D896255B653C00FFC4E6 /* LocationSelection.swift */; };
@@ -75,7 +74,6 @@
 		C70367052557629900F970DE /* NavigationViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModifier.swift; sourceTree = "<group>"; };
 		C703670D255764FD00F970DE /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C7106AF4256084E200C10EFF /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
-		C7106AF9256095B200C10EFF /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		C721D896255B653C00FFC4E6 /* LocationSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelection.swift; sourceTree = "<group>"; };
@@ -255,7 +253,6 @@
 		C75C2F0E25561345009B6ADA /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				C7106AF9256095B200C10EFF /* AppViewModel.swift */,
 				C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */,
 			);
 			path = ViewModels;
@@ -592,7 +589,6 @@
 				C74BC92B256E198C0095A2BA /* FirebaseUser.swift in Sources */,
 				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
-				C7106AFA256095B200C10EFF /* AppViewModel.swift in Sources */,
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
 				C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */,

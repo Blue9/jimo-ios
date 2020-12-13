@@ -9,7 +9,8 @@ import Foundation
 
 typealias PlaceId = String
 
-struct Place {
+struct Place: Codable, Identifiable {
+    let id = UUID()
     var placeId: PlaceId
     var category: String
     var latitude: Double

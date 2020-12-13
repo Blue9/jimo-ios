@@ -15,18 +15,22 @@ import Combine
 class SessionStore: ObservableObject {
     @Published var session: FirebaseUser?
     @Published var initialized = false
+    
     var handle: AuthStateDidChangeListenerHandle?
+    
+    var currentUser: FirebaseAuth.User? {
+        Auth.auth().currentUser
+    }
     
     func listen() {
         handle = Auth.auth().addStateDidChangeListener({ (auth, user) in
-            print("handler called")
             if let user = user {
-                print("setting session")
                 withAnimation(.default, {
                     self.session = FirebaseUser(uid: user.uid, email: user.email)
                 })
             }
             if (!self.initialized) {
+                print("INitialized")
                 self.initialized = true
             }
         })
@@ -37,7 +41,6 @@ class SessionStore: ObservableObject {
     }
     
     func signIn(email: String, password: String, handler: @escaping AuthDataResultCallback) {
-        print("Sign in called")
         Auth.auth().signIn(withEmail: email, password: password, completion: handler)
     }
     
@@ -45,15 +48,19 @@ class SessionStore: ObservableObject {
         Auth.auth().sendPasswordReset(withEmail: email, completion: handler)
     }
     
+    func getAuthJWT(user: FirebaseAuth.User, handler: ((String?, Error?) -> Void)?) {
+        user.getIDToken(completion: handler)
+    }
+    
     func signOut() {
         do {
             try Auth.auth().signOut()
-            withAnimation(.default, {
-                self.session = nil
-            })
         } catch {
             print("Already logged out")
         }
+        withAnimation(.default, {
+            self.session = nil
+        })
     }
     
     func unbind() {

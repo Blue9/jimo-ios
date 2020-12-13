@@ -30,10 +30,10 @@ struct SignUpView: View {
     @State var password = ""
     @State var error = " "
     
-    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var model: AppModel
     
     func signUp() {
-        session.signUp(email: email, password: password, handler: { (result, error) in
+        model.sessionStore.signUp(email: email, password: password, handler: { (result, error) in
             if let error = error {
                 let code = (error as NSError).code
                 switch code {
@@ -98,10 +98,10 @@ struct SignInView: View {
     @State var password = ""
     @State var error = " "
     
-    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var model: AppModel
     
     func signIn() {
-        session.signIn(email: email, password: password, handler: { (result, error) in
+        model.sessionStore.signIn(email: email, password: password, handler: { (result, error) in
             if error != nil {
                 self.error = "Invalid email or password. Try again."
             } else {
@@ -113,7 +113,7 @@ struct SignInView: View {
     }
 
     func forgotPassword() {
-        session.forgotPassword(email: email, handler: { error in
+        model.sessionStore.forgotPassword(email: email, handler: { error in
             print(error?.localizedDescription ?? "guh")
             if let error = error {
                 self.error = error.localizedDescription

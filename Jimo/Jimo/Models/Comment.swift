@@ -8,7 +8,8 @@
 import Foundation
 
 
-struct Comment {
+struct Comment: Codable, Identifiable {
+    let id = UUID()
     var commentId: String
     var user: User
     var postId: String

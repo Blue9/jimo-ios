@@ -13,11 +13,17 @@ import GoogleSignIn
 struct JimoApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    let model: AppModel
+    
+    init() {
+        let sessionStore = SessionStore()
+        self.model = AppModel(sessionStore: sessionStore)
+    }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(SessionStore())
+                .environmentObject(model)
                 .preferredColorScheme(.light)
         }
     }

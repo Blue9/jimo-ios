@@ -18,7 +18,7 @@ struct ProfileHeaderView: View {
     
     var body: some View {
         HStack {
-            URLImage(url: user.profilePicture, loading: defaultImage, failure: defaultImage)
+            URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
                 .frame(width: 80, height: 80, alignment: .center)
                 .font(Font.title.weight(.ultraLight))
                 .cornerRadius(50)
@@ -85,12 +85,8 @@ private struct PlaceholderText: View {
 
 
 struct Profile: View {
-    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var model: AppModel
     @ObservedObject var profileVM: ProfileVM
-    
-    func refresh() {
-        profileVM.refresh()
-    }
     
     private var navBody: AnyView {
         if let user = profileVM.user {
@@ -114,7 +110,7 @@ struct Profile: View {
                 navBody
             }
             .navigationBarTitle("Profile", displayMode: .inline)
-            .navigationBarItems(trailing: Button(action: session.signOut) {
+            .navigationBarItems(trailing: Button(action: model.sessionStore.signOut) {
                 Image(systemName: "lock.circle")
                     .resizable()
                     .frame(width: 30, height: 30)
@@ -124,8 +120,11 @@ struct Profile: View {
 }
 
 struct Profile_Previews: PreviewProvider {
+    static let sessionStore = SessionStore()
+    static let model = AppModel(sessionStore: sessionStore)
+
     static var previews: some View {
-        Profile(profileVM: ProfileVM(appVM: LocalVM(), username: "gautam"))
-            .environmentObject(SessionStore())
+        Profile(profileVM: ProfileVM(model: model, username: "gautam"))
+            .environmentObject(model)
     }
 }

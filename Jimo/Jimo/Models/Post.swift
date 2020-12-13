@@ -9,7 +9,8 @@ import Foundation
 
 typealias PostId = String
 
-struct Post {
+struct Post: Codable, Identifiable {
+    let id = UUID()
     var postId: PostId
     var user: User
     var place: Place
