@@ -23,7 +23,7 @@ class ProfileVM: ObservableObject {
     let model: AppModel
     
     func refresh() {
-        self.model.getUser(username: username, onComplete: { user in
+        self.model.getUser(username: username, onComplete: { user, error in
             DispatchQueue.main.async {
                 self.failedToLoad = user == nil
                 self.refreshing = false
@@ -32,10 +32,13 @@ class ProfileVM: ObservableObject {
         })
     }
     
-    init(model: AppModel, username: String) {
+    init(model: AppModel, username: String, user: User? = nil) {
         self.model = model
         self.username = username
-        refresh()
+        self.user = user
+        if user == nil {
+            refresh()
+        }
     }
     
     func getName(user: User) -> String {

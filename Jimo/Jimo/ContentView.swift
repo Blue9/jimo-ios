@@ -12,7 +12,7 @@ class TabBar: ObservableObject {
     
     var newPostSelected = false
     var previousSelection: Int
-
+    
     @Published var selection: Int {
         didSet {
             if selection == newPostIndex {
@@ -44,7 +44,7 @@ struct MainAppView: View {
     @EnvironmentObject var model: AppModel
     
     let profileVM: ProfileVM
-
+    
     var body: some View {
         TabView(selection: $tabBar.selection) {
             Text("Home")
@@ -111,36 +111,39 @@ struct MainAppView: View {
 struct ContentView: View {
     @EnvironmentObject var model: AppModel
     
-    func getUser() {
-        model.sessionStore.listen()
-    }
-    
     var body: some View {
         ZStack {
-            if (!model.sessionStore.initialized) {
+            if (!model.initialized) {
                 Text("Loading...")
-            }
-            else if (model.sessionStore.session != nil) {
-                MainAppView(profileVM: ProfileVM(model: model, username: "gautam"))
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: .trailing),
-                            removal: .move(edge: .leading)))
-            } else {
+                    .transition(.slide)
+            } else if (model.firebaseSession == nil) {
+                // Firebase user does not exist
                 AuthView()
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: .leading),
-                            removal: .move(edge: .trailing)))
+                    .transition(.slide)
+            } else if (model.loadingUserProfile == .loading) {
+                Text("Just a sec!")
+                    .transition(.opacity)
+            } else if (model.loadingUserProfile == .error) {
+                Button("Unable to connect to server. Tap here to try again") {
+                    model.loadCurrentUserProfile()
+                }
+                .transition(.opacity)
+            } else if (model.currentUser == nil && model.loadingUserProfile == .success) {
+                // User profile does not exist
+                CreateProfileView()
+                    .transition(.slide)
+            } else { // both are non-nil
+                MainAppView(profileVM: ProfileVM(model: model, username: model.currentUser!.username, user: model.currentUser!))
+                    .transition(.slide)
             }
         }
-        .onAppear(perform: getUser)
+        .onAppear(perform: model.listen)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static let sessionStore = SessionStore()
-    static let model = AppModel(sessionStore: sessionStore)
+    static let model = AppModel()
     
     static var previews: some View {
         ContentView().environmentObject(model)

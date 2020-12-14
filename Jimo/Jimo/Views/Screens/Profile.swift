@@ -110,7 +110,11 @@ struct Profile: View {
                 navBody
             }
             .navigationBarTitle("Profile", displayMode: .inline)
-            .navigationBarItems(trailing: Button(action: model.sessionStore.signOut) {
+            .navigationBarItems(trailing: Button(action: {
+                withAnimation(.default, {
+                    model.signOut()
+                })
+            }) {
                 Image(systemName: "lock.circle")
                     .resizable()
                     .frame(width: 30, height: 30)
@@ -121,7 +125,7 @@ struct Profile: View {
 
 struct Profile_Previews: PreviewProvider {
     static let sessionStore = SessionStore()
-    static let model = AppModel(sessionStore: sessionStore)
+    static let model = AppModel()
 
     static var previews: some View {
         Profile(profileVM: ProfileVM(model: model, username: "gautam"))

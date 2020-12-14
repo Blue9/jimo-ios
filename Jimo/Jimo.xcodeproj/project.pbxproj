@@ -16,6 +16,7 @@
 		C7106B072560C7BC00C10EFF /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */; };
 		C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */; };
 		C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721D896255B653C00FFC4E6 /* LocationSelection.swift */; };
+		C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7260C582585D27C0002A335 /* CreateProfileView.swift */; };
 		C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7318C902560E1F000E75BE6 /* HideKeyboard.swift */; };
 		C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */; };
 		C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7493980255663E100D1E8D3 /* RoundedButton.swift */; };
@@ -77,6 +78,7 @@
 		C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		C721D896255B653C00FFC4E6 /* LocationSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelection.swift; sourceTree = "<group>"; };
+		C7260C582585D27C0002A335 /* CreateProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfileView.swift; sourceTree = "<group>"; };
 		C7318C902560E1F000E75BE6 /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextInput.swift; sourceTree = "<group>"; };
 		C7493980255663E100D1E8D3 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
@@ -268,6 +270,7 @@
 				C721D896255B653C00FFC4E6 /* LocationSelection.swift */,
 				C76DEA32255E559C008A9E1B /* Search.swift */,
 				C74BC93E256E1F4C0095A2BA /* AuthView.swift */,
+				C7260C582585D27C0002A335 /* CreateProfileView.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -588,6 +591,7 @@
 				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
 				C74BC92B256E198C0095A2BA /* FirebaseUser.swift in Sources */,
 				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,
+				C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */,
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
