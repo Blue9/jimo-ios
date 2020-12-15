@@ -26,7 +26,7 @@ class LocationSearch: NSObject, ObservableObject, MKLocalSearchCompleterDelegate
     
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         self.completions = completer.results
-//        self.completions = completer.results.filter { $0.subtitle.count > 0 }
+        // self.completions = completer.results.filter { $0.subtitle.count > 0 }
     }
 }
 

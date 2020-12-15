@@ -21,7 +21,7 @@ struct FeedItem: View {
         ZStack(alignment: .top) {
             Rectangle()
                 .frame(height: 32)
-                .foregroundColor(Color(#colorLiteral(red: 0.721568644, green: 0.8862745166, blue: 0.5921568871, alpha: 1)))
+                .foregroundColor(Color(#colorLiteral(red: 0.9568627477, green: 0.6588235497, blue: 0.5450980663, alpha: 1)))
             HStack(alignment: .top) {
                 URLImage(url: profilePicture, failure: Image(systemName: "circle.fill"))
                     .foregroundColor(Color(#colorLiteral(red: 0.9529411765, green: 0.9529411765, blue: 0.9529411765, alpha: 1)))

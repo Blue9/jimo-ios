@@ -13,11 +13,14 @@ import Combine
 
 // From https://www.youtube.com/watch?v=FhLEwqyVSjE
 class SessionStore: ObservableObject {
+    /// Handles auth state changes. Set by the app model. Do not overwrite.
     var handle: AuthStateDidChangeListenerHandle?
+    
+    /// The currently signed in Firebase user
     var currentUser: FirebaseAuth.User? {
         Auth.auth().currentUser
     }
-    
+
     func signUp(email: String, password: String, handler: @escaping AuthDataResultCallback) {
         Auth.auth().createUser(withEmail: email, password: password, completion: handler)
     }
@@ -34,15 +37,7 @@ class SessionStore: ObservableObject {
         user.getIDToken(completion: handler)
     }
     
-    func signOut() {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("Already logged out")
-        }
-    }
-    
-    func unbind() {
+    private func unbind() {
         if let handle = handle {
             Auth.auth().removeStateDidChangeListener(handle)
         }

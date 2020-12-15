@@ -13,6 +13,10 @@ struct Place: Codable, Identifiable {
     let id = UUID()
     var placeId: PlaceId
     var category: String
+    var location: Location
+}
+
+struct Location: Codable {
     var latitude: Double
     var longitude: Double
 }

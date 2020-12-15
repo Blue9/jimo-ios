@@ -16,7 +16,7 @@ struct Post: Codable, Identifiable {
     var place: Place
     var content: String
     var imageUrl: String?
-    var createdAt: Date
+    //var createdAt: Date
     var tags: [String] = []
     var likeCount: Int
     var commentCount: Int

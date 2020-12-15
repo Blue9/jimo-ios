@@ -55,16 +55,27 @@ enum LoadUserResult {
 
 
 class AppModel: ObservableObject {
+    /// Handles auth functionality
     @Published var sessionStore: SessionStore
     
+    /// The current user (email and uid) if logged in to Firebase
     @Published var firebaseSession: FirebaseUser?
+    
+    /// The current user (full User object) if logged in and the profile exists and has been loaded
     @Published var currentUser: User? = nil
     
+    /// Handles state when the user is logged in and we are loading the user profile
     @Published var loadingUserProfile: LoadUserResult? = nil
+    
+    /// If true, we have initialized Firebase auth
     @Published var initialized: Bool = false
     
+    /// Used to allow sessionStore's published vars to propagate through to observers of self
     var anyCancellable: AnyCancellable? = nil
     
+    /**
+     Create a new AppModel object. This creates a SessionStore object as well.
+     */
     init() {
         self.sessionStore = SessionStore()
         anyCancellable = self.sessionStore.objectWillChange.sink { [weak self] (_) in
@@ -72,6 +83,9 @@ class AppModel: ObservableObject {
         }
     }
     
+    /**
+     Add a listener to Firebase auth changes. This should be called once, preferably after the view has rendered (e.g., in onAppear)
+     */
     func listen() {
         self.sessionStore.handle = Auth.auth().addStateDidChangeListener({ (auth, user) in
             withAnimation {
@@ -80,6 +94,7 @@ class AppModel: ObservableObject {
                     self.firebaseSession = FirebaseUser(uid: user.uid, email: user.email)
                 } else {
                     self.firebaseSession = nil
+                    self.currentUser = nil
                 }
                 if (!self.initialized) {
                     print("Initialized")
@@ -89,6 +104,13 @@ class AppModel: ObservableObject {
         })
     }
     
+    /**
+     Get an auth token for the logged in user if possible and pass it into makeRequest.
+     
+     If no token can be retrieved (i.e., an error occurs or the user is not authenticated), nil is passed to makeRequest.
+     
+     - Parameter makeRequest: The token handler.
+     */
     func withToken(makeRequest: @escaping (String?) -> Void) {
         guard let currentUser = sessionStore.currentUser else {
             print("Not logged in")
@@ -105,6 +127,15 @@ class AppModel: ObservableObject {
         }
     }
     
+    /**
+     Build a URLRequest object given the url, auth token, and http method, which defaults to GET.
+     
+     - Parameter url: The request endpoint.
+     - Parameter token: The Firebase auth token.
+     - Parameter httpMethod: The http method. Defaults to GET.
+     
+     - Returns: The URLRequest object.
+     */
     func buildRequest(url: URL, token: String, httpMethod: String = "GET") -> URLRequest {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -112,6 +143,12 @@ class AppModel: ObservableObject {
         return request
     }
     
+    /**
+     Make a GET request to the given endpoinrt and pass the result to the given handler.
+     
+     - Parameter endpoint: The endpoint.
+     - Parameter onComplete: The result handler. Exactly one of the two parameters will be non-nil.
+     */
     func doRequest<T: Codable>(endpoint: Endpoint, onComplete: @escaping (T?, RequestError?) -> Void) {
         guard let url = endpoint.url else {
             onComplete(nil, RequestError.endpointError)
@@ -147,12 +184,17 @@ class AppModel: ObservableObject {
                     return
                 }
                 let decoded: T? = try? JSONDecoder().decode(T.self, from: data)
-                
                 onComplete(decoded, decoded == nil ? RequestError.decodeError : nil)
             }.resume()
         }
     }
     
+    /**
+     After logging into Firebase, attempt to initialize the current user profile.
+     
+     self.loadingUserProfile tracks that status of loading the profile. This should only be called once per session,
+     right after the Firebase user has been initialized.
+     */
     func loadCurrentUserProfile() {
         withAnimation {
             if self.currentUser != nil {
@@ -178,18 +220,35 @@ class AppModel: ObservableObject {
         })
     }
     
+    /**
+     Sign the current user out. Does nothing if the user was already signed out.
+     */
     func signOut() {
-        self.sessionStore.signOut()
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("Already logged out")
+        }
         self.currentUser = nil
     }
     
+    /**
+     Get the user with the given username and pass the result into the given handler.
+     */
     func getUser(username: String, onComplete: @escaping (User?, RequestError?) -> Void) {
         let endpoint = Endpoint.user(username: username)
         doRequest(endpoint: endpoint, onComplete: onComplete)
     }
     
-    func getFeed(username: String, onComplete: @escaping ([Post]?, RequestError?) -> Void) {
-        let endpoint = Endpoint.user(username: username)
+    /**
+     Get the feed for the current user and pass the result into the given handler.
+     */
+    func getFeed(onComplete: @escaping ([Post]?, RequestError?) -> Void) {
+        guard let user = currentUser else {
+            onComplete(nil, RequestError.authError)
+            return
+        }
+        let endpoint = Endpoint.feed(username: user.username)
         doRequest(endpoint: endpoint, onComplete: onComplete)
     }
 }

@@ -17,6 +17,8 @@
 		C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */; };
 		C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721D896255B653C00FFC4E6 /* LocationSelection.swift */; };
 		C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7260C582585D27C0002A335 /* CreateProfileView.swift */; };
+		C72F3CB92587264A00DDB76C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CB82587264A00DDB76C /* Feed.swift */; };
+		C72F3CBE258726BA00DDB76C /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CBD258726BA00DDB76C /* MainAppView.swift */; };
 		C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7318C902560E1F000E75BE6 /* HideKeyboard.swift */; };
 		C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */; };
 		C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7493980255663E100D1E8D3 /* RoundedButton.swift */; };
@@ -79,6 +81,8 @@
 		C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		C721D896255B653C00FFC4E6 /* LocationSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelection.swift; sourceTree = "<group>"; };
 		C7260C582585D27C0002A335 /* CreateProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfileView.swift; sourceTree = "<group>"; };
+		C72F3CB82587264A00DDB76C /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		C72F3CBD258726BA00DDB76C /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
 		C7318C902560E1F000E75BE6 /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextInput.swift; sourceTree = "<group>"; };
 		C7493980255663E100D1E8D3 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
@@ -271,6 +275,8 @@
 				C76DEA32255E559C008A9E1B /* Search.swift */,
 				C74BC93E256E1F4C0095A2BA /* AuthView.swift */,
 				C7260C582585D27C0002A335 /* CreateProfileView.swift */,
+				C72F3CB82587264A00DDB76C /* Feed.swift */,
+				C72F3CBD258726BA00DDB76C /* MainAppView.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -582,6 +588,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C74BC926256E17370095A2BA /* SessionStore.swift in Sources */,
+				C72F3CBE258726BA00DDB76C /* MainAppView.swift in Sources */,
 				C75C2F3F255617CA009B6ADA /* CreatePost.swift in Sources */,
 				C75C2F202556166D009B6ADA /* User.swift in Sources */,
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
@@ -601,6 +608,7 @@
 				C7106B072560C7BC00C10EFF /* ActivityIndicator.swift in Sources */,
 				C75C2F1025561359009B6ADA /* MapView.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
+				C72F3CB92587264A00DDB76C /* Feed.swift in Sources */,
 				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
 				C75C2F2A25561711009B6ADA /* AppModel.swift in Sources */,
 				C703670E255764FD00F970DE /* Profile.swift in Sources */,
