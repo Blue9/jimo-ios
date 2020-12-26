@@ -38,6 +38,7 @@ class FeedModel: ObservableObject {
                     self.state = .success
                 } else {
                     // TODO - handle error since non-nil
+                    print(error.debugDescription)
                     self.state = .failure
                 }
             }
@@ -53,18 +54,15 @@ struct FeedBody: View {
         if feedModel.state == .loading {
             ProgressView()
                 .onAppear {
+                    print("On appear")
                     feedModel.refreshFeed()
                 }
-        } else if feedModel.state == .success {
+        } else {
             RefreshableScrollView(refreshing: $feedModel.scrollViewRefresh) {
                 ForEach(feedModel.posts) { post in
                     FeedItem(name: post.user.firstName, profilePicture: post.user.profilePictureUrl, placeName: "Place name", region: "Region name", timeSincePost: "8 min", content: post.content, likeCount: post.likeCount, commentCount: post.commentCount)
                 }
                 Text("You've reached the end!")
-            }
-        } else {
-            Button("Failed to load feed, tap here to try again.") {
-                feedModel.refreshFeed()
             }
         }
     }
@@ -77,7 +75,8 @@ struct Feed: View {
     var body: some View {
         NavigationView {
             FeedBody(feedModel: feedModel)
-                .navigationBarTitle("Feed", displayMode: .inline)
+                .navigationTitle("Feed")
+                .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

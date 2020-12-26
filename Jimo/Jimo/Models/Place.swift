@@ -12,7 +12,6 @@ typealias PlaceId = String
 struct Place: Codable, Identifiable {
     let id = UUID()
     var placeId: PlaceId
-    var category: String
     var location: Location
 }
 

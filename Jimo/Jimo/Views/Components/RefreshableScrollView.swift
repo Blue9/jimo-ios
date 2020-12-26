@@ -54,7 +54,7 @@ struct RefreshableScrollView<Content: View>: View {
             
             // Crossing the threshold on the way down, we start the refresh process
             if !self.refreshing && (self.scrollOffset > self.threshold && self.previousScrollOffset <= self.threshold) {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                 self.refreshing = true
             }
             

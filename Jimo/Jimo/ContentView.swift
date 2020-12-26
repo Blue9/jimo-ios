@@ -13,8 +13,8 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             if (!model.initialized) {
-                Text("Loading...")
-                    .transition(.slide)
+                Image("splash")
+//                    .transition(.slide)
             } else if (model.firebaseSession == nil) {
                 // Firebase user does not exist
                 AuthView()
@@ -25,10 +25,17 @@ struct ContentView: View {
                     .transition(.opacity)
             } else if (model.loadingUserProfile == .error) {
                 // Firebase user exists, failed while loading user profile
-                Button("Unable to connect to server. Tap here to try again") {
-                    model.loadCurrentUserProfile()
+                VStack {
+                    Button("Unable to connect to server. Tap here to try again") {
+                        model.loadCurrentUserProfile()
+                    }
+                    .transition(.opacity)
+                    
+                    Button("Tap here to sign out") {
+                        model.signOut()
+                    }
+                    .transition(.opacity)
                 }
-                .transition(.opacity)
             } else if (model.currentUser == nil && model.loadingUserProfile == .success) {
                 // Firebase user exists, user profile does not exist
                 CreateProfileView()

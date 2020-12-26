@@ -109,15 +109,16 @@ struct Profile: View {
             RefreshableScrollView(refreshing: $profileVM.refreshing) {
                 navBody
             }
-            .navigationBarTitle("Profile", displayMode: .inline)
-            .navigationBarItems(trailing: Button(action: {
-                withAnimation(.default, {
-                    model.signOut()
+            .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(content: {
+                ToolbarItem(placement: .navigationBarTrailing, content: {
+                    Button("Sign out") {
+                        withAnimation(.default, {
+                            model.signOut()
+                        })
+                    }
                 })
-            }) {
-                Image(systemName: "lock.circle")
-                    .resizable()
-                    .frame(width: 30, height: 30)
             })
         }
     }
@@ -126,7 +127,7 @@ struct Profile: View {
 struct Profile_Previews: PreviewProvider {
     static let sessionStore = SessionStore()
     static let model = AppModel()
-
+    
     static var previews: some View {
         Profile(profileVM: ProfileVM(model: model, username: "gautam"))
             .environmentObject(model)

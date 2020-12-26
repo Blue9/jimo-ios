@@ -20,9 +20,25 @@ struct GoogleSignInButton: View {
                 .frame(height: 50)
                 .foregroundColor(.white)
                 .background(Color.blue)
-                .cornerRadius(25)
+                .cornerRadius(10)
         }
     }
+}
+
+fileprivate struct Colors {
+    static let gradientColors = Gradient(colors: [
+        Color("food"),
+        Color("activity"),
+        Color("attraction"),
+        Color("lodging"),
+        Color("shopping")
+    ])
+    
+    static let linearGradient = LinearGradient(
+        gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
+    
+    static let linearGradientReversed = LinearGradient(
+        gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
 }
 
 struct SignUpView: View {
@@ -57,26 +73,25 @@ struct SignUpView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Welcome to jimō :^)")
+            Image("logo")
+            Text("Welcome to jimō!")
             TextField("Email", text: $email)
                 .padding(12)
-                .background(RoundedRectangle(cornerRadius: 25)
-                                .stroke(style: StrokeStyle(lineWidth: 4))
-                                .foregroundColor(.blue))
+                .background(RoundedRectangle(cornerRadius: 10)
+                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
             
             SecureField("Password", text: $password)
                 .padding(12)
-                .background(RoundedRectangle(cornerRadius: 25)
-                                .stroke(style: StrokeStyle(lineWidth: 4))
-                                .foregroundColor(.blue))
+                .background(RoundedRectangle(cornerRadius: 10)
+                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
             
             Button(action: signUp) {
                 Text("Sign up")
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .frame(height: 50)
                     .foregroundColor(.white)
-                    .background(LinearGradient(gradient: Gradient(colors: [.blue, .green]), startPoint: .leading, endPoint: .trailing))
-                    .cornerRadius(25)
+                    .background(Color("activity"))
+                    .cornerRadius(10)
             }
             
             GoogleSignInButton()
@@ -89,7 +104,8 @@ struct SignUpView: View {
                 .foregroundColor(.red)
         }
         .padding(.horizontal, 48)
-        .navigationBarTitle("Sign up", displayMode: .inline)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Sign up")
     }
 }
 
@@ -111,7 +127,7 @@ struct SignInView: View {
             }
         })
     }
-
+    
     func forgotPassword() {
         model.sessionStore.forgotPassword(email: email, handler: { error in
             print(error?.localizedDescription ?? "guh")
@@ -127,26 +143,25 @@ struct SignInView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Welcome back :^)")
+            Image("logo")
+            Text("Welcome back!")
             TextField("Email", text: $email)
                 .padding(12)
-                .background(RoundedRectangle(cornerRadius: 25)
-                                .stroke(style: StrokeStyle(lineWidth: 4))
-                                .foregroundColor(.blue))
+                .background(RoundedRectangle(cornerRadius: 10)
+                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
             
             SecureField("Password", text: $password)
                 .padding(12)
-                .background(RoundedRectangle(cornerRadius: 25)
-                                .stroke(style: StrokeStyle(lineWidth: 4))
-                                .foregroundColor(.blue))
+                .background(RoundedRectangle(cornerRadius: 10)
+                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
             
             Button(action: signIn) {
                 Text("Sign in")
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .frame(height: 50)
                     .foregroundColor(.white)
-                    .background(LinearGradient(gradient: Gradient(colors: [.blue, .green]), startPoint: .leading, endPoint: .trailing))
-                    .cornerRadius(25)
+                    .background(Color("shopping"))
+                    .cornerRadius(10)
             }
             
             GoogleSignInButton()
@@ -160,7 +175,8 @@ struct SignInView: View {
                 .foregroundColor(.red)
         }
         .padding(.horizontal, 48)
-        .navigationBarTitle("Sign in", displayMode: .inline)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Sign in")
     }
 }
 

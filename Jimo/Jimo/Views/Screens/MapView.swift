@@ -52,7 +52,7 @@ struct Filter: View {
             HStack(spacing: 20) {
                 CategoryFilterButton(name: "Food", imageName: "food", color: #colorLiteral(red: 0.9450980392, green: 0.4941176471, blue: 0.3960784314, alpha: 1))
                 CategoryFilterButton(name: "Activity", imageName: "activity", color: #colorLiteral(red: 0.6, green: 0.7333333333, blue: 0.3137254902, alpha: 1))
-                CategoryFilterButton(name: "Attraction", imageName: "attractions", color: #colorLiteral(red: 0.3294117647, green: 0.7254901961, blue: 0.7098039216, alpha: 1))
+                CategoryFilterButton(name: "Attraction", imageName: "attraction", color: #colorLiteral(red: 0.3294117647, green: 0.7254901961, blue: 0.7098039216, alpha: 1))
                 CategoryFilterButton(name: "Lodging", imageName: "lodging", color: #colorLiteral(red: 0.9843137255, green: 0.7294117647, blue: 0.462745098, alpha: 1))
                 CategoryFilterButton(name: "Shopping", imageName: "shopping", color: #colorLiteral(red: 1, green: 0.6, blue: 0.7568627451, alpha: 1))
             }

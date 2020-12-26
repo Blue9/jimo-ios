@@ -11,35 +11,35 @@ import MapKit
 
 struct Category: View {
     var name: String
-    var imageName: String
-    var color: CGColor
-    @Binding var selected: String
+    var key: String {
+        name.lowercased()
+    }
+    @Binding var selected: String?
+    
+    var colored: Bool {
+        selected == nil || selected == key
+    }
     
     var body: some View {
         HStack {
-            ZStack {
-                RoundedRectangle(cornerRadius: 5)
-                    .foregroundColor(self.selected == name ? Color(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.09685359589)) : .clear)
-                    .frame(width: 60, height: 90, alignment: .leading)
-                VStack {
-                    Image(imageName)
-                        .frame(width: 60, height: 60, alignment: .center)
-                        .background(Color(color))
-                        .cornerRadius(15)
-                    Text(name)
-                        .font(.caption)
-                }
+            VStack {
+                Image(key)
+                    .frame(width: 60, height: 60, alignment: .center)
+                    .background(colored ? Color(key) : Color("unselected"))
+                    .cornerRadius(15)
+                Text(name)
+                    .font(.caption)
             }
             Spacer()
         }
         .onTapGesture {
-            self.selected = name
+            self.selected = key
         }
     }
 }
 
 struct CategoryPicker: View {
-    @Binding var category: String
+    @Binding var category: String?
     
     var body: some View {
         VStack {
@@ -49,11 +49,11 @@ struct CategoryPicker: View {
                 Spacer()
             }
             HStack {
-                Category(name: "Food", imageName: "food", color: #colorLiteral(red: 0.9450980392, green: 0.4941176471, blue: 0.3960784314, alpha: 1), selected: $category)
-                Category(name: "Activity", imageName: "activity", color: #colorLiteral(red: 0.6, green: 0.7333333333, blue: 0.3137254902, alpha: 1), selected: $category)
-                Category(name: "Attraction", imageName: "attractions", color: #colorLiteral(red: 0.3294117647, green: 0.7254901961, blue: 0.7098039216, alpha: 1), selected: $category)
-                Category(name: "Lodging", imageName: "lodging", color: #colorLiteral(red: 0.9843137255, green: 0.7294117647, blue: 0.462745098, alpha: 1), selected: $category)
-                Category(name: "Shopping", imageName: "shopping", color: #colorLiteral(red: 1, green: 0.6, blue: 0.7568627451, alpha: 1), selected: $category)
+                Category(name: "Food", selected: $category)
+                Category(name: "Activity", selected: $category)
+                Category(name: "Attraction", selected: $category)
+                Category(name: "Lodging", selected: $category)
+                Category(name: "Shopping", selected: $category)
             }
         }
     }
@@ -69,20 +69,16 @@ struct FormInputButton: View {
     
     var body: some View {
         Text(content ?? name)
-            .fontWeight(content != nil ? .semibold : .medium)
+            .fontWeight(content != nil ? .regular : .medium)
             .frame(maxWidth: .infinity, minHeight: height, alignment: .leading)
             .padding(.leading)
             .padding(.trailing, 40)
-            .foregroundColor(content != nil ? .black : Color(#colorLiteral(red: 0.5098039216, green: 0.5098039216, blue: 0.5098039216, alpha: 1)))
-            .background(Color(#colorLiteral(red: 0.9529411765, green: 0.9529411765, blue: 0.9529411765, alpha: 1)))
-            .overlay(Rectangle().frame(height: 1, alignment: .top).foregroundColor(Color(#colorLiteral(red: 0.7843137255, green: 0.7843137255, blue: 0.7843137255, alpha: 1))), alignment: .top)
-            .overlay(Rectangle().frame(height: 1, alignment: .bottom).foregroundColor(Color(#colorLiteral(red: 0.7843137255, green: 0.7843137255, blue: 0.7843137255, alpha: 1))), alignment: .bottom)
+            .foregroundColor(.black)
             .overlay(content == nil ? nil : Button(action: clearAction) {
                 Image(systemName: "xmark.circle")
                     .foregroundColor(.gray)
                     .padding(.trailing)
             }, alignment: .trailing)
-            .padding(.bottom, 5)
     }
 }
 
@@ -95,9 +91,6 @@ struct FormInputText: View {
         MultilineTextField(name, text: $text, height: height)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color(#colorLiteral(red: 0.9529411765, green: 0.9529411765, blue: 0.9529411765, alpha: 1)))
-            .overlay(Rectangle().frame(height: 1, alignment: .top).foregroundColor(Color(#colorLiteral(red: 0.7843137255, green: 0.7843137255, blue: 0.7843137255, alpha: 1))), alignment: .top)
-            .overlay(Rectangle().frame(height: 1, alignment: .bottom).foregroundColor(Color(#colorLiteral(red: 0.7843137255, green: 0.7843137255, blue: 0.7843137255, alpha: 1))), alignment: .bottom)
             .padding(.bottom, 5)
     }
 }
@@ -122,8 +115,14 @@ class CreatePostVM: ObservableObject {
     
     /// If true, either case 2 or case 4
     @Published var customLocation = false
+    
+    /// Used for navigation links
     @Published var placeSearchActive = false
     @Published var locationSearchActive = false
+    
+    /// Photo selection
+    @Published var showImagePicker = false
+    @Published var image: UIImage?
     
     // Sent to server
     @Published var name: String? = nil
@@ -173,54 +172,121 @@ class CreatePostVM: ObservableObject {
     }
 }
 
+struct CreatePostDivider: View {
+    var body: some View {
+        Divider()
+            .background(Color.gray)
+            .padding(.horizontal, 15)
+    }
+}
+
 
 struct CreatePost: View {
-    @State var category: String = ""
+    @State var category: String? = nil
     @State var content: String = ""
     @ObservedObject var createPostVM = CreatePostVM()
-    @Environment(\.presentationMode) var presentationMode
+    
+    @Binding var presented: Bool
+    
+    var buttonColor: Color {
+        if let category = category {
+            return Color(category)
+        } else {
+            return Color(#colorLiteral(red: 0.9529411765, green: 0.9529411765, blue: 0.9529411765, alpha: 0.9921568627))
+        }
+    }
     
     var body: some View {
         NavigationView {
-            VStack {
+            VStack(spacing: 0) {
                 CategoryPicker(category: $category)
                     .padding()
-                NavigationLink(
-                    destination: PlaceSearch(
-                        active: $createPostVM.placeSearchActive,
-                        selectPlace: createPostVM.selectPlace),
-                    isActive: $createPostVM.placeSearchActive) {
-                    FormInputButton(
-                        name: "Name",
-                        content: createPostVM.name,
-                        clearAction: createPostVM.resetName)
+                Group {
+                    NavigationLink(
+                        destination: PlaceSearch(
+                            active: $createPostVM.placeSearchActive,
+                            selectPlace: createPostVM.selectPlace),
+                        isActive: $createPostVM.placeSearchActive) {
+                        FormInputButton(
+                            name: "Name",
+                            content: createPostVM.name,
+                            clearAction: createPostVM.resetName)
+                    }
+                    
+                    CreatePostDivider()
+                    
+                    NavigationLink(
+                        destination: LocationSelection(
+                            mapRegion: createPostVM.mapRegion,
+                            active: $createPostVM.locationSearchActive,
+                            afterConfirm: createPostVM.selectLocation),
+                        isActive: $createPostVM.locationSearchActive) {
+                        FormInputButton(
+                            name: "Location",
+                            content: createPostVM.locationString,
+                            clearAction: createPostVM.resetLocation)
+                    }
+                    
+                    CreatePostDivider()
+                    
+                    FormInputText(name: "Write a Note (Recommended)", text: $content)
+                    
+                    CreatePostDivider()
+                    
+                    FormInputButton(name: "Photo (Recommended)", clearAction: {})
+                    
+                    ZStack(alignment: .top) {
+                        if let image = createPostVM.image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 340, height: 200)
+                                .cornerRadius(20)
+                                .contentShape(Rectangle())
+                            RoundedButton(text: Text("Remove"), action: {
+                                createPostVM.image = nil
+                            }, backgroundColor: buttonColor)
+                            .frame(width: 100, height: 30)
+                            .padding(.top, 10)
+                        } else {
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(Color.gray.opacity(0.2))
+                        }
+                    }
+                    .frame(width: 340, height: 200)
+                    // .padding(.horizontal, 30)
+                    .padding(.vertical, 10)
+                    .onTapGesture {
+                        createPostVM.showImagePicker = true
+                    }
                 }
-                NavigationLink(
-                    destination: LocationSelection(
-                        mapRegion: createPostVM.mapRegion,
-                        active: $createPostVM.locationSearchActive,
-                        afterConfirm: createPostVM.selectLocation),
-                    isActive: $createPostVM.locationSearchActive) {
-                    FormInputButton(
-                        name: "Location",
-                        content: createPostVM.locationString,
-                        clearAction: createPostVM.resetLocation)
-                }
-                FormInputText(name: "Content", text: $content)
-                FormInputButton(name: "Photo (Optional)", clearAction: {})
                 Spacer()
-                RoundedButton(text: "Add Pin", action: {})
+                
+                RoundedButton(text: Text("Add Pin").fontWeight(.bold),
+                              action: {}, backgroundColor: buttonColor)
+                    .frame(width: 340, height: 60, alignment: .center)
                     .padding(.bottom, 40)
+                
             }
-            .navigationBarTitle("Create Post", displayMode: .inline)
-            .navigationBarItems(leading: Button("Cancel") { self.presentationMode.wrappedValue.dismiss()
+            .navigationTitle("Create Post")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(content: {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        self.presented.toggle()
+                    }
+                }
             })
+            .sheet(isPresented: $createPostVM.showImagePicker) {
+                ImagePicker(image: $createPostVM.image)
+                    .preferredColorScheme(.light)
+            }
         }
     }
 }
 
 struct CreatePost_Previews: PreviewProvider {
     static var previews: some View {
-        CreatePost()
+        CreatePost(presented: .constant(true))
     }
 }

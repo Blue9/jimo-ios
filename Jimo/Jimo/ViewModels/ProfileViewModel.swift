@@ -27,7 +27,9 @@ class ProfileVM: ObservableObject {
             DispatchQueue.main.async {
                 self.failedToLoad = user == nil
                 self.refreshing = false
-                self.user = user
+                if user != nil {
+                    self.user = user
+                }
             }
         })
     }

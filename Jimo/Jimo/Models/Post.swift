@@ -14,6 +14,7 @@ struct Post: Codable, Identifiable {
     var postId: PostId
     var user: User
     var place: Place
+    var category: String
     var content: String
     var imageUrl: String?
     //var createdAt: Date

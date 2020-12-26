@@ -10,11 +10,12 @@ import SwiftUI
 class TabBar: ObservableObject {
     let newPostIndex = 3
     
-    var newPostSelected = false
+    @Published var newPostSelected = false
     var previousSelection: Int
     
     @Published var selection: Int {
         didSet {
+            print("Selecting " + String(selection) + " old " + String(oldValue))
             if selection == newPostIndex {
                 previousSelection = oldValue
                 selection = oldValue
@@ -39,8 +40,6 @@ enum NewPostType {
 
 struct MainAppView: View {
     @ObservedObject var tabBar = TabBar()
-    @State var showNewPostSheet = false
-    @State var newPostType: NewPostType = .full
     @EnvironmentObject var model: AppModel
     
     let profileVM: ProfileVM
@@ -79,34 +78,10 @@ struct MainAppView: View {
                 }
                 .tag(5)
         }
-        .accentColor(.orange)
-        .actionSheet(isPresented: $tabBar.newPostSelected) {
-            ActionSheet(title: Text("New post"),
-                        message: Text("What type of post would you like to create?"),
-                        buttons: [
-                            .default(Text("New text post"), action: newTextPost),
-                            .default(Text("New recommendation"), action: newRecommendation),
-                            .cancel(Text("Cancel"), action: tabBar.reset)])
+        .sheet(isPresented: $tabBar.newPostSelected) {
+            return CreatePost(presented: $tabBar.newPostSelected)
+                .preferredColorScheme(.light)
         }
-        .sheet(isPresented: $showNewPostSheet) {
-            if newPostType == .text {
-                Text("Create text post")
-            } else { // newPostType == .full
-                CreatePost()
-            }
-        }
-    }
-    
-    func newTextPost() {
-        newPostType = .text
-        showNewPostSheet = true
-        tabBar.reset()
-    }
-    
-    func newRecommendation() {
-        newPostType = .full
-        showNewPostSheet = true
-        tabBar.reset()
     }
 }
 

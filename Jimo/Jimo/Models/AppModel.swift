@@ -18,6 +18,10 @@ struct Endpoint {
         return Endpoint(path: "/me")
     }
     
+    static func createUser() -> Endpoint {
+        return Endpoint(path: "/users/")
+    }
+    
     static func user(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)")
     }
@@ -26,10 +30,14 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/feed")
     }
     
+    static func likePost(postId: String) -> Endpoint {
+        return Endpoint(path: "/posts/\(postId)/likes")
+    }
+    
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "http"
-        apiURL.host = "localhost"
+        apiURL.host = "192.168.1.160"
         apiURL.port = 8000
         apiURL.path = path
         return apiURL.url
@@ -136,7 +144,7 @@ class AppModel: ObservableObject {
      
      - Returns: The URLRequest object.
      */
-    func buildRequest(url: URL, token: String, httpMethod: String = "GET") -> URLRequest {
+    func buildRequest(url: URL, token: String, httpMethod: String) -> URLRequest {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = httpMethod
@@ -149,7 +157,7 @@ class AppModel: ObservableObject {
      - Parameter endpoint: The endpoint.
      - Parameter onComplete: The result handler. Exactly one of the two parameters will be non-nil.
      */
-    func doRequest<T: Codable>(endpoint: Endpoint, onComplete: @escaping (T?, RequestError?) -> Void) {
+    func doRequest<T: Codable>(endpoint: Endpoint, httpMethod: String = "GET", body: Codable? = nil, onComplete: @escaping (T?, RequestError?) -> Void) {
         guard let url = endpoint.url else {
             onComplete(nil, RequestError.endpointError)
             return
@@ -160,7 +168,7 @@ class AppModel: ObservableObject {
                 onComplete(nil, RequestError.tokenError)
                 return
             }
-            let request = self.buildRequest(url: url, token: token)
+            let request = self.buildRequest(url: url, token: token, httpMethod: httpMethod)
             URLSession.shared.dataTask(with: request) {(data, response, error) in
                 guard let response = response as? HTTPURLResponse else {
                     print("Did not get response from server")
@@ -230,6 +238,14 @@ class AppModel: ObservableObject {
             print("Already logged out")
         }
         self.currentUser = nil
+    }
+    
+    /**
+     Get the user with the given username and pass the result into the given handler.
+     */
+    func createUser(_ request: CreateUserRequest, onComplete: @escaping (CreateUserResponse?, RequestError?) -> Void) {
+        let endpoint = Endpoint.createUser()
+        doRequest(endpoint: endpoint, onComplete: onComplete)
     }
     
     /**

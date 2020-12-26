@@ -94,8 +94,7 @@ struct MultilineTextField: View {
             if showingPlaceholder {
                 Text(placeholder)
                     .fontWeight(.medium)
-                    .foregroundColor(Color(#colorLiteral(red: 0.5098039216, green: 0.5098039216, blue: 0.5098039216, alpha: 1)))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.black)
                     .padding(.leading, 4)
                     .padding(.top, 8)
             }

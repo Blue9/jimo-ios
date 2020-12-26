@@ -19,3 +19,23 @@ struct User: Codable, Identifiable {
     var followerCount: Int
     var followingCount: Int
 }
+
+
+struct CreateUserRequest: Codable {
+    var username: String
+    var firstName: String
+    var lastName: String
+}
+
+
+struct UserFieldError: Codable {
+    var username: String?
+    var firstName: String?
+    var lastName: String?
+}
+
+
+struct CreateUserResponse: Codable {
+    var created: Bool
+    var error: UserFieldError?
+}

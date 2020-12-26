@@ -28,7 +28,8 @@ struct Search: View {
                 .pickerStyle(SegmentedPickerStyle())
                 Spacer()
             }
-            .navigationBarTitle("Search", displayMode: .inline)
+            .navigationTitle("Search")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
