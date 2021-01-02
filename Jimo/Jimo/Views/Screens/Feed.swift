@@ -7,60 +7,42 @@
 
 import SwiftUI
 
-enum FeedState {
-    case loading, success, failure
-}
-
-class FeedModel: ObservableObject {
-    @Published var posts: [Post] = []
+class FeedViewState: ObservableObject {
+    var postModel: PostModel
+    
+    init(postModel: PostModel) {
+        self.postModel = postModel
+    }
     
     @Published var scrollViewRefresh = false {
         didSet {
             if oldValue == false && scrollViewRefresh == true {
-                self.refreshFeed()
+                print("Refreshing")
+                postModel.refreshFeed(then: { error in
+                    // TODO show error toast if error not nil
+                    self.scrollViewRefresh = false
+                })
             }
         }
-    }
-    @Published var state: FeedState = .loading
-    let model: AppModel
-    
-    init(model: AppModel) {
-        self.model = model
-    }
-    
-    func refreshFeed() {
-        model.getFeed(onComplete: { posts, error in
-            DispatchQueue.main.async {
-                self.scrollViewRefresh = false
-                if let posts = posts {
-                    print("Number of posts", posts.count)
-                    self.posts = posts
-                    self.state = .success
-                } else {
-                    // TODO - handle error since non-nil
-                    print(error.debugDescription)
-                    self.state = .failure
-                }
-            }
-        })
     }
 }
 
 struct FeedBody: View {
     @EnvironmentObject var model: AppModel
-    @ObservedObject var feedModel: FeedModel
+    @EnvironmentObject var postModel: PostModel
+    @ObservedObject var feedState: FeedViewState
     
     var body: some View {
-        if feedModel.state == .loading {
+        if postModel.feedState == .initializing {
+            Text(postModel.feedState == .initializing ? "Init" : "Done")
             ProgressView()
                 .onAppear {
-                    print("On appear")
-                    feedModel.refreshFeed()
+                    postModel.refreshFeed(then: { error in })
                 }
         } else {
-            RefreshableScrollView(refreshing: $feedModel.scrollViewRefresh) {
-                ForEach(feedModel.posts) { post in
-                    FeedItem(name: post.user.firstName, profilePicture: post.user.profilePictureUrl, placeName: "Place name", region: "Region name", timeSincePost: "8 min", content: post.content, likeCount: post.likeCount, commentCount: post.commentCount)
+            RefreshableScrollView(refreshing: $feedState.scrollViewRefresh) {
+                ForEach(postModel.feed) { post in
+                    FeedItem(post: post)
                 }
                 Text("You've reached the end!")
             }
@@ -69,12 +51,11 @@ struct FeedBody: View {
 }
 
 struct Feed: View {
-    @EnvironmentObject var model: AppModel
-    @ObservedObject var feedModel: FeedModel
+    @EnvironmentObject var postModel: PostModel
 
     var body: some View {
         NavigationView {
-            FeedBody(feedModel: feedModel)
+            FeedBody(feedState: FeedViewState(postModel: postModel))
                 .navigationTitle("Feed")
                 .navigationBarTitleDisplayMode(.inline)
         }
@@ -84,6 +65,6 @@ struct Feed: View {
 struct Feed_Previews: PreviewProvider {
     static let model = AppModel()
     static var previews: some View {
-        Feed(feedModel: FeedModel(model: model)).environmentObject(model)
+        Feed().environmentObject(model).environmentObject(PostModel(model: model, state: .initializing))
     }
 }

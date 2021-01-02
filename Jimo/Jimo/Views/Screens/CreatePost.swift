@@ -27,6 +27,7 @@ struct Category: View {
                     .frame(width: 60, height: 60, alignment: .center)
                     .background(colored ? Color(key) : Color("unselected"))
                     .cornerRadius(15)
+                    .shadow(radius: colored ? 5 : 0)
                 Text(name)
                     .font(.caption)
             }
@@ -100,6 +101,7 @@ class CreatePostVM: ObservableObject {
     /// 4 cases: (1) name and location from apple, (2) name from apple but custom location, (3) custom name but location from apple,  (4) both custom
     
     var mapRegion: MKCoordinateRegion {
+        let location = useCustomLocation ? customLocation : selectedLocation
         if let place = location {
             return MKCoordinateRegion(
                 center: place.coordinate,
@@ -109,12 +111,8 @@ class CreatePostVM: ObservableObject {
         }
     }
     
-    /// Set when user searches and selects a location
-    /// If non-nil, then case 1 or 3
-    var lastSearchedPlace: MKMapItem? = nil
-    
     /// If true, either case 2 or case 4
-    @Published var customLocation = false
+    @Published var useCustomLocation = false
     
     /// Used for navigation links
     @Published var placeSearchActive = false
@@ -126,32 +124,47 @@ class CreatePostVM: ObservableObject {
     
     // Sent to server
     @Published var name: String? = nil
-    @Published var location: MKPlacemark? = nil
+    
+    /// Set when user searches and selects a location
+    /// If non-nil, then case 1 or 3
+    @Published var selectedLocation: MKPlacemark? = nil
+    @Published var customLocation: MKPlacemark? = nil
     
     var locationString: String? {
-        return customLocation ? "Custom location (View on map)" : lastSearchedPlaceAddress
+        return useCustomLocation ? "Custom location (View on map)" : selectedPlaceAddress
     }
     
-    var lastSearchedPlaceAddress: String? {
+    var selectedPlaceAddress: String? {
         /// For whatever reason, the default placemark title is "United States"
         /// Example: Mount Everest Base Camp has placemark title "United States"
         /// WTF Apple
-        if lastSearchedPlace?.placemark.title == "United States" {
+        if selectedLocation?.title == "United States" {
             return "View on map"
         }
-        return lastSearchedPlace?.placemark.title
+        return selectedLocation?.title
+    }
+    
+    var maybeCreatePlaceRequest: MaybeCreatePlaceRequest? {
+        guard let name = name, let location = selectedLocation else {
+            return nil
+        }
+        var region: Region? = nil
+        if let placemark = selectedLocation,
+           let area = placemark.region as? CLCircularRegion {
+            region = Region(coord: placemark.coordinate, radius: area.radius.magnitude)
+        }
+        return MaybeCreatePlaceRequest(name: name, location: Location(coord: location.coordinate), region: region)
     }
     
     func selectPlace(placeSelection: MKMapItem) {
-        customLocation = false
-        lastSearchedPlace = placeSelection
-        location = placeSelection.placemark
+        useCustomLocation = false
+        selectedLocation = placeSelection.placemark
         name = placeSelection.name
     }
     
     func selectLocation(selectionRegion: MKCoordinateRegion) {
-        location = MKPlacemark(coordinate: selectionRegion.center)
-        customLocation = true
+        customLocation = MKPlacemark(coordinate: selectionRegion.center)
+        useCustomLocation = true
     }
     
     func resetName() {
@@ -159,15 +172,13 @@ class CreatePostVM: ObservableObject {
     }
     
     func resetLocation() {
-        if customLocation, let place = lastSearchedPlace {
-            customLocation = false
-            location = place.placemark
+        if useCustomLocation {
+            useCustomLocation = false
+            customLocation = nil
         } else {
             // Either there is no searched location or we are already on it
             // In that case clear the location and the search
-            customLocation = false
-            location = nil
-            lastSearchedPlace = nil
+            selectedLocation = nil
         }
     }
 }
@@ -182,11 +193,20 @@ struct CreatePostDivider: View {
 
 
 struct CreatePost: View {
-    @State var category: String? = nil
-    @State var content: String = ""
-    @ObservedObject var createPostVM = CreatePostVM()
+    @EnvironmentObject var model: AppModel
+    @EnvironmentObject var postModel: PostModel
+    @StateObject var createPostVM = CreatePostVM()
     
     @Binding var presented: Bool
+    
+    @State var category: String? = nil
+    @State var content: String = ""
+    
+    @State var showError = false
+    @State var errorMessage = ""
+    
+    @State var showSuccess = false
+    @State var successMessage = "Success!"
     
     var buttonColor: Color {
         if let category = category {
@@ -196,77 +216,111 @@ struct CreatePost: View {
         }
     }
     
+    func createPost() {
+        hideKeyboard()
+        guard let category = category else {
+            errorMessage = "Category is required"
+            showError = true
+            return
+        }
+        guard let createPlaceRequest = createPostVM.maybeCreatePlaceRequest else {
+            errorMessage = "Name and location are required"
+            showError = true
+            return
+        }
+        let customLocation = createPostVM.customLocation.map({ location in Location(coord: location.coordinate) })
+        let createPostRequest = CreatePostRequest(
+            place: createPlaceRequest,
+            category: category,
+            content: content,
+            imageUrl: nil,
+            customLocation: customLocation)
+        postModel.createPost(createPostRequest, then: { error in
+            if error == nil {
+                showSuccess = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    presented = false
+                }
+            } else {
+                errorMessage = "Could not create post"
+                showError = true
+            }
+        })
+    }
+    
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                CategoryPicker(category: $category)
-                    .padding()
-                Group {
-                    NavigationLink(
-                        destination: PlaceSearch(
-                            active: $createPostVM.placeSearchActive,
-                            selectPlace: createPostVM.selectPlace),
-                        isActive: $createPostVM.placeSearchActive) {
-                        FormInputButton(
-                            name: "Name",
-                            content: createPostVM.name,
-                            clearAction: createPostVM.resetName)
-                    }
-                    
-                    CreatePostDivider()
-                    
-                    NavigationLink(
-                        destination: LocationSelection(
-                            mapRegion: createPostVM.mapRegion,
-                            active: $createPostVM.locationSearchActive,
-                            afterConfirm: createPostVM.selectLocation),
-                        isActive: $createPostVM.locationSearchActive) {
-                        FormInputButton(
-                            name: "Location",
-                            content: createPostVM.locationString,
-                            clearAction: createPostVM.resetLocation)
-                    }
-                    
-                    CreatePostDivider()
-                    
-                    FormInputText(name: "Write a Note (Recommended)", text: $content)
-                    
-                    CreatePostDivider()
-                    
-                    FormInputButton(name: "Photo (Recommended)", clearAction: {})
-                    
-                    ZStack(alignment: .top) {
-                        if let image = createPostVM.image {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 340, height: 200)
-                                .cornerRadius(20)
-                                .contentShape(Rectangle())
-                            RoundedButton(text: Text("Remove"), action: {
-                                createPostVM.image = nil
-                            }, backgroundColor: buttonColor)
-                            .frame(width: 100, height: 30)
-                            .padding(.top, 10)
-                        } else {
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .fill(Color.gray.opacity(0.2))
+            ZStack {
+                VStack(spacing: 0) {
+                    CategoryPicker(category: $category)
+                        .padding()
+                    Group {
+                        NavigationLink(
+                            destination: PlaceSearch(
+                                active: $createPostVM.placeSearchActive,
+                                selectPlace: createPostVM.selectPlace),
+                            isActive: $createPostVM.placeSearchActive) {
+                            FormInputButton(
+                                name: "Name",
+                                content: createPostVM.name,
+                                clearAction: createPostVM.resetName)
+                        }
+                        
+                        CreatePostDivider()
+                        
+                        NavigationLink(
+                            destination: LocationSelection(
+                                mapRegion: createPostVM.mapRegion,
+                                active: $createPostVM.locationSearchActive,
+                                afterConfirm: createPostVM.selectLocation),
+                            isActive: $createPostVM.locationSearchActive) {
+                            FormInputButton(
+                                name: "Location",
+                                content: createPostVM.locationString,
+                                clearAction: createPostVM.resetLocation)
+                        }
+                        
+                        CreatePostDivider()
+                        
+                        FormInputText(name: "Write a Note (Recommended)", text: $content)
+                        
+                        CreatePostDivider()
+                        
+                        FormInputButton(name: "Photo (Recommended)", clearAction: {})
+                        
+                        ZStack(alignment: .top) {
+                            if let image = createPostVM.image {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 340, height: 200)
+                                    .cornerRadius(20)
+                                    .contentShape(Rectangle())
+                                RoundedButton(text: Text("Remove"), action: {
+                                    createPostVM.image = nil
+                                }, backgroundColor: buttonColor)
+                                .frame(width: 100, height: 30)
+                                .padding(.top, 10)
+                            } else {
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .fill(Color.gray.opacity(0.2))
+                            }
+                        }
+                        .frame(width: 340, height: 200)
+                        // .padding(.horizontal, 30)
+                        .padding(.vertical, 10)
+                        .onTapGesture {
+                            createPostVM.showImagePicker = true
                         }
                     }
-                    .frame(width: 340, height: 200)
-                    // .padding(.horizontal, 30)
-                    .padding(.vertical, 10)
-                    .onTapGesture {
-                        createPostVM.showImagePicker = true
-                    }
+                    Spacer()
+                    
+                    RoundedButton(text: Text("Add Pin").fontWeight(.bold),
+                                  action: self.createPost, backgroundColor: buttonColor)
+                        .frame(width: 340, height: 60, alignment: .center)
+                        .padding(.bottom, 40)
+                    
                 }
-                Spacer()
-                
-                RoundedButton(text: Text("Add Pin").fontWeight(.bold),
-                              action: {}, backgroundColor: buttonColor)
-                    .frame(width: 340, height: 60, alignment: .center)
-                    .padding(.bottom, 40)
-                
             }
             .navigationTitle("Create Post")
             .navigationBarTitleDisplayMode(.inline)
@@ -277,6 +331,12 @@ struct CreatePost: View {
                     }
                 }
             })
+            .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
+                Toast(text: errorMessage, type: .error)
+            }
+            .popup(isPresented: $showSuccess, type: .toast, autohideIn: 2) {
+                Toast(text: successMessage, type: .success)
+            }
             .sheet(isPresented: $createPostVM.showImagePicker) {
                 ImagePicker(image: $createPostVM.image)
                     .preferredColorScheme(.light)
@@ -287,6 +347,6 @@ struct CreatePost: View {
 
 struct CreatePost_Previews: PreviewProvider {
     static var previews: some View {
-        CreatePost(presented: .constant(true))
+        CreatePost(presented: .constant(true)).environmentObject(AppModel())
     }
 }

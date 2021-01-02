@@ -14,11 +14,13 @@ struct JimoApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
+    let model = AppModel()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(AppModel())
+                .environmentObject(model)
+                .environmentObject(PostModel(model: model, state: .initializing))
                 .preferredColorScheme(.light)
         }
     }

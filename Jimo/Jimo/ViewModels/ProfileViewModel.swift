@@ -10,6 +10,7 @@ import Foundation
 
 class ProfileVM: ObservableObject {
     @Published var user: User? = nil
+    @Published var posts: [Post]? = nil
     @Published var refreshing = false {
         didSet {
             if oldValue == false && refreshing == true {
@@ -23,13 +24,21 @@ class ProfileVM: ObservableObject {
     let model: AppModel
     
     func refresh() {
-        self.model.getUser(username: username, onComplete: { user, error in
+        model.getUser(username: username, onComplete: { user, error in
             DispatchQueue.main.async {
                 self.failedToLoad = user == nil
                 self.refreshing = false
                 if user != nil {
                     self.user = user
                 }
+            }
+        })
+        // TODO fix the logic here, should handle both at once
+        model.getPosts(username: username, onComplete: { posts, error in
+            DispatchQueue.main.async {
+                print("Loaded posts")
+                self.posts = posts
+                // TODO handle error
             }
         })
     }

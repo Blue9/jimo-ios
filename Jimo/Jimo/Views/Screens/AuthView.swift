@@ -9,12 +9,16 @@ import SwiftUI
 import Firebase
 import GoogleSignIn
 
+
 struct GoogleSignInButton: View {
+    
+    func signIn() {
+        GIDSignIn.sharedInstance()?.presentingViewController = UIApplication.shared.windows.first?.rootViewController
+        GIDSignIn.sharedInstance()?.signIn()
+    }
+    
     var body: some View {
-        Button(action: {
-            GIDSignIn.sharedInstance()?.presentingViewController = UIApplication.shared.windows.first?.rootViewController
-            GIDSignIn.sharedInstance()?.signIn()
-        }) {
+        Button(action: self.signIn) {
             Text("Sign in with Google")
                 .frame(minWidth: 0, maxWidth: .infinity)
                 .frame(height: 50)
@@ -25,30 +29,17 @@ struct GoogleSignInButton: View {
     }
 }
 
-fileprivate struct Colors {
-    static let gradientColors = Gradient(colors: [
-        Color("food"),
-        Color("activity"),
-        Color("attraction"),
-        Color("lodging"),
-        Color("shopping")
-    ])
-    
-    static let linearGradient = LinearGradient(
-        gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
-    
-    static let linearGradientReversed = LinearGradient(
-        gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
-}
 
 struct SignUpView: View {
     @State var email = ""
     @State var password = ""
-    @State var error = " "
+    @State var error = ""
+    @State var showError = false
     
     @EnvironmentObject var model: AppModel
     
     func signUp() {
+        hideKeyboard()
         model.sessionStore.signUp(email: email, password: password, handler: { (result, error) in
             if let error = error {
                 let code = (error as NSError).code
@@ -63,47 +54,52 @@ struct SignUpView: View {
                     self.error = error.localizedDescription
                     break
                 }
+                showError = true
             } else {
                 self.email = ""
                 self.password = ""
-                self.error = " "
+                self.error = ""
             }
         })
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image("logo")
-            Text("Welcome to jimō!")
-            TextField("Email", text: $email)
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 10)
-                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
-            
-            SecureField("Password", text: $password)
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 10)
-                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
-            
-            Button(action: signUp) {
-                Text("Sign up")
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .frame(height: 50)
-                    .foregroundColor(.white)
-                    .background(Color("activity"))
-                    .cornerRadius(10)
+        ZStack {
+            VStack(spacing: 20) {
+                Image("logo")
+                    .aspectRatio(contentMode: .fit)
+
+                Text("Welcome to jimō!")
+                TextField("Email", text: $email)
+                    .padding(12)
+                    .background(RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
+                
+                SecureField("Password", text: $password)
+                    .padding(12)
+                    .background(RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
+                
+                Button(action: signUp) {
+                    Text("Sign up")
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .frame(height: 50)
+                        .foregroundColor(.white)
+                        .background(Color("activity"))
+                        .cornerRadius(10)
+                }
+
+                GoogleSignInButton()
+
+                NavigationLink(destination: SignInView()) {
+                    Text("Already have an account?")
+                }
             }
-            
-            GoogleSignInButton()
-            
-            NavigationLink(destination: SignInView()) {
-                Text("Already have an account?")
-            }
-            
-            Text(error)
-                .foregroundColor(.red)
+            .padding(.horizontal, 24)
         }
-        .padding(.horizontal, 48)
+        .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
+            Toast(text: error, type: .error)
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Sign up")
     }
@@ -112,69 +108,84 @@ struct SignUpView: View {
 struct SignInView: View {
     @State var email = ""
     @State var password = ""
-    @State var error = " "
+    @State var error = ""
+    @State var showError = false
+    @State var showForgotPasswordSuccess = false
     
     @EnvironmentObject var model: AppModel
     
+    func setError(_ error: String) {
+        showError = true
+        self.error = error
+    }
+    
     func signIn() {
+        hideKeyboard()
         model.sessionStore.signIn(email: email, password: password, handler: { (result, error) in
             if error != nil {
-                self.error = "Invalid email or password. Try again."
+                setError("Invalid email or password. Try again.")
             } else {
                 self.email = ""
                 self.password = ""
-                self.error = " "
+                self.error = ""
             }
         })
     }
     
     func forgotPassword() {
+        hideKeyboard()
         model.sessionStore.forgotPassword(email: email, handler: { error in
-            print(error?.localizedDescription ?? "guh")
             if let error = error {
-                self.error = error.localizedDescription
+                setError(error.localizedDescription)
             } else {
                 self.email = ""
                 self.password = ""
-                self.error = "Check your email for password recovery instructions"
+                showForgotPasswordSuccess = true
             }
         })
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image("logo")
-            Text("Welcome back!")
-            TextField("Email", text: $email)
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 10)
-                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
-            
-            SecureField("Password", text: $password)
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 10)
-                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
-            
-            Button(action: signIn) {
-                Text("Sign in")
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .frame(height: 50)
-                    .foregroundColor(.white)
-                    .background(Color("shopping"))
-                    .cornerRadius(10)
+        ZStack {
+            VStack(spacing: 20) {
+                Image("logo")
+                    .aspectRatio(contentMode: .fit)
+                
+                Text("Welcome back!")
+                TextField("Email", text: $email)
+                    .padding(12)
+                    .background(RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
+                
+                SecureField("Password", text: $password)
+                    .padding(12)
+                    .background(RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
+                
+                Button(action: signIn) {
+                    Text("Sign in")
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .frame(height: 50)
+                        .foregroundColor(.white)
+                        .background(Color("shopping"))
+                        .cornerRadius(10)
+                }
+                
+                GoogleSignInButton()
+                
+                Button(action: forgotPassword) {
+                    Text("Forgot password")
+                        .cornerRadius(25)
+                }
             }
-            
-            GoogleSignInButton()
-            
-            Button(action: forgotPassword) {
-                Text("Forgot password")
-                    .cornerRadius(25)
-            }
-            
-            Text(error)
-                .foregroundColor(.red)
+            .padding(.horizontal, 24)
         }
-        .padding(.horizontal, 48)
+        .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
+            Toast(text: error, type: .error)
+        }
+        .popup(isPresented: $showForgotPasswordSuccess, type: .toast, autohideIn: 2) {
+            Toast(text: "Check your email for password recovery instructions", type: .success)
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Sign in")
     }

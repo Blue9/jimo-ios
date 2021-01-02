@@ -15,7 +15,6 @@ class TabBar: ObservableObject {
     
     @Published var selection: Int {
         didSet {
-            print("Selecting " + String(selection) + " old " + String(oldValue))
             if selection == newPostIndex {
                 previousSelection = oldValue
                 selection = oldValue
@@ -39,15 +38,15 @@ enum NewPostType {
 }
 
 struct MainAppView: View {
-    @ObservedObject var tabBar = TabBar()
     @EnvironmentObject var model: AppModel
+    @EnvironmentObject var postModel: PostModel
+    @ObservedObject var tabBar = TabBar()
     
     let profileVM: ProfileVM
-    let feedModel: FeedModel
     
     var body: some View {
         TabView(selection: $tabBar.selection) {
-            Feed(feedModel: feedModel)
+            Feed()
                 .tabItem {
                     Image(systemName: "house")
                     Text("Home")
@@ -80,6 +79,8 @@ struct MainAppView: View {
         }
         .sheet(isPresented: $tabBar.newPostSelected) {
             return CreatePost(presented: $tabBar.newPostSelected)
+                .environmentObject(model)
+                .environmentObject(postModel)
                 .preferredColorScheme(.light)
         }
     }
@@ -88,7 +89,6 @@ struct MainAppView: View {
 struct MainAppView_Previews: PreviewProvider {
     static let model = AppModel()
     static var previews: some View {
-        MainAppView(profileVM: ProfileVM(model: model, username: "gautam"),
-                    feedModel: FeedModel(model: model))
+        MainAppView(profileVM: ProfileVM(model: model, username: "gautam"))
     }
 }

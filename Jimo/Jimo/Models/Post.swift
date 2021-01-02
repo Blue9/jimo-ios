@@ -22,3 +22,12 @@ struct Post: Codable, Identifiable {
     var likeCount: Int
     var commentCount: Int
 }
+
+
+struct CreatePostRequest: Codable {
+    var place: MaybeCreatePlaceRequest
+    var category: String
+    var content: String
+    var imageUrl: String?
+    var customLocation: Location?
+}

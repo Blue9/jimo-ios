@@ -68,6 +68,21 @@ struct ProfileStatsView: View {
     }
 }
 
+struct ProfilePosts: View {
+    @ObservedObject var profileVM: ProfileVM
+    
+    var body: some View {
+        if let posts = profileVM.posts {
+            ForEach(posts) { post in
+                FeedItem(post: post)
+            }
+            Text("You've reached the end!")
+        } else {
+            Text("Failed to load posts")
+        }
+    }
+}
+
 private struct PlaceholderText: View {
     var text: String
     
@@ -93,7 +108,7 @@ struct Profile: View {
             let view = VStack {
                 ProfileHeaderView(user: user)
                 ProfileStatsView(user: user)
-                FeedItem(name: profileVM.getName(user: user), placeName: "Kai's Hotdogs", region: "New York", timeSincePost: "8 min", content: "Soo good i love it", likeCount: 420, commentCount: 69)
+                ProfilePosts(profileVM: profileVM)
             }
             .padding(.top)
             return AnyView(view)
@@ -131,5 +146,6 @@ struct Profile_Previews: PreviewProvider {
     static var previews: some View {
         Profile(profileVM: ProfileVM(model: model, username: "gautam"))
             .environmentObject(model)
+            .environmentObject(PostModel(model: model))
     }
 }

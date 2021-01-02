@@ -1,5 +1,5 @@
 //
-//  App.swift
+//  AppModel.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 11/6/20.
@@ -30,6 +30,14 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/feed")
     }
     
+    static func posts(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/posts")
+    }
+    
+    static func createPost() -> Endpoint {
+        return Endpoint(path: "/posts/")
+    }
+    
     static func likePost(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
@@ -49,6 +57,7 @@ enum RequestError: Error {
     case endpointError
     case tokenError
     case noResponse
+    case encodeError
     case decodeError
     case authError
     case notFound
@@ -62,9 +71,13 @@ enum LoadUserResult {
 }
 
 
+struct EmptyBody: Encodable {
+}
+
+
 class AppModel: ObservableObject {
     /// Handles auth functionality
-    @Published var sessionStore: SessionStore
+    var sessionStore: SessionStore
     
     /// The current user (email and uid) if logged in to Firebase
     @Published var firebaseSession: FirebaseUser?
@@ -78,17 +91,11 @@ class AppModel: ObservableObject {
     /// If true, we have initialized Firebase auth
     @Published var initialized: Bool = false
     
-    /// Used to allow sessionStore's published vars to propagate through to observers of self
-    var anyCancellable: AnyCancellable? = nil
-    
     /**
      Create a new AppModel object. This creates a SessionStore object as well.
      */
     init() {
-        self.sessionStore = SessionStore()
-        anyCancellable = self.sessionStore.objectWillChange.sink { [weak self] (_) in
-            self?.objectWillChange.send()
-        }
+        self.sessionStore = .init()
     }
     
     /**
@@ -141,26 +148,46 @@ class AppModel: ObservableObject {
      - Parameter url: The request endpoint.
      - Parameter token: The Firebase auth token.
      - Parameter httpMethod: The http method. Defaults to GET.
+     - Parameter body: JSON body of request.
      
      - Returns: The URLRequest object.
      */
-    func buildRequest(url: URL, token: String, httpMethod: String) -> URLRequest {
+    func buildRequest(url: URL, token: String, httpMethod: String, body: Data? = nil) -> URLRequest {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = httpMethod
+        request.httpBody = body
         return request
     }
     
     /**
-     Make a GET request to the given endpoinrt and pass the result to the given handler.
+     Make a request to the given endpoinrt and pass the result to the given handler.
      
      - Parameter endpoint: The endpoint.
      - Parameter onComplete: The result handler. Exactly one of the two parameters will be non-nil.
      */
-    func doRequest<T: Codable>(endpoint: Endpoint, httpMethod: String = "GET", body: Codable? = nil, onComplete: @escaping (T?, RequestError?) -> Void) {
+    func doRequest<Response: Decodable>(endpoint: Endpoint, httpMethod: String = "GET", onComplete: @escaping (Response?, RequestError?) -> Void) {
+        doRequest(endpoint: endpoint, httpMethod: httpMethod, body: nil as EmptyBody?, onComplete: onComplete)
+    }
+    
+    /**
+     Make a request to the given endpoinrt and pass the result to the given handler.
+     
+     - Parameter endpoint: The endpoint.
+     - Parameter onComplete: The result handler. Exactly one of the two parameters will be non-nil.
+     */
+    func doRequest<Request: Encodable, Response: Decodable>(endpoint: Endpoint, httpMethod: String = "GET", body: Request? = nil, onComplete: @escaping (Response?, RequestError?) -> Void) {
         guard let url = endpoint.url else {
             onComplete(nil, RequestError.endpointError)
             return
+        }
+        var jsonBody: Data? = nil
+        if let body = body {
+            jsonBody = try? JSONEncoder().encode(body)
+            if jsonBody == nil {
+                onComplete(nil, RequestError.encodeError)
+                return
+            }
         }
         withToken { token in
             guard let token = token else {
@@ -168,7 +195,7 @@ class AppModel: ObservableObject {
                 onComplete(nil, RequestError.tokenError)
                 return
             }
-            let request = self.buildRequest(url: url, token: token, httpMethod: httpMethod)
+            let request = self.buildRequest(url: url, token: token, httpMethod: httpMethod, body: jsonBody)
             URLSession.shared.dataTask(with: request) {(data, response, error) in
                 guard let response = response as? HTTPURLResponse else {
                     print("Did not get response from server")
@@ -191,7 +218,7 @@ class AppModel: ObservableObject {
                     onComplete(nil, RequestError.noResponse)
                     return
                 }
-                let decoded: T? = try? JSONDecoder().decode(T.self, from: data)
+                let decoded: Response? = try? JSONDecoder().decode(Response.self, from: data)
                 onComplete(decoded, decoded == nil ? RequestError.decodeError : nil)
             }.resume()
         }
@@ -245,7 +272,7 @@ class AppModel: ObservableObject {
      */
     func createUser(_ request: CreateUserRequest, onComplete: @escaping (CreateUserResponse?, RequestError?) -> Void) {
         let endpoint = Endpoint.createUser()
-        doRequest(endpoint: endpoint, onComplete: onComplete)
+        doRequest(endpoint: endpoint, httpMethod: "POST", body: request, onComplete: onComplete)
     }
     
     /**
@@ -257,14 +284,34 @@ class AppModel: ObservableObject {
     }
     
     /**
-     Get the feed for the current user and pass the result into the given handler.
+     Get the feed for the current user.
      */
-    func getFeed(onComplete: @escaping ([Post]?, RequestError?) -> Void) {
+    func refreshFeed(onComplete: @escaping ([Post]?, RequestError?) -> Void) {
         guard let user = currentUser else {
-            onComplete(nil, RequestError.authError)
+            onComplete(nil, .authError)
             return
         }
         let endpoint = Endpoint.feed(username: user.username)
         doRequest(endpoint: endpoint, onComplete: onComplete)
+    }
+    
+    /**
+     Get the posts for the given user.
+     */
+    func getPosts(username: String, onComplete: @escaping ([Post]?, RequestError?) -> Void) {
+        let endpoint = Endpoint.posts(username: username)
+        doRequest(endpoint: endpoint, onComplete: onComplete)
+    }
+    
+    /**
+     Create a new post.
+     */
+    func createPost(_ request: CreatePostRequest, onComplete: @escaping (Post?, RequestError?) -> Void) {
+        if currentUser == nil {
+            onComplete(nil, .authError)
+            return
+        }
+        let endpoint = Endpoint.createPost()
+        doRequest(endpoint: endpoint, httpMethod: "POST", body: request, onComplete: onComplete)
     }
 }

@@ -14,7 +14,6 @@ struct ContentView: View {
         ZStack {
             if (!model.initialized) {
                 Image("splash")
-//                    .transition(.slide)
             } else if (model.firebaseSession == nil) {
                 // Firebase user does not exist
                 AuthView()
@@ -43,8 +42,7 @@ struct ContentView: View {
             } else {
                 // Both exist
                 MainAppView(
-                    profileVM: ProfileVM(model: model, username: model.currentUser!.username, user: model.currentUser!),
-                    feedModel: FeedModel(model: model))
+                    profileVM: ProfileVM(model: model, username: model.currentUser!.username, user: model.currentUser!))
                     .transition(.slide)
             }
         }
@@ -53,10 +51,7 @@ struct ContentView: View {
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static let sessionStore = SessionStore()
-    static let model = AppModel()
-    
     static var previews: some View {
-        ContentView().environmentObject(model)
+        ContentView().environmentObject(AppModel())
     }
 }

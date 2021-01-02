@@ -36,6 +36,6 @@ struct UserFieldError: Codable {
 
 
 struct CreateUserResponse: Codable {
-    var created: Bool
+    var created: User?
     var error: UserFieldError?
 }
