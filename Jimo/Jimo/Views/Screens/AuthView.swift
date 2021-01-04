@@ -88,8 +88,10 @@ struct SignUpView: View {
                         .background(Color("activity"))
                         .cornerRadius(10)
                 }
+                .shadow(radius: 5)
 
                 GoogleSignInButton()
+                    .shadow(radius: 5)
 
                 NavigationLink(destination: SignInView()) {
                     Text("Already have an account?")
@@ -101,7 +103,12 @@ struct SignUpView: View {
             Toast(text: error, type: .error)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("Sign up")
+        //.navigationTitle("Sign up")
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                NavTitle("Sign up")
+            }
+        }
     }
 }
 
@@ -170,8 +177,10 @@ struct SignInView: View {
                         .background(Color("shopping"))
                         .cornerRadius(10)
                 }
+                .shadow(radius: 5)
                 
                 GoogleSignInButton()
+                    .shadow(radius: 5)
                 
                 Button(action: forgotPassword) {
                     Text("Forgot password")
@@ -187,7 +196,12 @@ struct SignInView: View {
             Toast(text: "Check your email for password recovery instructions", type: .success)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("Sign in")
+        //.navigationTitle("Sign in")
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                NavTitle("Sign in")
+            }
+        }
     }
 }
 

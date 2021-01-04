@@ -159,9 +159,12 @@ struct CreateProfileBody: View {
         .popup(isPresented: $showRequestError, type: .toast, position: .bottom, autohideIn: 2) {
             Toast(text: requestError, type: .warning)
         }
-        .navigationTitle("Create profile")
+        //.navigationTitle("Create profile")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                NavTitle("Create profile")
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Sign out") {
                     model.signOut()

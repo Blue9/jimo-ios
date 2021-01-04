@@ -47,6 +47,11 @@
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
 		C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */; };
 		C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */; };
+		C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D1190C25A186CC00A222E3 /* NavTitle.swift */; };
+		C7EC11D225A0725B0071C65F /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C7EC11D125A0725B0071C65F /* Poppins-Regular.ttf */; };
+		C7EC11DB25A0735F0071C65F /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EC11DA25A0735F0071C65F /* Fonts.swift */; };
+		C7EC11E225A0758D0071C65F /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C7EC11E025A0758D0071C65F /* Poppins-Medium.ttf */; };
+		C7EC11E325A0758D0071C65F /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C7EC11E125A0758D0071C65F /* Poppins-SemiBold.ttf */; };
 		C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */; };
 		C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D4F5255A397600E8D216 /* Comment.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
@@ -122,6 +127,11 @@
 		C791835E2597EC64006B4056 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearch.swift; sourceTree = "<group>"; };
 		C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearch.swift; sourceTree = "<group>"; };
+		C7D1190C25A186CC00A222E3 /* NavTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavTitle.swift; sourceTree = "<group>"; };
+		C7EC11D125A0725B0071C65F /* Poppins-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Regular.ttf"; sourceTree = "<group>"; };
+		C7EC11DA25A0735F0071C65F /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
+		C7EC11E025A0758D0071C65F /* Poppins-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Medium.ttf"; sourceTree = "<group>"; };
+		C7EC11E125A0758D0071C65F /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
 		C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		C7F6D4F5255A397600E8D216 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
@@ -201,6 +211,7 @@
 		C75C2EDD25561309009B6ADA /* Jimo */ = {
 			isa = PBXGroup;
 			children = (
+				C7EC11DF25A075540071C65F /* Fonts */,
 				C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */,
 				C7A898A0255E503F00C3F6B6 /* Extensions */,
 				C75C2F0E25561345009B6ADA /* ViewModels */,
@@ -306,6 +317,7 @@
 				C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */,
 				C79183472597DABF006B4056 /* PopupView.swift */,
 				C71B1B142599B7FE004BF1CD /* Toast.swift */,
+				C7D1190C25A186CC00A222E3 /* NavTitle.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -326,6 +338,17 @@
 				6727CAFB0303F5578E431865 /* Pods_JimoTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C7EC11DF25A075540071C65F /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				C7EC11E025A0758D0071C65F /* Poppins-Medium.ttf */,
+				C7EC11E125A0758D0071C65F /* Poppins-SemiBold.ttf */,
+				C7EC11D125A0725B0071C65F /* Poppins-Regular.ttf */,
+				C7EC11DA25A0735F0071C65F /* Fonts.swift */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -441,6 +464,9 @@
 				C75C2EE625561309009B6ADA /* Preview Assets.xcassets in Resources */,
 				C75C2EE325561309009B6ADA /* Assets.xcassets in Resources */,
 				C74BC944256E25CD0095A2BA /* GoogleService-Info.plist in Resources */,
+				C7EC11E325A0758D0071C65F /* Poppins-SemiBold.ttf in Resources */,
+				C7EC11D225A0725B0071C65F /* Poppins-Regular.ttf in Resources */,
+				C7EC11E225A0758D0071C65F /* Poppins-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -618,6 +644,7 @@
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
+				C7EC11DB25A0735F0071C65F /* Fonts.swift in Sources */,
 				C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */,
 				C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */,
 				C768E9382558B3CB0068FCD5 /* FeedItem.swift in Sources */,
@@ -626,6 +653,7 @@
 				C75C2F1025561359009B6ADA /* MapView.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
 				C72F3CB92587264A00DDB76C /* Feed.swift in Sources */,
+				C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */,
 				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
 				C76A8AFF2596DDD700623DA2 /* ImagePicker.swift in Sources */,
 				C75C2F2A25561711009B6ADA /* AppModel.swift in Sources */,

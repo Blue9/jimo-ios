@@ -124,9 +124,12 @@ struct Profile: View {
             RefreshableScrollView(refreshing: $profileVM.refreshing) {
                 navBody
             }
-            .navigationTitle("Profile")
+            //.navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
+                ToolbarItem(placement: .principal) {
+                    NavTitle("Profile")
+                }
                 ToolbarItem(placement: .navigationBarTrailing, content: {
                     Button("Sign out") {
                         withAnimation(.default, {

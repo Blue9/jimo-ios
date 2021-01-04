@@ -33,7 +33,7 @@ struct FeedItem: View {
                             .font(.subheadline)
                     }
                     HStack {
-                        Text("Place name")
+                        Text(post.place.name)
                         Text("-")
                         Text("Region")
                     }
@@ -47,13 +47,6 @@ struct FeedItem: View {
                             Image(systemName: "heart")
                                 .font(.system(size: 30))
                             Text(String(post.likeCount))
-                        }
-                        Spacer()
-                            .frame(width: 40)
-                        VStack {
-                            Image(systemName: "bubble.left")
-                                .font(.system(size: 30))
-                            Text(String(post.commentCount))
                         }
                     }
                     .padding(.top, 4)

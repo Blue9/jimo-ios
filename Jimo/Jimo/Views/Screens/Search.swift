@@ -17,19 +17,15 @@ struct Search: View {
     @State var searchType: SearchType = .people
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                SearchBar(text: $query, placeholder: "Search")
-                    .padding(.bottom, 0)
-                Picker(selection: $searchType, label: Text("What do you want to search for")) {
-                    Text("People").tag(SearchType.people)
-                    Text("Places").tag(SearchType.places)
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                Spacer()
+        VStack(spacing: 0) {
+            SearchBar(text: $query, placeholder: "Search")
+                .padding(.bottom, 0)
+            Picker(selection: $searchType, label: Text("What do you want to search for")) {
+                Text("People").tag(SearchType.people)
+                Text("Places").tag(SearchType.places)
             }
-            .navigationTitle("Search")
-            .navigationBarTitleDisplayMode(.inline)
+            .pickerStyle(SegmentedPickerStyle())
+            Spacer()
         }
     }
 }

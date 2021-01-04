@@ -13,6 +13,7 @@ typealias PlaceId = String
 struct Place: Codable, Identifiable {
     let id = UUID()
     var placeId: PlaceId
+    var name: String
     var location: Location
 }
 

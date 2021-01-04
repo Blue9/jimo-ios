@@ -56,8 +56,13 @@ struct Feed: View {
     var body: some View {
         NavigationView {
             FeedBody(feedState: FeedViewState(postModel: postModel))
-                .navigationTitle("Feed")
+                //.navigationTitle("Feed")
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        NavTitle("Feed")
+                    }
+                }
         }
     }
 }

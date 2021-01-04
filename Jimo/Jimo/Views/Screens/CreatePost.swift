@@ -322,9 +322,11 @@ struct CreatePost: View {
                     
                 }
             }
-            .navigationTitle("Create Post")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
+                ToolbarItem(placement: .principal) {
+                    NavTitle("New post")
+                }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         self.presented.toggle()
