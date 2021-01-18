@@ -19,20 +19,26 @@ struct ContentView: View {
                     .transition(.slide)
             } else if case .loading = appState.currentUser {
                 // Firebase user exists, loading user profile
-                Text("Just a sec!")
+                Text("Loading profile...")
                     .transition(.opacity)
             } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile
-                VStack {
-                    Button("Unable to connect to server. Tap here to try again") {
+                NavigationView {
+                    Button("Unable to connect to server. Tap here to try again.") {
                         appState.refreshCurrentUser()
                     }
                     .transition(.opacity)
-                    
-                    Button("Tap here to sign out") {
-                        appState.signOut()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            NavTitle("Loading profile")
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Sign out") {
+                                appState.signOut()
+                            }
+                        }
                     }
-                    .transition(.opacity)
                 }
             } else if case let .user(user) = appState.currentUser {
                 // Both exist
