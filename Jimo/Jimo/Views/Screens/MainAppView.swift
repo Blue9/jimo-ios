@@ -38,9 +38,8 @@ enum NewPostType {
 }
 
 struct MainAppView: View {
-    @EnvironmentObject var model: AppModel
-    @EnvironmentObject var postModel: PostModel
-    @ObservedObject var tabBar = TabBar()
+    @EnvironmentObject var appState: AppState
+    @StateObject var tabBar = TabBar()
     
     let profileVM: ProfileVM
     
@@ -70,7 +69,7 @@ struct MainAppView: View {
                     Text("Search")
                 }
                 .tag(4)
-            Profile(profileVM: profileVM)
+            ProfileTab(profileVM: profileVM)
                 .tabItem {
                     Image(systemName: "person")
                     Text("Profile")
@@ -79,16 +78,15 @@ struct MainAppView: View {
         }
         .sheet(isPresented: $tabBar.newPostSelected) {
             return CreatePost(presented: $tabBar.newPostSelected)
-                .environmentObject(model)
-                .environmentObject(postModel)
+                .environmentObject(appState)
                 .preferredColorScheme(.light)
         }
     }
 }
 
-struct MainAppView_Previews: PreviewProvider {
-    static let model = AppModel()
-    static var previews: some View {
-        MainAppView(profileVM: ProfileVM(model: model, username: "gautam"))
-    }
-}
+//struct MainAppView_Previews: PreviewProvider {
+//    static let model = AppModel()
+//    static var previews: some View {
+//        MainAppView(profileVM: ProfileVM(model: model, username: "gautam"))
+//    }
+//}

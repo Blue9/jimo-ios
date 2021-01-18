@@ -9,7 +9,12 @@ import SwiftUI
 
 
 struct ProfileHeaderView: View {
-    var user: User
+    @ObservedObject var profileVM: ProfileVM
+    
+    var user: User {
+        profileVM.user
+    }
+    
     let defaultImage: Image = Image(systemName: "person.crop.circle")
     
     var name: String {
@@ -21,12 +26,16 @@ struct ProfileHeaderView: View {
             URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
                 .frame(width: 80, height: 80, alignment: .center)
                 .font(Font.title.weight(.ultraLight))
+                .foregroundColor(.gray)
+                .background(Color.white)
                 .cornerRadius(50)
                 .padding(.trailing)
             VStack(alignment: .leading) {
                 Text(name)
                     .fontWeight(.bold)
+                    .frame(height: 30)
                 Text("@" + user.username)
+                    .frame(height: 30)
             }
             Spacer()
         }
@@ -36,7 +45,11 @@ struct ProfileHeaderView: View {
 }
 
 struct ProfileStatsView: View {
-    var user: User
+    @ObservedObject var profileVM: ProfileVM
+    
+    var user: User {
+        profileVM.user
+    }
     
     var body: some View {
         HStack {
@@ -69,86 +82,60 @@ struct ProfileStatsView: View {
 }
 
 struct ProfilePosts: View {
+    @EnvironmentObject var appState: AppState
     @ObservedObject var profileVM: ProfileVM
     
     var body: some View {
         if let posts = profileVM.posts {
-            ForEach(posts) { post in
-                FeedItem(post: post)
+            ForEach(posts, id: \.self) { postId in
+                FeedItem(allPosts: appState.allPosts, feedItemVM: FeedItemVM(appState: appState, postId: postId))
             }
             Text("You've reached the end!")
-        } else {
+                .padding()
+        } else if profileVM.failedToLoadPosts {
             Text("Failed to load posts")
-        }
-    }
-}
-
-private struct PlaceholderText: View {
-    var text: String
-    
-    var body: some View {
-        return GeometryReader { geometry in
-            Text(text)
-                .fontWeight(.medium)
-                .frame(
-                    width: geometry.size.width,
-                    height: geometry.size.height,
-                    alignment: .center)
+                .padding()
+        } else {
+            ProgressView()
+                .onAppear {
+                    profileVM.loadPosts()
+                }
         }
     }
 }
 
 
 struct Profile: View {
-    @EnvironmentObject var model: AppModel
     @ObservedObject var profileVM: ProfileVM
     
-    private var navBody: AnyView {
-        if let user = profileVM.user {
-            let view = VStack {
-                ProfileHeaderView(user: user)
-                ProfileStatsView(user: user)
+    var body: some View {
+        RefreshableScrollView(refreshing: $profileVM.refreshing) {
+            VStack {
+                ProfileHeaderView(profileVM: profileVM)
+                ProfileStatsView(profileVM: profileVM)
                 ProfilePosts(profileVM: profileVM)
             }
             .padding(.top)
-            return AnyView(view)
-        } else if profileVM.failedToLoad {
-            return AnyView(PlaceholderText(text: "Failed to load profile"))
-        } else {
-            return AnyView(PlaceholderText(text: "Loading profile"))
-        }
-    }
-    
-    var body: some View {
-        NavigationView {
-            RefreshableScrollView(refreshing: $profileVM.refreshing) {
-                navBody
-            }
-            //.navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-                ToolbarItem(placement: .navigationBarTrailing, content: {
-                    Button("Sign out") {
-                        withAnimation(.default, {
-                            model.signOut()
-                        })
-                    }
-                })
-            })
         }
     }
 }
 
 struct Profile_Previews: PreviewProvider {
-    static let sessionStore = SessionStore()
-    static let model = AppModel()
+    static let api = APIClient()
+    static let appState = AppState(apiClient: api)
+
+    static let user = PublicUser(
+        username: "john",
+        firstName: "Johnjohnjohn",
+        lastName: "JohnjohnjohnJohnjohnjohnJohnjohnjohn",
+        profilePictureUrl: "https://i.imgur.com/ugITQw2.jpg",
+        postCount: 100,
+        followerCount: 1000000,
+        followingCount: 1)
     
     static var previews: some View {
-        Profile(profileVM: ProfileVM(model: model, username: "gautam"))
-            .environmentObject(model)
-            .environmentObject(PostModel(model: model))
+        Profile(profileVM: ProfileVM(appState: appState, user: user))
+            .environmentObject(api)
+            .environmentObject(appState)
     }
 }

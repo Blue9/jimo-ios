@@ -9,16 +9,16 @@ import Foundation
 
 typealias PostId = String
 
-struct Post: Codable, Identifiable {
-    let id = UUID()
+struct Post: Codable, Equatable {
     var postId: PostId
-    var user: User
+    var user: PublicUser
     var place: Place
     var category: String
     var content: String
     var imageUrl: String?
-    //var createdAt: Date
+    var createdAt: Date
     var likeCount: Int
+    var liked: Bool
     var customLocation: Location?
 }
 
@@ -29,4 +29,8 @@ struct CreatePostRequest: Codable {
     var content: String
     var imageUrl: String?
     var customLocation: Location?
+}
+
+struct LikePostResponse: Codable {
+    var likes: Int
 }

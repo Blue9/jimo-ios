@@ -5,6 +5,7 @@
 //  Created by Gautam Mekkat on 11/25/20.
 //
 
+import Combine
 import SwiftUI
 import Firebase
 import GoogleSignIn
@@ -31,36 +32,38 @@ struct GoogleSignInButton: View {
 
 
 struct SignUpView: View {
-    @State var email = ""
-    @State var password = ""
-    @State var error = ""
-    @State var showError = false
+    @EnvironmentObject var appState: AppState
     
-    @EnvironmentObject var model: AppModel
+    @State private var email = ""
+    @State private var password = ""
+    @State private var error = ""
+    @State private var showError = false
+    @State private var signUpCancellable: Cancellable? = nil
     
     func signUp() {
         hideKeyboard()
-        model.sessionStore.signUp(email: email, password: password, handler: { (result, error) in
-            if let error = error {
-                let code = (error as NSError).code
-                switch code {
-                case AuthErrorCode.invalidEmail.rawValue:
-                    self.error = "Invalid email"
-                    break
-                case AuthErrorCode.emailAlreadyInUse.rawValue:
-                    self.error = "Email already in use"
-                    break
-                default:
-                    self.error = error.localizedDescription
-                    break
+        signUpCancellable = appState.signUp(email: email, password: password)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    let code = (error as NSError).code
+                    switch code {
+                    case AuthErrorCode.invalidEmail.rawValue:
+                        self.error = "Invalid email"
+                        break
+                    case AuthErrorCode.emailAlreadyInUse.rawValue:
+                        self.error = "Email already in use"
+                        break
+                    default:
+                        self.error = error.localizedDescription
+                        break
+                    }
+                    showError = true
                 }
-                showError = true
-            } else {
+            }, receiveValue: { result in
                 self.email = ""
                 self.password = ""
                 self.error = ""
-            }
-        })
+            })
     }
     
     var body: some View {
@@ -113,13 +116,15 @@ struct SignUpView: View {
 }
 
 struct SignInView: View {
-    @State var email = ""
-    @State var password = ""
-    @State var error = ""
-    @State var showError = false
-    @State var showForgotPasswordSuccess = false
+    @EnvironmentObject var appState: AppState
     
-    @EnvironmentObject var model: AppModel
+    @State private var email = ""
+    @State private var password = ""
+    @State private var error = ""
+    @State private var showError = false
+    @State private var showForgotPasswordSuccess = false
+    @State private var signInCancellable: Cancellable? = nil
+    @State private var forgotCancellable: Cancellable? = nil
     
     func setError(_ error: String) {
         showError = true
@@ -128,28 +133,31 @@ struct SignInView: View {
     
     func signIn() {
         hideKeyboard()
-        model.sessionStore.signIn(email: email, password: password, handler: { (result, error) in
-            if error != nil {
-                setError("Invalid email or password. Try again.")
-            } else {
+        signInCancellable = appState.signIn(email: email, password: password)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("Error", error)
+                    setError("Invalid email or password. Try again.")
+                }
+            }, receiveValue: { result in
                 self.email = ""
                 self.password = ""
                 self.error = ""
-            }
-        })
+            })
     }
     
     func forgotPassword() {
         hideKeyboard()
-        model.sessionStore.forgotPassword(email: email, handler: { error in
-            if let error = error {
-                setError(error.localizedDescription)
-            } else {
+        forgotCancellable = appState.forgotPassword(email: email)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    setError(error.localizedDescription)
+                }
+            }, receiveValue: {
                 self.email = ""
                 self.password = ""
                 showForgotPasswordSuccess = true
-            }
-        })
+            })
     }
     
     var body: some View {
@@ -214,7 +222,10 @@ struct AuthView: View {
 }
 
 struct AuthView_Previews: PreviewProvider {
+    static let apiClient = APIClient()
+    static let appState = AppState(apiClient: apiClient)
+    
     static var previews: some View {
-        AuthView().environmentObject(SessionStore())
+        AuthView().environmentObject(apiClient).environmentObject(appState)
     }
 }

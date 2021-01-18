@@ -97,92 +97,6 @@ struct FormInputText: View {
 }
 
 
-class CreatePostVM: ObservableObject {
-    /// 4 cases: (1) name and location from apple, (2) name from apple but custom location, (3) custom name but location from apple,  (4) both custom
-    
-    var mapRegion: MKCoordinateRegion {
-        let location = useCustomLocation ? customLocation : selectedLocation
-        if let place = location {
-            return MKCoordinateRegion(
-                center: place.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
-        } else {
-            return defaultRegion
-        }
-    }
-    
-    /// If true, either case 2 or case 4
-    @Published var useCustomLocation = false
-    
-    /// Used for navigation links
-    @Published var placeSearchActive = false
-    @Published var locationSearchActive = false
-    
-    /// Photo selection
-    @Published var showImagePicker = false
-    @Published var image: UIImage?
-    
-    // Sent to server
-    @Published var name: String? = nil
-    
-    /// Set when user searches and selects a location
-    /// If non-nil, then case 1 or 3
-    @Published var selectedLocation: MKPlacemark? = nil
-    @Published var customLocation: MKPlacemark? = nil
-    
-    var locationString: String? {
-        return useCustomLocation ? "Custom location (View on map)" : selectedPlaceAddress
-    }
-    
-    var selectedPlaceAddress: String? {
-        /// For whatever reason, the default placemark title is "United States"
-        /// Example: Mount Everest Base Camp has placemark title "United States"
-        /// WTF Apple
-        if selectedLocation?.title == "United States" {
-            return "View on map"
-        }
-        return selectedLocation?.title
-    }
-    
-    var maybeCreatePlaceRequest: MaybeCreatePlaceRequest? {
-        guard let name = name, let location = selectedLocation else {
-            return nil
-        }
-        var region: Region? = nil
-        if let placemark = selectedLocation,
-           let area = placemark.region as? CLCircularRegion {
-            region = Region(coord: placemark.coordinate, radius: area.radius.magnitude)
-        }
-        return MaybeCreatePlaceRequest(name: name, location: Location(coord: location.coordinate), region: region)
-    }
-    
-    func selectPlace(placeSelection: MKMapItem) {
-        useCustomLocation = false
-        selectedLocation = placeSelection.placemark
-        name = placeSelection.name
-    }
-    
-    func selectLocation(selectionRegion: MKCoordinateRegion) {
-        customLocation = MKPlacemark(coordinate: selectionRegion.center)
-        useCustomLocation = true
-    }
-    
-    func resetName() {
-        name = nil
-    }
-    
-    func resetLocation() {
-        if useCustomLocation {
-            useCustomLocation = false
-            customLocation = nil
-        } else {
-            // Either there is no searched location or we are already on it
-            // In that case clear the location and the search
-            selectedLocation = nil
-        }
-    }
-}
-
 struct CreatePostDivider: View {
     var body: some View {
         Divider()
@@ -193,20 +107,19 @@ struct CreatePostDivider: View {
 
 
 struct CreatePost: View {
-    @EnvironmentObject var model: AppModel
-    @EnvironmentObject var postModel: PostModel
+    @EnvironmentObject var appState: AppState
     @StateObject var createPostVM = CreatePostVM()
     
     @Binding var presented: Bool
     
-    @State var category: String? = nil
-    @State var content: String = ""
+    @State private var category: String? = nil
+    @State private var content: String = ""
     
-    @State var showError = false
-    @State var errorMessage = ""
+    @State private var showError = false
+    @State private var errorMessage = ""
     
-    @State var showSuccess = false
-    @State var successMessage = "Success!"
+    @State private var showSuccess = false
+    @State private var successMessage = "Success!"
     
     var buttonColor: Color {
         if let category = category {
@@ -235,17 +148,18 @@ struct CreatePost: View {
             content: content,
             imageUrl: nil,
             customLocation: customLocation)
-        postModel.createPost(createPostRequest, then: { error in
-            if error == nil {
+        createPostVM.cancellable = appState.createPost(createPostRequest)
+            .sink(receiveCompletion: { completion in
+                if case .failure(_) = completion {
+                    errorMessage = "Could not create post"
+                    showError = true
+                }
+            }, receiveValue: {
                 showSuccess = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     presented = false
                 }
-            } else {
-                errorMessage = "Could not create post"
-                showError = true
-            }
-        })
+            })
     }
     
     var body: some View {
@@ -348,7 +262,11 @@ struct CreatePost: View {
 }
 
 struct CreatePost_Previews: PreviewProvider {
+    static let api = APIClient()
+    
     static var previews: some View {
-        CreatePost(presented: .constant(true)).environmentObject(AppModel())
+        CreatePost(presented: .constant(true))
+            .environmentObject(api)
+            .environmentObject(AppState(apiClient: api))
     }
 }

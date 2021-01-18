@@ -10,14 +10,13 @@ import MapKit
 
 typealias PlaceId = String
 
-struct Place: Codable, Identifiable {
-    let id = UUID()
+struct Place: Codable, Equatable {
     var placeId: PlaceId
     var name: String
     var location: Location
 }
 
-struct Location: Codable {
+struct Location: Codable, Equatable {
     var latitude: Double
     var longitude: Double
     

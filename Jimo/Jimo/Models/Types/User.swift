@@ -7,11 +7,20 @@
 
 import Foundation
 
-typealias uid = String
+typealias username = String
 
-struct User: Codable, Identifiable {
-    let id: UUID = UUID() // ignore the warning
-    var username: String
+protocol User {
+    var username: username { get set }
+    var firstName: String { get set }
+    var lastName: String { get set }
+    var profilePictureUrl: String? { get set }
+    var postCount: Int { get set }
+    var followerCount: Int { get set }
+    var followingCount: Int { get set }
+}
+
+struct PublicUser: User, Codable, Equatable {
+    var username: username
     var firstName: String
     var lastName: String
     var profilePictureUrl: String?
@@ -36,6 +45,6 @@ struct UserFieldError: Codable {
 
 
 struct CreateUserResponse: Codable {
-    var created: User?
+    var created: PublicUser?
     var error: UserFieldError?
 }

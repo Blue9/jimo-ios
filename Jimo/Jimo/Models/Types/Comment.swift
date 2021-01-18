@@ -11,7 +11,7 @@ import Foundation
 struct Comment: Codable, Identifiable {
     let id = UUID()
     var commentId: String
-    var user: User
+    var user: PublicUser
     var postId: String
     var content: String
     var createdAt: Date

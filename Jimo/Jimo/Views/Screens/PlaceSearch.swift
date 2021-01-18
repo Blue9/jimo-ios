@@ -9,16 +9,14 @@ import SwiftUI
 import MapKit
 
 struct PlaceSearch: View {
-    @ObservedObject var locationSearch: LocationSearch = LocationSearch()
+    @StateObject var locationSearch: LocationSearch = LocationSearch()
     
     @Binding var active: Bool
     @State var showAlert = false
     
     var selectPlace: (MKMapItem) -> Void
     
-    init(active: Binding<Bool>, selectPlace: @escaping (MKMapItem) -> Void) {
-        _active = active
-        self.selectPlace = selectPlace
+    func setupLocationSearch() {
         locationSearch.completer.resultTypes = [.address, .pointOfInterest]
 //        locationSearch.completer.pointOfInterestFilter = .init(including: [
 //            .amusementPark,
@@ -44,6 +42,11 @@ struct PlaceSearch: View {
 //            .winery,
 //            .zoo
 //        ])
+    }
+    
+    init(active: Binding<Bool>, selectPlace: @escaping (MKMapItem) -> Void) {
+        _active = active
+        self.selectPlace = selectPlace
     }
     
     var body: some View {
@@ -82,6 +85,9 @@ struct PlaceSearch: View {
                         message: Text("Try again or select another option."))
                 }
             }
+        }
+        .onAppear {
+            self.setupLocationSearch()
         }
     }
 }

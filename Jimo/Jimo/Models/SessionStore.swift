@@ -20,7 +20,7 @@ class SessionStore: ObservableObject {
     var currentUser: FirebaseAuth.User? {
         Auth.auth().currentUser
     }
-
+    
     func signUp(email: String, password: String, handler: @escaping AuthDataResultCallback) {
         Auth.auth().createUser(withEmail: email, password: password, completion: handler)
     }

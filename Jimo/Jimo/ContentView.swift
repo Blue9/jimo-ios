@@ -8,50 +8,52 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var model: AppModel
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         ZStack {
-            if (!model.initialized) {
+            if case .loading = appState.firebaseSession {
                 Image("splash")
-            } else if (model.firebaseSession == nil) {
-                // Firebase user does not exist
+            } else if case .doesNotExist = appState.firebaseSession {
                 AuthView()
                     .transition(.slide)
-            } else if (model.loadingUserProfile == .loading) {
+            } else if case .loading = appState.currentUser {
                 // Firebase user exists, loading user profile
                 Text("Just a sec!")
                     .transition(.opacity)
-            } else if (model.loadingUserProfile == .error) {
+            } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile
                 VStack {
                     Button("Unable to connect to server. Tap here to try again") {
-                        model.loadCurrentUserProfile()
+                        appState.refreshCurrentUser()
                     }
                     .transition(.opacity)
                     
                     Button("Tap here to sign out") {
-                        model.signOut()
+                        appState.signOut()
                     }
                     .transition(.opacity)
                 }
-            } else if (model.currentUser == nil && model.loadingUserProfile == .success) {
+            } else if case let .user(user) = appState.currentUser {
+                // Both exist
+                MainAppView(
+                    profileVM: ProfileVM(appState: appState, user: user))
+                    .transition(.slide)
+            } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist
                 CreateProfileView()
                     .transition(.slide)
-            } else {
-                // Both exist
-                MainAppView(
-                    profileVM: ProfileVM(model: model, username: model.currentUser!.username, user: model.currentUser!))
-                    .transition(.slide)
             }
         }
-        .onAppear(perform: model.listen)
+        .onAppear(perform: appState.listen)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
+    static let api = APIClient()
     static var previews: some View {
-        ContentView().environmentObject(AppModel())
+        ContentView()
+            .environmentObject(api)
+            .environmentObject(AppState(apiClient: api))
     }
 }

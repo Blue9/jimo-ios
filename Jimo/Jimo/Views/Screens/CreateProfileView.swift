@@ -48,21 +48,23 @@ struct Field: View {
 }
 
 struct CreateProfileBody: View {
-    @EnvironmentObject var model: AppModel
+    @EnvironmentObject var appState: AppState
     
     static let usernameReq = "Usernames should be 3-20 characters"
     static let nameReq = "Required field"
-    
-    @State var requestError = ""
     static let serverError = "Unknown server error, try again later"
     
-    @State var username: String = ""
-    @State var firstName: String = ""
-    @State var lastName: String = ""
-    @State var privateAccount = false
+    @State private var cancellable: Cancellable? = nil
     
-    @State var showServerError = false
-    @State var showRequestError = false
+    @State private var requestError = ""
+
+    @State private var username: String = ""
+    @State private var firstName: String = ""
+    @State private var lastName: String = ""
+    @State private var privateAccount = false
+    
+    @State private var showServerError = false
+    @State private var showRequestError = false
     
     func validUsername(username: String) -> Bool {
         return username.count >= 3 && username.count <= 20
@@ -84,26 +86,23 @@ struct CreateProfileBody: View {
             username: username,
             firstName: firstName,
             lastName: lastName)
-        model.createUser(request, onComplete: { (response, error) in
-            if error != nil {
-                showServerError = true
-            }
-            if let error = response?.error {
-                if let usernameError = error.username {
-                    requestError = usernameError
-                } else if let firstNameError = error.firstName {
-                    requestError = firstNameError
-                } else if let lastNameError = error.lastName {
-                    requestError = lastNameError
+        cancellable = appState.createUser(request)
+            .sink(receiveCompletion: { completion in
+                if case .failure(_) = completion {
+                    showServerError = true
                 }
-                showRequestError = true
-            }
-            else if let user = response?.created {
-                DispatchQueue.main.async {
-                    model.currentUser = user
+            }, receiveValue: { response in
+                if let error = response.error {
+                    if let usernameError = error.username {
+                        requestError = usernameError
+                    } else if let firstNameError = error.firstName {
+                        requestError = firstNameError
+                    } else if let lastNameError = error.lastName {
+                        requestError = lastNameError
+                    }
+                    showRequestError = true
                 }
-            }
-        })
+            })
     }
     
     var body: some View {
@@ -167,7 +166,7 @@ struct CreateProfileBody: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Sign out") {
-                    model.signOut()
+                    appState.signOut()
                 }
             }
         }
@@ -183,7 +182,11 @@ struct CreateProfileView: View {
 }
 
 struct CreateProfileView_Previews: PreviewProvider {
+    static let api = APIClient()
+
     static var previews: some View {
-        CreateProfileView().environmentObject(AppModel())
+        CreateProfileView()
+            .environmentObject(api)
+            .environmentObject(AppState(apiClient: api))
     }
 }

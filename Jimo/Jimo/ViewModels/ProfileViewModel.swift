@@ -6,11 +6,17 @@
 //
 
 import Foundation
+import Combine
 
 
 class ProfileVM: ObservableObject {
-    @Published var user: User? = nil
-    @Published var posts: [Post]? = nil
+    let appState: AppState
+    
+    var loadUserCancellable: Cancellable? = nil
+    var loadPostsCancellable: Cancellable? = nil
+    
+    @Published var user: User
+    @Published var posts: [PostId]? = nil
     @Published var refreshing = false {
         didSet {
             if oldValue == false && refreshing == true {
@@ -18,38 +24,46 @@ class ProfileVM: ObservableObject {
             }
         }
     }
-    @Published var failedToLoad = false
-    
-    let username: String
-    let model: AppModel
+    @Published var failedToLoadUser = false
+    @Published var failedToLoadPosts = false
     
     func refresh() {
-        model.getUser(username: username, onComplete: { user, error in
-            DispatchQueue.main.async {
-                self.failedToLoad = user == nil
-                self.refreshing = false
-                if user != nil {
-                    self.user = user
-                }
-            }
-        })
-        // TODO fix the logic here, should handle both at once
-        model.getPosts(username: username, onComplete: { posts, error in
-            DispatchQueue.main.async {
-                print("Loaded posts")
-                self.posts = posts
-                // TODO handle error
-            }
-        })
+        loadUser()
+        loadPosts()
     }
     
-    init(model: AppModel, username: String, user: User? = nil) {
-        self.model = model
-        self.username = username
+    func loadUser() {
+        loadUserCancellable = appState.getUser(username: user.username)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    self.failedToLoadUser = true
+                    print("Error when loading user", error)
+                } else {
+                    self.failedToLoadUser = false
+                }
+                self.refreshing = false
+            }, receiveValue: { user in
+                self.user = user
+            })
+    }
+    
+    func loadPosts() {
+        loadPostsCancellable = appState.getPosts(username: user.username)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    self.failedToLoadPosts = true
+                    print("Error when loading posts", error)
+                } else {
+                    self.failedToLoadPosts = false
+                }
+            }, receiveValue: { posts in
+                self.posts = posts
+            })
+    }
+    
+    init(appState: AppState, user: User) {
+        self.appState = appState
         self.user = user
-        if user == nil {
-            refresh()
-        }
     }
     
     func getName(user: User) -> String {
