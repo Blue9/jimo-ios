@@ -43,7 +43,8 @@ struct ContentView: View {
             } else if case let .user(user) = appState.currentUser {
                 // Both exist
                 MainAppView(
-                    profileVM: ProfileVM(appState: appState, user: user))
+                    profileVM: ProfileVM(appState: appState, user: user),
+                    mapVM: MapViewModel(appState: appState))
                     .transition(.slide)
             } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist

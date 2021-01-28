@@ -7,7 +7,7 @@
 
 import Foundation
 import Combine
-
+import MapKit
 import Firebase
 
 
@@ -31,6 +31,11 @@ class FeedModel: ObservableObject {
 }
 
 
+class MapModel: ObservableObject {
+    @Published var posts: [PostId] = []
+}
+
+
 class UserPosts: ObservableObject {
     @Published var posts: [PostId] = []
 }
@@ -47,9 +52,10 @@ class AppState: ObservableObject {
     
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
-    /// App state vars
     
+    /// App state vars
     let feedModel = FeedModel()
+    let mapModel = MapModel()
     let userPosts = UserPosts()
     let allPosts = AllPosts()
     
@@ -115,8 +121,15 @@ class AppState: ObservableObject {
         guard case let CurrentUser.user(user) = self.currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return self.apiClient.refreshFeed(username: user.username)
+        return self.apiClient.getFeed(username: user.username)
             .map(self.setFeed)
+            .map({ _ in return () })
+            .eraseToAnyPublisher()
+    }
+    
+    func refreshMap(region: MKCoordinateRegion) -> AnyPublisher<Void, APIError> {
+        return self.apiClient.getMap(region: region)
+            .map(self.setMap)
             .map({ _ in return () })
             .eraseToAnyPublisher()
     }
@@ -153,6 +166,15 @@ class AppState: ObservableObject {
     private func setFeed(posts: [Post]) {
         posts.forEach({ post in allPosts.posts[post.postId] = post })
         feedModel.currentFeed = posts.map(\.postId)
+    }
+    
+    private func setMap(posts: [Post]) {
+        posts.forEach({ post in
+            allPosts.posts[post.postId] = post
+            if !mapModel.posts.contains(post.postId) {
+                mapModel.posts.append(post.postId)
+            }
+        })
     }
     
     private func addPostsToAllPosts(posts: [Post]) -> [PostId] {

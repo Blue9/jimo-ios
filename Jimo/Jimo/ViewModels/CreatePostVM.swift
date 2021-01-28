@@ -17,7 +17,7 @@ class CreatePostVM: ObservableObject {
                 center: place.coordinate,
                 span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
         } else {
-            return MapView.defaultRegion
+            return MapViewModel.defaultRegion
         }
     }
     

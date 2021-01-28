@@ -24,6 +24,10 @@ struct Location: Codable, Equatable {
         self.latitude = coord.latitude
         self.longitude = coord.longitude
     }
+    
+    func coordinate() -> CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
 }
 
 struct Region: Codable {

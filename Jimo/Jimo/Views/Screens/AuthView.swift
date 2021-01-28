@@ -72,7 +72,7 @@ struct SignUpView: View {
                 Image("logo")
                     .aspectRatio(contentMode: .fit)
 
-                Text("Welcome to jimō!")
+                Text("Welcome to jimo!")
                 TextField("Email", text: $email)
                     .padding(12)
                     .background(RoundedRectangle(cornerRadius: 10)

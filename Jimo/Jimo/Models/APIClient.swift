@@ -8,11 +8,13 @@
 import SwiftUI
 import Foundation
 import Combine
+import MapKit
 import Firebase
 
 
 struct Endpoint {
     let path: String
+    var queryItems: [URLQueryItem] = []
     
     static func me() -> Endpoint {
         return Endpoint(path: "/me")
@@ -42,12 +44,24 @@ struct Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
     
+    static func getMap(centerLat: Double, centerLong: Double, spanLat: Double, spanLong: Double) -> Endpoint {
+        return Endpoint(
+            path: "/places/map",
+            queryItems: [
+                URLQueryItem(name: "center_lat", value: String(centerLat)),
+                URLQueryItem(name: "center_long", value: String(centerLong)),
+                URLQueryItem(name: "span_lat", value: String(spanLat)),
+                URLQueryItem(name: "span_long", value: String(spanLong))
+            ])
+    }
+    
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "http"
         apiURL.host = "192.168.1.160"
         apiURL.port = 8000
         apiURL.path = path
+        apiURL.queryItems = queryItems
         return apiURL.url
     }
 }
@@ -109,8 +123,19 @@ class APIClient: ObservableObject {
     /**
      Get the feed for the given user.
      */
-    func refreshFeed(username: String) -> AnyPublisher<[Post], APIError> {
+    func getFeed(username: String) -> AnyPublisher<[Post], APIError> {
         return doRequest(endpoint: Endpoint.feed(username: username))
+    }
+    
+    /**
+     Get the map for the given user.
+     */
+    func getMap(region: MKCoordinateRegion) -> AnyPublisher<[Post], APIError> {
+        return doRequest(endpoint: Endpoint.getMap(
+                            centerLat: region.center.latitude,
+                            centerLong: region.center.longitude,
+                            spanLat: region.span.latitudeDelta,
+                            spanLong: region.span.longitudeDelta))
     }
     
     /**

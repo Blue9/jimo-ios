@@ -73,7 +73,7 @@ struct LocationSelection: View {
 }
 
 struct LocationSelection_Previews: PreviewProvider {
-    static var mapRegion = MapView.defaultRegion
+    static var mapRegion = MapViewModel.defaultRegion
     @State static var active = true
     @State static var selectedRegion: MKCoordinateRegion? = nil
     

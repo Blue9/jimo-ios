@@ -8,14 +8,14 @@
 import SwiftUI
 
 class TabBar: ObservableObject {
-    let newPostIndex = 3
+    let newPostTag = 3
     
     @Published var newPostSelected = false
     var previousSelection: Int
     
     @Published var selection: Int {
         didSet {
-            if selection == newPostIndex {
+            if selection == newPostTag {
                 previousSelection = oldValue
                 selection = oldValue
                 newPostSelected = true
@@ -42,6 +42,7 @@ struct MainAppView: View {
     @StateObject var tabBar = TabBar()
     
     let profileVM: ProfileVM
+    let mapVM: MapViewModel
     
     var body: some View {
         TabView(selection: $tabBar.selection) {
@@ -51,7 +52,7 @@ struct MainAppView: View {
                     Text("Home")
                 }
                 .tag(1)
-            MapView()
+            MapView(mapModel: appState.mapModel, mapViewModel: mapVM)
                 .tabItem {
                     Image(systemName: "map")
                     Text("Map")
