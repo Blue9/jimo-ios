@@ -141,6 +141,16 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func deletePost(postId: PostId) -> AnyPublisher<Void, APIError> {
+        return self.apiClient.deletePost(postId: postId)
+            .map({
+                if $0.deleted {
+                    self.removePost(postId: postId)
+                }
+            })
+            .eraseToAnyPublisher()
+    }
+    
     func getPosts(username: String) -> AnyPublisher<[PostId], APIError> {
         return self.apiClient.getPosts(username: username)
             .map(self.addPostsToAllPosts)
@@ -190,6 +200,13 @@ class AppState: ObservableObject {
         allPosts.posts[post.postId] = post
         userPosts.posts.append(post.postId)
         feedModel.currentFeed.insert(post.postId, at: 0)
+    }
+    
+    private func removePost(postId: PostId) {
+        userPosts.posts.removeAll(where: { $0 == postId })
+        feedModel.currentFeed.removeAll(where: { $0 == postId })
+        mapModel.posts.removeAll(where: { $0 == postId })
+        allPosts.posts.removeValue(forKey: postId)
     }
     
     private func updatePostLikes(postId: PostId, liked: Bool, likes: Int) {

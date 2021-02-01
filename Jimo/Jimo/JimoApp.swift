@@ -16,6 +16,9 @@ struct JimoApp: App {
     
     let apiClient = APIClient()
     
+    @State var isPresented = true
+    @State var image: UIImage? = nil
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

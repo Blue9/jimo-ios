@@ -8,28 +8,65 @@
 import MapKit
 import SwiftUI
 import Combine
+import SDWebImage
 
 
-class PostAnnotation: NSObject, MKAnnotation {
-    let coordinate: CLLocationCoordinate2D
-    let post: Post
+final class LocationAnnotationView: MKAnnotationView {
     
-    init(post: Post) {
-        self.post = post
-        if let location = post.customLocation {
-            self.coordinate = location.coordinate()
+    // MARK: Initialization
+    
+    private var post: Post
+    
+    init(annotation: PostAnnotation, reuseIdentifier: String) {
+        self.post = annotation.post
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        frame = CGRect(x: 0, y: 0, width: 60, height: 60)
+        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
+        setupUI()
+    }
+    
+    @available(*, unavailable)
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: Setup
+    
+    private func setupUI() {
+        backgroundColor = .clear
+
+        let view = UIImageView(image: UIImage(named: "pin")?.withRenderingMode(.alwaysTemplate))
+        view.tintColor = UIColor(named: post.category.lowercased())
+        view.frame = bounds
+        addSubview(view)
+        var image: UIImageView
+        if let url = post.user.profilePictureUrl {
+            image = UIImageView()
+            image.sd_setImage(
+                with: URL(string: url),
+                placeholderImage: UIImage(systemName: "person.crop.circle"))
+            image.frame = CGRect(x: 0, y: 0, width: 42, height: 42).offsetBy(dx: 9, dy: 5.75)
+            image.layer.cornerRadius = 21
+            image.layer.masksToBounds = true
         } else {
-            self.coordinate = post.place.location.coordinate()
+            image = UIImageView(image: UIImage(systemName: "person.crop.circle.fill"))
+            image.tintColor = UIColor(named: post.category.lowercased())
+            image.backgroundColor = .white
+            image.frame = CGRect(x: 0, y: 0, width: 42, height: 42).offsetBy(dx: 9, dy: 5.75)
+            image.layer.cornerRadius = 21
+            image.layer.masksToBounds = true
         }
+        view.addSubview(image)
     }
 }
 
 
 struct MapKitView: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
-    @Binding var selectedPost: PostId?
+    @Binding var selectedPost: Post?
     @Binding var showPost: Bool
     var annotations: [PostAnnotation]
+    var images: [String: Data] = [:]
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
@@ -38,9 +75,8 @@ struct MapKitView: UIViewRepresentable {
     }
 
     func updateUIView(_ view: MKMapView, context: Context) {
-        // TODO check each equal, count isn't accurate
-        if annotations.count != view.annotations.count {
-            view.removeAnnotations(annotations)
+        if !view.annotations.map({ $0 as? PostAnnotation }).elementsEqual(annotations) {
+            view.removeAnnotations(view.annotations)
             view.addAnnotations(annotations)
         }
     }
@@ -63,24 +99,18 @@ struct MapKitView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             let annotation = annotation as! PostAnnotation
             let identifier = "Placemark"
-            let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            let originalImage: UIImage = UIImage(named: "pin")!
-            let image = UIImage(cgImage: originalImage.cgImage!, scale: originalImage.scale / (50 / originalImage.size.height), orientation: .up)
-                .withRenderingMode(.alwaysTemplate)
-                .withTintColor(.yellow)
-            annotationView.image = image
-            annotationView.backgroundColor = UIColor(Color(annotation.post.category.lowercased()))
-            annotationView.tintColor = .red
-            annotationView.centerOffset = CGPoint(x: 0, y: -25)
-            // TODO ios 14 only
-            annotationView.zPriority = .init(Float(annotation.post.place.name.count + annotation.post.category.count))
-            return annotationView
+            
+            let view = LocationAnnotationView(
+                annotation: annotation,
+                reuseIdentifier: identifier)
+            view.zPriority = MKAnnotationViewZPriority(rawValue: MKAnnotationViewZPriority.RawValue(annotation.zIndex))
+            return view
         }
         
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             let annotation = view.annotation as! PostAnnotation
             parent.showPost = true
-            parent.selectedPost = annotation.post.postId
+            parent.selectedPost = annotation.post
             mapView.deselectAnnotation(annotation, animated: false)
         }
     }
@@ -88,17 +118,55 @@ struct MapKitView: UIViewRepresentable {
 
 
 struct MapSearch: View {
+    @StateObject var locationSearch: LocationSearch = LocationSearch()
     @State var query: String = ""
     
+    @State var lastSearched: String? = nil
+    
+    func search(completion: MKLocalSearchCompletion) {
+        lastSearched = completion.title
+        let localSearch = MKLocalSearch(request: .init(completion: completion))
+        localSearch.start { (response, error) in
+            if let places = response?.mapItems {
+                locationSearch.searchQuery = ""
+                hideKeyboard()
+                print(places)
+            }
+        }
+    }
+    
     var body: some View {
-        SearchBar(
-            text: $query,
-            minimal: true,
-            placeholder: "Search places",
-            textFieldColor: .init(white: 1, alpha: 0.4))
-            .padding(.horizontal, 15)
-            .padding(.top, 50)
-            .padding(.bottom, 15)
+        VStack(spacing: 0) {
+            SearchBar(
+                text: $locationSearch.searchQuery,
+                minimal: true,
+                placeholder: "Search places",
+                textFieldColor: .init(white: 1, alpha: 0.4))
+                .padding(.horizontal, 15)
+                .padding(.top, 50)
+                .padding(.bottom, 15)
+                .background(Color.init(white: 1, opacity: 0.9))
+            
+            if locationSearch.searchQuery.count > 0 {
+                List(locationSearch.completions) { completion in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(completion.title)
+                            Text(completion.subtitle)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        self.search(completion: completion)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
     }
 }
 
@@ -121,19 +189,15 @@ struct MapView: View {
                 annotations: mapViewModel.annotations)
                 .edgesIgnoringSafeArea(.all)
             
-            VStack {
-                MapSearch()
-                    .background(Color.init(white: 1, opacity: 0.9))
-                Spacer()
-            }
-            .edgesIgnoringSafeArea(.all)
+            MapSearch()
+                .edgesIgnoringSafeArea(.all)
         }
         .onAppear {
             mapViewModel.refreshMap()
         }
         .bottomSheet(isPresented: $mapViewModel.presentBottomSheet, height: 600) {
-            if let postId = mapViewModel.presentedPost {
-                ViewPost(postId: postId)
+            if let post = mapViewModel.presentedPost {
+                ViewPlace(placeViewModel: PlaceViewModel(place: post.place))
             }
         }
     }

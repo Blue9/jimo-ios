@@ -165,75 +165,82 @@ struct CreatePost: View {
     var body: some View {
         NavigationView {
             ZStack {
-                VStack(spacing: 0) {
-                    CategoryPicker(category: $category)
-                        .padding()
-                    Group {
-                        NavigationLink(
-                            destination: PlaceSearch(
-                                active: $createPostVM.placeSearchActive,
-                                selectPlace: createPostVM.selectPlace),
-                            isActive: $createPostVM.placeSearchActive) {
-                            FormInputButton(
-                                name: "Name",
-                                content: createPostVM.name,
-                                clearAction: createPostVM.resetName)
-                        }
+                ScrollView {
+                    VStack(spacing: 0) {
+                        CategoryPicker(category: $category)
+                            .padding()
                         
-                        CreatePostDivider()
-                        
-                        NavigationLink(
-                            destination: LocationSelection(
-                                mapRegion: createPostVM.mapRegion,
-                                active: $createPostVM.locationSearchActive,
-                                afterConfirm: createPostVM.selectLocation),
-                            isActive: $createPostVM.locationSearchActive) {
-                            FormInputButton(
-                                name: "Location",
-                                content: createPostVM.locationString,
-                                clearAction: createPostVM.resetLocation)
-                        }
-                        
-                        CreatePostDivider()
-                        
-                        FormInputText(name: "Write a Note (Recommended)", text: $content)
-                        
-                        CreatePostDivider()
-                        
-                        FormInputButton(name: "Photo (Recommended)", clearAction: {})
-                        
-                        ZStack(alignment: .top) {
-                            if let image = createPostVM.image {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 340, height: 200)
-                                    .cornerRadius(20)
-                                    .contentShape(Rectangle())
-                                RoundedButton(text: Text("Remove"), action: {
-                                    createPostVM.image = nil
-                                }, backgroundColor: buttonColor)
-                                .frame(width: 100, height: 30)
-                                .padding(.top, 10)
-                            } else {
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .fill(Color.gray.opacity(0.2))
+                        Group {
+                            NavigationLink(
+                                destination: PlaceSearch(
+                                    active: $createPostVM.placeSearchActive,
+                                    selectPlace: createPostVM.selectPlace),
+                                isActive: $createPostVM.placeSearchActive) {
+                                FormInputButton(
+                                    name: "Name",
+                                    content: createPostVM.name,
+                                    clearAction: createPostVM.resetName)
+                            }
+                            
+                            CreatePostDivider()
+                            
+                            NavigationLink(
+                                destination: LocationSelection(
+                                    mapRegion: createPostVM.mapRegion,
+                                    active: $createPostVM.locationSearchActive,
+                                    afterConfirm: createPostVM.selectLocation),
+                                isActive: $createPostVM.locationSearchActive) {
+                                FormInputButton(
+                                    name: "Location",
+                                    content: createPostVM.locationString,
+                                    clearAction: createPostVM.resetLocation)
+                            }
+                            
+                            CreatePostDivider()
+                            
+                            FormInputText(name: "Write a Note (Recommended)", text: $content)
+                            
+                            CreatePostDivider()
+                            
+                            FormInputButton(name: "Photo (Recommended)", clearAction: {})
+                            
+                            ZStack(alignment: .topLeading) {
+                                if let image = createPostVM.image {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 340, height: 200)
+                                        .cornerRadius(10)
+                                        .contentShape(Rectangle())
+                                    
+                                    Image(systemName: "xmark.circle.fill")
+                                        .resizable()
+                                        .frame(width: 30, height: 30)
+                                        .foregroundColor(buttonColor)
+                                        .shadow(radius: 5)
+                                        .padding(5)
+                                        .onTapGesture {
+                                            createPostVM.image = nil
+                                        }
+
+                                } else {
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                        .fill(Color.gray.opacity(0.2))
+                                }
+                            }
+                            .frame(width: 340, height: 200)
+                            // .padding(.horizontal, 30)
+                            .padding(.vertical, 10)
+                            .onTapGesture {
+                                createPostVM.showImagePicker = true
                             }
                         }
-                        .frame(width: 340, height: 200)
-                        // .padding(.horizontal, 30)
-                        .padding(.vertical, 10)
-                        .onTapGesture {
-                            createPostVM.showImagePicker = true
-                        }
+                        
+                        RoundedButton(text: Text("Add Pin").fontWeight(.bold),
+                                      action: self.createPost, backgroundColor: buttonColor)
+                            .frame(width: 340, height: 60, alignment: .center)
+                            .padding(.top, 40)
                     }
-                    Spacer()
-                    
-                    RoundedButton(text: Text("Add Pin").fontWeight(.bold),
-                                  action: self.createPost, backgroundColor: buttonColor)
-                        .frame(width: 340, height: 60, alignment: .center)
-                        .padding(.bottom, 40)
-                    
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

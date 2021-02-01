@@ -11,8 +11,8 @@ import Combine
 
 class MapViewModel: ObservableObject {
     static let defaultRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 40.7128, longitude: -74.0060),
-        span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))
+        center: CLLocationCoordinate2D(latitude: 37.13284, longitude: -95.78558),
+        span: MKCoordinateSpan(latitudeDelta: 85.762482, longitudeDelta: 61.276015))
     
     var appState: AppState
     var regionCancellable: Cancellable? = nil
@@ -23,8 +23,15 @@ class MapViewModel: ObservableObject {
     @Published var annotations: [PostAnnotation] = []
     @Published var region = defaultRegion
     
-    @Published var presentBottomSheet = false
-    @Published var presentedPost: PostId? = nil
+    @Published var presentedPost: Post? = nil
+    
+    @Published var presentBottomSheet = false {
+        didSet {
+            if !presentBottomSheet && oldValue {
+                presentedPost = nil
+            }
+        }
+    }
     
     init(appState: AppState) {
         self.appState = appState
@@ -53,6 +60,30 @@ class MapViewModel: ObservableObject {
     func updateAnnotations() {
         annotations = appState.mapModel.posts
             .map({ appState.allPosts.posts[$0]! })
-            .map({ PostAnnotation(post: $0) })
+            .enumerated()
+            .map({ PostAnnotation(post: $1, zIndex: $0) })
+    }
+}
+
+class PostAnnotation: NSObject, MKAnnotation {
+    let coordinate: CLLocationCoordinate2D
+    let post: Post
+    let zIndex: Int
+    
+    init(post: Post, zIndex: Int) {
+        self.zIndex = zIndex
+        self.post = post
+        if let location = post.customLocation {
+            self.coordinate = location.coordinate()
+        } else {
+            self.coordinate = post.place.location.coordinate()
+        }
+    }
+    
+    override func isEqual(_ object: Any?) -> Bool {
+        if let postAnnotation = object as? PostAnnotation {
+            return post.postId == postAnnotation.post.postId
+        }
+        return false
     }
 }

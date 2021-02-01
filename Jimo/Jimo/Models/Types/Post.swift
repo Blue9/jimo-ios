@@ -32,6 +32,10 @@ struct CreatePostRequest: Codable {
     var customLocation: Location?
 }
 
+struct DeletePostResponse: Codable {
+    var deleted: Bool
+}
+
 struct LikePostResponse: Codable {
     var likes: Int
 }

@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		082CE6B0FD32B3F8FBB97633 /* Pods_JimoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727CAFB0303F5578E431865 /* Pods_JimoTests.framework */; };
-		438A1670E527DAA708281518 /* Pods_Jimo_JimoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78073DC17CE0DED79C31F861 /* Pods_Jimo_JimoUITests.framework */; };
-		8C29627DFA9DE0BE27207212 /* Pods_Jimo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D57CD23A6F0021266E79AA7 /* Pods_Jimo.framework */; };
+		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
+		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
+		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
 		C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70367052557629900F970DE /* NavigationViewModifier.swift */; };
 		C703670E255764FD00F970DE /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C703670D255764FD00F970DE /* Profile.swift */; };
 		C7106AF5256084E200C10EFF /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106AF4256084E200C10EFF /* Place.swift */; };
@@ -49,6 +49,7 @@
 		C79183482597DABF006B4056 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79183472597DABF006B4056 /* PopupView.swift */; };
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
 		C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79EA00125AFD56F00A38DB8 /* AppState.swift */; };
+		C7A80B7225C3916100FF8054 /* ViewPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A80B7125C3916100FF8054 /* ViewPlace.swift */; };
 		C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */; };
 		C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */; };
 		C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D1190C25A186CC00A222E3 /* NavTitle.swift */; };
@@ -87,9 +88,8 @@
 		0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.debug.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.debug.xcconfig"; sourceTree = "<group>"; };
 		1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.release.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.release.xcconfig"; sourceTree = "<group>"; };
 		46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		6727CAFB0303F5578E431865 /* Pods_JimoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JimoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		78073DC17CE0DED79C31F861 /* Pods_Jimo_JimoUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Jimo_JimoUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		8D57CD23A6F0021266E79AA7 /* Pods_Jimo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Jimo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo-JimoUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7124939F1770230B52A71F08 /* libPods-Jimo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.debug.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.release.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.release.xcconfig"; sourceTree = "<group>"; };
 		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -138,6 +138,7 @@
 		C79183472597DABF006B4056 /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		C791835E2597EC64006B4056 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		C79EA00125AFD56F00A38DB8 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		C7A80B7125C3916100FF8054 /* ViewPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewPlace.swift; sourceTree = "<group>"; };
 		C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearch.swift; sourceTree = "<group>"; };
 		C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearch.swift; sourceTree = "<group>"; };
 		C7D1190C25A186CC00A222E3 /* NavTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavTitle.swift; sourceTree = "<group>"; };
@@ -153,6 +154,7 @@
 		C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		C7F6D4F5255A397600E8D216 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
+		EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-JimoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,7 +162,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C29627DFA9DE0BE27207212 /* Pods_Jimo.framework in Frameworks */,
+				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,7 +170,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				082CE6B0FD32B3F8FBB97633 /* Pods_JimoTests.framework in Frameworks */,
+				94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,7 +178,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				438A1670E527DAA708281518 /* Pods_Jimo_JimoUITests.framework in Frameworks */,
+				A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,6 +322,7 @@
 				C72F3CBD258726BA00DDB76C /* MainAppView.swift */,
 				C736A9EA25A541F60086B809 /* ViewPost.swift */,
 				C7D73FD625A7BCDD007699AF /* ProfileTab.swift */,
+				C7A80B7125C3916100FF8054 /* ViewPlace.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -376,9 +379,9 @@
 		C7CDED1B011467E29D97C765 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8D57CD23A6F0021266E79AA7 /* Pods_Jimo.framework */,
-				78073DC17CE0DED79C31F861 /* Pods_Jimo_JimoUITests.framework */,
-				6727CAFB0303F5578E431865 /* Pods_JimoTests.framework */,
+				7124939F1770230B52A71F08 /* libPods-Jimo.a */,
+				5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */,
+				EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -405,7 +408,6 @@
 				C75C2ED725561309009B6ADA /* Sources */,
 				C75C2ED825561309009B6ADA /* Frameworks */,
 				C75C2ED925561309009B6ADA /* Resources */,
-				F37A51EC779531EA3409CBD1 /* [CP] Embed Pods Frameworks */,
 				43F84AF732442B64C6227273 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -444,7 +446,6 @@
 				C75C2EF325561309009B6ADA /* Sources */,
 				C75C2EF425561309009B6ADA /* Frameworks */,
 				C75C2EF525561309009B6ADA /* Resources */,
-				B37F295BA7957B72169EEA8D /* [CP] Embed Pods Frameworks */,
 				71139F8842D6A46E5FEFA6BE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -630,40 +631,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B37F295BA7957B72169EEA8D /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F37A51EC779531EA3409CBD1 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -693,6 +660,7 @@
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
 				C7EC11DB25A0735F0071C65F /* Fonts.swift in Sources */,
+				C7A80B7225C3916100FF8054 /* ViewPlace.swift in Sources */,
 				C77028CA25BFE5C800BB40AD /* RoundedCorner.swift in Sources */,
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
 				C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */,

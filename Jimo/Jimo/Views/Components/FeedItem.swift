@@ -12,18 +12,24 @@ struct FeedItemLikes: View {
     @ObservedObject var feedItemVM: FeedItemVM
     
     private var showFilledHeart: Bool {
-        (post.liked || feedItemVM.liking) && !feedItemVM.unliking
+        guard let post = post else {
+            return false
+        }
+        return (post.liked || feedItemVM.liking) && !feedItemVM.unliking
     }
     
     private var likeCount: Int {
+        guard let post = post else {
+            return 0
+        }
         let inc = feedItemVM.liking ? 1 : 0
         let dec = feedItemVM.unliking ? 1 : 0
         return post.likeCount + inc - dec
     }
     
-    var post: Post {
+    var post: Post? {
         // TODO maybe avoid "!"?
-        allPosts.posts[feedItemVM.postId]!
+        allPosts.posts[feedItemVM.postId]
     }
     
     var body: some View {
@@ -52,16 +58,13 @@ struct FeedItem: View {
     @EnvironmentObject var appState: AppState
     
     @State private var showPostOptions = false
+    @State private var showConfirmDelete = false
     
     let formatter = RelativeDateTimeFormatter()
     /// If true, the full content is shown and is not tappable. This is used for the view post screen.
     var fullPost = false
     var allPosts: AllPosts
     var feedItemVM: FeedItemVM
-    
-    private func deletePost() {
-        print("Delete post")
-    }
     
     var post: Post {
         // TODO maybe avoid "!"?
@@ -185,7 +188,9 @@ struct FeedItem: View {
                 postContent
                 
                 HStack {
-                    Text(formatter.localizedString(for: post.createdAt, relativeTo: Date()))
+                    Text(Date().timeIntervalSince(post.createdAt) < 1
+                            ? "just now"
+                            : formatter.localizedString(for: post.createdAt, relativeTo: Date()))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     
@@ -199,16 +204,32 @@ struct FeedItem: View {
                 Divider()
             }
             .padding(.top, 4)
+            
+            if feedItemVM.deleting {
+                ProgressView()
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
+                    .background(Color.init(.sRGB, white: 1, opacity: 0.5))
+            }
         }
         .actionSheet(isPresented: $showPostOptions) {
             ActionSheet(
                 title: Text("Post options"),
                 buttons: isMyPost ? [
-                    .destructive(Text("Delete"), action: self.deletePost),
+                    .destructive(Text("Delete"), action: {
+                        showConfirmDelete = true
+                    }),
                     .cancel()
                 ] : [
                     .cancel()
                 ])
+        }
+        .alert(isPresented: $showConfirmDelete) {
+            Alert(title: Text("Are you sure?"),
+                  message: Text("You can't undo this action"),
+                  primaryButton: .destructive(Text("Delete post")) {
+                    feedItemVM.deletePost()
+                  },
+                  secondaryButton: .cancel())
         }
     }
 }

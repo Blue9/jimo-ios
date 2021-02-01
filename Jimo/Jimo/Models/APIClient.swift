@@ -40,6 +40,10 @@ struct Endpoint {
         return Endpoint(path: "/posts/")
     }
     
+    static func post(postId: PostId) -> Endpoint {
+        return Endpoint(path: "/posts/\(postId)")
+    }
+    
     static func postLikes(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
@@ -150,6 +154,13 @@ class APIClient: ObservableObject {
      */
     func createPost(_ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
         return doRequest(endpoint: Endpoint.createPost(), httpMethod: "POST", body: request)
+    }
+    
+    /**
+     Delete a post.
+     */
+    func deletePost(postId: PostId) -> AnyPublisher<DeletePostResponse, APIError> {
+        return doRequest(endpoint: Endpoint.post(postId: postId), httpMethod: "DELETE")
     }
     
     /**

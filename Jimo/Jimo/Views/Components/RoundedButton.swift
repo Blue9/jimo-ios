@@ -19,7 +19,7 @@ struct RoundedButton: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .background(
                     RoundedRectangle(cornerRadius: 100).fill(backgroundColor)
-                        .shadow(radius: 5))
+                        .shadow(radius: 3))
         }
     }
 }

@@ -3,11 +3,13 @@
 
 target 'Jimo' do
   # Comment the next line if you don't want to use dynamic frameworks
-  use_frameworks!
+  # use_frameworks!
+  use_modular_headers!
 
   # Pods for Jimo
   pod 'Firebase/Auth'
   pod 'GoogleSignIn'
+  pod 'SDWebImage'
 
   target 'JimoTests' do
     inherit! :search_paths

@@ -1,5 +1,5 @@
 //
-//  View+hideKeyboard.swift
+//  HideKeyboard.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 11/14/20.
