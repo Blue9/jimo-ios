@@ -88,7 +88,7 @@ struct ProfilePosts: View {
     var body: some View {
         if let posts = profileVM.posts {
             ForEach(posts, id: \.self) { postId in
-                FeedItem(allPosts: appState.allPosts, feedItemVM: FeedItemVM(appState: appState, postId: postId))
+                FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId))
             }
             Text("You've reached the end!")
                 .padding()
@@ -106,7 +106,7 @@ struct ProfilePosts: View {
 
 
 struct Profile: View {
-    @ObservedObject var profileVM: ProfileVM
+    @StateObject var profileVM: ProfileVM
     
     var body: some View {
         RefreshableScrollView(refreshing: $profileVM.refreshing) {

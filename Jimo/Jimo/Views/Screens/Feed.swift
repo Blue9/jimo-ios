@@ -20,7 +20,10 @@ class FeedViewState: ObservableObject {
     
     func refreshFeed() {
         cancellable = appState.refreshFeed()
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
                 if !self.initialized {
                     self.initialized = true
                 }
@@ -56,7 +59,7 @@ struct FeedBody: View {
         } else {
             RefreshableScrollView(refreshing: $feedState.scrollViewRefresh) {
                 ForEach(feedModel.currentFeed, id: \.self) { postId in
-                    FeedItem(allPosts: appState.allPosts, feedItemVM: FeedItemVM(appState: appState, postId: postId))
+                    FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId))
                 }
                 Text("You've reached the end!")
             }

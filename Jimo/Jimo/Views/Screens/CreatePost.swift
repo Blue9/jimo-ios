@@ -151,13 +151,13 @@ struct CreatePost: View {
         createPostVM.cancellable = appState.createPost(createPostRequest)
             .sink(receiveCompletion: { completion in
                 if case .failure(_) = completion {
-                    errorMessage = "Could not create post"
-                    showError = true
+                    self.errorMessage = "Could not create post"
+                    self.showError = true
                 }
             }, receiveValue: {
-                showSuccess = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    presented = false
+                self.showSuccess = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.presented = false
                 }
             })
     }

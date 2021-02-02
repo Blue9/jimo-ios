@@ -10,7 +10,9 @@ import Foundation
 typealias PostId = String
 
 struct Post: Codable, Equatable, Identifiable {
-    let id = UUID()
+    var id: PostId {
+        postId
+    }
     var postId: PostId
     var user: PublicUser
     var place: Place

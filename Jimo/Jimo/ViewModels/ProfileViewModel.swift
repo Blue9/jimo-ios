@@ -34,30 +34,30 @@ class ProfileVM: ObservableObject {
     
     func loadUser() {
         loadUserCancellable = appState.getUser(username: user.username)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self.failedToLoadUser = true
+                    self?.failedToLoadUser = true
                     print("Error when loading user", error)
                 } else {
-                    self.failedToLoadUser = false
+                    self?.failedToLoadUser = false
                 }
-                self.refreshing = false
-            }, receiveValue: { user in
-                self.user = user
+                self?.refreshing = false
+            }, receiveValue: { [weak self] user in
+                self?.user = user
             })
     }
     
     func loadPosts() {
         loadPostsCancellable = appState.getPosts(username: user.username)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self.failedToLoadPosts = true
+                    self?.failedToLoadPosts = true
                     print("Error when loading posts", error)
                 } else {
-                    self.failedToLoadPosts = false
+                    self?.failedToLoadPosts = false
                 }
-            }, receiveValue: { posts in
-                self.posts = posts
+            }, receiveValue: { [weak self] posts in
+                self?.posts = posts
             })
     }
     

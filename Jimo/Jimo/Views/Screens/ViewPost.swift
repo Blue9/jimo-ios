@@ -13,7 +13,7 @@ struct ViewPost: View {
 
     var body: some View {
         ScrollView {
-            FeedItem(fullPost: true, allPosts: appState.allPosts, feedItemVM: FeedItemVM(appState: appState, postId: postId))
+            FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId), fullPost: true)
         }
     }
 }

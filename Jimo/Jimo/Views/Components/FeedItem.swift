@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct FeedItemLikes: View {
-    @ObservedObject var allPosts: AllPosts
     @ObservedObject var feedItemVM: FeedItemVM
     
     private var showFilledHeart: Bool {
@@ -28,8 +27,7 @@ struct FeedItemLikes: View {
     }
     
     var post: Post? {
-        // TODO maybe avoid "!"?
-        allPosts.posts[feedItemVM.postId]
+        feedItemVM.post
     }
     
     var body: some View {
@@ -56,6 +54,7 @@ struct FeedItemLikes: View {
 
 struct FeedItem: View {
     @EnvironmentObject var appState: AppState
+    @StateObject var feedItemVM: FeedItemVM
     
     @State private var showPostOptions = false
     @State private var showConfirmDelete = false
@@ -63,23 +62,16 @@ struct FeedItem: View {
     let formatter = RelativeDateTimeFormatter()
     /// If true, the full content is shown and is not tappable. This is used for the view post screen.
     var fullPost = false
-    var allPosts: AllPosts
-    var feedItemVM: FeedItemVM
-    
-    var post: Post {
-        // TODO maybe avoid "!"?
-        allPosts.posts[feedItemVM.postId]!
-    }
     
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
-            return user.username == post.user.username
+            return user.username == feedItemVM.post?.user.username
         }
         // Should never be here since user should be logged in
         return false
     }
     
-    var profileView: some View {
+    func profileView(post: Post) -> some View {
         Profile(profileVM: ProfileVM(appState: appState, user: post.user))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(content: {
@@ -99,7 +91,7 @@ struct FeedItem: View {
             })
     }
     
-    var postContent: some View {
+    func postContent(post: Post) -> some View {
         let content = VStack(alignment: .leading) {
             Text(post.content)
                 .padding(.top, 10)
@@ -130,7 +122,7 @@ struct FeedItem: View {
         }
     }
     
-    var body: some View {
+    func postBody(post: Post) -> some View {
         ZStack(alignment: .top) {
             Rectangle()
                 .frame(height: 32)
@@ -138,7 +130,7 @@ struct FeedItem: View {
             VStack(alignment: .leading) {
                 HStack(alignment: .top) {
                     
-                    NavigationLink(destination: profileView) {
+                    NavigationLink(destination: profileView(post: post)) {
                         URLImage(
                             url: post.user.profilePictureUrl,
                             loading: Image(systemName: "person.crop.circle"),
@@ -156,7 +148,7 @@ struct FeedItem: View {
                     
                     VStack(alignment: .leading) {
                         HStack {
-                            NavigationLink(destination: profileView) {
+                            NavigationLink(destination: profileView(post: post)) {
                                 Text(post.user.firstName + " " + post.user.lastName)
                                     .font(.title3)
                                     .bold()
@@ -185,7 +177,7 @@ struct FeedItem: View {
                 }
                 .padding(.leading)
                 
-                postContent
+                postContent(post: post)
                 
                 HStack {
                     Text(Date().timeIntervalSince(post.createdAt) < 1
@@ -196,7 +188,7 @@ struct FeedItem: View {
                     
                     Spacer()
                     
-                    FeedItemLikes(allPosts: allPosts, feedItemVM: feedItemVM)
+                    FeedItemLikes(feedItemVM: feedItemVM)
                 }
                 .padding(.top, 4)
                 .padding(.horizontal)
@@ -211,25 +203,36 @@ struct FeedItem: View {
                     .background(Color.init(.sRGB, white: 1, opacity: 0.5))
             }
         }
-        .actionSheet(isPresented: $showPostOptions) {
-            ActionSheet(
-                title: Text("Post options"),
-                buttons: isMyPost ? [
-                    .destructive(Text("Delete"), action: {
-                        showConfirmDelete = true
-                    }),
-                    .cancel()
-                ] : [
-                    .cancel()
-                ])
-        }
-        .alert(isPresented: $showConfirmDelete) {
-            Alert(title: Text("Are you sure?"),
-                  message: Text("You can't undo this action"),
-                  primaryButton: .destructive(Text("Delete post")) {
-                    feedItemVM.deletePost()
-                  },
-                  secondaryButton: .cancel())
+    }
+    
+    var body: some View {
+        if let post = feedItemVM.post {
+            postBody(post: post)
+                .onAppear {
+                    feedItemVM.listenToPostUpdates()
+                }
+                .actionSheet(isPresented: $showPostOptions) {
+                    ActionSheet(
+                        title: Text("Post options"),
+                        buttons: isMyPost ? [
+                            .destructive(Text("Delete"), action: {
+                                showConfirmDelete = true
+                            }),
+                            .cancel()
+                        ] : [
+                            .cancel()
+                        ])
+                }
+                .alert(isPresented: $showConfirmDelete) {
+                    Alert(title: Text("Are you sure?"),
+                          message: Text("You can't undo this action"),
+                          primaryButton: .destructive(Text("Delete post")) {
+                            feedItemVM.deletePost()
+                          },
+                          secondaryButton: .cancel())
+                }
+        } else {
+            EmptyView()
         }
     }
 }
@@ -237,12 +240,6 @@ struct FeedItem: View {
 struct FeedItem_Previews: PreviewProvider {
     static let api = APIClient()
     static let appState = AppState(apiClient: api)
-    
-    static let allPosts: AllPosts = {
-        let all = AllPosts()
-        all.posts[post.postId] = post
-        return all
-    }()
     
     static let post = Post(
         postId: "test",
@@ -264,7 +261,7 @@ struct FeedItem_Previews: PreviewProvider {
         customLocation: nil)
     
     static var previews: some View {
-        FeedItem(allPosts: allPosts, feedItemVM: FeedItemVM(appState: appState, postId: post.postId))
+        FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: post.postId))
             .environmentObject(api)
             .environmentObject(appState)
     }

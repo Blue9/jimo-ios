@@ -52,8 +52,8 @@ class MapViewModel: ObservableObject {
                 if case let .failure(error) = completion {
                     print(error)
                 }
-            }, receiveValue: {
-                self.updateAnnotations()
+            }, receiveValue: { [weak self] in
+                self?.updateAnnotations()
             })
     }
     
