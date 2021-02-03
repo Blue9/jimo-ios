@@ -18,12 +18,12 @@ struct HomeMenu: View {
             }
             .padding(.bottom, 40)
             
-            VStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: 20) {
                 Text("We can’t wait to get jimo out to the world, but for now we’re invite only.")
                 
                 Text("If you don’t have access, join our waitlist and we’ll add you as soon as we can!")
             }
-            .padding(.horizontal, 30)
+            .frame(maxWidth: 280)
             .padding(.bottom, 40)
             
             
@@ -38,9 +38,6 @@ struct HomeMenu: View {
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .foregroundColor(.black)
             }
-            
-            Spacer()
-                .frame(height: 100)
         }
         .padding(.horizontal, 50)
         .frame(maxHeight: .infinity)
@@ -55,5 +52,6 @@ struct HomeMenu_Previews: PreviewProvider {
     static var previews: some View {
         HomeMenu()
             .environmentObject(AppState(apiClient: APIClient()))
+            .environment(\.font, Font.custom(Poppins.medium, size: 18))
     }
 }

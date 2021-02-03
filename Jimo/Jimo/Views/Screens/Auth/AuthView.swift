@@ -12,6 +12,7 @@ struct AuthView: View {
     var body: some View {
         NavigationView {
             HomeMenu()
+                .navigationBarHidden(true)
         }.environment(\.font, Font.custom(Poppins.medium, size: 18))
     }
 }

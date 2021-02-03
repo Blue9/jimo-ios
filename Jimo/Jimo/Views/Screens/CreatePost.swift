@@ -11,6 +11,7 @@ import MapKit
 
 struct Category: View {
     var name: String
+    var spacerAfter = true
     var key: String {
         name.lowercased()
     }
@@ -31,7 +32,10 @@ struct Category: View {
                 Text(name)
                     .font(.caption)
             }
-            Spacer()
+            
+            if spacerAfter {
+                Spacer()
+            }
         }
         .onTapGesture {
             self.selected = key
@@ -49,13 +53,27 @@ struct CategoryPicker: View {
                     .fontWeight(.bold)
                 Spacer()
             }
-            HStack {
-                Category(name: "Food", selected: $category)
-                Category(name: "Activity", selected: $category)
-                Category(name: "Attraction", selected: $category)
-                Category(name: "Lodging", selected: $category)
-                Category(name: "Shopping", selected: $category)
+            .padding(.horizontal)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    Category(name: "Food", selected: $category)
+                    Category(name: "Activity", selected: $category)
+                    Category(name: "Attraction", selected: $category)
+                    Category(name: "Lodging", selected: $category)
+                    Category(name: "Shopping", spacerAfter: false, selected: $category)
+                    Spacer()
+                }
+                .padding(.horizontal, 10)
+                .frame(minWidth: UIScreen.main.bounds.width)
+                
+                Spacer()
             }
+            .frame(height: 82)
+            .frame(maxWidth: .infinity)
         }
     }
 }
@@ -168,7 +186,7 @@ struct CreatePost: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         CategoryPicker(category: $category)
-                            .padding()
+                            .padding(.vertical)
                         
                         Group {
                             NavigationLink(
@@ -228,8 +246,9 @@ struct CreatePost: View {
                                         .fill(Color.gray.opacity(0.2))
                                 }
                             }
-                            .frame(width: 340, height: 200)
-                            // .padding(.horizontal, 30)
+                            .frame(height: 200)
+                            .frame(maxWidth: 340)
+                             .padding(.horizontal, 30)
                             .padding(.vertical, 10)
                             .onTapGesture {
                                 createPostVM.showImagePicker = true
@@ -238,8 +257,11 @@ struct CreatePost: View {
                         
                         RoundedButton(text: Text("Add Pin").fontWeight(.bold),
                                       action: self.createPost, backgroundColor: buttonColor)
-                            .frame(width: 340, height: 60, alignment: .center)
+                            .frame(height: 60, alignment: .center)
+                            .frame(maxWidth: 340)
+                            .padding(.horizontal, 30)
                             .padding(.top, 40)
+                            .padding(.bottom, 20)
                     }
                 }
             }
