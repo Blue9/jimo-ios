@@ -38,6 +38,7 @@ struct CreateUserRequest: Codable {
 
 
 struct UserFieldError: Codable {
+    var uid: String?
     var username: String?
     var firstName: String?
     var lastName: String?
@@ -47,4 +48,19 @@ struct UserFieldError: Codable {
 struct CreateUserResponse: Codable {
     var created: PublicUser?
     var error: UserFieldError?
+}
+
+
+struct InviteUserRequest: Codable {
+    var phoneNumber: String
+}
+
+
+struct UserInviteStatus: Codable {
+    var invited: Bool
+}
+
+struct UserWaitlistStatus: Codable {
+    var invited: Bool
+    var waitlisted: Bool
 }

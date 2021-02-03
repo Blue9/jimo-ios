@@ -12,6 +12,13 @@
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
 		C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70367052557629900F970DE /* NavigationViewModifier.swift */; };
 		C703670E255764FD00F970DE /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C703670D255764FD00F970DE /* Profile.swift */; };
+		C70AE46225CA37EA009920E8 /* PhoneNumberTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */; };
+		C70AE46725CA7DC4009920E8 /* WaitlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46625CA7DC4009920E8 /* WaitlistView.swift */; };
+		C70AE46D25CA8DF6009920E8 /* OldAuthViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46C25CA8DF6009920E8 /* OldAuthViews.swift */; };
+		C70AE47525CA8E48009920E8 /* HomeMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE47425CA8E48009920E8 /* HomeMenu.swift */; };
+		C70AE47A25CA8E76009920E8 /* EnterPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE47925CA8E76009920E8 /* EnterPhoneNumber.swift */; };
+		C70AE47F25CA8EC5009920E8 /* VerifyPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */; };
+		C70AE48425CA8FA9009920E8 /* LargeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE48325CA8FA9009920E8 /* LargeButton.swift */; };
 		C7106AF5256084E200C10EFF /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106AF4256084E200C10EFF /* Place.swift */; };
 		C7106B072560C7BC00C10EFF /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */; };
 		C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */; };
@@ -95,12 +102,20 @@
 		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		C70367052557629900F970DE /* NavigationViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModifier.swift; sourceTree = "<group>"; };
 		C703670D255764FD00F970DE /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberTextFieldView.swift; sourceTree = "<group>"; };
+		C70AE46625CA7DC4009920E8 /* WaitlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitlistView.swift; sourceTree = "<group>"; };
+		C70AE46C25CA8DF6009920E8 /* OldAuthViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldAuthViews.swift; sourceTree = "<group>"; };
+		C70AE47425CA8E48009920E8 /* HomeMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMenu.swift; sourceTree = "<group>"; };
+		C70AE47925CA8E76009920E8 /* EnterPhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterPhoneNumber.swift; sourceTree = "<group>"; };
+		C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyPhoneNumber.swift; sourceTree = "<group>"; };
+		C70AE48325CA8FA9009920E8 /* LargeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeButton.swift; sourceTree = "<group>"; };
 		C7106AF4256084E200C10EFF /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
 		C7106B062560C7BC00C10EFF /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		C71B1B142599B7FE004BF1CD /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		C721D896255B653C00FFC4E6 /* LocationSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSelection.swift; sourceTree = "<group>"; };
 		C7260C582585D27C0002A335 /* CreateProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfileView.swift; sourceTree = "<group>"; };
+		C72E1D1125CA1ADD0091C894 /* Jimo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Jimo.entitlements; sourceTree = "<group>"; };
 		C72F3CB82587264A00DDB76C /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
 		C72F3CBD258726BA00DDB76C /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
 		C7318C902560E1F000E75BE6 /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
@@ -206,6 +221,19 @@
 			path = Modifiers;
 			sourceTree = "<group>";
 		};
+		C70AE46B25CA8DAA009920E8 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				C74BC93E256E1F4C0095A2BA /* AuthView.swift */,
+				C70AE46625CA7DC4009920E8 /* WaitlistView.swift */,
+				C70AE46C25CA8DF6009920E8 /* OldAuthViews.swift */,
+				C70AE47425CA8E48009920E8 /* HomeMenu.swift */,
+				C70AE47925CA8E76009920E8 /* EnterPhoneNumber.swift */,
+				C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
 		C75C2ED225561308009B6ADA = {
 			isa = PBXGroup;
 			children = (
@@ -231,6 +259,7 @@
 		C75C2EDD25561309009B6ADA /* Jimo */ = {
 			isa = PBXGroup;
 			children = (
+				C72E1D1125CA1ADD0091C894 /* Jimo.entitlements */,
 				C7EC11DF25A075540071C65F /* Fonts */,
 				C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */,
 				C7A898A0255E503F00C3F6B6 /* Extensions */,
@@ -310,13 +339,13 @@
 		C75C2F43255619D4009B6ADA /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				C70AE46B25CA8DAA009920E8 /* Auth */,
 				C75C2F0F25561359009B6ADA /* MapView.swift */,
 				C75C2F3E255617CA009B6ADA /* CreatePost.swift */,
 				C703670D255764FD00F970DE /* Profile.swift */,
 				C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */,
 				C721D896255B653C00FFC4E6 /* LocationSelection.swift */,
 				C76DEA32255E559C008A9E1B /* Search.swift */,
-				C74BC93E256E1F4C0095A2BA /* AuthView.swift */,
 				C7260C582585D27C0002A335 /* CreateProfileView.swift */,
 				C72F3CB82587264A00DDB76C /* Feed.swift */,
 				C72F3CBD258726BA00DDB76C /* MainAppView.swift */,
@@ -342,6 +371,8 @@
 				C79183472597DABF006B4056 /* PopupView.swift */,
 				C71B1B142599B7FE004BF1CD /* Toast.swift */,
 				C7D1190C25A186CC00A222E3 /* NavTitle.swift */,
+				C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */,
+				C70AE48325CA8FA9009920E8 /* LargeButton.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -641,6 +672,7 @@
 				C74BC926256E17370095A2BA /* SessionStore.swift in Sources */,
 				C791835F2597EC64006B4056 /* Constants.swift in Sources */,
 				C72F3CBE258726BA00DDB76C /* MainAppView.swift in Sources */,
+				C70AE47525CA8E48009920E8 /* HomeMenu.swift in Sources */,
 				C7EAD4DE25AC1DD0004A9F53 /* AuthClient.swift in Sources */,
 				C75C2F3F255617CA009B6ADA /* CreatePost.swift in Sources */,
 				C736A9EB25A541F60086B809 /* ViewPost.swift in Sources */,
@@ -654,8 +686,12 @@
 				C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */,
 				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
 				C74BC92B256E198C0095A2BA /* FirebaseUser.swift in Sources */,
+				C70AE48425CA8FA9009920E8 /* LargeButton.swift in Sources */,
+				C70AE46225CA37EA009920E8 /* PhoneNumberTextFieldView.swift in Sources */,
 				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,
 				C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */,
+				C70AE46725CA7DC4009920E8 /* WaitlistView.swift in Sources */,
+				C70AE47F25CA8EC5009920E8 /* VerifyPhoneNumber.swift in Sources */,
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
@@ -665,6 +701,7 @@
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
 				C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */,
 				C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */,
+				C70AE47A25CA8E76009920E8 /* EnterPhoneNumber.swift in Sources */,
 				C768E9382558B3CB0068FCD5 /* FeedItem.swift in Sources */,
 				C71B1B152599B7FE004BF1CD /* Toast.swift in Sources */,
 				C77028C525BFE5B200BB40AD /* BottomSheet.swift in Sources */,
@@ -672,6 +709,7 @@
 				C75C2F1025561359009B6ADA /* MapView.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
 				C72F3CB92587264A00DDB76C /* Feed.swift in Sources */,
+				C70AE46D25CA8DF6009920E8 /* OldAuthViews.swift in Sources */,
 				C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */,
 				C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */,
 				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
@@ -842,6 +880,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Jimo/Jimo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Jimo/Preview Content\"";
@@ -867,6 +906,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Jimo/Jimo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Jimo/Preview Content\"";

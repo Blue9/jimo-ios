@@ -36,6 +36,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, GIDSignInDelegate {
         
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         GIDSignIn.sharedInstance().delegate = self
+        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
         return true
     }
     
@@ -52,5 +53,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, GIDSignInDelegate {
                 return
             }
         }
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
     }
 }

@@ -273,7 +273,6 @@ struct CreatePost_Previews: PreviewProvider {
     
     static var previews: some View {
         CreatePost(presented: .constant(true))
-            .environmentObject(api)
             .environmentObject(AppState(apiClient: api))
     }
 }

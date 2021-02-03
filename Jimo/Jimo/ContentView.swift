@@ -48,8 +48,10 @@ struct ContentView: View {
                     .transition(.slide)
             } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist
-                CreateProfileView()
-                    .transition(.slide)
+                NavigationView {
+                    WaitlistView()
+                        .navigationBarHidden(true)
+                }.transition(.slide)
             }
         }
         .onAppear(perform: appState.listen)
@@ -60,7 +62,6 @@ struct ContentView_Previews: PreviewProvider {
     static let api = APIClient()
     static var previews: some View {
         ContentView()
-            .environmentObject(api)
             .environmentObject(AppState(apiClient: api))
     }
 }

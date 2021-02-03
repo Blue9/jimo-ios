@@ -1,16 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "splash.svg",
+      "filename" : "jimo.svg",
       "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
-  },
-  "properties" : {
-    "preserves-vector-representation" : true,
-    "template-rendering-intent" : "original"
   }
 }

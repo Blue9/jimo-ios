@@ -20,6 +20,18 @@ struct Endpoint {
         return Endpoint(path: "/me")
     }
     
+    static func waitlistStatus() -> Endpoint {
+        return Endpoint(path: "/waitlist/status")
+    }
+    
+    static func joinWaitlist() -> Endpoint {
+        return Endpoint(path: "/waitlist/")
+    }
+    
+    static func inviteUser() -> Endpoint {
+        return Endpoint(path: "/waitlist/invites")
+    }
+    
     static func createUser() -> Endpoint {
         return Endpoint(path: "/users/")
     }
@@ -108,6 +120,20 @@ class APIClient: ObservableObject {
      */
     func getMe() -> AnyPublisher<PublicUser, APIError> {
         return doRequest(endpoint: Endpoint.me())
+    }
+    
+    func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
+        return doRequest(endpoint: Endpoint.waitlistStatus())
+    }
+    
+    func joinWaitlist() -> AnyPublisher<UserWaitlistStatus, APIError> {
+        return doRequest(endpoint: Endpoint.joinWaitlist(), httpMethod: "POST")
+    }
+    
+    func inviteUser(phoneNumber: String) -> AnyPublisher<UserInviteStatus, APIError> {
+        return doRequest(endpoint: Endpoint.inviteUser(),
+                         httpMethod: "POST",
+                         body: InviteUserRequest(phoneNumber: phoneNumber))
     }
     
     /**

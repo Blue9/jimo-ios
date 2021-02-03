@@ -51,12 +51,16 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
 		<string>splashBackground</string>
 		<key>UIImageName</key>
-		<string>splash</string>
+		<string>logo</string>
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<false/>
 	</dict>

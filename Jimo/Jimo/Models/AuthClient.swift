@@ -47,6 +47,33 @@ class AuthClient: ObservableObject {
         }.eraseToAnyPublisher()
     }
     
+    func verifyPhoneNumber(phoneNumber: String) -> AnyPublisher<String, Error> {
+        Future<String, Error> { promise in
+            PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
+                if let error = error {
+                    promise(.failure(error))
+                } else if let verificationID = verificationID {
+                    promise(.success(verificationID))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+    
+    func signInPhone(verificationID: String, verificationCode: String) -> AnyPublisher<AuthDataResult, Error> {
+        Future<AuthDataResult, Error> { promise in
+            let credential = PhoneAuthProvider.provider().credential(
+                withVerificationID: verificationID,
+                verificationCode: verificationCode)
+            Auth.auth().signIn(with: credential, completion: { auth, error in
+                if let error = error {
+                    promise(.failure(error))
+                } else if let auth = auth {
+                    promise(.success(auth))
+                }
+            })
+        }.eraseToAnyPublisher()
+    }
+    
     func forgotPassword(email: String) -> AnyPublisher<Void, Error> {
         Future<Void, Error> { promise in
             Auth.auth().sendPasswordReset(withEmail: email) { error in

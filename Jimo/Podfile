@@ -11,6 +11,8 @@ target 'Jimo' do
   pod 'GoogleSignIn'
   pod 'SDWebImage'
 
+  pod 'PhoneNumberKit', '~> 3.3'
+
   target 'JimoTests' do
     inherit! :search_paths
     # Pods for testing

@@ -75,6 +75,26 @@ class AppState: ObservableObject {
         return apiClient.authClient.signIn(email: email, password: password)
     }
     
+    func verifyPhoneNumber(phoneNumber: String) -> AnyPublisher<String, Error> {
+        return apiClient.authClient.verifyPhoneNumber(phoneNumber: phoneNumber)
+            .map({ verificationID in
+                UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+                return verificationID
+            })
+            .eraseToAnyPublisher()
+    }
+    
+    func getPhoneVerificationID() -> String? {
+        return UserDefaults.standard.string(forKey: "authVerificationID")
+    }
+    
+    func signInPhone(verificationCode: String) -> AnyPublisher<AuthDataResult, Error> {
+        guard let verificationID = getPhoneVerificationID() else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return apiClient.authClient.signInPhone(verificationID: verificationID, verificationCode: verificationCode)
+    }
+    
     func forgotPassword(email: String) -> AnyPublisher<Void, Error> {
         return apiClient.authClient.forgotPassword(email: email)
     }
@@ -89,6 +109,18 @@ class AppState: ObservableObject {
             print("Already logged out")
         }
         self.currentUser = .empty
+    }
+    
+    func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
+        return self.apiClient.getWaitlistStatus()
+    }
+    
+    func joinWaitlist() -> AnyPublisher<UserWaitlistStatus, APIError> {
+        return self.apiClient.joinWaitlist()
+    }
+    
+    func inviteUser(phoneNumber: String) -> AnyPublisher<UserInviteStatus, APIError> {
+        return self.apiClient.inviteUser(phoneNumber: phoneNumber)
     }
     
     func createUser(_ request: CreateUserRequest) -> AnyPublisher<CreateUserResponse, APIError> {

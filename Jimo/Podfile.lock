@@ -57,6 +57,12 @@ PODS:
     - nanopb/encode (= 2.30907.0)
   - nanopb/decode (2.30907.0)
   - nanopb/encode (2.30907.0)
+  - PhoneNumberKit (3.3.3):
+    - PhoneNumberKit/PhoneNumberKitCore (= 3.3.3)
+    - PhoneNumberKit/UIKit (= 3.3.3)
+  - PhoneNumberKit/PhoneNumberKitCore (3.3.3)
+  - PhoneNumberKit/UIKit (3.3.3):
+    - PhoneNumberKit/PhoneNumberKitCore
   - PromisesObjC (1.2.12)
   - SDWebImage (5.10.3):
     - SDWebImage/Core (= 5.10.3)
@@ -65,6 +71,7 @@ PODS:
 DEPENDENCIES:
   - Firebase/Auth
   - GoogleSignIn
+  - PhoneNumberKit (~> 3.3)
   - SDWebImage
 
 SPEC REPOS:
@@ -80,6 +87,7 @@ SPEC REPOS:
     - GTMAppAuth
     - GTMSessionFetcher
     - nanopb
+    - PhoneNumberKit
     - PromisesObjC
     - SDWebImage
 
@@ -95,9 +103,10 @@ SPEC CHECKSUMS:
   GTMAppAuth: 197a8dabfea5d665224aa00d17f164fc2248dab9
   GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
   nanopb: 59221d7f958fb711001e6a449489542d92ae113e
+  PhoneNumberKit: 4ce83273551c4d2ae10b7361162f4283dd02835f
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SDWebImage: e378178472b735e84b007bfb55514c97948a0598
 
-PODFILE CHECKSUM: f659ec5c46fc5db72d44c038bf1d504496f5d46a
+PODFILE CHECKSUM: 574a286086f9525698afd079ffb5b8fb5219d442
 
 COCOAPODS: 1.10.0

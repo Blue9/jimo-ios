@@ -93,12 +93,16 @@ struct CreateProfileBody: View {
                 }
             }, receiveValue: { response in
                 if let error = response.error {
-                    if let usernameError = error.username {
+                    if let uidError = error.uid {
+                        requestError = uidError
+                    } else if let usernameError = error.username {
                         requestError = usernameError
                     } else if let firstNameError = error.firstName {
                         requestError = firstNameError
                     } else if let lastNameError = error.lastName {
                         requestError = lastNameError
+                    } else {
+                        requestError = "Unknown error"
                     }
                     showRequestError = true
                 }
@@ -175,9 +179,7 @@ struct CreateProfileBody: View {
 
 struct CreateProfileView: View {
     var body: some View {
-        NavigationView {
-            CreateProfileBody()
-        }
+        CreateProfileBody()
     }
 }
 

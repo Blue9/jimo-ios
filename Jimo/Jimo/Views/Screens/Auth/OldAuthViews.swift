@@ -1,15 +1,14 @@
 //
-//  AuthView.swift
+//  OldAuthView.swift
 //  Jimo
 //
-//  Created by Gautam Mekkat on 11/25/20.
+//  Created by Gautam Mekkat on 2/3/21.
 //
 
-import Combine
 import SwiftUI
-import Firebase
+import Combine
+import FirebaseAuth
 import GoogleSignIn
-
 
 struct GoogleSignInButton: View {
     
@@ -210,22 +209,5 @@ struct SignInView: View {
                 NavTitle("Sign in")
             }
         }
-    }
-}
-
-struct AuthView: View {
-    var body: some View {
-        NavigationView {
-            SignUpView()
-        }
-    }
-}
-
-struct AuthView_Previews: PreviewProvider {
-    static let apiClient = APIClient()
-    static let appState = AppState(apiClient: apiClient)
-    
-    static var previews: some View {
-        AuthView().environmentObject(apiClient).environmentObject(appState)
     }
 }
