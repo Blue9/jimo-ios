@@ -19,7 +19,8 @@ struct ContentView: View {
                     .transition(.slide)
             } else if case .loading = appState.currentUser {
                 // Firebase user exists, loading user profile
-                Text("Loading profile...")
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     .transition(.opacity)
             } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile

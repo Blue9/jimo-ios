@@ -27,12 +27,12 @@ struct HomeMenu: View {
             .padding(.bottom, 40)
             
             
-            NavigationLink(destination: EnterPhoneNumber(waitlistSignUp: true)) {
+            NavigationLink(destination: EnterPhoneNumber()) {
                 LargeButton("Join Waitlist")
             }
             .padding(.bottom, 5)
             
-            NavigationLink(destination: EnterPhoneNumber(waitlistSignUp: false)) {
+            NavigationLink(destination: EnterPhoneNumber()) {
                 Text("Already have an invite? Sign in")
                     .font(Font.custom(Poppins.medium, size: 16))
                     .frame(minWidth: 0, maxWidth: .infinity)
@@ -41,9 +41,8 @@ struct HomeMenu: View {
         }
         .padding(.horizontal, 50)
         .frame(maxHeight: .infinity)
-        .onTapGesture {
-            hideKeyboard()
-        }
+        // This fixes a bug when moving back from EnterPhoneNumber with the keyboard open
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .background(Color(.sRGB, red: 0.95, green: 0.95, blue: 0.95, opacity: 1).edgesIgnoringSafeArea(.all))
     }
 }

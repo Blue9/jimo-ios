@@ -12,7 +12,7 @@ import PhoneNumberKit
 struct EnterPhoneNumber: View {
     @EnvironmentObject var appState: AppState
     
-    let waitlistSignUp: Bool
+    let phoneNumberKit = PhoneNumberKit()
     
     @State private var phoneNumberField = PhoneNumberTextFieldView()
     @State private var error = ""
@@ -35,13 +35,13 @@ struct EnterPhoneNumber: View {
             loading = false
             return
         }
-        getCodeCancellable = appState.verifyPhoneNumber(phoneNumber: PhoneNumberKit().format(number, toType: .e164))
+        getCodeCancellable = appState.verifyPhoneNumber(phoneNumber: phoneNumberKit.format(number, toType: .e164))
             .sink(receiveCompletion: { completion in
-                loading = false
                 if case let .failure(error) = completion {
                     print("Error", error)
                     setError("Invalid phone number. Try again.")
                 }
+                loading = false
             }, receiveValue: { _ in
                 self.error = ""
                 self.nextStep = true
@@ -61,13 +61,10 @@ struct EnterPhoneNumber: View {
                     .background(RoundedRectangle(cornerRadius: 10)
                                     .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
                     .padding(.bottom, 20)
-                    .onTapGesture {
-                        // Don't hide keyboard
-                    }
                 
                 Button(action: getCode) {
                     if loading {
-                        Text("Loading...")
+                        ProgressView()
                             .font(Font.custom(Poppins.medium, size: 20))
                             .frame(minWidth: 0, maxWidth: .infinity)
                             .frame(height: 60)
@@ -92,15 +89,12 @@ struct EnterPhoneNumber: View {
                     .font(.caption)
                     .foregroundColor(.gray)
                 
-                NavigationLink(destination: VerifyPhoneNumber(waitlistSignUp: waitlistSignUp), isActive: $nextStep) {
+                NavigationLink(destination: VerifyPhoneNumber(), isActive: $nextStep) {
                     EmptyView()
                 }
             }
             .padding(.horizontal, 30)
             .frame(maxHeight: .infinity)
-            .onTapGesture {
-                hideKeyboard()
-            }
             .background(Color(.sRGB, red: 0.95, green: 0.95, blue: 0.95, opacity: 1).edgesIgnoringSafeArea(.all))
         }
         .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
@@ -111,7 +105,7 @@ struct EnterPhoneNumber: View {
 
 struct EnterPhoneNumber_Previews: PreviewProvider {
     static var previews: some View {
-        EnterPhoneNumber(waitlistSignUp: false)
+        EnterPhoneNumber()
             .environmentObject(AppState(apiClient: APIClient()))
     }
 }

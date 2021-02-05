@@ -172,12 +172,15 @@ struct MapSearch: View {
 
 struct MapView: View {
     @EnvironmentObject var appState: AppState
-    var mapModel: MapModel
+    @ObservedObject var mapModel: MapModel
     
     @ObservedObject var mapViewModel: MapViewModel
     
-    var mapAnnotations: [Post] {
-        mapModel.posts.map({ appState.allPosts.posts[$0]! })
+    var mapAnnotations: [PostAnnotation] {
+        appState.mapModel.posts
+            .map({ appState.allPosts.posts[$0]! })
+            .enumerated()
+            .map({ PostAnnotation(post: $1, zIndex: $0) })
     }
     
     var body: some View {
@@ -186,7 +189,7 @@ struct MapView: View {
                 region: $mapViewModel.region,
                 selectedPost: $mapViewModel.presentedPost,
                 showPost: $mapViewModel.presentBottomSheet,
-                annotations: mapViewModel.annotations)
+                annotations: mapAnnotations)
                 .edgesIgnoringSafeArea(.all)
             
             MapSearch()

@@ -13,7 +13,8 @@ struct AuthView: View {
         NavigationView {
             HomeMenu()
                 .navigationBarHidden(true)
-        }.environment(\.font, Font.custom(Poppins.medium, size: 18))
+        }
+        .environment(\.font, Font.custom(Poppins.medium, size: 18))
     }
 }
 

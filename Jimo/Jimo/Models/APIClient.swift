@@ -71,6 +71,10 @@ struct Endpoint {
             ])
     }
     
+    static func notificationToken() -> Endpoint {
+        return Endpoint(path: "/notifications/token")
+    }
+    
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "http"
@@ -122,18 +126,45 @@ class APIClient: ObservableObject {
         return doRequest(endpoint: Endpoint.me())
     }
     
+    /**
+     Check if the current user is on the waitlist.
+     */
     func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
         return doRequest(endpoint: Endpoint.waitlistStatus())
     }
     
+    /**
+     Add the current user to the waitlist.
+     */
     func joinWaitlist() -> AnyPublisher<UserWaitlistStatus, APIError> {
         return doRequest(endpoint: Endpoint.joinWaitlist(), httpMethod: "POST")
     }
     
+    /**
+     Invite another user.
+     */
     func inviteUser(phoneNumber: String) -> AnyPublisher<UserInviteStatus, APIError> {
         return doRequest(endpoint: Endpoint.inviteUser(),
                          httpMethod: "POST",
                          body: InviteUserRequest(phoneNumber: phoneNumber))
+    }
+    
+    /**
+     Register the notification token.
+     */
+    func registerNotificationToken(token: String) -> AnyPublisher<NotificationTokenResponse, APIError> {
+        return doRequest(endpoint: Endpoint.notificationToken(),
+                         httpMethod: "POST",
+                         body: NotificationTokenRequest(token: token))
+    }
+    
+    /**
+     Remove the notification token.
+     */
+    func removeNotificationToken(token: String) -> AnyPublisher<NotificationTokenResponse, APIError> {
+        return doRequest(endpoint: Endpoint.notificationToken(),
+                         httpMethod: "DELETE",
+                         body: NotificationTokenRequest(token: token))
     }
     
     /**
@@ -299,22 +330,17 @@ class APIClient: ObservableObject {
         do {
             return try decoder.decode(Response.self, from: result.data)
         } catch DecodingError.keyNotFound(let key, let context) {
-            Swift.print("could not find key \(key) in JSON: \(context.debugDescription)")
+            print("could not find key \(key) in JSON: \(context.debugDescription)")
         } catch DecodingError.valueNotFound(let type, let context) {
-            Swift.print("could not find type \(type) in JSON: \(context.debugDescription)")
+            print("could not find type \(type) in JSON: \(context.debugDescription)")
         } catch DecodingError.typeMismatch(let type, let context) {
-            Swift.print("type mismatch for type \(type) in JSON: \(context.debugDescription)")
+            print("type mismatch for type \(type) in JSON: \(context.debugDescription)")
         } catch DecodingError.dataCorrupted(let context) {
-            Swift.print("data found to be corrupted in JSON: \(context.debugDescription)")
+            print("data found to be corrupted in JSON: \(context.debugDescription)")
         } catch let error as NSError {
-            NSLog("Error in read(from:ofType:) domain= \(error.domain), description= \(error.localizedDescription)")
+            print("Error in read(from:ofType:) domain= \(error.domain), description= \(error.localizedDescription)")
         }
         throw APIError.decodeError
-//        if let decoded = try? decoder.decode(Response.self, from: result.data) {
-//            return decoded
-//        } else {
-//            throw APIError.decodeError
-//        }
     }
 }
 

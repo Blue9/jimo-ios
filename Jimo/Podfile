@@ -8,6 +8,7 @@ target 'Jimo' do
 
   # Pods for Jimo
   pod 'Firebase/Auth'
+  pod 'Firebase/Messaging'
   pod 'GoogleSignIn'
   pod 'SDWebImage'
 

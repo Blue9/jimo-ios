@@ -14,17 +14,14 @@ class MapViewModel: ObservableObject {
         center: CLLocationCoordinate2D(latitude: 37.13284, longitude: -95.78558),
         span: MKCoordinateSpan(latitudeDelta: 85.762482, longitudeDelta: 61.276015))
     
+    @Environment(\.presentationMode) var presentation
+    
     var appState: AppState
     var regionCancellable: Cancellable? = nil
     var cancellable: Cancellable? = nil
     
-    @Environment(\.presentationMode) var presentation
-    
-    @Published var annotations: [PostAnnotation] = []
     @Published var region = defaultRegion
-    
     @Published var presentedPost: Post? = nil
-    
     @Published var presentBottomSheet = false {
         didSet {
             if !presentBottomSheet && oldValue {
@@ -52,16 +49,7 @@ class MapViewModel: ObservableObject {
                 if case let .failure(error) = completion {
                     print(error)
                 }
-            }, receiveValue: { [weak self] in
-                self?.updateAnnotations()
-            })
-    }
-    
-    func updateAnnotations() {
-        annotations = appState.mapModel.posts
-            .map({ appState.allPosts.posts[$0]! })
-            .enumerated()
-            .map({ PostAnnotation(post: $1, zIndex: $0) })
+            }, receiveValue: {})
     }
 }
 

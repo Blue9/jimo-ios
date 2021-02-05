@@ -10,9 +10,7 @@ import Combine
 
 struct VerifyPhoneNumber: View {
     @EnvironmentObject var appState: AppState
-    
-    let waitlistSignUp: Bool
-    
+        
     @State private var verificationCode = ""
     @State private var error = ""
     @State private var showError = false
@@ -24,6 +22,7 @@ struct VerifyPhoneNumber: View {
     }
     
     func verifyPhoneNumber() {
+        hideKeyboard()
         verifyCancellable = appState.signInPhone(verificationCode: verificationCode)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
@@ -69,7 +68,7 @@ struct VerifyPhoneNumber: View {
 
 struct VerifyPhoneNumber_Previews: PreviewProvider {
     static var previews: some View {
-        VerifyPhoneNumber(waitlistSignUp: true)
+        VerifyPhoneNumber()
             .environmentObject(AppState(apiClient: APIClient()))
     }
 }

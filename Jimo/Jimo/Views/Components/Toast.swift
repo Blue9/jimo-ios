@@ -29,6 +29,7 @@ struct Toast: View {
     
     var body: some View {
         Text(text)
+            .font(Font.custom(Poppins.medium, size: 14))
             .foregroundColor(.white)
             .padding(15)
             .background(type.color())

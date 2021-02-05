@@ -32,7 +32,7 @@
 		C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */; };
 		C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7493980255663E100D1E8D3 /* RoundedButton.swift */; };
 		C74BC926256E17370095A2BA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC925256E17370095A2BA /* SessionStore.swift */; };
-		C74BC92B256E198C0095A2BA /* FirebaseUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC92A256E198C0095A2BA /* FirebaseUser.swift */; };
+		C74BC92B256E198C0095A2BA /* Firebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC92A256E198C0095A2BA /* Firebase.swift */; };
 		C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC93E256E1F4C0095A2BA /* AuthView.swift */; };
 		C74BC944256E25CD0095A2BA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */; };
 		C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EDE25561309009B6ADA /* JimoApp.swift */; };
@@ -123,7 +123,7 @@
 		C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextInput.swift; sourceTree = "<group>"; };
 		C7493980255663E100D1E8D3 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
 		C74BC925256E17370095A2BA /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
-		C74BC92A256E198C0095A2BA /* FirebaseUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUser.swift; sourceTree = "<group>"; };
+		C74BC92A256E198C0095A2BA /* Firebase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firebase.swift; sourceTree = "<group>"; };
 		C74BC93E256E1F4C0095A2BA /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C75C2EDB25561309009B6ADA /* Jimo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jimo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -391,7 +391,7 @@
 			isa = PBXGroup;
 			children = (
 				C7F6D4F5255A397600E8D216 /* Comment.swift */,
-				C74BC92A256E198C0095A2BA /* FirebaseUser.swift */,
+				C74BC92A256E198C0095A2BA /* Firebase.swift */,
 				C7106AF4256084E200C10EFF /* Place.swift */,
 				C75C2F24255616CC009B6ADA /* Post.swift */,
 				C75C2F1F2556166D009B6ADA /* User.swift */,
@@ -685,7 +685,7 @@
 				C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */,
 				C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */,
 				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
-				C74BC92B256E198C0095A2BA /* FirebaseUser.swift in Sources */,
+				C74BC92B256E198C0095A2BA /* Firebase.swift in Sources */,
 				C70AE48425CA8FA9009920E8 /* LargeButton.swift in Sources */,
 				C70AE46225CA37EA009920E8 /* PhoneNumberTextFieldView.swift in Sources */,
 				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,

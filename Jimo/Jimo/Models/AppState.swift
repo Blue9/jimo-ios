@@ -36,11 +36,6 @@ class MapModel: ObservableObject {
 }
 
 
-class UserPosts: ObservableObject {
-    @Published var posts: [PostId] = []
-}
-
-
 class AllPosts: ObservableObject {
     @Published var posts: [PostId: Post] = [:]
 }
@@ -56,11 +51,20 @@ class AppState: ObservableObject {
     /// App state vars
     let feedModel = FeedModel()
     let mapModel = MapModel()
-    let userPosts = UserPosts()
     let allPosts = AllPosts()
+    
+    // If we're signing out don't register any new FCM tokens
+    var signingOut = false
+    var registeringToken = false
     
     init(apiClient: APIClient) {
         self.apiClient = apiClient
+        updateTokenOnUserChange()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didReceiveTokenUpdate(_:)),
+            name: Notification.Name(rawValue: "FCMToken"),
+            object: nil)
     }
     
     func listen() {
@@ -100,15 +104,39 @@ class AppState: ObservableObject {
     }
     
     /**
-     Sign the current user out. Does nothing if the user was already signed out.
+     Sign the current user out and remove the notification token. Does nothing if the user was already signed out.
+     Returns whether the user could be successfully signed out.
      */
     func signOut() {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("Already logged out")
+        signingOut = true
+        if registeringToken {
+            // Fail. We could try again in a few seconds but this is so unlikely it's not worth doing
+            signingOut = false
+            return
         }
-        self.currentUser = .empty
+        let registeredToken = getNotificationToken()
+        guard let token = registeredToken else {
+            self.signOutAndClearData()
+            return
+        }
+        if case .user(_) = currentUser {
+            // Logged in, that means we must have registered the token
+            self.apiClient.removeNotificationToken(token: token)
+                .sink(receiveCompletion: { completion in
+                    if case let .failure(error) = completion {
+                        print("Error when removing notification token", error)
+                    }
+                }, receiveValue: { [weak self] status in
+                    if status.success {
+                        self?.signOutAndClearData()
+                    }
+                    self?.signingOut = false
+                })
+                .store(in: &cancelBag)
+        }
+        // Otherwise, just log out
+        self.signOutAndClearData()
+        signingOut = false
     }
     
     func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
@@ -161,7 +189,7 @@ class AppState: ObservableObject {
     
     func refreshMap(region: MKCoordinateRegion) -> AnyPublisher<Void, APIError> {
         return self.apiClient.getMap(region: region)
-            .map(self.setMap)
+            .map({ posts in self.setMap(region: region, posts: posts) })
             .map({ _ in return () })
             .eraseToAnyPublisher()
     }
@@ -210,7 +238,7 @@ class AppState: ObservableObject {
         feedModel.currentFeed = posts.map(\.postId)
     }
     
-    private func setMap(posts: [Post]) {
+    private func setMap(region: MKCoordinateRegion, posts: [Post]) {
         posts.forEach({ post in
             allPosts.posts[post.postId] = post
             if !mapModel.posts.contains(post.postId) {
@@ -230,12 +258,11 @@ class AppState: ObservableObject {
     
     private func newPost(post: Post) {
         allPosts.posts[post.postId] = post
-        userPosts.posts.append(post.postId)
         feedModel.currentFeed.insert(post.postId, at: 0)
+        mapModel.posts.append(post.postId)
     }
     
     private func removePost(postId: PostId) {
-        userPosts.posts.removeAll(where: { $0 == postId })
         feedModel.currentFeed.removeAll(where: { $0 == postId })
         mapModel.posts.removeAll(where: { $0 == postId })
         allPosts.posts.removeValue(forKey: postId)
@@ -259,10 +286,96 @@ class AppState: ObservableObject {
             customLocation: post.customLocation)
     }
     
+    private func signOutAndClearData() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("Already logged out")
+        }
+        self.mapModel.posts.removeAll()
+        self.feedModel.currentFeed.removeAll()
+        self.allPosts.posts.removeAll()
+        self.currentUser = .empty
+    }
+    
+    // MARK: - Notification logic
+    
+    private func updateTokenOnUserChange() {
+        $currentUser.sink(receiveValue: { [weak self] user in
+            if case .user(_) = user {
+                self?.registerNotificationToken()
+            }
+        })
+        .store(in: &cancelBag)
+    }
+    
+    @objc private func didReceiveTokenUpdate(_ notification: Notification) {
+        guard let dataDict = notification.userInfo else {
+            return
+        }
+        guard let token = dataDict["token"] as? String else {
+            print("Missing token")
+            return
+        }
+        print("Received notification for new token", token)
+        registerNewNotificationToken(token: token)
+    }
+    
+    private func getNotificationToken() -> String? {
+        let key = "registeredFCMToken"
+        return UserDefaults.standard.string(forKey: key)
+    }
+    
+    private func setNotificationToken(token: String) {
+        let key = "registeredFCMToken"
+        UserDefaults.standard.set(token, forKey: key)
+    }
+    
+    private func registerNotificationToken() {
+        print("Registering token")
+        let registeredToken = getNotificationToken()
+        Messaging.messaging().token { [weak self] token, error in
+            guard let self = self else {
+                return
+            }
+            if token == registeredToken {
+                print("Already registered this FCM registration token:", token?.debugDescription)
+                return
+            }
+            if let error = error {
+                print("Error fetching FCM registration token: \(error)")
+            } else if let token = token {
+                print("FCM registration token: \(token)")
+                self.registerNewNotificationToken(token: token)
+            }
+        }
+    }
+    
+    private func registerNewNotificationToken(token: String) {
+        registeringToken = true
+        if signingOut {
+            registeringToken = false
+            return
+        }
+        self.apiClient.registerNotificationToken(token: token)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Error when registering token", error)
+                    // TODO try again
+                }
+                self?.registeringToken = false
+            }, receiveValue: { [weak self] response in
+                if response.success {
+                    self?.setNotificationToken(token: token)
+                }
+            })
+            .store(in: &self.cancelBag)
+    }
+    
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         if let user = user {
             self.refreshCurrentUser()
-            self.firebaseSession = .user(FirebaseUser(uid: user.uid, email: user.email))
+            self.firebaseSession = .user(FirebaseUser(uid: user.uid, phoneNumber: user.phoneNumber))
         } else {
             self.firebaseSession = .doesNotExist
             self.currentUser = .empty

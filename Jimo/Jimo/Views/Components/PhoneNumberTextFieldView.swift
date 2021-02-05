@@ -14,7 +14,7 @@ struct PhoneNumberTextFieldView: UIViewRepresentable {
     func makeUIView(context: Context) -> PhoneNumberTextField {
         textField.withFlag = true
         textField.withPrefix = true
-        textField.placeholder = "Phone number"
+        textField.withExamplePlaceholder = true
         return textField
     }
     
