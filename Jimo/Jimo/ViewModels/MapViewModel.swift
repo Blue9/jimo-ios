@@ -14,18 +14,18 @@ class MapViewModel: ObservableObject {
         center: CLLocationCoordinate2D(latitude: 37.13284, longitude: -95.78558),
         span: MKCoordinateSpan(latitudeDelta: 85.762482, longitudeDelta: 61.276015))
     
-    @Environment(\.presentationMode) var presentation
-    
     var appState: AppState
     var regionCancellable: Cancellable? = nil
     var cancellable: Cancellable? = nil
     
     @Published var region = defaultRegion
-    @Published var presentedPost: Post? = nil
-    @Published var presentBottomSheet = false {
+    @Published var presentedPost: Post?
+    @Published var results: [MKMapItem]?
+    @Published var modalState: ModalSnapState = .invisible {
         didSet {
-            if !presentBottomSheet && oldValue {
+            if modalState == .invisible {
                 presentedPost = nil
+                results = nil
             }
         }
     }
@@ -35,7 +35,6 @@ class MapViewModel: ObservableObject {
         regionCancellable = $region
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .sink { region in self.refreshMap() }
-
     }
     
     func refreshMap() {

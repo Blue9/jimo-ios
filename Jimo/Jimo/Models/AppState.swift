@@ -333,13 +333,8 @@ class AppState: ObservableObject {
     
     private func registerNotificationToken() {
         print("Registering token")
-        let registeredToken = getNotificationToken()
         Messaging.messaging().token { [weak self] token, error in
             guard let self = self else {
-                return
-            }
-            if token == registeredToken {
-                print("Already registered this FCM registration token:", token?.debugDescription)
                 return
             }
             if let error = error {
