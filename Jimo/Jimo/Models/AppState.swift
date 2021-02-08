@@ -52,6 +52,7 @@ class AppState: ObservableObject {
     let feedModel = FeedModel()
     let mapModel = MapModel()
     let allPosts = AllPosts()
+    let storage = Storage.storage()
     
     // If we're signing out don't register any new FCM tokens
     var signingOut = false
@@ -256,6 +257,34 @@ class AppState: ObservableObject {
         return self.apiClient.getDiscoverFeed(username: user.username)
     }
     
+    // MARK: - Image upload
+    
+    func uploadImageAndGetURL(image: UIImage) -> AnyPublisher<URL, Error> {
+        guard let user = apiClient.authClient.currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        guard let jpeg = image.jpegData(compressionQuality: 0.9) else {
+            return Fail(error: APIError.encodeError).eraseToAnyPublisher()
+        }
+        
+        let imagePath = storage.reference().child("images").child(user.uid).child("\(UUID()).jpg")
+        return Future<URL, Error> { promise in
+            imagePath.putData(jpeg, metadata: nil) { metadata, error in
+                if let error = error {
+                    promise(.failure(error))
+                } else {
+                    imagePath.downloadURL { url, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let url = url {
+                            promise(.success(url))
+                        }
+                    }
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+    
     // MARK: - Helpers
     
     private func setFeed(posts: [Post]) {
@@ -379,11 +408,13 @@ class AppState: ObservableObject {
         }
         self.apiClient.registerNotificationToken(token: token)
             .sink(receiveCompletion: { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Error when registering token", error)
-                    // TODO try again
-                }
                 self?.registeringToken = false
+                if case let .failure(error) = completion {
+                    print("Error when registering token, trying again in 5 seconds", error)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                        self?.registerNewNotificationToken(token: token)
+                    }
+                }
             }, receiveValue: { [weak self] response in
                 if response.success {
                     self?.setNotificationToken(token: token)

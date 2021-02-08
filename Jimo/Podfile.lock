@@ -12,6 +12,9 @@ PODS:
   - Firebase/Messaging (7.5.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 7.5.0)
+  - Firebase/Storage (7.5.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 7.5.0)
   - FirebaseAuth (7.5.0):
     - FirebaseCore (~> 7.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
@@ -43,6 +46,9 @@ PODS:
     - GoogleUtilities/Environment (~> 7.0)
     - GoogleUtilities/Reachability (~> 7.0)
     - GoogleUtilities/UserDefaults (~> 7.0)
+  - FirebaseStorage (7.5.0):
+    - FirebaseCore (~> 7.0)
+    - GTMSessionFetcher/Core (~> 1.4)
   - GoogleDataTransport (8.2.0):
     - nanopb (~> 2.30907.0)
   - GoogleSignIn (5.0.2):
@@ -93,6 +99,7 @@ PODS:
 DEPENDENCIES:
   - Firebase/Auth
   - Firebase/Messaging
+  - Firebase/Storage
   - GoogleSignIn
   - PhoneNumberKit (~> 3.3)
   - SDWebImage
@@ -107,6 +114,7 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseInstanceID
     - FirebaseMessaging
+    - FirebaseStorage
     - GoogleDataTransport
     - GoogleSignIn
     - GoogleUtilities
@@ -126,6 +134,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: a46ae59915f0931e18814164849cd0354bea24ed
   FirebaseInstanceID: 47fcb3b70d6349cfd471f430b01bbd01a7698e8f
   FirebaseMessaging: a2a23671eb281b1eed38b155af8549b335a4a38b
+  FirebaseStorage: 9cbdff7bdcdc8289c8efc20945fc91c1066d0b43
   GoogleDataTransport: 1024b1a4dfbd7a0e92cb20d7e0a6f1fb66b449a4
   GoogleSignIn: 7137d297ddc022a7e0aa4619c86d72c909fa7213
   GoogleUtilities: d866834472f1324d080496bc67ab3ce5d0d46027
@@ -136,6 +145,6 @@ SPEC CHECKSUMS:
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SDWebImage: e378178472b735e84b007bfb55514c97948a0598
 
-PODFILE CHECKSUM: aeb16a4648f0e76f712aaf301bcfd86c23f64f31
+PODFILE CHECKSUM: a5bfd5107c02d0bd2ee80ff7bbabae2e4ec01dd8
 
 COCOAPODS: 1.10.0

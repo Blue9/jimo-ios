@@ -30,6 +30,7 @@ struct ProfileHeaderView: View {
                 .background(Color.white)
                 .cornerRadius(50)
                 .padding(.trailing)
+                .id(user.profilePictureUrl)
             VStack(alignment: .leading) {
                 Text(name)
                     .fontWeight(.bold)

@@ -142,8 +142,11 @@ struct ViewPlace: View {
                 } else {
                     url = "http://maps.apple.com/?q=\(q)&z=10"
                 }
-                if let url = URL(string: url) {
+                if let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
+                   let url = URL(string: encoded) {
                     UIApplication.shared.open(url)
+                } else {
+                    print("URL not valid", url)
                 }
             }) {
                 Text("Open in Maps")

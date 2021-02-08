@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import Combine
 
 
 struct Category: View {
@@ -160,24 +161,54 @@ struct CreatePost: View {
             return
         }
         let customLocation = createPostVM.customLocation.map({ location in Location(coord: location.coordinate) })
-        let createPostRequest = CreatePostRequest(
-            place: createPlaceRequest,
-            category: category,
-            content: content,
-            imageUrl: nil,
-            customLocation: customLocation)
-        createPostVM.cancellable = appState.createPost(createPostRequest)
-            .sink(receiveCompletion: { completion in
-                if case .failure(_) = completion {
-                    self.errorMessage = "Could not create post"
+        // First upload the image
+        if let image = createPostVM.image {
+            createPostVM.cancellable = appState.uploadImageAndGetURL(image: image)
+                .catch({ error -> AnyPublisher<URL, APIError> in
+                    print("Error when uploading image", error)
+                    self.errorMessage = "Could not upload image."
                     self.showError = true
-                }
-            }, receiveValue: {
-                self.showSuccess = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.presented = false
-                }
-            })
+                    return Empty().eraseToAnyPublisher()
+                })
+                .flatMap({ url -> AnyPublisher<Void, APIError> in
+                    appState.createPost(CreatePostRequest(place: createPlaceRequest,
+                                                          category: category,
+                                                          content: content,
+                                                          imageUrl: url.absoluteString,
+                                                          customLocation: customLocation))
+                })
+                .sink(receiveCompletion: { completion in
+                    if case let .failure(error) = completion {
+                        print("Error when creating post", error)
+                        self.errorMessage = "Could not create post"
+                        self.showError = true
+                    }
+                }, receiveValue: {
+                    self.showSuccess = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.presented = false
+                    }
+                })
+        } else {
+            let createPostRequest = CreatePostRequest(
+                place: createPlaceRequest,
+                category: category,
+                content: content,
+                imageUrl: nil,
+                customLocation: customLocation)
+            createPostVM.cancellable = appState.createPost(createPostRequest)
+                .sink(receiveCompletion: { completion in
+                    if case .failure(_) = completion {
+                        self.errorMessage = "Could not create post"
+                        self.showError = true
+                    }
+                }, receiveValue: {
+                    self.showSuccess = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.presented = false
+                    }
+                })
+        }
     }
     
     var body: some View {

@@ -107,7 +107,9 @@ struct FeedItem: View {
             
             if let image = post.imageUrl {
                 URLImage(url: image,
-                         loading: Image(systemName: "rectangle.fill"))
+                         loading: Image("grayRect").resizable(),
+                         failure: Image("imageFail"))
+                    .id(image)
                     .scaledToFill()
                     .font(.system(size: 1, weight: .ultraLight))
                     .foregroundColor(.gray)
@@ -142,6 +144,7 @@ struct FeedItem: View {
                             url: post.user.profilePictureUrl,
                             loading: Image(systemName: "person.crop.circle"),
                             failure: Image(systemName: "person.crop.circle"))
+                            .id(post.user.profilePictureUrl)
                             .foregroundColor(.gray)
                             .background(Color.white)
                             .font(.system(size: 16, weight: .ultraLight))
