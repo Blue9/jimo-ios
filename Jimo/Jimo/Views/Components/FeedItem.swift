@@ -59,9 +59,21 @@ struct FeedItem: View {
     @State private var showPostOptions = false
     @State private var showConfirmDelete = false
     
+    @State private var initialized = false
+    @State private var relativeTime: String = ""
+    
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
     let formatter = RelativeDateTimeFormatter()
     /// If true, the full content is shown and is not tappable. This is used for the view post screen.
     var fullPost = false
+    
+    func getRelativeTime(post: Post) -> String {
+        if Date().timeIntervalSince(post.createdAt) < 1 {
+            return "just now"
+        }
+        return formatter.localizedString(for: post.createdAt, relativeTo: Date())
+    }
     
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
@@ -83,12 +95,6 @@ struct FeedItem: View {
     
     var fullPostView: some View {
         ViewPost(postId: feedItemVM.postId)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("View Post")
-                }
-            })
     }
     
     func postContent(post: Post) -> some View {
@@ -105,9 +111,10 @@ struct FeedItem: View {
                     .scaledToFill()
                     .font(.system(size: 1, weight: .ultraLight))
                     .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, maxHeight: 300)
+                    .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: 300)
                     .cornerRadius(0)
                     .contentShape(Rectangle())
+                    .background(Color(post.category))
             }
         }
         
@@ -168,11 +175,20 @@ struct FeedItem: View {
                                     .foregroundColor(.black)
                             }
                         }
-                        HStack {
-                            Text(post.place.name)
+                        
+                        NavigationLink(destination: ViewPlace(place: post.place)
+                                        .toolbar {
+                                            ToolbarItem(placement: .principal) {
+                                                NavTitle("View place")
+                                            }
+                                        }) {
+                            HStack {
+                                Text(post.place.name)
+                            }
+                            .foregroundColor(.black)
+                            .font(.subheadline)
+                            .offset(y: 6)
                         }
-                        .font(.footnote)
-                        .offset(y: 6)
                     }
                 }
                 .padding(.leading)
@@ -180,11 +196,12 @@ struct FeedItem: View {
                 postContent(post: post)
                 
                 HStack {
-                    Text(Date().timeIntervalSince(post.createdAt) < 1
-                            ? "just now"
-                            : formatter.localizedString(for: post.createdAt, relativeTo: Date()))
+                    Text(relativeTime)
                         .font(.subheadline)
                         .foregroundColor(.gray)
+                        .onReceive(timer, perform: { _ in
+                            relativeTime = getRelativeTime(post: post)
+                        })
                     
                     Spacer()
                     
@@ -209,7 +226,11 @@ struct FeedItem: View {
         if let post = feedItemVM.post {
             postBody(post: post)
                 .onAppear {
-                    feedItemVM.listenToPostUpdates()
+                    if !initialized {
+                        relativeTime = getRelativeTime(post: post)
+                        feedItemVM.listenToPostUpdates()
+                        initialized = true
+                    }
                 }
                 .actionSheet(isPresented: $showPostOptions) {
                     ActionSheet(

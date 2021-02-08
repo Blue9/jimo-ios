@@ -9,12 +9,19 @@ import SwiftUI
 
 struct ViewPost: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.presentationMode) var presentation
     let postId: PostId
 
     var body: some View {
         ScrollView {
-            FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId), fullPost: true)
+            FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId, onDelete: { presentation.wrappedValue.dismiss() }), fullPost: true)
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(content: {
+            ToolbarItem(placement: .principal) {
+                NavTitle("View Post")
+            }
+        })
     }
 }
 

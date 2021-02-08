@@ -16,9 +16,7 @@ struct Endpoint {
     let path: String
     var queryItems: [URLQueryItem] = []
     
-    static func me() -> Endpoint {
-        return Endpoint(path: "/me")
-    }
+    // MARK: - Invite + waitlist endpoints
     
     static func waitlistStatus() -> Endpoint {
         return Endpoint(path: "/waitlist/status")
@@ -30,6 +28,12 @@ struct Endpoint {
     
     static func inviteUser() -> Endpoint {
         return Endpoint(path: "/waitlist/invites")
+    }
+    
+    // MARK: - User endpoints
+    
+    static func me() -> Endpoint {
+        return Endpoint(path: "/me")
     }
     
     static func createUser() -> Endpoint {
@@ -48,6 +52,8 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/posts")
     }
     
+    // MARK: - Post endpoints
+    
     static func createPost() -> Endpoint {
         return Endpoint(path: "/posts/")
     }
@@ -59,6 +65,20 @@ struct Endpoint {
     static func postLikes(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
+    
+    // MARK: - Search endpoints
+    
+    static func searchUser(query: String) -> Endpoint {
+        return Endpoint(path: "/search/users", queryItems: [URLQueryItem(name: "q", value: query)])
+    }
+    
+    // MARK: - Discover endpoint
+    
+    static func discoverFeed(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/discover")
+    }
+    
+    // MARK: - Map endpoint
     
     static func getMap(centerLat: Double, centerLong: Double, spanLat: Double, spanLong: Double) -> Endpoint {
         return Endpoint(
@@ -119,12 +139,7 @@ class APIClient: ObservableObject {
         self.authClient.handle = Auth.auth().addStateDidChangeListener(handle)
     }
     
-    /**
-     Get the current user profile.
-     */
-    func getMe() -> AnyPublisher<PublicUser, APIError> {
-        return doRequest(endpoint: Endpoint.me())
-    }
+    // MARK: - Invite + waitlist endpoints
     
     /**
      Check if the current user is on the waitlist.
@@ -149,6 +164,8 @@ class APIClient: ObservableObject {
                          body: InviteUserRequest(phoneNumber: phoneNumber))
     }
     
+    // MARK: - Notification endpoints
+    
     /**
      Register the notification token.
      */
@@ -165,6 +182,15 @@ class APIClient: ObservableObject {
         return doRequest(endpoint: Endpoint.notificationToken(),
                          httpMethod: "DELETE",
                          body: NotificationTokenRequest(token: token))
+    }
+    
+    // MARK: - User endpoints
+    
+    /**
+     Get the current user profile.
+     */
+    func getMe() -> AnyPublisher<PublicUser, APIError> {
+        return doRequest(endpoint: Endpoint.me())
     }
     
     /**
@@ -206,6 +232,8 @@ class APIClient: ObservableObject {
         doRequest(endpoint: Endpoint.posts(username: username))
     }
     
+    // MARK: - Post endpoints
+    
     /**
      Create a new post.
      */
@@ -233,6 +261,20 @@ class APIClient: ObservableObject {
     func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         doRequest(endpoint: Endpoint.postLikes(postId: postId), httpMethod: "DELETE")
     }
+    
+    // MARK: - Search endpoints
+    
+    func searchUsers(query: String) -> AnyPublisher<[PublicUser], APIError> {
+        doRequest(endpoint: Endpoint.searchUser(query: query))
+    }
+    
+    // MARK: - Discover endpoint
+    
+    func getDiscoverFeed(username: String) -> AnyPublisher<[Post], APIError> {
+        doRequest(endpoint: Endpoint.discoverFeed(username: username))
+    }
+    
+    // MARK: - Helpers
     
     /**
      Get an auth token for the logged in user if possible.

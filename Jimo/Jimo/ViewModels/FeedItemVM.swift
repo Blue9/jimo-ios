@@ -22,14 +22,16 @@ class FeedItemVM: ObservableObject {
     var unlikeCancellable: Cancellable? = nil
     var deleteCancellable: Cancellable? = nil
     
-    init(appState: AppState, postId: PostId) {
+    var onDelete: (() -> Void)?
+    
+    init(appState: AppState, postId: PostId, onDelete: (() -> Void)? = nil) {
         self.appState = appState
         self.postId = postId
         self.post = appState.allPosts.posts[postId]
+        self.onDelete = onDelete
     }
     
     func listenToPostUpdates() {
-        print("Listening to post updates")
         updatePostCancellable = appState.allPosts.$posts
             .sink(receiveValue: { [weak self] posts in
                 guard let self = self else {
@@ -73,6 +75,10 @@ class FeedItemVM: ObservableObject {
                 if case let .failure(error) = completion {
                     print("Error when deleting", error)
                 }
-            }, receiveValue: {})
+            }, receiveValue: { [weak self] _ in
+                if let onDelete = self?.onDelete {
+                    onDelete()
+                }
+            })
     }
 }

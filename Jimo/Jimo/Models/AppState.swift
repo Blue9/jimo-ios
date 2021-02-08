@@ -67,6 +67,8 @@ class AppState: ObservableObject {
             object: nil)
     }
     
+    // MARK: - Auth
+    
     func listen() {
         self.apiClient.setAuthHandler(handle: self.authHandler)
     }
@@ -139,6 +141,8 @@ class AppState: ObservableObject {
         signingOut = false
     }
     
+    // MARK: - Invite + waitlist
+    
     func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
         return self.apiClient.getWaitlistStatus()
     }
@@ -150,6 +154,8 @@ class AppState: ObservableObject {
     func inviteUser(phoneNumber: String) -> AnyPublisher<UserInviteStatus, APIError> {
         return self.apiClient.inviteUser(phoneNumber: phoneNumber)
     }
+    
+    // MARK: - User
     
     func createUser(_ request: CreateUserRequest) -> AnyPublisher<CreateUserResponse, APIError> {
         return self.apiClient.createUser(request)
@@ -194,6 +200,8 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    // MARK: - Post
+    
     func createPost(_ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
         return self.apiClient.createPost(request)
             .map(self.newPost)
@@ -232,6 +240,23 @@ class AppState: ObservableObject {
             })
             .eraseToAnyPublisher()
     }
+    
+    // MARK: - Search
+    
+    func searchUsers(query: String) -> AnyPublisher<[PublicUser], APIError> {
+        return self.apiClient.searchUsers(query: query)
+    }
+    
+    // MARK: - Discover
+    
+    func discoverFeed() -> AnyPublisher<[Post], APIError> {
+        guard case let .user(user) = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return self.apiClient.getDiscoverFeed(username: user.username)
+    }
+    
+    // MARK: - Helpers
     
     private func setFeed(posts: [Post]) {
         posts.forEach({ post in allPosts.posts[post.postId] = post })
