@@ -47,6 +47,7 @@ class AppState: ObservableObject {
     
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
+    @Published var isUserOnboarded: Bool
     
     /// App state vars
     let feedModel = FeedModel()
@@ -59,13 +60,35 @@ class AppState: ObservableObject {
     var registeringToken = false
     
     init(apiClient: APIClient) {
+        // TODO remove
+        UserDefaults.standard.set(false, forKey: "userOnboarded")
         self.apiClient = apiClient
+        self.isUserOnboarded = AppState.userOnboarded()
         updateTokenOnUserChange()
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(didReceiveTokenUpdate(_:)),
             name: Notification.Name(rawValue: "FCMToken"),
             object: nil)
+    }
+    
+    // MARK: - User onboarding
+    
+    static func userOnboarded() -> Bool {
+        // Returns false if the key hasn't been set
+        UserDefaults.standard.bool(forKey: "userOnboarded")
+    }
+    
+    func setUserOnboarded() {
+        UserDefaults.standard.set(true, forKey: "userOnboarded")
+        isUserOnboarded = true
+    }
+    
+    func getUsersInContacts(phoneNumbers: [String]) -> AnyPublisher<[PublicUser], APIError> {
+        guard case let .user(user) = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return apiClient.getUsersInContacts(username: user.username, phoneNumbers: phoneNumbers)
     }
     
     // MARK: - Auth
@@ -255,6 +278,8 @@ class AppState: ObservableObject {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return self.apiClient.getDiscoverFeed(username: user.username)
+            .map(self.setDiscoverFeed)
+            .eraseToAnyPublisher()
     }
     
     // MARK: - Image upload
@@ -263,10 +288,9 @@ class AppState: ObservableObject {
         guard let user = apiClient.authClient.currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        guard let jpeg = image.jpegData(compressionQuality: 0.9) else {
+        guard let jpeg = image.jpegData(compressionQuality: 0.25) else {
             return Fail(error: APIError.encodeError).eraseToAnyPublisher()
         }
-        
         let imagePath = storage.reference().child("images").child(user.uid).child("\(UUID()).jpg")
         return Future<URL, Error> { promise in
             imagePath.putData(jpeg, metadata: nil) { metadata, error in
@@ -290,6 +314,11 @@ class AppState: ObservableObject {
     private func setFeed(posts: [Post]) {
         posts.forEach({ post in allPosts.posts[post.postId] = post })
         feedModel.currentFeed = posts.map(\.postId)
+    }
+    
+    private func setDiscoverFeed(posts: [Post]) -> [Post] {
+        posts.forEach({ post in allPosts.posts[post.postId] = post })
+        return posts
     }
     
     private func setMap(region: MKCoordinateRegion, posts: [Post]) {
@@ -403,6 +432,10 @@ class AppState: ObservableObject {
     private func registerNewNotificationToken(token: String) {
         registeringToken = true
         if signingOut {
+            registeringToken = false
+            return
+        }
+        guard case .user(_) = currentUser else {
             registeringToken = false
             return
         }

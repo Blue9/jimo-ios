@@ -62,6 +62,7 @@ struct FeedBody: View {
                     FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId))
                 }
                 Text("You've reached the end!")
+                    .padding(.top, 40)
             }
         }
     }
@@ -73,7 +74,6 @@ struct Feed: View {
     var body: some View {
         NavigationView {
             FeedBody(feedModel: appState.feedModel, feedState: FeedViewState(appState: appState))
-                //.navigationTitle("Feed")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
@@ -81,7 +81,6 @@ struct Feed: View {
                     }
                 }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

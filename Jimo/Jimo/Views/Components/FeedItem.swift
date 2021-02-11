@@ -113,7 +113,8 @@ struct FeedItem: View {
                     .scaledToFill()
                     .font(.system(size: 1, weight: .ultraLight))
                     .foregroundColor(.gray)
-                    .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: 300)
+                    .frame(maxWidth: UIScreen.main.bounds.width,
+                           maxHeight: fullPost ? .infinity : 300)
                     .cornerRadius(0)
                     .contentShape(Rectangle())
                     .background(Color(post.category))
@@ -138,7 +139,6 @@ struct FeedItem: View {
                 .foregroundColor(Color(post.category))
             VStack(alignment: .leading) {
                 HStack(alignment: .top) {
-                    
                     NavigationLink(destination: profileView(post: post)) {
                         URLImage(
                             url: post.user.profilePictureUrl,

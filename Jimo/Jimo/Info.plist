@@ -59,10 +59,6 @@
 	<dict>
 		<key>UIColorName</key>
 		<string>splashBackground</string>
-		<key>UIImageName</key>
-		<string>logo</string>
-		<key>UIImageRespectsSafeAreaInsets</key>
-		<false/>
 	</dict>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
@@ -85,5 +81,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSContactsUsageDescription</key>
+	<string>This lets you see which of your friends are on jimo.</string>
 </dict>
 </plist>

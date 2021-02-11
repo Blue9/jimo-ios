@@ -19,7 +19,10 @@ protocol User {
     var followingCount: Int { get set }
 }
 
-struct PublicUser: User, Codable, Equatable {
+struct PublicUser: User, Codable, Identifiable, Equatable {
+    var id: String {
+        username
+    }
     var username: username
     var firstName: String
     var lastName: String
@@ -60,7 +63,13 @@ struct UserInviteStatus: Codable {
     var invited: Bool
 }
 
+
 struct UserWaitlistStatus: Codable {
     var invited: Bool
     var waitlisted: Bool
+}
+
+
+struct PhoneNumbersRequest: Codable {
+    var phoneNumbers: [String]
 }

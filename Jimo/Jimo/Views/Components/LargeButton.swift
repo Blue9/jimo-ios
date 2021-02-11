@@ -7,17 +7,22 @@
 
 import SwiftUI
 
-struct LargeButton: View {
-    let text: String
+struct LargeButton<Content: View>: View {
+    let content: Content
     let fontSize: CGFloat
     
-    init(_ text: String, fontSize: CGFloat = 24) {
-        self.text = text
+    init(_ text: String, fontSize: CGFloat = 24) where Content == Text {
+        self.content = Text(text)
+        self.fontSize = fontSize
+    }
+    
+    init(@ViewBuilder _ content: @escaping () -> Content, fontSize: CGFloat = 24) {
+        self.content = content()
         self.fontSize = fontSize
     }
     
     var body: some View {
-        Text(text)
+        content
             .font(Font.custom(Poppins.medium, size: fontSize))
             .frame(minWidth: 0, maxWidth: .infinity)
             .frame(height: 60)

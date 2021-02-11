@@ -257,8 +257,12 @@ struct CreatePost: View {
                                 if let image = createPostVM.image {
                                     Image(uiImage: image)
                                         .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 340, height: 200)
+                                        .frame(maxWidth: .infinity)
+                                        .aspectRatio(contentMode: .fill)
+                                        .onTapGesture {
+                                            createPostVM.showImagePicker = true
+                                        }
+                                        .frame(height: 200)
                                         .cornerRadius(10)
                                         .contentShape(Rectangle())
                                     
@@ -266,6 +270,8 @@ struct CreatePost: View {
                                         .resizable()
                                         .frame(width: 30, height: 30)
                                         .foregroundColor(buttonColor)
+                                        .background(Color.black)
+                                        .cornerRadius(15)
                                         .shadow(radius: 5)
                                         .padding(5)
                                         .onTapGesture {
@@ -275,21 +281,21 @@ struct CreatePost: View {
                                 } else {
                                     RoundedRectangle(cornerRadius: 10, style: .continuous)
                                         .fill(Color.gray.opacity(0.2))
+                                        .onTapGesture {
+                                            createPostVM.showImagePicker = true
+                                        }
+                                        .frame(height: 200)
+                                        .cornerRadius(10)
+                                        .contentShape(Rectangle())
                                 }
                             }
-                            .frame(height: 200)
-                            .frame(maxWidth: 340)
-                             .padding(.horizontal, 30)
+                            .padding(.horizontal, 30)
                             .padding(.vertical, 10)
-                            .onTapGesture {
-                                createPostVM.showImagePicker = true
-                            }
                         }
                         
                         RoundedButton(text: Text("Add Pin").fontWeight(.bold),
                                       action: self.createPost, backgroundColor: buttonColor)
                             .frame(height: 60, alignment: .center)
-                            .frame(maxWidth: 340)
                             .padding(.horizontal, 30)
                             .padding(.top, 40)
                             .padding(.bottom, 20)
@@ -316,7 +322,9 @@ struct CreatePost: View {
             .sheet(isPresented: $createPostVM.showImagePicker) {
                 ImagePicker(image: $createPostVM.image)
                     .preferredColorScheme(.light)
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
     }
 }

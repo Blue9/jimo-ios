@@ -30,6 +30,12 @@ struct Endpoint {
         return Endpoint(path: "/waitlist/invites")
     }
     
+    // MARK: - Onboarding endpoints
+    
+    static func contacts(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/contacts")
+    }
+    
     // MARK: - User endpoints
     
     static func me() -> Endpoint {
@@ -162,6 +168,17 @@ class APIClient: ObservableObject {
         return doRequest(endpoint: Endpoint.inviteUser(),
                          httpMethod: "POST",
                          body: InviteUserRequest(phoneNumber: phoneNumber))
+    }
+    
+    // MARK: - Onboarding endpoints
+    
+    /**
+     Get users with any of the given phone numbers.
+     */
+    func getUsersInContacts(username: String, phoneNumbers: [String]) -> AnyPublisher<[PublicUser], APIError> {
+        return doRequest(endpoint: Endpoint.contacts(username: username),
+                         httpMethod: "POST",
+                         body: PhoneNumbersRequest(phoneNumbers: phoneNumbers))
     }
     
     // MARK: - Notification endpoints
@@ -325,7 +342,6 @@ class APIClient: ObservableObject {
     private func doRequest<Request: Encodable, Response: Decodable>(endpoint: Endpoint,
                                                           httpMethod: String = "GET",
                                                           body: Request? = nil) -> AnyPublisher<Response, APIError> {
-        
         guard let url = endpoint.url else {
             return Fail(error: APIError.endpointError)
                 .eraseToAnyPublisher()

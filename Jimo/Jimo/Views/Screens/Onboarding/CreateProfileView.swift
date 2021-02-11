@@ -15,10 +15,10 @@ struct Field: View {
     
     let placeholder: String
     let errorMessage: String
-    
     let isValid: (String) -> Bool
     
     var inputFilter: ((String) -> String)? = nil
+    var autocapitalization: UITextAutocapitalizationType = .words
     
     var valid: Bool {
         isValid(value)
@@ -26,6 +26,7 @@ struct Field: View {
     
     var body: some View {
         let field = TextField(placeholder, text: $value)
+            .autocapitalization(autocapitalization)
             .padding(12)
             .background(RoundedRectangle(cornerRadius: 10)
                             .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
@@ -128,7 +129,8 @@ struct CreateProfileBody: View {
                             return String(username[range])
                         }
                         return ""
-                      })
+                      },
+                      autocapitalization: .none)
                 
                 Field(value: $firstName, placeholder: "First name",
                       errorMessage: CreateProfileBody.nameReq,
@@ -184,11 +186,8 @@ struct CreateProfileView: View {
 }
 
 struct CreateProfileView_Previews: PreviewProvider {
-    static let api = APIClient()
-
     static var previews: some View {
         CreateProfileView()
-            .environmentObject(api)
-            .environmentObject(AppState(apiClient: api))
+            .environmentObject(AppState(apiClient: APIClient()))
     }
 }

@@ -23,8 +23,8 @@ struct EnterPhoneNumber: View {
     @State private var loading = false
     
     func setError(_ error: String) {
-        showError = true
         self.error = error
+        showError = true
     }
     
     func getCode() {

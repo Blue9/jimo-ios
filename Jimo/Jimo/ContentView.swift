@@ -19,9 +19,22 @@ struct ContentView: View {
                     .transition(.slide)
             } else if case .loading = appState.currentUser {
                 // Firebase user exists, loading user profile
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                    .transition(.opacity)
+                NavigationView {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .transition(.opacity)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                NavTitle("Loading profile")
+                            }
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Sign out") {
+                                    appState.signOut()
+                                }
+                            }
+                        }
+                }
             } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile
                 NavigationView {
@@ -43,10 +56,14 @@ struct ContentView: View {
                 }
             } else if case let .user(user) = appState.currentUser {
                 // Both exist
-                MainAppView(
-                    profileVM: ProfileVM(appState: appState, user: user),
-                    mapVM: MapViewModel(appState: appState))
-                    .transition(.slide)
+                if appState.isUserOnboarded {
+                    MainAppView(
+                        profileVM: ProfileVM(appState: appState, user: user),
+                        mapVM: MapViewModel(appState: appState))
+                        .transition(.slide)
+                } else {
+                    OnboardingView()
+                }
             } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist
                 NavigationView {

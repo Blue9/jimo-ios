@@ -54,7 +54,7 @@ struct Search: View {
                         ForEach(discoverViewModel.posts) { post in
                             GeometryReader { geometry in
                                 NavigationLink(destination: ViewPost(postId: post.postId)) {
-                                    URLImage(url: post.imageUrl)
+                                    URLImage(url: post.imageUrl, loading: Image("grayRect"), failure: Image("grayRect"))
                                         .foregroundColor(.black)
                                         .scaledToFill()
                                         .frame(maxWidth: .infinity)

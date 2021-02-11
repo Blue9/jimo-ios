@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+struct RaisedButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .shadow(radius: 4, x: 0.0, y: configuration.isPressed ? 0 : 4)
+            .offset(y: configuration.isPressed ? 4 : 0)
+            .animation(.easeIn(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
 struct HomeMenu: View {
     var body: some View {
         VStack {
@@ -28,22 +37,32 @@ struct HomeMenu: View {
             
             
             NavigationLink(destination: EnterPhoneNumber()) {
-                LargeButton("Join Waitlist")
+                Text("Join Waitlist")
+                    .font(Font.custom(Poppins.medium, size: 24))
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .frame(height: 60)
+                    .foregroundColor(.white)
+                    .background(Color.red)
+                    .cornerRadius(10)
             }
             .padding(.bottom, 5)
+            .buttonStyle(RaisedButtonStyle())
             
             NavigationLink(destination: EnterPhoneNumber()) {
                 Text("Already have an invite? Sign in")
                     .font(Font.custom(Poppins.medium, size: 16))
                     .frame(minWidth: 0, maxWidth: .infinity)
-                    .foregroundColor(.black)
+                    .foregroundColor(.red)
             }
+            
+            Spacer()
+                .frame(maxHeight: 50)
         }
         .padding(.horizontal, 50)
         .frame(maxHeight: .infinity)
         // This fixes a bug when moving back from EnterPhoneNumber with the keyboard open
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .background(Color(.sRGB, red: 0.95, green: 0.95, blue: 0.95, opacity: 1).edgesIgnoringSafeArea(.all))
+        .background(Wave())
     }
 }
 

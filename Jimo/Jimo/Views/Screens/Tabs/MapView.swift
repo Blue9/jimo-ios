@@ -46,6 +46,7 @@ final class LocationAnnotationView: MKAnnotationView {
                 with: URL(string: url),
                 placeholderImage: UIImage(systemName: "person.crop.circle"))
             image.backgroundColor = .white
+            image.contentMode = .scaleAspectFill;
             image.frame = CGRect(x: 0, y: 0, width: 42, height: 42).offsetBy(dx: 9, dy: 5.75)
             image.layer.cornerRadius = 21
             image.layer.masksToBounds = true

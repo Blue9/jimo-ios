@@ -28,6 +28,7 @@ class DiscoverViewModel: ObservableObject {
             if initialLoad {
                 self.initialized = true
             }
+            self.refreshing = false
             return
         }
         cancellable = appState.discoverFeed()
@@ -38,9 +39,9 @@ class DiscoverViewModel: ObservableObject {
                 if initialLoad {
                     self?.initialized = true
                 }
+                self?.refreshing = false
             }, receiveValue: { [weak self] posts in
                 self?.posts = posts
-                self?.refreshing = false
             })
     }
     

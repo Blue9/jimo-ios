@@ -24,6 +24,7 @@ struct ProfileHeaderView: View {
     var body: some View {
         HStack {
             URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
+                .aspectRatio(contentMode: .fill)
                 .frame(width: 80, height: 80, alignment: .center)
                 .font(Font.title.weight(.ultraLight))
                 .foregroundColor(.gray)
@@ -88,11 +89,13 @@ struct ProfilePosts: View {
     
     var body: some View {
         if let posts = profileVM.posts {
-            ForEach(posts, id: \.self) { postId in
-                FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId))
+            VStack {
+                ForEach(posts, id: \.self) { postId in
+                    FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId))
+                }
+                Text("You've reached the end!")
+                    .padding()
             }
-            Text("You've reached the end!")
-                .padding()
         } else if profileVM.failedToLoadPosts {
             Text("Failed to load posts")
                 .padding()

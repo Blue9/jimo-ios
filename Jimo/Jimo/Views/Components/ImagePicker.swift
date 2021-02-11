@@ -19,12 +19,17 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            if let uiImage = info[.editedImage] as? UIImage {
+            if let uiImage = info[.originalImage] as? UIImage {
                 parent.image = uiImage
             }
+            hideKeyboard()
             parent.presentationMode.wrappedValue.dismiss()
         }
-
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            hideKeyboard()
+            parent.presentationMode.wrappedValue.dismiss()
+        }
     }
     
     func makeCoordinator() -> Coordinator {
@@ -33,7 +38,6 @@ struct ImagePicker: UIViewControllerRepresentable {
     
     func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
         let picker = UIImagePickerController()
-        picker.allowsEditing = true
         picker.delegate = context.coordinator
         return picker
     }
