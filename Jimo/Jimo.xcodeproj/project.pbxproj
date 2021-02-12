@@ -28,6 +28,7 @@
 		C72F3CBE258726BA00DDB76C /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CBD258726BA00DDB76C /* MainAppView.swift */; };
 		C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7318C902560E1F000E75BE6 /* HideKeyboard.swift */; };
 		C736A9EB25A541F60086B809 /* ViewPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C736A9EA25A541F60086B809 /* ViewPost.swift */; };
+		C74183E025D6E3A2007F13C1 /* GlobalViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74183DF25D6E3A2007F13C1 /* GlobalViewState.swift */; };
 		C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */; };
 		C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7493980255663E100D1E8D3 /* RoundedButton.swift */; };
 		C74BC926256E17370095A2BA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC925256E17370095A2BA /* SessionStore.swift */; };
@@ -130,6 +131,7 @@
 		C72F3CBD258726BA00DDB76C /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
 		C7318C902560E1F000E75BE6 /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		C736A9EA25A541F60086B809 /* ViewPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewPost.swift; sourceTree = "<group>"; };
+		C74183DF25D6E3A2007F13C1 /* GlobalViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalViewState.swift; sourceTree = "<group>"; };
 		C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextInput.swift; sourceTree = "<group>"; };
 		C7493980255663E100D1E8D3 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
 		C74BC925256E17370095A2BA /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
@@ -357,6 +359,7 @@
 				C768AB0C25C3802A005550B6 /* MapViewModel.swift */,
 				C764144F25D0FD4100CBDE3F /* SearchViewModel.swift */,
 				C764145425D0FD6000CBDE3F /* DiscoverViewModel.swift */,
+				C74183DF25D6E3A2007F13C1 /* GlobalViewState.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -761,6 +764,7 @@
 				C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */,
 				C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */,
 				C70AE47A25CA8E76009920E8 /* EnterPhoneNumber.swift in Sources */,
+				C74183E025D6E3A2007F13C1 /* GlobalViewState.swift in Sources */,
 				C7EDC3D325D39767007B3E77 /* Wave.swift in Sources */,
 				C768E9382558B3CB0068FCD5 /* FeedItem.swift in Sources */,
 				C71B1B152599B7FE004BF1CD /* Toast.swift in Sources */,

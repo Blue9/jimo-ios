@@ -28,8 +28,8 @@ struct EnterPhoneNumber: View {
     }
     
     func getCode() {
-        loading = true
         hideKeyboard()
+        loading = true
         guard let number = phoneNumberField.getPhoneNumber() else {
             setError("Invalid phone number. Try again.")
             loading = false
@@ -97,6 +97,8 @@ struct EnterPhoneNumber: View {
             .frame(maxHeight: .infinity)
             .background(Color(.sRGB, red: 0.95, green: 0.95, blue: 0.95, opacity: 1).edgesIgnoringSafeArea(.all))
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarColor(.clear)
         .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
             Toast(text: error, type: .error)
         }
@@ -107,5 +109,6 @@ struct EnterPhoneNumber_Previews: PreviewProvider {
     static var previews: some View {
         EnterPhoneNumber()
             .environmentObject(AppState(apiClient: APIClient()))
+            .environmentObject(GlobalViewState())
     }
 }

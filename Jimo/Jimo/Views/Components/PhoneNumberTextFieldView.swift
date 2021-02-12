@@ -15,6 +15,7 @@ struct PhoneNumberTextFieldView: UIViewRepresentable {
         textField.withFlag = true
         textField.withPrefix = true
         textField.withExamplePlaceholder = true
+        textField.becomeFirstResponder()
         return textField
     }
     

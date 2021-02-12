@@ -70,6 +70,7 @@ struct HomeMenu_Previews: PreviewProvider {
     static var previews: some View {
         HomeMenu()
             .environmentObject(AppState(apiClient: APIClient()))
+            .environmentObject(GlobalViewState())
             .environment(\.font, Font.custom(Poppins.medium, size: 18))
     }
 }

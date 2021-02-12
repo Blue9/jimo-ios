@@ -24,6 +24,7 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .transition(.opacity)
                         .navigationBarTitleDisplayMode(.inline)
+                        .navigationBarColor(.white)
                         .toolbar {
                             ToolbarItem(placement: .principal) {
                                 NavTitle("Loading profile")
@@ -43,6 +44,7 @@ struct ContentView: View {
                     }
                     .transition(.opacity)
                     .navigationBarTitleDisplayMode(.inline)
+                    .navigationBarColor(.white)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
                             NavTitle("Loading profile")
@@ -81,5 +83,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .environmentObject(AppState(apiClient: api))
+            .environmentObject(GlobalViewState())
     }
 }

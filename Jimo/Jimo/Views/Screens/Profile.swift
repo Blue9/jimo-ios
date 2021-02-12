@@ -34,7 +34,8 @@ struct ProfileHeaderView: View {
                 .id(user.profilePictureUrl)
             VStack(alignment: .leading) {
                 Text(name)
-                    .fontWeight(.bold)
+                    .font(.title2)
+                    .fontWeight(.semibold)
                     .frame(height: 30)
                 Text("@" + user.username)
                     .frame(height: 30)
@@ -85,13 +86,14 @@ struct ProfileStatsView: View {
 
 struct ProfilePosts: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
     
     var body: some View {
         if let posts = profileVM.posts {
             VStack {
                 ForEach(posts, id: \.self) { postId in
-                    FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId))
+                    FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: globalViewState, postId: postId))
                 }
                 Text("You've reached the end!")
                     .padding()
@@ -139,7 +141,7 @@ struct Profile_Previews: PreviewProvider {
     
     static var previews: some View {
         Profile(profileVM: ProfileVM(appState: appState, user: user))
-            .environmentObject(api)
             .environmentObject(appState)
+            .environmentObject(GlobalViewState())
     }
 }

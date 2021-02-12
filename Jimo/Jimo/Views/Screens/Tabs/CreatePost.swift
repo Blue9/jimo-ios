@@ -303,6 +303,7 @@ struct CreatePost: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarColor(.white)
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     NavTitle("New post")
@@ -335,5 +336,6 @@ struct CreatePost_Previews: PreviewProvider {
     static var previews: some View {
         CreatePost(presented: .constant(true))
             .environmentObject(AppState(apiClient: api))
+            .environmentObject(GlobalViewState())
     }
 }

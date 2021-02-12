@@ -23,6 +23,8 @@ struct AuthView_Previews: PreviewProvider {
     static let appState = AppState(apiClient: apiClient)
     
     static var previews: some View {
-        AuthView().environmentObject(apiClient).environmentObject(appState)
+        AuthView()
+            .environmentObject(appState)
+            .environmentObject(GlobalViewState())
     }
 }

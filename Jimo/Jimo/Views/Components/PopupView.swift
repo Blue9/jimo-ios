@@ -116,9 +116,13 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// The rect of popup content
     @State private var sheetContentRect: CGRect = .zero
-
-    /// The current offset, set when **isPresented** changes
-    @State private var currentOffset: CGFloat = UIScreen.main.bounds.height
+    
+    /// The current offset, based on the **presented** property
+    private var currentOffset: CGFloat {
+        return isPresented ? displayedOffset : hiddenOffset
+    }
+    
+    @State private var animatedOffset: CGFloat = UIScreen.main.bounds.height
 
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
@@ -229,14 +233,10 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                     }
                 }
                 .frame(width: screenSize.width)
-                .offset(y: currentOffset)
-                .onChange(of: isPresented, perform: { isPresented in
+                .offset(y: animatedOffset)
+                .onChange(of: currentOffset, perform: { offset in
                     withAnimation(animation) {
-                        if isPresented {
-                            currentOffset = displayedOffset
-                        } else {
-                            currentOffset = hiddenOffset
-                        }
+                        animatedOffset = offset
                     }
                 })
             }

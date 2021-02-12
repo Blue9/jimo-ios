@@ -39,47 +39,55 @@ enum NewPostType {
 
 struct MainAppView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     @StateObject var tabBar = TabBar()
     
     let profileVM: ProfileVM
     let mapVM: MapViewModel
     
     var body: some View {
-        TabView(selection: $tabBar.selection) {
-            Feed()
-                .tabItem {
-                    Image(systemName: "house")
-                    Text("Home")
-                }
-                .tag(1)
-            MapView(mapModel: appState.mapModel, mapViewModel: mapVM)
-                .tabItem {
-                    Image(systemName: "map")
-                    Text("Map")
-                }
-                .tag(2)
-            Text("")
-                .tabItem {
-                    Image(systemName: "plus.square")
-                    Text("New")
-                }
-                .tag(3)
-            Search()
-                .tabItem {
-                    Image(systemName: "magnifyingglass")
-                    Text("Search")
-                }
-                .tag(4)
-            ProfileTab(profileVM: profileVM)
-                .tabItem {
-                    Image(systemName: "person")
-                    Text("Profile")
-                }
-                .tag(5)
+        ZStack {
+            TabView(selection: $tabBar.selection) {
+                Feed()
+                    .tabItem {
+                        Image(systemName: "house")
+                        Text("Home")
+                    }
+                    .tag(1)
+                MapView(mapModel: appState.mapModel, mapViewModel: mapVM)
+                    .tabItem {
+                        Image(systemName: "map")
+                        Text("Map")
+                    }
+                    .tag(2)
+                Text("")
+                    .tabItem {
+                        Image(systemName: "plus.square")
+                        Text("New")
+                    }
+                    .tag(3)
+                Search()
+                    .tabItem {
+                        Image(systemName: "magnifyingglass")
+                        Text("Search")
+                    }
+                    .tag(4)
+                ProfileTab(profileVM: profileVM)
+                    .tabItem {
+                        Image(systemName: "person")
+                        Text("Profile")
+                    }
+                    .tag(5)
+            }
+        }
+        .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+            Toast(text: globalViewState.errorMessage, type: .error)
+                .padding(.bottom, 50)
         }
         .sheet(isPresented: $tabBar.newPostSelected) {
             return CreatePost(presented: $tabBar.newPostSelected)
                 .environmentObject(appState)
+                .environmentObject(globalViewState)
                 .preferredColorScheme(.light)
         }
     }

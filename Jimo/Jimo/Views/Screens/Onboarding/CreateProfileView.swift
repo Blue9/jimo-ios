@@ -164,8 +164,8 @@ struct CreateProfileBody: View {
         .popup(isPresented: $showRequestError, type: .toast, position: .bottom, autohideIn: 2) {
             Toast(text: requestError, type: .warning)
         }
-        //.navigationTitle("Create profile")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarColor(.white)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle("Create profile")
@@ -189,5 +189,6 @@ struct CreateProfileView_Previews: PreviewProvider {
     static var previews: some View {
         CreateProfileView()
             .environmentObject(AppState(apiClient: APIClient()))
+            .environmentObject(GlobalViewState())
     }
 }

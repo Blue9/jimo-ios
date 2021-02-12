@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+struct NoButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+    }
+}
+
 struct FeedItemLikes: View {
     @ObservedObject var feedItemVM: FeedItemVM
     
@@ -86,6 +92,7 @@ struct FeedItem: View {
     func profileView(post: Post) -> some View {
         Profile(profileVM: ProfileVM(appState: appState, user: post.user))
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarColor(.white)
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Profile")
@@ -126,7 +133,7 @@ struct FeedItem: View {
                 NavigationLink(destination: fullPostView) {
                     content.background(Color.white)
                 }
-                .buttonStyle(PlainButtonStyle()))
+                .buttonStyle(NoButtonStyle()))
         } else {
             return AnyView(content)
         }
@@ -154,7 +161,7 @@ struct FeedItem: View {
                             .padding(.trailing, 6)
                             .padding(.top, 4)
                     }
-                    .buttonStyle(DefaultButtonStyle())
+                    .buttonStyle(NoButtonStyle())
                     
                     VStack(alignment: .leading) {
                         HStack {
@@ -165,8 +172,9 @@ struct FeedItem: View {
                                     .frame(height: 26)
                                     .padding(.trailing, 10)
                             }
+                            .buttonStyle(NoButtonStyle())
                             .foregroundColor(.black)
-                            .buttonStyle(DefaultButtonStyle())
+                            .buttonStyle(NoButtonStyle())
                             
                             Spacer()
                             
@@ -180,6 +188,7 @@ struct FeedItem: View {
                         }
                         
                         NavigationLink(destination: ViewPlace(place: post.place)
+                                        .navigationBarColor(.white)
                                         .toolbar {
                                             ToolbarItem(placement: .principal) {
                                                 NavTitle("View place")
@@ -192,6 +201,7 @@ struct FeedItem: View {
                             .font(.subheadline)
                             .offset(y: 6)
                         }
+                        .buttonStyle(NoButtonStyle())
                     }
                 }
                 .padding(.leading)
@@ -285,8 +295,8 @@ struct FeedItem_Previews: PreviewProvider {
         customLocation: nil)
     
     static var previews: some View {
-        FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: post.postId))
-            .environmentObject(api)
+        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: GlobalViewState(), postId: post.postId))
             .environmentObject(appState)
+            .environmentObject(GlobalViewState())
     }
 }

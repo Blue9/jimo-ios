@@ -53,6 +53,7 @@ class AppState: ObservableObject {
     let feedModel = FeedModel()
     let mapModel = MapModel()
     let allPosts = AllPosts()
+    
     let storage = Storage.storage()
     
     // If we're signing out don't register any new FCM tokens

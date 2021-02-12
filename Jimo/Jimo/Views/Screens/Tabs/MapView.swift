@@ -278,5 +278,6 @@ struct MapView_Previews: PreviewProvider {
     static var previews: some View {
         MapView(mapModel: appState.mapModel, mapViewModel: MapViewModel(appState: appState))
             .environmentObject(appState)
+            .environmentObject(GlobalViewState())
     }
 }

@@ -16,15 +16,11 @@ struct JimoApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-    let apiClient = APIClient()
-    
-    @State var isPresented = true
-    @State var image: UIImage? = nil
-    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(AppState(apiClient: apiClient))
+                .environmentObject(AppState(apiClient: APIClient()))
+                .environmentObject(GlobalViewState())
                 .preferredColorScheme(.light)
         }
     }

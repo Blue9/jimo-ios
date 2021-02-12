@@ -15,33 +15,39 @@ class ContactStore: ObservableObject {
     
     @Published var contacts: [PublicUser]? = nil
     var formattedNumbers: [String] = []
+    @Published var loading = false
     @Published var selected: [PublicUser] = []
     @Published var error: Error? = nil
-    
     @Published var following = false
     
     private var getUsersCancellable: Cancellable? = nil
     
     func getExistingUsers(appState: AppState) {
-        getUsersCancellable = fetchContacts()
-            .catch({ [weak self] error -> AnyPublisher<[String], APIError> in
-                DispatchQueue.main.async {
-                    self?.error = error
-                }
-                return Empty().eraseToAnyPublisher()
-            })
-            .flatMap({ numbers -> AnyPublisher<[PublicUser], APIError> in
-                return appState.getUsersInContacts(phoneNumbers: numbers)
-            })
-            .sink(receiveCompletion: { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Error when getting matching users", error)
-                    self?.error = error
-                }
-            }, receiveValue: { [weak self] users in
-                self?.contacts = users
-                self?.selected = users
-            })
+        self.loading = true
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.getUsersCancellable = self.fetchContacts()
+                .catch({ [weak self] error -> AnyPublisher<[String], APIError> in
+                    DispatchQueue.main.async {
+                        self?.error = error
+                        self?.loading = false
+                    }
+                    return Empty().eraseToAnyPublisher()
+                })
+                .flatMap({ numbers -> AnyPublisher<[PublicUser], APIError> in
+                    return appState.getUsersInContacts(phoneNumbers: numbers)
+                })
+                .sink(receiveCompletion: { [weak self] completion in
+                    if case let .failure(error) = completion {
+                        print("Error when getting matching users", error)
+                        self?.error = error
+                        self?.loading = false
+                    }
+                }, receiveValue: { [weak self] users in
+                    self?.contacts = users
+                    self?.selected = users
+                    self?.loading = false
+                })
+        }
     }
     
     private func fetchContacts() -> AnyPublisher<[String], Error> {
@@ -183,7 +189,9 @@ struct FollowContacts: View {
             
             Spacer()
             
-            if let contacts = contactStore.contacts {
+            if contactStore.loading {
+                ProgressView()
+            } else if let contacts = contactStore.contacts {
                 if contacts.count > 0 {
                     ScrollView {
                         LazyVGrid(columns: columns) {
@@ -241,23 +249,33 @@ struct FollowContacts: View {
                     }
                     .padding(.horizontal, 40)
                 }
-            } else if contactStore.error != nil {
-                VStack {
-                    Button(action: {
-                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
-                    }) {
-                        Text("Enable access to your contacts to find friends already on jimo.")
-                            .multilineTextAlignment(.center)
+            } else if let error = contactStore.error {
+                if error as? APIError != nil {
+                    VStack {
+                        Button(action: {
+                            contactStore.getExistingUsers(appState: appState)
+                        }) {
+                            Text("Failed to load friends, tap to try again.")
+                                .multilineTextAlignment(.center)
+                        }
                     }
-                    Text("We value and respect your privacy. We do not store your contacts on our servers or share them with anyone else.")
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 5)
-                        .font(.caption)
+                    .padding(.horizontal, 40)
+                } else {
+                    VStack {
+                        Button(action: {
+                            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                        }) {
+                            Text("Enable access to your contacts to find friends already on jimo.")
+                                .multilineTextAlignment(.center)
+                        }
+                        Text("We value and respect your privacy. We do not store your contacts on our servers or share them with anyone else.")
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 5)
+                            .font(.caption)
+                    }
+                    .padding(.horizontal, 40)
                 }
-                .padding(.horizontal, 40)
-            } else {
-                ProgressView()
             }
             
             Spacer()

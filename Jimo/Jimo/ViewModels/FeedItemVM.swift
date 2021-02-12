@@ -10,6 +10,7 @@ import Combine
 
 class FeedItemVM: ObservableObject {
     let appState: AppState
+    let globalViewState: GlobalViewState
     let postId: PostId
     
     @Published var liking = false
@@ -24,8 +25,9 @@ class FeedItemVM: ObservableObject {
     
     var onDelete: (() -> Void)?
     
-    init(appState: AppState, postId: PostId, onDelete: (() -> Void)? = nil) {
+    init(appState: AppState, viewState: GlobalViewState, postId: PostId, onDelete: (() -> Void)? = nil) {
         self.appState = appState
+        self.globalViewState = viewState
         self.postId = postId
         self.post = appState.allPosts.posts[postId]
         self.onDelete = onDelete
@@ -51,6 +53,7 @@ class FeedItemVM: ObservableObject {
                 self?.liking = false
                 if case let .failure(error) = completion {
                     print("Error when liking", error)
+                    self?.globalViewState.setError("Failed to like post")
                 }
             }, receiveValue: {})
     }
@@ -62,7 +65,8 @@ class FeedItemVM: ObservableObject {
                 self?.unliking = false
                 print("Unliked post")
                 if case let .failure(error) = completion {
-                    print("Error when liking", error)
+                    print("Error when unliking", error)
+                    self?.globalViewState.setError("Failed to unlike post")
                 }
             }, receiveValue: {})
     }
@@ -74,6 +78,7 @@ class FeedItemVM: ObservableObject {
                 self?.deleting = false
                 if case let .failure(error) = completion {
                     print("Error when deleting", error)
+                    self?.globalViewState.setError("Failed to delete post")
                 }
             }, receiveValue: { [weak self] _ in
                 if let onDelete = self?.onDelete {

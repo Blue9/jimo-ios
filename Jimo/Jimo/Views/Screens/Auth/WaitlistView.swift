@@ -124,5 +124,6 @@ struct WaitlistView_Previews: PreviewProvider {
     static var previews: some View {
         WaitlistView()
             .environmentObject(AppState(apiClient: APIClient()))
+            .environmentObject(GlobalViewState())
     }
 }

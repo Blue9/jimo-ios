@@ -14,20 +14,20 @@ struct ProfileTab: View {
     var body: some View {
         NavigationView {
             Profile(profileVM: profileVM)
-            //.navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-                ToolbarItem(placement: .navigationBarTrailing, content: {
-                    Button("Sign out") {
-                        withAnimation(.default, {
-                            appState.signOut()
-                        })
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarColor(.white)
+                .toolbar(content: {
+                    ToolbarItem(placement: .principal) {
+                        NavTitle("Profile")
                     }
+                    ToolbarItem(placement: .navigationBarTrailing, content: {
+                        Button("Sign out") {
+                            withAnimation(.default, {
+                                appState.signOut()
+                            })
+                        }
+                    })
                 })
-            })
         }
     }
 }

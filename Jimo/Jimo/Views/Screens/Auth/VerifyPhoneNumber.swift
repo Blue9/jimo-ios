@@ -59,6 +59,8 @@ struct VerifyPhoneNumber: View {
             }
             .padding(.horizontal, 24)
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarColor(.clear)
         .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
             Toast(text: error, type: .error)
         }
@@ -70,5 +72,6 @@ struct VerifyPhoneNumber_Previews: PreviewProvider {
     static var previews: some View {
         VerifyPhoneNumber()
             .environmentObject(AppState(apiClient: APIClient()))
+            .environmentObject(GlobalViewState())
     }
 }

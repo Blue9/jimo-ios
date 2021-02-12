@@ -37,6 +37,7 @@ struct Search: View {
     func profileView(user: User) -> some View {
         Profile(profileVM: ProfileVM(appState: appState, user: user))
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarColor(.white)
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Profile")
@@ -111,6 +112,7 @@ struct Search: View {
             if let place = searchViewModel.selectedPlaceResult {
                 NavigationLink(destination: ViewPlace(mapItem: place)
                                 .navigationBarTitleDisplayMode(.inline)
+                                .navigationBarColor(.white)
                                 .toolbar {
                                     ToolbarItem(placement: .principal) {
                                         NavTitle("View place")
@@ -146,6 +148,7 @@ struct Search: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarColor(.white)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Discover")

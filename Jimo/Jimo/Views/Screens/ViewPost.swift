@@ -9,14 +9,20 @@ import SwiftUI
 
 struct ViewPost: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.presentationMode) var presentation
     let postId: PostId
 
     var body: some View {
         ScrollView {
-            FeedItem(feedItemVM: FeedItemVM(appState: appState, postId: postId, onDelete: { presentation.wrappedValue.dismiss() }), fullPost: true)
+            FeedItem(feedItemVM: FeedItemVM(appState: appState,
+                                            viewState: globalViewState,
+                                            postId: postId,
+                                            onDelete: { presentation.wrappedValue.dismiss() }),
+                     fullPost: true)
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarColor(.white)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle("View Post")
@@ -54,7 +60,7 @@ struct ViewPost_Previews: PreviewProvider {
     
     static var previews: some View {
         ViewPost(postId: post.postId)
-            .environmentObject(api)
             .environmentObject(appState)
+            .environmentObject(GlobalViewState())
     }
 }
