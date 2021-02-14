@@ -12,7 +12,7 @@ import Firebase
 
 
 enum CurrentUser {
-    case user(User)
+    case user(PublicUser)
     case doesNotExist
     case loading
     case failed
@@ -163,7 +163,6 @@ class AppState: ObservableObject {
         }
         // Otherwise, just log out
         self.signOutAndClearData()
-        signingOut = false
     }
     
     // MARK: - Invite + waitlist
@@ -191,6 +190,34 @@ class AppState: ObservableObject {
                 return response
             })
             .eraseToAnyPublisher()
+    }
+    
+    func updateProfile(_ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
+        guard case let .user(user) = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return self.apiClient.updateProfile(username: user.username, request)
+            .map({ response in
+                if let user = response.user {
+                    self.currentUser = .user(user)
+                }
+                return response
+            })
+            .eraseToAnyPublisher()
+    }
+    
+    func getPreferences() -> AnyPublisher<UserPreferences, APIError> {
+        guard case let .user(user) = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return self.apiClient.getPreferences(username: user.username)
+    }
+    
+    func updatePreferences(_ request: UserPreferences) -> AnyPublisher<UserPreferences, APIError> {
+        guard case let .user(user) = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return self.apiClient.updatePreferences(username: user.username, request)
     }
     
     func getUser(username: String) -> AnyPublisher<PublicUser, APIError> {
@@ -313,22 +340,18 @@ class AppState: ObservableObject {
     // MARK: - Helpers
     
     private func setFeed(posts: [Post]) {
-        posts.forEach({ post in allPosts.posts[post.postId] = post })
+        _ = addPostsToAllPosts(posts: posts)
         feedModel.currentFeed = posts.map(\.postId)
     }
     
     private func setDiscoverFeed(posts: [Post]) -> [Post] {
-        posts.forEach({ post in allPosts.posts[post.postId] = post })
+        _ = addPostsToAllPosts(posts: posts)
         return posts
     }
     
     private func setMap(region: MKCoordinateRegion, posts: [Post]) {
-        posts.forEach({ post in
-            allPosts.posts[post.postId] = post
-            if !mapModel.posts.contains(post.postId) {
-                mapModel.posts.append(post.postId)
-            }
-        })
+        _ = addPostsToAllPosts(posts: posts)
+        mapModel.posts = posts.map({ $0.postId })
     }
     
     private func addPostsToAllPosts(posts: [Post]) -> [PostId] {
@@ -376,10 +399,6 @@ class AppState: ObservableObject {
         } catch {
             print("Already logged out")
         }
-        self.mapModel.posts.removeAll()
-        self.feedModel.currentFeed.removeAll()
-        self.allPosts.posts.removeAll()
-        self.currentUser = .empty
     }
     
     // MARK: - Notification logic
@@ -463,7 +482,13 @@ class AppState: ObservableObject {
             self.firebaseSession = .user(FirebaseUser(uid: user.uid, phoneNumber: user.phoneNumber))
         } else {
             self.firebaseSession = .doesNotExist
-            self.currentUser = .empty
+            if signingOut {
+                self.mapModel.posts.removeAll()
+                self.feedModel.currentFeed.removeAll()
+                self.allPosts.posts.removeAll()
+                self.currentUser = .empty
+                self.signingOut = false
+            }
         }
     }
 }

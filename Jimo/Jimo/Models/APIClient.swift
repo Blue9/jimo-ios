@@ -50,6 +50,10 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)")
     }
     
+    static func preferences(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/preferences")
+    }
+    
     static func feed(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/feed")
     }
@@ -113,7 +117,8 @@ struct Endpoint {
 }
 
 
-enum APIError: Error {
+enum APIError: Error, Equatable {
+    case requestError([String: String]?)
     case endpointError
     case tokenError
     case noResponse
@@ -215,6 +220,27 @@ class APIClient: ObservableObject {
      */
     func createUser(_ request: CreateUserRequest) -> AnyPublisher<CreateUserResponse, APIError> {
         return doRequest(endpoint: Endpoint.createUser(), httpMethod: "POST", body: request)
+    }
+    
+    /**
+     Update the given user's profile.
+     */
+    func updateProfile(username: String, _ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
+        return doRequest(endpoint: Endpoint.user(username: username), httpMethod: "POST", body: request)
+    }
+    
+    /**
+     Get the given user's preferences.
+     */
+    func getPreferences(username: String) -> AnyPublisher<UserPreferences, APIError> {
+        return doRequest(endpoint: Endpoint.preferences(username: username))
+    }
+    
+    /**
+     Update the given user's preferences.
+     */
+    func updatePreferences(username: String, _ request: UserPreferences) -> AnyPublisher<UserPreferences, APIError> {
+        return doRequest(endpoint: Endpoint.preferences(username: username), httpMethod: "POST", body: request)
     }
     
     /**
@@ -373,6 +399,8 @@ class APIClient: ObservableObject {
         }
         if response.statusCode >= 300 || response.statusCode < 200 {
             switch response.statusCode {
+            case 400:
+                throw APIError.requestError(try? JSONDecoder().decode([String: String].self, from: result.data))
             case 401, 403:
                 throw APIError.authError
             case 404:

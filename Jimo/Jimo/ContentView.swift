@@ -9,11 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     
     var body: some View {
         ZStack {
             if case .loading = appState.firebaseSession {
-                Image("splash")
+                Image("logo")
             } else if case .doesNotExist = appState.firebaseSession {
                 AuthView()
                     .transition(.slide)
@@ -60,7 +61,7 @@ struct ContentView: View {
                 // Both exist
                 if appState.isUserOnboarded {
                     MainAppView(
-                        profileVM: ProfileVM(appState: appState, user: user),
+                        profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: user),
                         mapVM: MapViewModel(appState: appState))
                         .transition(.slide)
                 } else {
@@ -74,6 +75,19 @@ struct ContentView: View {
                 }.transition(.slide)
             }
         }
+        .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+            Toast(text: globalViewState.errorMessage, type: .error)
+                .padding(.bottom, 50)
+        }
+        .popup(isPresented: $globalViewState.showWarning, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+            Toast(text: globalViewState.warningMessage, type: .warning)
+                .padding(.bottom, 50)
+        }
+        .popup(isPresented: $globalViewState.showSuccess, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+            Toast(text: globalViewState.successMessage, type: .success)
+                .padding(.bottom, 50)
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear(perform: appState.listen)
     }
 }

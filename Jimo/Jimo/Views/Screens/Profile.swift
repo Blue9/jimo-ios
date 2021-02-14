@@ -140,7 +140,7 @@ struct Profile_Previews: PreviewProvider {
         followingCount: 1)
     
     static var previews: some View {
-        Profile(profileVM: ProfileVM(appState: appState, user: user))
+        Profile(profileVM: ProfileVM(appState: appState, globalViewState: GlobalViewState(), user: user))
             .environmentObject(appState)
             .environmentObject(GlobalViewState())
     }

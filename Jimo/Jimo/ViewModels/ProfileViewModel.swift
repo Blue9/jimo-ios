@@ -11,6 +11,7 @@ import Combine
 
 class ProfileVM: ObservableObject {
     let appState: AppState
+    let globalViewState: GlobalViewState
     
     var loadUserCancellable: Cancellable? = nil
     var loadPostsCancellable: Cancellable? = nil
@@ -38,6 +39,11 @@ class ProfileVM: ObservableObject {
                 if case let .failure(error) = completion {
                     self?.failedToLoadUser = true
                     print("Error when loading user", error)
+                    if error == .notFound {
+                        self?.globalViewState.setError("User not found")
+                    } else {
+                        self?.globalViewState.setError("Failed to load user")
+                    }
                 } else {
                     self?.failedToLoadUser = false
                 }
@@ -53,6 +59,11 @@ class ProfileVM: ObservableObject {
                 if case let .failure(error) = completion {
                     self?.failedToLoadPosts = true
                     print("Error when loading posts", error)
+                    if error == .notFound {
+                        self?.globalViewState.setError("User not found")
+                    } else {
+                        self?.globalViewState.setError("Failed to load posts")
+                    }
                 } else {
                     self?.failedToLoadPosts = false
                 }
@@ -61,8 +72,9 @@ class ProfileVM: ObservableObject {
             })
     }
     
-    init(appState: AppState, user: User) {
+    init(appState: AppState, globalViewState: GlobalViewState, user: User) {
         self.appState = appState
+        self.globalViewState = globalViewState
         self.user = user
     }
     

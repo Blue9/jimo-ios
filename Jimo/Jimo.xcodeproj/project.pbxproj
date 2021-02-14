@@ -58,6 +58,8 @@
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
 		C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79EA00125AFD56F00A38DB8 /* AppState.swift */; };
 		C7A80B7225C3916100FF8054 /* ViewPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A80B7125C3916100FF8054 /* ViewPlace.swift */; };
+		C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */; };
+		C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACFC25D8720E00EDEB7D /* Settings.swift */; };
 		C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */; };
 		C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */; };
 		C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D1190C25A186CC00A222E3 /* NavTitle.swift */; };
@@ -167,6 +169,8 @@
 		C791835E2597EC64006B4056 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		C79EA00125AFD56F00A38DB8 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C7A80B7125C3916100FF8054 /* ViewPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewPlace.swift; sourceTree = "<group>"; };
+		C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfile.swift; sourceTree = "<group>"; };
+		C7AEACFC25D8720E00EDEB7D /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearch.swift; sourceTree = "<group>"; };
 		C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearch.swift; sourceTree = "<group>"; };
 		C7D1190C25A186CC00A222E3 /* NavTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavTitle.swift; sourceTree = "<group>"; };
@@ -367,6 +371,7 @@
 		C75C2F43255619D4009B6ADA /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				C7AEACF825D8719B00EDEB7D /* Settings */,
 				C7EDC39E25D2F768007B3E77 /* Tabs */,
 				C76E913C25D21E1300762803 /* Onboarding */,
 				C70AE46B25CA8DAA009920E8 /* Auth */,
@@ -433,6 +438,15 @@
 				C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		C7AEACF825D8719B00EDEB7D /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */,
+				C7AEACFC25D8720E00EDEB7D /* Settings.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		C7CDED1B011467E29D97C765 /* Frameworks */ = {
@@ -770,12 +784,14 @@
 				C71B1B152599B7FE004BF1CD /* Toast.swift in Sources */,
 				C7D2D85C25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift in Sources */,
 				C75C2F1025561359009B6ADA /* MapView.swift in Sources */,
+				C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
 				C72F3CB92587264A00DDB76C /* Feed.swift in Sources */,
 				C70AE46D25CA8DF6009920E8 /* OldAuthViews.swift in Sources */,
 				C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */,
 				C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */,
 				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
+				C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */,
 				C76A8AFF2596DDD700623DA2 /* ImagePicker.swift in Sources */,
 				C79183482597DABF006B4056 /* PopupView.swift in Sources */,
 				C7D2D84A25CE55C600246BD0 /* UINavigationController+UIGestureRecognizerDelegate.swift in Sources */,

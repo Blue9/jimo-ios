@@ -8,6 +8,7 @@
 import Foundation
 
 typealias username = String
+typealias UserId = String
 
 protocol User {
     var username: username { get set }
@@ -20,7 +21,7 @@ protocol User {
 }
 
 struct PublicUser: User, Codable, Identifiable, Equatable {
-    var id: String {
+    var id: UserId {
         username
     }
     var username: username
@@ -33,10 +34,37 @@ struct PublicUser: User, Codable, Identifiable, Equatable {
 }
 
 
+struct UserPreferences: Codable {
+    var followNotifications: Bool
+    var postLikedNotifications: Bool
+    var postNotifications: Bool
+}
+
+
 struct CreateUserRequest: Codable {
     var username: String
     var firstName: String
     var lastName: String
+}
+
+
+struct CreateUserResponse: Codable {
+    var created: PublicUser?
+    var error: UserFieldError?
+}
+
+
+struct UpdateProfileRequest: Codable {
+    var profilePictureUrl: String?
+    var username: String
+    var firstName: String
+    var lastName: String
+}
+
+
+struct UpdateProfileResponse: Codable {
+    var user: PublicUser?
+    var error: UserFieldError?
 }
 
 
@@ -45,12 +73,7 @@ struct UserFieldError: Codable {
     var username: String?
     var firstName: String?
     var lastName: String?
-}
-
-
-struct CreateUserResponse: Codable {
-    var created: PublicUser?
-    var error: UserFieldError?
+    var other: String?
 }
 
 

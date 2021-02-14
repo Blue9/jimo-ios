@@ -102,6 +102,8 @@ struct CreateProfileBody: View {
                         requestError = firstNameError
                     } else if let lastNameError = error.lastName {
                         requestError = lastNameError
+                    } else if let otherError = error.other {
+                        requestError = otherError
                     } else {
                         requestError = "Unknown error"
                     }

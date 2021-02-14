@@ -60,6 +60,7 @@ struct FeedItemLikes: View {
 
 struct FeedItem: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     @StateObject var feedItemVM: FeedItemVM
     
     @State private var showPostOptions = false
@@ -67,6 +68,8 @@ struct FeedItem: View {
     
     @State private var initialized = false
     @State private var relativeTime: String = ""
+    
+    @State private var viewFullPost = false
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -90,7 +93,7 @@ struct FeedItem: View {
     }
     
     func profileView(post: Post) -> some View {
-        Profile(profileVM: ProfileVM(appState: appState, user: post.user))
+        Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: post.user))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(.white)
             .toolbar(content: {
@@ -106,11 +109,13 @@ struct FeedItem: View {
     
     func postContent(post: Post) -> some View {
         let content = VStack(alignment: .leading) {
-            Text(post.content)
-                .padding(.top, 10)
-                .padding(.horizontal)
-                .frame(maxWidth: .infinity, minHeight: 10, maxHeight: fullPost ? .infinity : 64, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
+            if post.content.count > 0 {
+                Text(post.content)
+                    .padding(.top, 10)
+                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity, minHeight: 10, maxHeight: fullPost ? .infinity : 64, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             
             if let image = post.imageUrl {
                 URLImage(url: image,
@@ -130,7 +135,7 @@ struct FeedItem: View {
         
         if !fullPost {
             return AnyView(
-                NavigationLink(destination: fullPostView) {
+                NavigationLink(destination: fullPostView, isActive: $viewFullPost) {
                     content.background(Color.white)
                 }
                 .buttonStyle(NoButtonStyle()))
@@ -238,6 +243,10 @@ struct FeedItem: View {
     var body: some View {
         if let post = feedItemVM.post {
             postBody(post: post)
+                .background(Color.white) // Makes the post tappable
+                .onTapGesture {
+                    viewFullPost = true
+                }
                 .onAppear {
                     if !initialized {
                         relativeTime = getRelativeTime(post: post)

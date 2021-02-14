@@ -11,6 +11,7 @@ import MapKit
 
 struct Search: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
     
@@ -35,7 +36,7 @@ struct Search: View {
     }
     
     func profileView(user: User) -> some View {
-        Profile(profileVM: ProfileVM(appState: appState, user: user))
+        Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: user))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(.white)
             .toolbar(content: {

@@ -80,10 +80,6 @@ struct MainAppView: View {
                     .tag(5)
             }
         }
-        .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
-            Toast(text: globalViewState.errorMessage, type: .error)
-                .padding(.bottom, 50)
-        }
         .sheet(isPresented: $tabBar.newPostSelected) {
             return CreatePost(presented: $tabBar.newPostSelected)
                 .environmentObject(appState)

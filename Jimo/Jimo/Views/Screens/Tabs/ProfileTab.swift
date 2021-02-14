@@ -21,10 +21,8 @@ struct ProfileTab: View {
                         NavTitle("Profile")
                     }
                     ToolbarItem(placement: .navigationBarTrailing, content: {
-                        Button("Sign out") {
-                            withAnimation(.default, {
-                                appState.signOut()
-                            })
+                        NavigationLink(destination: Settings()) {
+                            Image(systemName: "gearshape")
                         }
                     })
                 })
