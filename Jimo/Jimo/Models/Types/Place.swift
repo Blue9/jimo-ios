@@ -16,7 +16,7 @@ struct Place: Codable, Equatable {
     var location: Location
 }
 
-struct Location: Codable, Equatable {
+struct Location: Codable, Equatable, Hashable {
     var latitude: Double
     var longitude: Double
     

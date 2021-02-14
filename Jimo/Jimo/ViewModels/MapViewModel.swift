@@ -16,25 +16,35 @@ class MapViewModel: ObservableObject {
     
     var appState: AppState
     var regionCancellable: Cancellable? = nil
+    var annotationsCancellable: Cancellable? = nil
     var cancellable: Cancellable? = nil
     
     @Published var region = defaultRegion
-    @Published var presentedPost: Post?
+    @Published var presentedPin: PlaceAnnotation?
     @Published var results: [MKMapItem]?
     @Published var modalState: ModalSnapState = .invisible {
         didSet {
             if modalState == .invisible {
-                presentedPost = nil
+                presentedPin = nil
                 results = nil
             }
         }
     }
+    @Published var mapAnnotations: [PlaceAnnotation] = []
     
     init(appState: AppState) {
         self.appState = appState
+    }
+    
+    func listenToChanges() {
+        print("Listening to map changes")
         regionCancellable = $region
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink { region in self.refreshMap() }
+            .sink { [weak self] region in
+                self?.refreshMap()
+            }
+        annotationsCancellable = appState.mapModel.$posts
+            .sink { [weak self] posts in self?.updateAnnotations(posts: posts) }
     }
     
     func refreshMap() {
@@ -50,26 +60,43 @@ class MapViewModel: ObservableObject {
                 }
             }, receiveValue: {})
     }
+    
+    func updateAnnotations(posts: [PostId]) {
+        var places: [Location: [Post]] = [:]
+        posts.map({ appState.allPosts.posts[$0]! })
+            .forEach({ post in
+                if let location = post.customLocation {
+                    places[location] = (places[location] ?? []) + [post]
+                } else {
+                    places[post.place.location] = (places[post.place.location] ?? []) + [post]
+                }
+            })
+        mapAnnotations = places.enumerated().map({ (i, e) in
+            let (location, posts) = e
+            return PlaceAnnotation(posts: posts, coordinate: location.coordinate(), zIndex: i)
+        })
+    }
 }
 
-class PostAnnotation: NSObject, MKAnnotation {
+
+class PlaceAnnotation: NSObject, MKAnnotation {
     let coordinate: CLLocationCoordinate2D
-    let post: Post
+    let posts: [Post]
     let zIndex: Int
     
-    init(post: Post, zIndex: Int) {
+    init(posts: [Post], coordinate: CLLocationCoordinate2D, zIndex: Int) {
+        self.posts = posts
+        self.coordinate = coordinate
         self.zIndex = zIndex
-        self.post = post
-        if let location = post.customLocation {
-            self.coordinate = location.coordinate()
-        } else {
-            self.coordinate = post.place.location.coordinate()
-        }
+    }
+    
+    func place() -> Place {
+        return self.posts.first!.place
     }
     
     override func isEqual(_ object: Any?) -> Bool {
-        if let postAnnotation = object as? PostAnnotation {
-            return post.postId == postAnnotation.post.postId
+        if let placeAnnotation = object as? PlaceAnnotation {
+            return coordinate == placeAnnotation.coordinate && posts.elementsEqual(placeAnnotation.posts)
         }
         return false
     }

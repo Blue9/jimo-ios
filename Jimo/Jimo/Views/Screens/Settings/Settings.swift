@@ -128,6 +128,9 @@ struct Settings: View {
                     Text("Sign out")
                         .foregroundColor(.red)
                 }
+                Text("For additional support, please email help@jimoapp.com")
+                    .foregroundColor(.gray)
+                    .font(.caption)
             }
         }
         .onAppear {

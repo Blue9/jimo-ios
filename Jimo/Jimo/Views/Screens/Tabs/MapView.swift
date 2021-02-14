@@ -15,10 +15,14 @@ final class LocationAnnotationView: MKAnnotationView {
     
     // MARK: Initialization
     
-    private var post: Post
+    private var posts: [Post]
     
-    init(annotation: PostAnnotation, reuseIdentifier: String) {
-        self.post = annotation.post
+    private var firstPost: Post {
+        posts.first! // Guaranteed that count > 0
+    }
+    
+    init(annotation: PlaceAnnotation, reuseIdentifier: String) {
+        self.posts = annotation.posts
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         frame = CGRect(x: 0, y: 0, width: 60, height: 60)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
@@ -36,11 +40,11 @@ final class LocationAnnotationView: MKAnnotationView {
         backgroundColor = .clear
         
         let view = UIImageView(image: UIImage(named: "pin")?.withRenderingMode(.alwaysTemplate))
-        view.tintColor = UIColor(named: post.category.lowercased())
+        view.tintColor = UIColor(named: firstPost.category.lowercased())
         view.frame = bounds
         addSubview(view)
         var image: UIImageView
-        if let url = post.user.profilePictureUrl {
+        if let url = firstPost.user.profilePictureUrl {
             image = UIImageView()
             image.sd_setImage(
                 with: URL(string: url),
@@ -52,22 +56,38 @@ final class LocationAnnotationView: MKAnnotationView {
             image.layer.masksToBounds = true
         } else {
             image = UIImageView(image: UIImage(systemName: "person.crop.circle.fill"))
-            image.tintColor = UIColor(named: post.category.lowercased())
+            image.tintColor = UIColor(named: firstPost.category.lowercased())
             image.backgroundColor = .white
             image.frame = CGRect(x: 0, y: 0, width: 42, height: 42).offsetBy(dx: 9, dy: 5.75)
             image.layer.cornerRadius = 21
             image.layer.masksToBounds = true
         }
         view.addSubview(image)
+        
+        if posts.count > 1 {
+            let badge = UITextView()
+            badge.textContainerInset = .init(top: 0, left: 0, bottom: 0, right: 0)
+            badge.backgroundColor = UIColor(red: 0.11, green: 0.51, blue: 0.95, alpha: 1)
+            badge.layer.masksToBounds = true
+            badge.textColor = .white
+            badge.textAlignment = .center
+            badge.text = String(posts.count)
+            badge.font = UIFont.init(name: Poppins.regular, size: 12)
+            badge.sizeToFit()
+            badge.frame = badge.frame.offsetBy(dx: 60 - badge.frame.width, dy: 0)
+            badge.layer.cornerRadius = min(badge.frame.height, badge.frame.width) / 2
+            
+            view.addSubview(badge)
+        }
     }
 }
 
 
 struct MapKitView: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
-    @Binding var selectedPost: Post?
+    @Binding var selectedPin: PlaceAnnotation?
     @Binding var modalState: ModalSnapState
-    var annotations: [PostAnnotation]
+    var annotations: [PlaceAnnotation]
     var images: [String: Data] = [:]
     
     func makeUIView(context: Context) -> MKMapView {
@@ -78,7 +98,7 @@ struct MapKitView: UIViewRepresentable {
     }
     
     func updateUIView(_ view: MKMapView, context: Context) {
-        if !view.annotations.map({ $0 as? PostAnnotation }).elementsEqual(annotations) {
+        if !view.annotations.map({ $0 as? PlaceAnnotation }).elementsEqual(annotations) {
             view.removeAnnotations(view.annotations)
             view.addAnnotations(annotations)
         }
@@ -103,7 +123,7 @@ struct MapKitView: UIViewRepresentable {
         }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-            let annotation = annotation as! PostAnnotation
+            let annotation = annotation as! PlaceAnnotation
             let identifier = "Placemark"
             
             let view = LocationAnnotationView(
@@ -114,9 +134,9 @@ struct MapKitView: UIViewRepresentable {
         }
         
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-            let annotation = view.annotation as! PostAnnotation
+            let annotation = view.annotation as! PlaceAnnotation
             parent.modalState = .large
-            parent.selectedPost = annotation.post
+            parent.selectedPin = annotation
             mapView.deselectAnnotation(annotation, animated: false)
         }
         
@@ -228,20 +248,13 @@ struct MapView: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
     
-    var mapAnnotations: [PostAnnotation] {
-        appState.mapModel.posts
-            .map({ appState.allPosts.posts[$0]! })
-            .enumerated()
-            .map({ PostAnnotation(post: $1, zIndex: $0) })
-    }
-    
     var body: some View {
         ZStack {
             MapKitView(
                 region: $mapViewModel.region,
-                selectedPost: $mapViewModel.presentedPost,
+                selectedPin: $mapViewModel.presentedPin,
                 modalState: $mapViewModel.modalState,
-                annotations: mapAnnotations)
+                annotations: mapViewModel.mapAnnotations)
                 .onTapGesture {
                     hideKeyboard()
                     mapViewModel.modalState = .invisible
@@ -253,9 +266,9 @@ struct MapView: View {
                 SnapDrawer(state: $mapViewModel.modalState, large: 400, allowInvisible: true, background: Color.white) { state in
                     if let results = mapViewModel.results {
                         searchResultsView(results: results)
-                    } else if let post = mapViewModel.presentedPost {
-                        ViewPlace(place: post.place)
-                            .id(post.place.placeId)
+                    } else if let placeAnnotation = mapViewModel.presentedPin {
+                        ViewPlace(place: placeAnnotation.place(), mutualPosts: placeAnnotation.posts)
+                            .id(placeAnnotation.self)
                             .frame(maxHeight: .infinity)
                     } else {
                         EmptyView()
@@ -265,7 +278,7 @@ struct MapView: View {
             }
         }
         .onAppear {
-            mapViewModel.refreshMap()
+            mapViewModel.listenToChanges()
         }
         .edgesIgnoringSafeArea(.all)
     }

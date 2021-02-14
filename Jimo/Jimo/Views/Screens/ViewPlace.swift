@@ -17,6 +17,7 @@ struct PlaceParams {
 
 struct ViewPlace: View {
     let place: Place?
+    let mutualPosts: [Post]?
     let mapItem: MKMapItem?
     
     @State private var placeParams = PlaceParams(
@@ -25,14 +26,16 @@ struct ViewPlace: View {
         website: "Loading website...")
     @State private var setParams = false
     
-    init(place: Place) {
+    init(place: Place, mutualPosts: [Post]? = nil) {
         self.place = place
+        self.mutualPosts = mutualPosts
         self.mapItem = nil
     }
     
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem
         self.place = nil
+        self.mutualPosts = nil
     }
     
     static func getAddress(placemark: CLPlacemark) -> String {
@@ -86,8 +89,8 @@ struct ViewPlace: View {
         return nil
     }
     
-    var body: some View {
-        VStack {
+    var viewPlaceBody: some View {
+        ScrollView {
             HStack {
                 VStack(alignment: .leading) {
                     Text(name)
@@ -96,6 +99,34 @@ struct ViewPlace: View {
                     Text(placeParams.address)
                 }
                 Spacer()
+                
+                Button(action: {
+                    let q = name.split(separator: " ").joined(separator: "+")
+                    var url: String
+                    if let location = location {
+                        let sll = "\(location.latitude),\(location.longitude)"
+                        url = "http://maps.apple.com/?q=\(q)&sll=\(sll)&z=10"
+                    } else {
+                        url = "http://maps.apple.com/?q=\(q)&z=10"
+                    }
+                    if let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
+                       let url = URL(string: encoded) {
+                        UIApplication.shared.open(url)
+                    } else {
+                        print("URL not valid", url)
+                    }
+                }) {
+                    Text("Open in Maps")
+                        .font(Font.custom(Poppins.regular, size: 14))
+                        .frame(maxHeight: 20)
+                        .foregroundColor(.black)
+                        .padding(10)
+                        .background(Color.init(red: 0.6,
+                                               green: 0.6,
+                                               blue: 0.6,
+                                               opacity: 0.3))
+                        .cornerRadius(10)
+                }
             }
             Divider()
             HStack(alignment: .bottom) {
@@ -133,34 +164,25 @@ struct ViewPlace: View {
                 Spacer()
             }
             Divider()
-            Button(action: {
-                let q = name.split(separator: " ").joined(separator: "+")
-                var url: String
-                if let location = location {
-                    let sll = "\(location.latitude),\(location.longitude)"
-                    url = "http://maps.apple.com/?q=\(q)&sll=\(sll)&z=10"
-                } else {
-                    url = "http://maps.apple.com/?q=\(q)&z=10"
+            if let mutualPosts = mutualPosts {
+                HStack(alignment: .bottom) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Friends who have been here")
+                            .foregroundColor(.gray)
+                        ScrollView(.horizontal) {
+                            ForEach(mutualPosts, id: \.postId) { post in
+                                NavigationLink(destination: ViewPost(postId: post.postId)) {
+                                    URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 50, height: 50, alignment: .center)
+                                        .cornerRadius(25)
+                                }
+                            }
+                        }
+                    }
+                    Spacer()
                 }
-                if let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
-                   let url = URL(string: encoded) {
-                    UIApplication.shared.open(url)
-                } else {
-                    print("URL not valid", url)
-                }
-            }) {
-                Text("Open in Maps")
-                    .font(Font.custom(Poppins.semiBold, size: 16))
-                    .frame(maxWidth: .infinity)
-                    .foregroundColor(.black)
-                    .padding()
-                    .background(Color.init(.displayP3,
-                                           red: 0.6,
-                                           green: 0.6,
-                                           blue: 0.6,
-                                           opacity: 0.3))
-                    .cornerRadius(15)
-                    .padding(.horizontal, 20)
+                Divider()
             }
             Spacer()
         }
@@ -181,6 +203,13 @@ struct ViewPlace: View {
                 self.placeParams = getParams(mapItem: mapItem)
                 self.setParams = true
             }
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            viewPlaceBody
+                .navigationBarHidden(true)
         }
     }
 }
