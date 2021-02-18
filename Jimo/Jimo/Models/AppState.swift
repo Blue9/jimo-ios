@@ -160,9 +160,10 @@ class AppState: ObservableObject {
                     self?.signingOut = false
                 })
                 .store(in: &cancelBag)
+        } else {
+            // Otherwise, just log out
+            self.signOutAndClearData()
         }
-        // Otherwise, just log out
-        self.signOutAndClearData()
     }
     
     // MARK: - Invite + waitlist
@@ -313,15 +314,20 @@ class AppState: ObservableObject {
     // MARK: - Image upload
     
     func uploadImageAndGetURL(image: UIImage) -> AnyPublisher<URL, Error> {
-        guard let user = apiClient.authClient.currentUser else {
+        guard let firebaseUser = apiClient.authClient.currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        guard let jpeg = image.jpegData(compressionQuality: 0.25) else {
+        guard case .user(_) = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        guard let jpeg = image.jpegData(compressionQuality: 0.5) else {
             return Fail(error: APIError.encodeError).eraseToAnyPublisher()
         }
-        let imagePath = storage.reference().child("images").child(user.uid).child("\(UUID()).jpg")
+        let imagePath = storage.reference().child("images").child(firebaseUser.uid).child("\(UUID()).jpg")
         return Future<URL, Error> { promise in
-            imagePath.putData(jpeg, metadata: nil) { metadata, error in
+            let metadata = StorageMetadata()
+            metadata.contentType = "image/jpeg"
+            imagePath.putData(jpeg, metadata: metadata) { metadata, error in
                 if let error = error {
                     promise(.failure(error))
                 } else {
@@ -468,9 +474,10 @@ class AppState: ObservableObject {
                         self?.registerNewNotificationToken(token: token)
                     }
                 }
-            }, receiveValue: { [weak self] response in
+            }, receiveValue: { response in
                 if response.success {
-                    self?.setNotificationToken(token: token)
+                    print("Registering token")
+                    self.setNotificationToken(token: token)
                 }
             })
             .store(in: &self.cancelBag)

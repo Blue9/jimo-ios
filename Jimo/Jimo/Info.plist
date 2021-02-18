@@ -83,5 +83,7 @@
 	<false/>
 	<key>NSContactsUsageDescription</key>
 	<string>This lets you see which of your friends are on jimo.</string>
+	<key>FirebaseCrashlyticsCollectionEnabled</key>
+	<false/>
 </dict>
 </plist>

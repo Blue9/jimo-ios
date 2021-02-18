@@ -10,6 +10,8 @@ target 'Jimo' do
   pod 'Firebase/Auth'
   pod 'Firebase/Messaging'
   pod 'Firebase/Storage'
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Analytics'
 
   pod 'GoogleSignIn'
   pod 'SDWebImage'

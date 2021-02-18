@@ -32,6 +32,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, GIDSignInDelegate, UNUserNot
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
+        // Disable crashlytics for testing
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         GIDSignIn.sharedInstance().delegate = self
         
