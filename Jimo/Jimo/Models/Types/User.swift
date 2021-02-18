@@ -77,6 +77,12 @@ struct UserFieldError: Codable {
 }
 
 
+struct FollowUserResponse: Codable {
+    var followed: Bool
+    var followers: Int?
+}
+
+
 struct InviteUserRequest: Codable {
     var phoneNumber: String
 }

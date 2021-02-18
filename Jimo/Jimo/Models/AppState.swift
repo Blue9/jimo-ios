@@ -253,6 +253,18 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        return self.apiClient.followUser(username: username)
+    }
+    
+    func unfollowUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        return self.apiClient.unfollowUser(username: username)
+    }
+    
+    func isFollowing(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        return self.apiClient.isFollowing(username: username)
+    }
+    
     // MARK: - Post
     
     func createPost(_ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
