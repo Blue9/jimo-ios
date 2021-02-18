@@ -51,7 +51,7 @@ struct CategoryPicker: View {
         VStack {
             HStack {
                 Text("Category")
-                    .fontWeight(.bold)
+                    .font(Font.custom(Poppins.semiBold, size: 16))
                 Spacer()
             }
             .padding(.horizontal)
@@ -83,16 +83,16 @@ struct CategoryPicker: View {
 struct FormInputButton: View {
     var name: String
     var content: String? = nil
-    var height: CGFloat = 50
     var destination: AnyView?
     var clearAction: () -> Void
     
     var body: some View {
         Text(content ?? name)
-            .fontWeight(content != nil ? .regular : .medium)
-            .frame(maxWidth: .infinity, minHeight: height, alignment: .leading)
+            .font(Font.custom(content != nil ? Poppins.regular : Poppins.medium, size: 15))
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading)
             .padding(.trailing, 40)
+            .padding(.vertical, 12)
             .foregroundColor(.black)
             .overlay(content == nil ? nil : Button(action: clearAction) {
                 Image(systemName: "xmark.circle")
@@ -109,9 +109,10 @@ struct FormInputText: View {
     
     var body: some View {
         MultilineTextField(name, text: $text, height: height)
+            .font(Font.custom(Poppins.regular, size: 15))
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .padding(.bottom, 5)
+            .padding(.vertical, 4)
+            .padding(.bottom, 8)
     }
 }
 
@@ -127,6 +128,7 @@ struct CreatePostDivider: View {
 
 struct CreatePost: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var createPostVM = CreatePostVM()
     
     @Binding var presented: Bool
@@ -289,21 +291,22 @@ struct CreatePost: View {
                                         .contentShape(Rectangle())
                                 }
                             }
-                            .padding(.horizontal, 30)
+                            .padding(.horizontal)
                             .padding(.vertical, 10)
                         }
                         
-                        RoundedButton(text: Text("Add Pin").fontWeight(.bold),
+                        RoundedButton(text: Text("Add Pin").font(Font.custom(Poppins.semiBold, size: 16)),
                                       action: self.createPost, backgroundColor: buttonColor)
                             .frame(height: 60, alignment: .center)
-                            .padding(.horizontal, 30)
-                            .padding(.top, 40)
+                            .padding(.horizontal)
+                            .padding(.top, 15)
                             .padding(.bottom, 20)
                     }
                 }
             }
+            .background(backgroundColor.edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(.white)
+            .navigationBarColor(UIColor(backgroundColor))
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     NavTitle("New post")

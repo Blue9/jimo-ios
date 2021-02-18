@@ -9,19 +9,23 @@ import SwiftUI
 
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
     @ObservedObject var profileVM: ProfileVM
     
     var body: some View {
         NavigationView {
             Profile(profileVM: profileVM)
                 .navigationBarTitleDisplayMode(.inline)
-                .navigationBarColor(.white)
+                .navigationBarColor(UIColor(backgroundColor))
                 .toolbar(content: {
                     ToolbarItem(placement: .principal) {
                         NavTitle("Profile")
                     }
                     ToolbarItem(placement: .navigationBarTrailing, content: {
-                        NavigationLink(destination: Settings()) {
+                        NavigationLink(destination: Settings()
+                                        .environmentObject(appState)
+                                        .environmentObject(globalViewState)) {
                             Image(systemName: "gearshape")
                         }
                     })

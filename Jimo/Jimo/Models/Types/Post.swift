@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MapKit
 
 typealias PostId = String
 
@@ -23,6 +24,14 @@ struct Post: Codable, Equatable, Identifiable {
     var likeCount: Int
     var liked: Bool
     var customLocation: Location?
+    
+    var location: CLLocationCoordinate2D {
+        if let location = customLocation {
+            return location.coordinate()
+        } else {
+            return place.location.coordinate()
+        }
+    }
 }
 
 

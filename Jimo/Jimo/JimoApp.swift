@@ -21,6 +21,7 @@ struct JimoApp: App {
             ContentView()
                 .environmentObject(AppState(apiClient: APIClient()))
                 .environmentObject(GlobalViewState())
+                .environment(\.backgroundColor, Color("background"))
                 .preferredColorScheme(.light)
         }
     }

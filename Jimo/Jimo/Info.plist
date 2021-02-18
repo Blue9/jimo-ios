@@ -58,7 +58,7 @@
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
-		<string>splashBackground</string>
+		<string>background</string>
 	</dict>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>

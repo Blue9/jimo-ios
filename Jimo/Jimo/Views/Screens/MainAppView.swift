@@ -40,6 +40,7 @@ enum NewPostType {
 struct MainAppView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var tabBar = TabBar()
     
     let profileVM: ProfileVM
@@ -50,31 +51,31 @@ struct MainAppView: View {
             TabView(selection: $tabBar.selection) {
                 Feed()
                     .tabItem {
-                        Image(systemName: "house")
+                        Image("feedIcon")
                         Text("Home")
                     }
                     .tag(1)
                 MapView(mapModel: appState.mapModel, mapViewModel: mapVM)
                     .tabItem {
-                        Image(systemName: "map")
+                        Image("mapIcon")
                         Text("Map")
                     }
                     .tag(2)
                 Text("")
                     .tabItem {
-                        Image(systemName: "plus.square")
+                        Image("postIcon")
                         Text("New")
                     }
                     .tag(3)
                 Search()
                     .tabItem {
-                        Image(systemName: "magnifyingglass")
+                        Image("searchIcon")
                         Text("Search")
                     }
                     .tag(4)
                 ProfileTab(profileVM: profileVM)
                     .tabItem {
-                        Image(systemName: "person")
+                        Image("profileIcon")
                         Text("Profile")
                     }
                     .tag(5)
@@ -84,7 +85,12 @@ struct MainAppView: View {
             return CreatePost(presented: $tabBar.newPostSelected)
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
+                .environment(\.backgroundColor, backgroundColor)
                 .preferredColorScheme(.light)
+        }
+        .accentColor(.black)
+        .onAppear {
+            UITabBar.appearance().barTintColor = .white
         }
     }
 }

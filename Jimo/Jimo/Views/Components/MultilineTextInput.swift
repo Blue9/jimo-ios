@@ -19,7 +19,7 @@ fileprivate struct UITextViewWrapper: UIViewRepresentable {
         
         textField.isEditable = true
         textField.returnKeyType = .done
-        textField.font = UIFont.preferredFont(forTextStyle: .body)
+        textField.font = UIFont(name: Poppins.regular, size: 14)
         textField.textColor = .black
         textField.isSelectable = true
         textField.isUserInteractionEnabled = true

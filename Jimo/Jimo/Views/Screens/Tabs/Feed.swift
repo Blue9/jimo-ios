@@ -51,36 +51,42 @@ class FeedViewState: ObservableObject {
 struct FeedBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
     @ObservedObject var feedModel: FeedModel
     @StateObject var feedState: FeedViewState
     
     var body: some View {
-        if !feedState.initialized {
-            ProgressView()
-                .onAppear {
-                    feedState.refreshFeed()
+        Group {
+            if !feedState.initialized {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        feedState.refreshFeed()
+                    }
+            } else {
+                RefreshableScrollView(refreshing: $feedState.scrollViewRefresh) {
+                    ForEach(feedModel.currentFeed, id: \.self) { postId in
+                        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
+                    }
+                    Text("You've reached the end!")
+                        .padding(.top, 40)
                 }
-        } else {
-            RefreshableScrollView(refreshing: $feedState.scrollViewRefresh) {
-                ForEach(feedModel.currentFeed, id: \.self) { postId in
-                    FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
-                }
-                Text("You've reached the end!")
-                    .padding(.top, 40)
             }
         }
+        .background(backgroundColor)
     }
 }
 
 struct Feed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
 
     var body: some View {
         NavigationView {
             FeedBody(feedModel: appState.feedModel, feedState: FeedViewState(appState: appState, globalViewState: globalViewState))
                 .navigationBarTitleDisplayMode(.inline)
-                .navigationBarColor(.white)
+                .navigationBarColor(UIColor(backgroundColor))
                 .toolbar {
                     ToolbarItem(placement: .principal) {
                         NavTitle("Feed")

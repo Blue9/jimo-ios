@@ -168,7 +168,7 @@ struct FollowContacts: View {
         GridItem(.flexible(minimum: 50), spacing: 10)
     ]
     
-    let bgColor = Color(.displayP3, red: 0.9, green: 0.9, blue: 0.9, opacity: 1)
+    @Environment(\.backgroundColor) var backgroundColor
     
     var body: some View {
         VStack {
@@ -185,7 +185,7 @@ struct FollowContacts: View {
             .padding(.horizontal, 30)
             
             Text("Friends Already Here")
-                .font(Font.custom(Poppins.medium, size: 32))
+                .font(Font.custom(Poppins.medium, size: 24))
             
             Spacer()
             
@@ -284,7 +284,7 @@ struct FollowContacts: View {
         .onAppear {
             contactStore.getExistingUsers(appState: appState)
         }
-        .background(bgColor.edgesIgnoringSafeArea(.all))
+        .background(backgroundColor.edgesIgnoringSafeArea(.all))
     }
 }
 

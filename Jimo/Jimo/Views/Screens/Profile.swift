@@ -34,7 +34,7 @@ struct ProfileHeaderView: View {
             URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 80, height: 80, alignment: .center)
-                .font(Font.title.weight(.ultraLight))
+                .font(Font.title.weight(.light))
                 .foregroundColor(.gray)
                 .background(Color.white)
                 .cornerRadius(50)
@@ -42,7 +42,7 @@ struct ProfileHeaderView: View {
                 .id(user.profilePictureUrl)
             VStack(alignment: .leading, spacing: 0) {
                 Text(name)
-                    .font(.title3)
+                    .font(Font.custom(Poppins.medium, size: 18))
                     .fontWeight(.semibold)
                     .frame(height: 25)
                 Text("@" + user.username)
@@ -52,19 +52,13 @@ struct ProfileHeaderView: View {
                 if isCurrentUser {
                     Spacer().frame(height: 30)
                 } else if profileVM.following {
-                    Button(action: { profileVM.unfollowUser() }) {
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        profileVM.unfollowUser()
+                    }) {
                         Text("Unfollow")
                             .padding(5)
-                            .font(.system(size: 16))
-                            .background(Color.red)
-                            .cornerRadius(10)
-                            .foregroundColor(.white)
-                    }.frame(height: 30)
-                } else {
-                    Button(action: { profileVM.followUser() }) {
-                        Text("Follow")
-                            .padding(5)
-                            .font(.system(size: 16))
+                            .font(Font.custom(Poppins.regular, size: 14))
                             .background(Color.white)
                             .cornerRadius(10)
                             .foregroundColor(.gray)
@@ -72,6 +66,18 @@ struct ProfileHeaderView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.gray, lineWidth: 1)
                             )
+                    }.frame(height: 30)
+                } else {
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        profileVM.followUser()
+                    }) {
+                        Text("Follow")
+                            .padding(5)
+                            .font(Font.custom(Poppins.regular, size: 14))
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
                     }.frame(height: 30)
                 }
             }
@@ -93,25 +99,19 @@ struct ProfileStatsView: View {
         HStack {
             VStack {
                 Text(String(user.postCount))
-                    .bold()
                 Text("Posts")
-                    .bold()
             }
             .frame(width: 80)
             Spacer()
             VStack {
                 Text(String(user.followerCount))
-                    .bold()
                 Text("Followers")
-                    .bold()
             }
             .frame(width: 80)
             Spacer()
             VStack {
                 Text(String(user.followingCount))
-                    .bold()
                 Text("Following")
-                    .bold()
             }
             .frame(width: 80)
         }
@@ -148,6 +148,7 @@ struct ProfilePosts: View {
 
 
 struct Profile: View {
+    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var profileVM: ProfileVM
     
     var body: some View {
@@ -159,6 +160,8 @@ struct Profile: View {
             }
             .padding(.top)
         }
+        .font(Font.custom(Poppins.medium, size: 15))
+        .background(backgroundColor)
     }
 }
 

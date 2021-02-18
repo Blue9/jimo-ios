@@ -16,6 +16,8 @@ struct PlaceParams {
 }
 
 struct ViewPlace: View {
+    @Environment(\.backgroundColor) var backgroundColor
+    
     let place: Place?
     let mutualPosts: [Post]?
     let mapItem: MKMapItem?
@@ -116,7 +118,7 @@ struct ViewPlace: View {
                         print("URL not valid", url)
                     }
                 }) {
-                    Text("Open in Maps")
+                    Text("Directions")
                         .font(Font.custom(Poppins.regular, size: 14))
                         .frame(maxHeight: 20)
                         .foregroundColor(.black)
@@ -170,12 +172,14 @@ struct ViewPlace: View {
                         Text("Friends who have been here")
                             .foregroundColor(.gray)
                         ScrollView(.horizontal) {
-                            ForEach(mutualPosts, id: \.postId) { post in
-                                NavigationLink(destination: ViewPost(postId: post.postId)) {
-                                    URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 50, height: 50, alignment: .center)
-                                        .cornerRadius(25)
+                            HStack {
+                                ForEach(mutualPosts, id: \.postId) { post in
+                                    NavigationLink(destination: ViewPost(postId: post.postId)) {
+                                        URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 50, height: 50, alignment: .center)
+                                            .cornerRadius(25)
+                                    }
                                 }
                             }
                         }
@@ -210,6 +214,7 @@ struct ViewPlace: View {
         NavigationView {
             viewPlaceBody
                 .navigationBarHidden(true)
+                .background(backgroundColor)
         }
     }
 }

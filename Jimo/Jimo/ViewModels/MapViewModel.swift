@@ -14,7 +14,13 @@ class MapViewModel: ObservableObject {
         center: CLLocationCoordinate2D(latitude: 37.13284, longitude: -95.78558),
         span: MKCoordinateSpan(latitudeDelta: 85.762482, longitudeDelta: 61.276015))
     
-    var appState: AppState
+    let appState: AppState
+    let preselectedPost: Post? // If we are navigating to the map from a post
+    
+    /// When first launching the map, if preselectedPost != nil we want to open the bottom sheet for it.
+    /// This lets us know whether we have done that or not so we don't repeatedly open the bottom sheet.
+    var displayedInitialBottomSheetForPresentedPost: Bool = false
+
     var regionCancellable: Cancellable? = nil
     var annotationsCancellable: Cancellable? = nil
     var cancellable: Cancellable? = nil
@@ -22,7 +28,7 @@ class MapViewModel: ObservableObject {
     @Published var region = defaultRegion
     @Published var presentedPin: PlaceAnnotation?
     @Published var results: [MKMapItem]?
-    @Published var modalState: ModalSnapState = .invisible {
+    @Published var modalState: OvercastSnapState = .invisible {
         didSet {
             if modalState == .invisible {
                 presentedPin = nil
@@ -32,8 +38,17 @@ class MapViewModel: ObservableObject {
     }
     @Published var mapAnnotations: [PlaceAnnotation] = []
     
-    init(appState: AppState) {
+    var showSearchBar: Bool {
+        preselectedPost == nil
+    }
+    
+    init(appState: AppState, preselectedPost: Post? = nil) {
         self.appState = appState
+        self.preselectedPost = preselectedPost
+        if let post = preselectedPost {
+            region.center = post.location
+            region.span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+        }
     }
     
     func listenToChanges() {
@@ -75,6 +90,15 @@ class MapViewModel: ObservableObject {
             let (location, posts) = e
             return PlaceAnnotation(posts: posts, coordinate: location.coordinate(), zIndex: i)
         })
+        if let post = preselectedPost, !displayedInitialBottomSheetForPresentedPost {
+            self.mapAnnotations.forEach({ placeAnnotation in
+                if placeAnnotation.posts.map({ $0.postId }).contains(post.postId) {
+                    presentedPin = placeAnnotation
+                    modalState = .tiny
+                    displayedInitialBottomSheetForPresentedPost = true
+                }
+            })
+        }
     }
 }
 

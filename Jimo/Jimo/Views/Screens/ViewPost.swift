@@ -10,6 +10,7 @@ import SwiftUI
 struct ViewPost: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
     @Environment(\.presentationMode) var presentation
     let postId: PostId
 
@@ -21,8 +22,9 @@ struct ViewPost: View {
                                             onDelete: { presentation.wrappedValue.dismiss() }),
                      fullPost: true)
         }
+        .background(backgroundColor)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(.white)
+        .navigationBarColor(UIColor(backgroundColor))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle("View Post")

@@ -12,6 +12,8 @@ import MapKit
 struct Search: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
+    
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
     
@@ -38,7 +40,7 @@ struct Search: View {
     func profileView(user: User) -> some View {
         Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: user))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(.white)
+            .navigationBarColor(UIColor(backgroundColor))
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Profile")
@@ -87,6 +89,7 @@ struct Search: View {
                 }
             }
         }
+        .colorMultiply(backgroundColor)
         .listStyle(PlainListStyle())
     }
     
@@ -105,15 +108,17 @@ struct Search: View {
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
                 .onTapGesture {
+                    hideKeyboard()
                     searchViewModel.selectPlace(appState: appState, completion: searchCompletion)
                 }
             }
+            .colorMultiply(backgroundColor)
             .listStyle(PlainListStyle())
             
             if let place = searchViewModel.selectedPlaceResult {
                 NavigationLink(destination: ViewPlace(mapItem: place)
                                 .navigationBarTitleDisplayMode(.inline)
-                                .navigationBarColor(.white)
+                                .navigationBarColor(UIColor(backgroundColor))
                                 .toolbar {
                                     ToolbarItem(placement: .principal) {
                                         NavTitle("View place")
@@ -129,7 +134,7 @@ struct Search: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                SearchBar(text: $searchViewModel.query, placeholder: "Search")
+                SearchBar(text: $searchViewModel.query, minimal: true, placeholder: "Search")
                     .padding(.bottom, 0)
                 Picker(selection: $searchViewModel.searchType, label: Text("What do you want to search for")) {
                     Text("People").tag(SearchType.people)
@@ -148,8 +153,10 @@ struct Search: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(backgroundColor)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(.white)
+            .navigationBarColor(UIColor(backgroundColor))
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Discover")

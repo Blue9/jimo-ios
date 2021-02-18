@@ -86,7 +86,7 @@ final class LocationAnnotationView: MKAnnotationView {
 struct MapKitView: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     @Binding var selectedPin: PlaceAnnotation?
-    @Binding var modalState: ModalSnapState
+    @Binding var modalState: OvercastSnapState
     var annotations: [PlaceAnnotation]
     var images: [String: Data] = [:]
     
@@ -99,8 +99,12 @@ struct MapKitView: UIViewRepresentable {
     
     func updateUIView(_ view: MKMapView, context: Context) {
         if !view.annotations.map({ $0 as? PlaceAnnotation }).elementsEqual(annotations) {
-            view.removeAnnotations(view.annotations)
+            let toRemove = view.annotations.filter({ annotation in
+                let placeAnnotation = annotation as? PlaceAnnotation
+                return placeAnnotation == nil || !annotations.contains(placeAnnotation!)
+            })
             view.addAnnotations(annotations)
+            view.removeAnnotations(toRemove)
         }
         if view.region != region {
             view.setRegion(region, animated: true)
@@ -147,6 +151,7 @@ struct MapKitView: UIViewRepresentable {
 
 
 struct MapSearch: View {
+    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var mapViewModel: MapViewModel
     @StateObject var locationSearch: LocationSearch = LocationSearch()
     @State var query: String = ""
@@ -175,24 +180,27 @@ struct MapSearch: View {
                 .padding(.horizontal, 15)
                 .padding(.top, 50)
                 .padding(.bottom, 15)
-                .background(Color.init(white: 1, opacity: 0.9))
+                .background(backgroundColor.opacity(0.9))
             
             if locationSearch.searchQuery.count > 0 {
-                List(locationSearch.completions) { completion in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(completion.title)
-                            Text(completion.subtitle)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                List {
+                    ForEach(locationSearch.completions) { completion in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(completion.title)
+                                Text(completion.subtitle)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
                         }
-                        Spacer()
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        self.search(completion: completion)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            self.search(completion: completion)
+                        }
                     }
                 }
+                .colorMultiply(backgroundColor)
                 .onAppear {
                     mapViewModel.modalState = .invisible
                 }
@@ -205,6 +213,7 @@ struct MapSearch: View {
 
 struct MapView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var mapModel: MapModel
     @StateObject var mapViewModel: MapViewModel
@@ -222,30 +231,27 @@ struct MapView: View {
     
     private func searchResultsView(results: [MKMapItem]) -> some View {
         NavigationView {
-            ScrollView {
-                List(results, id: \.self) { (place: MKMapItem) in
-                    if let name = place.name {
-                        NavigationLink(
-                            destination: ViewPlace(mapItem: place)
-                                .navigationBarHidden(true)
-                                .frame(maxHeight: .infinity)
-                                .onAppear {
-                                    mapViewModel.region.center = place.placemark.coordinate
-                                    mapViewModel.region = MKCoordinateRegion(
-                                        center: CLLocationCoordinate2D(
-                                            latitude: place.placemark.coordinate.latitude - 0.00025,
-                                            longitude: place.placemark.coordinate.longitude),
-                                        span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
-                                }) {
-                            searchResult(place: place, name: name)
-                        }
+            List(results, id: \.self) { (place: MKMapItem) in
+                if let name = place.name {
+                    NavigationLink(
+                        destination: ViewPlace(mapItem: place)
+                            .navigationBarHidden(true)
+                            .frame(maxHeight: .infinity)
+                            .onAppear {
+                                mapViewModel.region.center = place.placemark.coordinate
+                                mapViewModel.region = MKCoordinateRegion(
+                                    center: CLLocationCoordinate2D(
+                                        latitude: place.placemark.coordinate.latitude - 0.00025,
+                                        longitude: place.placemark.coordinate.longitude),
+                                    span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
+                            }) {
+                        searchResult(place: place, name: name)
                     }
                 }
-                .frame(height: 360)
             }
+            .colorMultiply(backgroundColor)
             .navigationBarHidden(true)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
     
     var body: some View {
@@ -260,10 +266,17 @@ struct MapView: View {
                     mapViewModel.modalState = .invisible
                 }
             
-            MapSearch(mapViewModel: mapViewModel)
+            if mapViewModel.preselectedPost == nil {
+                // Only show search if there is no preselected post
+                MapSearch(mapViewModel: mapViewModel)
+            }
             
             GeometryReader { geometry in
-                SnapDrawer(state: $mapViewModel.modalState, large: 400, allowInvisible: true, background: Color.white) { state in
+                SnapDrawer(state: $mapViewModel.modalState,
+                           large: 400,
+                           tiny: 150,
+                           allowInvisible: true,
+                           background: backgroundColor) { state in
                     if let results = mapViewModel.results {
                         searchResultsView(results: results)
                     } else if let placeAnnotation = mapViewModel.presentedPin {

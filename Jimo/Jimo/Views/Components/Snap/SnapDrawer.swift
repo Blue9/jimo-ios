@@ -34,7 +34,7 @@ public struct SnapDrawer<StateType: SnapState, Background : View, Content: View>
         self.state = state
         self.background = background
         self.content = content
-        self._currentResult = State(initialValue: calculator(state: .largeState))
+        self._currentResult = State(initialValue: calculator(state: .invisibleState))
         self.minDrag = self.calculator.results.first?.offset ?? 0
         self.maxDrag = self.calculator.results.last?.offset ?? 0
     }
@@ -66,7 +66,7 @@ public struct SnapDrawer<StateType: SnapState, Background : View, Content: View>
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.9), radius: 10.0)
         .offset(y: min(maxDrag + 8, max(minDrag - 8, self.currentResult.offset + self.dragState.translation.height)))
-        .animation(self.dragState.isDragging ? nil : .interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0))
+        .animation(self.dragState.isDragging ? nil : .interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0), value: self.currentResult.offset)
         .gesture(drag)
     }
 

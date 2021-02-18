@@ -369,7 +369,12 @@ class AppState: ObservableObject {
     
     private func setMap(region: MKCoordinateRegion, posts: [Post]) {
         _ = addPostsToAllPosts(posts: posts)
-        mapModel.posts = posts.map({ $0.postId })
+        posts.map({ $0.postId }).forEach({ postId in
+            if !mapModel.posts.contains(postId) {
+                mapModel.posts.append(postId)
+            }
+        })
+        // TODO remove deleted posts
     }
     
     private func addPostsToAllPosts(posts: [Post]) -> [PostId] {

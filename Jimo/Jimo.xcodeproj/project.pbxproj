@@ -12,6 +12,7 @@
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
 		C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70367052557629900F970DE /* NavigationViewModifier.swift */; };
 		C703670E255764FD00F970DE /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C703670D255764FD00F970DE /* Profile.swift */; };
+		C70544BC25DE44CD0032D216 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70544BB25DE44CD0032D216 /* Environment.swift */; };
 		C70AE46225CA37EA009920E8 /* PhoneNumberTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */; };
 		C70AE46725CA7DC4009920E8 /* WaitlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46625CA7DC4009920E8 /* WaitlistView.swift */; };
 		C70AE46D25CA8DF6009920E8 /* OldAuthViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46C25CA8DF6009920E8 /* OldAuthViews.swift */; };
@@ -116,6 +117,7 @@
 		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		C70367052557629900F970DE /* NavigationViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModifier.swift; sourceTree = "<group>"; };
 		C703670D255764FD00F970DE /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		C70544BB25DE44CD0032D216 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberTextFieldView.swift; sourceTree = "<group>"; };
 		C70AE46625CA7DC4009920E8 /* WaitlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitlistView.swift; sourceTree = "<group>"; };
 		C70AE46C25CA8DF6009920E8 /* OldAuthViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldAuthViews.swift; sourceTree = "<group>"; };
@@ -436,6 +438,7 @@
 				C7D2D85125CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift */,
 				C7D2D85625CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift */,
 				C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */,
+				C70544BB25DE44CD0032D216 /* Environment.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -770,6 +773,7 @@
 				C7EAD4D425ABBDCC004A9F53 /* FeedItemVM.swift in Sources */,
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
 				C75C2EE125561309009B6ADA /* ContentView.swift in Sources */,
+				C70544BC25DE44CD0032D216 /* Environment.swift in Sources */,
 				C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */,
 				C7D2D83D25CE2B9600246BD0 /* SnapDrawer.swift in Sources */,
 				C768AB0D25C3802A005550B6 /* MapViewModel.swift in Sources */,

@@ -11,6 +11,8 @@ struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     
+    @Environment(\.backgroundColor) var backgroundColor
+    
     var body: some View {
         ZStack {
             if case .loading = appState.firebaseSession {
@@ -23,9 +25,10 @@ struct ContentView: View {
                 NavigationView {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .background(backgroundColor.edgesIgnoringSafeArea(.all))
                         .transition(.opacity)
                         .navigationBarTitleDisplayMode(.inline)
-                        .navigationBarColor(.white)
+                        .navigationBarColor(UIColor(backgroundColor))
                         .toolbar {
                             ToolbarItem(placement: .principal) {
                                 NavTitle("Loading profile")
@@ -40,12 +43,18 @@ struct ContentView: View {
             } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile
                 NavigationView {
-                    Button("Unable to connect to server. Tap here to try again.") {
-                        appState.refreshCurrentUser()
+                    VStack {
+                        Spacer()
+                        Button("Unable to connect to server. Tap here to try again.") {
+                            appState.refreshCurrentUser()
+                        }
+                        Spacer()
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundColor.edgesIgnoringSafeArea(.all))
                     .transition(.opacity)
                     .navigationBarTitleDisplayMode(.inline)
-                    .navigationBarColor(.white)
+                    .navigationBarColor(UIColor(backgroundColor))
                     .toolbar {
                         ToolbarItem(placement: .principal) {
                             NavTitle("Loading profile")
@@ -75,6 +84,8 @@ struct ContentView: View {
                 }.transition(.slide)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(backgroundColor.edgesIgnoringSafeArea(.all))
         .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
             Toast(text: globalViewState.errorMessage, type: .error)
                 .padding(.bottom, 50)

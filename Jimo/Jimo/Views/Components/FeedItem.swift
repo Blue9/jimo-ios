@@ -37,22 +37,29 @@ struct FeedItemLikes: View {
     }
     
     var body: some View {
-        if likeCount > 0 {
+        HStack {
             Text(String(likeCount))
-                .font(.subheadline)
-        }
-
-        if showFilledHeart {
-            Button(action: { feedItemVM.unlikePost() }) {
-                Image(systemName: "heart.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(.red)
-            }
-        } else {
-            Button(action: { feedItemVM.likePost() }) {
-                Image(systemName: "heart")
-                    .font(.system(size: 24))
-                    .foregroundColor(.red)
+                .font(Font.custom(Poppins.regular, size: 14))
+                .opacity(likeCount > 0 ? 1 : 0) // Build view regardless to keep height consistent
+            
+            if showFilledHeart {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    feedItemVM.unlikePost()
+                }) {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.red)
+                }
+            } else {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                    feedItemVM.likePost()
+                }) {
+                    Image(systemName: "heart")
+                        .font(.system(size: 20))
+                        .foregroundColor(.red)
+                }
             }
         }
     }
@@ -61,6 +68,8 @@ struct FeedItemLikes: View {
 struct FeedItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
+    
     @StateObject var feedItemVM: FeedItemVM
     
     @State private var showPostOptions = false
@@ -95,7 +104,7 @@ struct FeedItem: View {
     func profileView(post: Post) -> some View {
         Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: post.user))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(.white)
+            .navigationBarColor(UIColor(backgroundColor))
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Profile")
@@ -123,10 +132,8 @@ struct FeedItem: View {
                          failure: Image("imageFail"))
                     .id(image)
                     .scaledToFill()
-                    .font(.system(size: 1, weight: .ultraLight))
                     .foregroundColor(.gray)
-                    .frame(maxWidth: UIScreen.main.bounds.width,
-                           maxHeight: fullPost ? .infinity : 300)
+                    .frame(maxHeight: fullPost ? .infinity : 300)
                     .cornerRadius(0)
                     .contentShape(Rectangle())
                     .background(Color(post.category))
@@ -136,7 +143,7 @@ struct FeedItem: View {
         if !fullPost {
             return AnyView(
                 NavigationLink(destination: fullPostView, isActive: $viewFullPost) {
-                    content.background(Color.white)
+                    content.background(backgroundColor)
                 }
                 .buttonStyle(NoButtonStyle()))
         } else {
@@ -159,10 +166,10 @@ struct FeedItem: View {
                             .id(post.user.profilePictureUrl)
                             .foregroundColor(.gray)
                             .background(Color.white)
-                            .font(.system(size: 16, weight: .ultraLight))
+                            .font(.system(size: 16, weight: .light))
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 60, height: 60, alignment: .center)
-                            .cornerRadius(30)
+                            .frame(width: 50, height: 50, alignment: .center)
+                            .cornerRadius(25)
                             .padding(.trailing, 6)
                             .padding(.top, 4)
                     }
@@ -172,7 +179,7 @@ struct FeedItem: View {
                         HStack {
                             NavigationLink(destination: profileView(post: post)) {
                                 Text(post.user.firstName + " " + post.user.lastName)
-                                    .font(.title3)
+                                    .font(Font.custom(Poppins.medium, size: 16))
                                     .bold()
                                     .frame(height: 26)
                                     .padding(.trailing, 10)
@@ -192,18 +199,19 @@ struct FeedItem: View {
                             }
                         }
                         
-                        NavigationLink(destination: ViewPlace(place: post.place)
-                                        .navigationBarColor(.white)
+                        NavigationLink(destination: MapView(mapModel: appState.mapModel,
+                                                            mapViewModel: MapViewModel(appState: appState, preselectedPost: post))
+                                        .navigationBarColor(UIColor(backgroundColor))
                                         .toolbar {
                                             ToolbarItem(placement: .principal) {
-                                                NavTitle("View place")
+                                                NavTitle("View Place")
                                             }
                                         }) {
                             HStack {
                                 Text(post.place.name)
                             }
                             .foregroundColor(.black)
-                            .font(.subheadline)
+                            .font(Font.custom(Poppins.regular, size: 13))
                             .offset(y: 6)
                         }
                         .buttonStyle(NoButtonStyle())
@@ -212,10 +220,11 @@ struct FeedItem: View {
                 .padding(.leading)
                 
                 postContent(post: post)
+                    .font(Font.custom(Poppins.regular, size: 16))
                 
                 HStack {
                     Text(relativeTime)
-                        .font(.subheadline)
+                        .font(Font.custom(Poppins.regular, size: 13))
                         .foregroundColor(.gray)
                         .onReceive(timer, perform: { _ in
                             relativeTime = getRelativeTime(post: post)
@@ -243,7 +252,7 @@ struct FeedItem: View {
     var body: some View {
         if let post = feedItemVM.post {
             postBody(post: post)
-                .background(Color.white) // Makes the post tappable
+                .background(backgroundColor)
                 .onTapGesture {
                     viewFullPost = true
                 }
