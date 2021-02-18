@@ -34,6 +34,12 @@ class ProfileVM: ObservableObject {
     @Published var failedToLoadFollowStatus = false
     @Published var failedToLoadPosts = false
     
+    init(appState: AppState, globalViewState: GlobalViewState, user: User) {
+        self.appState = appState
+        self.globalViewState = globalViewState
+        self.user = user
+    }
+    
     func refresh() {
         loadUser()
         loadFollowStatus()
@@ -91,16 +97,6 @@ class ProfileVM: ObservableObject {
             }, receiveValue: { [weak self] posts in
                 self?.posts = posts
             })
-    }
-    
-    init(appState: AppState, globalViewState: GlobalViewState, user: User) {
-        self.appState = appState
-        self.globalViewState = globalViewState
-        self.user = user
-    }
-    
-    func getName(user: User) -> String {
-        return user.firstName + " " + user.lastName
     }
     
     func followUser() {

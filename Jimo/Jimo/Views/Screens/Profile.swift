@@ -9,10 +9,18 @@ import SwiftUI
 
 
 struct ProfileHeaderView: View {
+    @EnvironmentObject var appState: AppState
     @ObservedObject var profileVM: ProfileVM
     
     var user: User {
         profileVM.user
+    }
+    
+    var isCurrentUser: Bool {
+        guard case let .user(currentUser) = appState.currentUser else {
+            return false
+        }
+        return profileVM.user.username == currentUser.username
     }
     
     let defaultImage: Image = Image(systemName: "person.crop.circle")
@@ -22,7 +30,7 @@ struct ProfileHeaderView: View {
     }
     
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 80, height: 80, alignment: .center)
@@ -32,15 +40,18 @@ struct ProfileHeaderView: View {
                 .cornerRadius(50)
                 .padding(.trailing)
                 .id(user.profilePictureUrl)
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text(name)
-                    .font(.title2)
+                    .font(.title3)
                     .fontWeight(.semibold)
                     .frame(height: 25)
                 Text("@" + user.username)
                     .frame(height: 25)
-                if profileVM.following {
-                    // TODO: Remove button on logged in user's profile.
+                    .padding(.bottom, 5)
+                
+                if isCurrentUser {
+                    Spacer().frame(height: 30)
+                } else if profileVM.following {
                     Button(action: { profileVM.unfollowUser() }) {
                         Text("Unfollow")
                             .padding(5)
@@ -48,7 +59,7 @@ struct ProfileHeaderView: View {
                             .background(Color.red)
                             .cornerRadius(10)
                             .foregroundColor(.white)
-                    }
+                    }.frame(height: 30)
                 } else {
                     Button(action: { profileVM.followUser() }) {
                         Text("Follow")
@@ -61,7 +72,7 @@ struct ProfileHeaderView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.gray, lineWidth: 1)
                             )
-                    }
+                    }.frame(height: 30)
                 }
             }
             Spacer()
@@ -128,6 +139,7 @@ struct ProfilePosts: View {
         } else {
             ProgressView()
                 .onAppear {
+                    profileVM.loadFollowStatus()
                     profileVM.loadPosts()
                 }
         }
