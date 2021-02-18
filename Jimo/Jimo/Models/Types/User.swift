@@ -51,6 +51,12 @@ struct CreateUserResponse: Codable {
 }
 
 
+struct FollowUserResponse: Codable {
+    var followed: Bool
+    var followers: Int?
+}
+
+
 struct InviteUserRequest: Codable {
     var phoneNumber: String
 }

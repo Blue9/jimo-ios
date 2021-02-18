@@ -13,9 +13,14 @@ class ProfileVM: ObservableObject {
     let appState: AppState
     
     var loadUserCancellable: Cancellable? = nil
+    var loadFollowStatusCancellable: Cancellable? = nil
     var loadPostsCancellable: Cancellable? = nil
     
+    var followUserCancellable: Cancellable? = nil
+    var unfollowUserCancellable: Cancellable? = nil
+    
     @Published var user: User
+    @Published var following: Bool = false
     @Published var posts: [PostId]? = nil
     @Published var refreshing = false {
         didSet {
@@ -25,10 +30,12 @@ class ProfileVM: ObservableObject {
         }
     }
     @Published var failedToLoadUser = false
+    @Published var failedToLoadFollowStatus = false
     @Published var failedToLoadPosts = false
     
     func refresh() {
         loadUser()
+        loadFollowStatus()
         loadPosts()
     }
     
@@ -47,6 +54,20 @@ class ProfileVM: ObservableObject {
             })
     }
     
+    func loadFollowStatus() {
+        loadFollowStatusCancellable = appState.isFollowing(username: user.username)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.failedToLoadFollowStatus = true
+                    print("Error when loading follow status", error)
+                } else {
+                    self?.failedToLoadFollowStatus = false
+                }
+            }, receiveValue: { [weak self] response in
+                self?.following = response.followed
+            })
+    }
+    
     func loadPosts() {
         loadPostsCancellable = appState.getPosts(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
@@ -58,6 +79,35 @@ class ProfileVM: ObservableObject {
                 }
             }, receiveValue: { [weak self] posts in
                 self?.posts = posts
+            })
+    }
+    
+    func followUser() {
+        followUserCancellable = appState.followUser(username: user.username)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("Error when following", error)
+                }
+            }, receiveValue: { [weak self] response in
+                self?.following = response.followed
+                if let count = response.followers {
+                    self?.user.followerCount = count
+                }
+
+            })
+    }
+    
+    func unfollowUser() {
+        unfollowUserCancellable = appState.unfollowUser(username: user.username)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("Error when unfollowing", error)
+                }
+            }, receiveValue: { [weak self] response in
+                self?.following = response.followed
+                if let count = response.followers {
+                    self?.user.followerCount = count
+                }
             })
     }
     

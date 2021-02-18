@@ -34,9 +34,33 @@ struct ProfileHeaderView: View {
             VStack(alignment: .leading) {
                 Text(name)
                     .fontWeight(.bold)
-                    .frame(height: 30)
+                    .frame(height: 25)
                 Text("@" + user.username)
-                    .frame(height: 30)
+                    .frame(height: 25)
+                if profileVM.following {
+                    // TODO: Remove button on logged in user's profile.
+                    Button(action: { profileVM.unfollowUser() }) {
+                        Text("Unfollow")
+                            .padding(5)
+                            .font(.system(size: 16))
+                            .background(Color.red)
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
+                    }
+                } else {
+                    Button(action: { profileVM.followUser() }) {
+                        Text("Follow")
+                            .padding(5)
+                            .font(.system(size: 16))
+                            .background(Color.white)
+                            .cornerRadius(10)
+                            .foregroundColor(.gray)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray, lineWidth: 1)
+                            )
+                    }
+                }
             }
             Spacer()
         }

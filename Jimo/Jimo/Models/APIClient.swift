@@ -52,6 +52,18 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/posts")
     }
     
+    static func follow(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/follow")
+    }
+    
+    static func unfollow(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/unfollow")
+    }
+    
+    static func isFollowing(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/follow_status")
+    }
+    
     // MARK: - Post endpoints
     
     static func createPost() -> Endpoint {
@@ -260,6 +272,27 @@ class APIClient: ObservableObject {
      */
     func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         doRequest(endpoint: Endpoint.postLikes(postId: postId), httpMethod: "DELETE")
+    }
+    
+    /**
+     Follow user.
+     */
+    func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        doRequest(endpoint: Endpoint.follow(username: username), httpMethod: "POST")
+    }
+    
+    /**
+     Unfollow user.
+     */
+    func unfollowUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        doRequest(endpoint: Endpoint.unfollow(username: username), httpMethod: "POST")
+    }
+    
+    /**
+     Get follow status.
+     */
+    func isFollowing(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        doRequest(endpoint: Endpoint.isFollowing(username: username))
     }
     
     // MARK: - Search endpoints
