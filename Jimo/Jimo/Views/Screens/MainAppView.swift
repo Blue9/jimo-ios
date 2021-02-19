@@ -55,7 +55,7 @@ struct MainAppView: View {
                         Text("Home")
                     }
                     .tag(1)
-                MapView(mapModel: appState.mapModel, mapViewModel: mapVM)
+                MapTab(mapModel: appState.mapModel, mapViewModel: mapVM)
                     .tabItem {
                         Image("mapIcon")
                         Text("Map")

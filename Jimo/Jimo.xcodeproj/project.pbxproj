@@ -87,6 +87,7 @@
 		C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */; };
 		C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D4F5255A397600E8D216 /* Comment.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
+		C7FEBFA125DF42C400A0A685 /* MapTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FEBFA025DF42C400A0A685 /* MapTab.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -200,6 +201,7 @@
 		C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		C7F6D4F5255A397600E8D216 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
+		C7FEBFA025DF42C400A0A685 /* MapTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTab.swift; sourceTree = "<group>"; };
 		EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-JimoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -377,6 +379,7 @@
 				C7EDC39E25D2F768007B3E77 /* Tabs */,
 				C76E913C25D21E1300762803 /* Onboarding */,
 				C70AE46B25CA8DAA009920E8 /* Auth */,
+				C75C2F0F25561359009B6ADA /* MapView.swift */,
 				C703670D255764FD00F970DE /* Profile.swift */,
 				C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */,
 				C721D896255B653C00FFC4E6 /* LocationSelection.swift */,
@@ -491,7 +494,7 @@
 			isa = PBXGroup;
 			children = (
 				C72F3CB82587264A00DDB76C /* Feed.swift */,
-				C75C2F0F25561359009B6ADA /* MapView.swift */,
+				C7FEBFA025DF42C400A0A685 /* MapTab.swift */,
 				C75C2F3E255617CA009B6ADA /* CreatePost.swift */,
 				C76DEA32255E559C008A9E1B /* Search.swift */,
 				C7D73FD625A7BCDD007699AF /* ProfileTab.swift */,
@@ -824,6 +827,7 @@
 				C7D2D83F25CE2B9600246BD0 /* SnapState.swift in Sources */,
 				C7EAD4CF25ABBD9A004A9F53 /* CreatePostVM.swift in Sources */,
 				C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */,
+				C7FEBFA125DF42C400A0A685 /* MapTab.swift in Sources */,
 				C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */,
 				C76DEA33255E559C008A9E1B /* Search.swift in Sources */,
 				C764145525D0FD6000CBDE3F /* DiscoverViewModel.swift in Sources */,

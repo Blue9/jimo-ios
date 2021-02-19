@@ -11,7 +11,7 @@ import Combine
 import SDWebImage
 
 
-final class LocationAnnotationView: MKAnnotationView {
+class LocationAnnotationView: MKAnnotationView {
     
     // MARK: Initialization
     
@@ -24,7 +24,7 @@ final class LocationAnnotationView: MKAnnotationView {
     init(annotation: PlaceAnnotation, reuseIdentifier: String) {
         self.posts = annotation.posts
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        frame = CGRect(x: 0, y: 0, width: 60, height: 60)
+        frame = CGRect(x: 0, y: 0, width: 50, height: 50)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
         setupUI()
     }
@@ -51,15 +51,15 @@ final class LocationAnnotationView: MKAnnotationView {
                 placeholderImage: UIImage(systemName: "person.crop.circle"))
             image.backgroundColor = .white
             image.contentMode = .scaleAspectFill;
-            image.frame = CGRect(x: 0, y: 0, width: 42, height: 42).offsetBy(dx: 9, dy: 5.75)
-            image.layer.cornerRadius = 21
+            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 7.5, dy: 4.75)
+            image.layer.cornerRadius = 17.5
             image.layer.masksToBounds = true
         } else {
-            image = UIImageView(image: UIImage(systemName: "person.crop.circle.fill"))
-            image.tintColor = UIColor(named: firstPost.category.lowercased())
+            image = UIImageView(image: UIImage(systemName: "person.crop.circle"))
+            image.tintColor = .gray
             image.backgroundColor = .white
-            image.frame = CGRect(x: 0, y: 0, width: 42, height: 42).offsetBy(dx: 9, dy: 5.75)
-            image.layer.cornerRadius = 21
+            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 7.5, dy: 4.75)
+            image.layer.cornerRadius = 17.5
             image.layer.masksToBounds = true
         }
         view.addSubview(image)
@@ -74,7 +74,7 @@ final class LocationAnnotationView: MKAnnotationView {
             badge.text = String(posts.count)
             badge.font = UIFont.init(name: Poppins.regular, size: 12)
             badge.sizeToFit()
-            badge.frame = badge.frame.offsetBy(dx: 60 - badge.frame.width, dy: 0)
+            badge.frame = badge.frame.offsetBy(dx: self.frame.width - badge.frame.width, dy: 0)
             badge.layer.cornerRadius = min(badge.frame.height, badge.frame.width) / 2
             
             view.addSubview(badge)
@@ -183,23 +183,22 @@ struct MapSearch: View {
                 .background(backgroundColor.opacity(0.9))
             
             if locationSearch.searchQuery.count > 0 {
-                List {
-                    ForEach(locationSearch.completions) { completion in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(completion.title)
-                                Text(completion.subtitle)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
+                List(locationSearch.completions) { completion in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(completion.title)
+                            Text(completion.subtitle)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
                         }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            self.search(completion: completion)
-                        }
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        self.search(completion: completion)
                     }
                 }
+                .listStyle(PlainListStyle())
                 .colorMultiply(backgroundColor)
                 .onAppear {
                     mapViewModel.modalState = .invisible
@@ -218,40 +217,61 @@ struct MapView: View {
     @ObservedObject var mapModel: MapModel
     @StateObject var mapViewModel: MapViewModel
     
-    func searchResult(place: MKMapItem, name: String) -> some View {
-        VStack(alignment: .leading) {
-            Text(name)
-                .font(Font.custom(Poppins.medium, size: 16))
-            Text(ViewPlace.getAddress(placemark: place.placemark))
-                .font(Font.custom(Poppins.regular, size: 14))
+    private func searchResult(place: MKMapItem, name: String) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(name)
+                    .font(Font.custom(Poppins.medium, size: 16))
+                Text(ViewPlace.getAddress(placemark: place.placemark))
+                    .font(Font.custom(Poppins.regular, size: 14))
+            }
+            Spacer()
         }
         .padding(.vertical, 10)
         .contentShape(Rectangle())
     }
     
-    private func searchResultsView(results: [MKMapItem]) -> some View {
-        NavigationView {
-            List(results, id: \.self) { (place: MKMapItem) in
-                if let name = place.name {
-                    NavigationLink(
-                        destination: ViewPlace(mapItem: place)
-                            .navigationBarHidden(true)
-                            .frame(maxHeight: .infinity)
-                            .onAppear {
-                                mapViewModel.region.center = place.placemark.coordinate
-                                mapViewModel.region = MKCoordinateRegion(
-                                    center: CLLocationCoordinate2D(
-                                        latitude: place.placemark.coordinate.latitude - 0.00025,
-                                        longitude: place.placemark.coordinate.longitude),
-                                    span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
-                            }) {
-                        searchResult(place: place, name: name)
-                    }
+    private func selectedSearchResult(place: MKMapItem) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Image(systemName: "chevron.backward")
+                Text("Back to search")
+            }
+            .padding(.horizontal)
+            .padding(.top)
+            .onTapGesture {
+                withAnimation {
+                    mapViewModel.selectedSearchResult = nil
                 }
             }
-            .colorMultiply(backgroundColor)
-            .navigationBarHidden(true)
+            ViewPlace(mapItem: place)
         }
+        .frame(maxHeight: .infinity)
+        .background(backgroundColor)
+        .onAppear {
+            mapViewModel.region.center = place.placemark.coordinate
+            mapViewModel.region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(
+                    latitude: place.placemark.coordinate.latitude - 0.00025,
+                    longitude: place.placemark.coordinate.longitude),
+                span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
+        }
+    }
+    
+    private func searchResultsView(results: [MKMapItem]) -> some View {
+        List(results, id: \.self) { (place: MKMapItem) in
+            if let name = place.name {
+                searchResult(place: place, name: name)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation {
+                            mapViewModel.selectedSearchResult = place
+                        }
+                    }
+            }
+        }
+        .listStyle(PlainListStyle())
+        .colorMultiply(backgroundColor)
     }
     
     var body: some View {
@@ -278,7 +298,14 @@ struct MapView: View {
                            allowInvisible: true,
                            background: backgroundColor) { state in
                     if let results = mapViewModel.results {
-                        searchResultsView(results: results)
+                        ZStack {
+                            searchResultsView(results: results)
+                            
+                            if let place = mapViewModel.selectedSearchResult {
+                                selectedSearchResult(place: place)
+                                    .transition(.move(edge: .trailing))
+                            }
+                        }
                     } else if let placeAnnotation = mapViewModel.presentedPin {
                         ViewPlace(place: placeAnnotation.place(), mutualPosts: placeAnnotation.posts)
                             .id(placeAnnotation.self)

@@ -236,8 +236,6 @@ struct FeedItem: View {
                 }
                 .padding(.top, 4)
                 .padding(.horizontal)
-                
-                Divider()
             }
             .padding(.top, 4)
             
@@ -247,6 +245,7 @@ struct FeedItem: View {
                     .background(Color.init(.sRGB, white: 1, opacity: 0.5))
             }
         }
+        .padding(.bottom, 10)
     }
     
     var body: some View {

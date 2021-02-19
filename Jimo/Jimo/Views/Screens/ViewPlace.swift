@@ -211,11 +211,8 @@ struct ViewPlace: View {
     }
     
     var body: some View {
-        NavigationView {
-            viewPlaceBody
-                .navigationBarHidden(true)
-                .background(backgroundColor)
-        }
+        viewPlaceBody
+            .background(backgroundColor)
     }
 }
 

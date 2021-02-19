@@ -28,11 +28,13 @@ class MapViewModel: ObservableObject {
     @Published var region = defaultRegion
     @Published var presentedPin: PlaceAnnotation?
     @Published var results: [MKMapItem]?
+    @Published var selectedSearchResult: MKMapItem?
     @Published var modalState: OvercastSnapState = .invisible {
         didSet {
             if modalState == .invisible {
                 presentedPin = nil
                 results = nil
+                selectedSearchResult = nil
             }
         }
     }
