@@ -306,6 +306,10 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func reportPost(postId: PostId, details: String) -> AnyPublisher<SimpleResponse, APIError> {
+        return self.apiClient.reportPost(postId: postId, details: details)
+    }
+    
     // MARK: - Search
     
     func searchUsers(query: String) -> AnyPublisher<[PublicUser], APIError> {

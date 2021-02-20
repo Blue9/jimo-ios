@@ -68,8 +68,10 @@ struct FeedBody: View {
                     ForEach(feedModel.currentFeed, id: \.self) { postId in
                         FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
                     }
+                    Divider()
                     Text("You've reached the end!")
-                        .padding(.top, 40)
+                        .font(Font.custom(Poppins.medium, size: 15))
+                        .padding()
                 }
             }
         }
@@ -93,6 +95,7 @@ struct Feed: View {
                     }
                 }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

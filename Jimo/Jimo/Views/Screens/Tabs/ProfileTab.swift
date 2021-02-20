@@ -31,6 +31,7 @@ struct ProfileTab: View {
                     })
                 })
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

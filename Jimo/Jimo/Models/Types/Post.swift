@@ -50,3 +50,7 @@ struct DeletePostResponse: Codable {
 struct LikePostResponse: Codable {
     var likes: Int
 }
+
+struct ReportPostRequest: Codable {
+    var details: String?
+}

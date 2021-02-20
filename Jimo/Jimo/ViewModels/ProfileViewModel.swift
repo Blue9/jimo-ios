@@ -34,6 +34,13 @@ class ProfileVM: ObservableObject {
     @Published var failedToLoadFollowStatus = false
     @Published var failedToLoadPosts = false
     
+    var isCurrentUser: Bool {
+        guard case let .user(currentUser) = appState.currentUser else {
+            return false
+        }
+        return user.username == currentUser.username
+    }
+    
     init(appState: AppState, globalViewState: GlobalViewState, user: User) {
         self.appState = appState
         self.globalViewState = globalViewState
@@ -67,6 +74,7 @@ class ProfileVM: ObservableObject {
     }
     
     func loadFollowStatus() {
+        guard !isCurrentUser else { return }
         loadFollowStatusCancellable = appState.isFollowing(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {

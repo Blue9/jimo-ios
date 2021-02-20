@@ -13,6 +13,7 @@ struct OnboardingView: View {
             FollowContacts()
                 .navigationBarHidden(true)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

@@ -158,6 +158,7 @@ struct Settings_Previews: PreviewProvider {
         NavigationView {
             Settings()
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .environmentObject(AppState(apiClient: APIClient()))
         .environmentObject(GlobalViewState())
     }

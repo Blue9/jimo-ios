@@ -84,6 +84,10 @@ struct Endpoint {
         return Endpoint(path: "/posts/\(postId)")
     }
     
+    static func reportPost(postId: PostId) -> Endpoint {
+        return Endpoint(path: "/posts/\(postId)/report")
+    }
+    
     static func postLikes(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
@@ -203,7 +207,7 @@ class APIClient: ObservableObject {
     /**
      Register the notification token.
      */
-    func registerNotificationToken(token: String) -> AnyPublisher<NotificationTokenResponse, APIError> {
+    func registerNotificationToken(token: String) -> AnyPublisher<SimpleResponse, APIError> {
         return doRequest(endpoint: Endpoint.notificationToken(),
                          httpMethod: "POST",
                          body: NotificationTokenRequest(token: token))
@@ -212,7 +216,7 @@ class APIClient: ObservableObject {
     /**
      Remove the notification token.
      */
-    func removeNotificationToken(token: String) -> AnyPublisher<NotificationTokenResponse, APIError> {
+    func removeNotificationToken(token: String) -> AnyPublisher<SimpleResponse, APIError> {
         return doRequest(endpoint: Endpoint.notificationToken(),
                          httpMethod: "DELETE",
                          body: NotificationTokenRequest(token: token))
@@ -287,6 +291,27 @@ class APIClient: ObservableObject {
         doRequest(endpoint: Endpoint.posts(username: username))
     }
     
+    /**
+     Follow user.
+     */
+    func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        doRequest(endpoint: Endpoint.follow(username: username), httpMethod: "POST")
+    }
+    
+    /**
+     Unfollow user.
+     */
+    func unfollowUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        doRequest(endpoint: Endpoint.unfollow(username: username), httpMethod: "POST")
+    }
+    
+    /**
+     Get follow status.
+     */
+    func isFollowing(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        doRequest(endpoint: Endpoint.isFollowing(username: username))
+    }
+    
     // MARK: - Post endpoints
     
     /**
@@ -318,24 +343,12 @@ class APIClient: ObservableObject {
     }
     
     /**
-     Follow user.
+     Report the given post.
      */
-    func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
-        doRequest(endpoint: Endpoint.follow(username: username), httpMethod: "POST")
-    }
-    
-    /**
-     Unfollow user.
-     */
-    func unfollowUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
-        doRequest(endpoint: Endpoint.unfollow(username: username), httpMethod: "POST")
-    }
-    
-    /**
-     Get follow status.
-     */
-    func isFollowing(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
-        doRequest(endpoint: Endpoint.isFollowing(username: username))
+    func reportPost(postId: PostId, details: String) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: Endpoint.reportPost(postId: postId),
+                  httpMethod: "POST",
+                  body: ReportPostRequest(details: details))
     }
     
     // MARK: - Search endpoints

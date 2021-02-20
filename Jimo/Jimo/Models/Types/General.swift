@@ -1,5 +1,5 @@
 //
-//  FirebaseUser.swift
+//  General.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 11/24/20.
@@ -18,6 +18,6 @@ struct NotificationTokenRequest: Codable {
 }
 
 
-struct NotificationTokenResponse: Codable {
+struct SimpleResponse: Codable {
     var success: Bool
 }

@@ -172,6 +172,7 @@ struct Search: View {
                 }
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

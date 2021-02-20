@@ -330,6 +330,7 @@ struct CreatePost: View {
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

@@ -16,6 +16,7 @@ struct MapTab: View {
             MapView(mapModel: mapModel, mapViewModel: mapViewModel)
                 .navigationBarHidden(true)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

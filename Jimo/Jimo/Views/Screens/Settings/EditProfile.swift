@@ -193,6 +193,7 @@ struct EditProfile_Previews: PreviewProvider {
         NavigationView {
             EditProfile()
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .environmentObject(AppState(apiClient: APIClient()))
         .environmentObject(GlobalViewState())
     }

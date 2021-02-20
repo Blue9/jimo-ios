@@ -40,6 +40,7 @@ struct ContentView: View {
                             }
                         }
                 }
+                .navigationViewStyle(StackNavigationViewStyle())
             } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile
                 NavigationView {
@@ -66,6 +67,7 @@ struct ContentView: View {
                         }
                     }
                 }
+                .navigationViewStyle(StackNavigationViewStyle())
             } else if case let .user(user) = appState.currentUser {
                 // Both exist
                 if appState.isUserOnboarded {
@@ -81,7 +83,9 @@ struct ContentView: View {
                 NavigationView {
                     WaitlistView()
                         .navigationBarHidden(true)
-                }.transition(.slide)
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+                .transition(.slide)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

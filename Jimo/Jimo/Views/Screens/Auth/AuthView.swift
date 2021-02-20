@@ -14,6 +14,7 @@ struct AuthView: View {
             HomeMenu()
                 .navigationBarHidden(true)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.font, Font.custom(Poppins.medium, size: 18))
     }
 }

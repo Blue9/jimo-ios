@@ -33,7 +33,7 @@
 		C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */; };
 		C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7493980255663E100D1E8D3 /* RoundedButton.swift */; };
 		C74BC926256E17370095A2BA /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC925256E17370095A2BA /* SessionStore.swift */; };
-		C74BC92B256E198C0095A2BA /* Firebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC92A256E198C0095A2BA /* Firebase.swift */; };
+		C74BC92B256E198C0095A2BA /* General.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC92A256E198C0095A2BA /* General.swift */; };
 		C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74BC93E256E1F4C0095A2BA /* AuthView.swift */; };
 		C74BC944256E25CD0095A2BA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */; };
 		C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EDE25561309009B6ADA /* JimoApp.swift */; };
@@ -55,6 +55,7 @@
 		C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913725D20F6E00762803 /* FollowContacts.swift */; };
 		C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913D25D21E2800762803 /* OnboardingView.swift */; };
 		C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77321DB2557EF390087FAA6 /* URLImage.swift */; };
+		C773DFBD25DF90FA00E40102 /* TextAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = C773DFBC25DF90FA00E40102 /* TextAlert.swift */; };
 		C79183482597DABF006B4056 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79183472597DABF006B4056 /* PopupView.swift */; };
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
 		C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79EA00125AFD56F00A38DB8 /* AppState.swift */; };
@@ -140,7 +141,7 @@
 		C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextInput.swift; sourceTree = "<group>"; };
 		C7493980255663E100D1E8D3 /* RoundedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButton.swift; sourceTree = "<group>"; };
 		C74BC925256E17370095A2BA /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
-		C74BC92A256E198C0095A2BA /* Firebase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firebase.swift; sourceTree = "<group>"; };
+		C74BC92A256E198C0095A2BA /* General.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = General.swift; sourceTree = "<group>"; };
 		C74BC93E256E1F4C0095A2BA /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		C74BC943256E25CD0095A2BA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C75C2EDB25561309009B6ADA /* Jimo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jimo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -168,6 +169,7 @@
 		C76E913725D20F6E00762803 /* FollowContacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowContacts.swift; sourceTree = "<group>"; };
 		C76E913D25D21E2800762803 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		C77321DB2557EF390087FAA6 /* URLImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImage.swift; sourceTree = "<group>"; };
+		C773DFBC25DF90FA00E40102 /* TextAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAlert.swift; sourceTree = "<group>"; };
 		C79183472597DABF006B4056 /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		C791835E2597EC64006B4056 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		C79EA00125AFD56F00A38DB8 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -406,6 +408,7 @@
 				C7D1190C25A186CC00A222E3 /* NavTitle.swift */,
 				C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */,
 				C70AE48325CA8FA9009920E8 /* LargeButton.swift */,
+				C773DFBC25DF90FA00E40102 /* TextAlert.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -425,7 +428,7 @@
 			isa = PBXGroup;
 			children = (
 				C7F6D4F5255A397600E8D216 /* Comment.swift */,
-				C74BC92A256E198C0095A2BA /* Firebase.swift */,
+				C74BC92A256E198C0095A2BA /* General.swift */,
 				C7106AF4256084E200C10EFF /* Place.swift */,
 				C75C2F24255616CC009B6ADA /* Post.swift */,
 				C75C2F1F2556166D009B6ADA /* User.swift */,
@@ -781,13 +784,14 @@
 				C7D2D83D25CE2B9600246BD0 /* SnapDrawer.swift in Sources */,
 				C768AB0D25C3802A005550B6 /* MapViewModel.swift in Sources */,
 				C7D2D85225CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift in Sources */,
+				C773DFBD25DF90FA00E40102 /* TextAlert.swift in Sources */,
 				C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */,
 				C764145025D0FD4100CBDE3F /* SearchViewModel.swift in Sources */,
 				C7D2D84025CE2B9600246BD0 /* SnapDrawer+init.swift in Sources */,
 				C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */,
 				C7D2D83E25CE2B9600246BD0 /* BlurView.swift in Sources */,
 				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
-				C74BC92B256E198C0095A2BA /* Firebase.swift in Sources */,
+				C74BC92B256E198C0095A2BA /* General.swift in Sources */,
 				C70AE48425CA8FA9009920E8 /* LargeButton.swift in Sources */,
 				C70AE46225CA37EA009920E8 /* PhoneNumberTextFieldView.swift in Sources */,
 				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,

@@ -74,6 +74,7 @@ struct FeedItem: View {
     
     @State private var showPostOptions = false
     @State private var showConfirmDelete = false
+    @State private var showConfirmReport = false
     
     @State private var initialized = false
     @State private var relativeTime: String = ""
@@ -271,6 +272,9 @@ struct FeedItem: View {
                             }),
                             .cancel()
                         ] : [
+                            .default(Text("Report"), action: {
+                                showConfirmReport = true
+                            }),
                             .cancel()
                         ])
                 }
@@ -281,6 +285,10 @@ struct FeedItem: View {
                             feedItemVM.deletePost()
                           },
                           secondaryButton: .cancel())
+                }
+                .textAlert(isPresented: $showConfirmReport, title: "Report post",
+                           message: "Tell us what's wrong with this post. Please include your email address in case we need to follow up.") { text in
+                    feedItemVM.reportPost(details: text)
                 }
         } else {
             EmptyView()

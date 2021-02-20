@@ -22,6 +22,7 @@ class FeedItemVM: ObservableObject {
     var likeCancellable: Cancellable? = nil
     var unlikeCancellable: Cancellable? = nil
     var deleteCancellable: Cancellable? = nil
+    var reportCancellable: Cancellable? = nil
     
     var onDelete: (() -> Void)?
     
@@ -83,6 +84,22 @@ class FeedItemVM: ObservableObject {
             }, receiveValue: { [weak self] _ in
                 if let onDelete = self?.onDelete {
                     onDelete()
+                }
+            })
+    }
+    
+    func reportPost(details: String) {
+        reportCancellable = appState.reportPost(postId: postId, details: details)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Error when reporting", error)
+                    self?.globalViewState.setError("Failed to report post")
+                }
+            }, receiveValue: { [weak self] response in
+                if response.success {
+                    self?.globalViewState.setSuccess("Reported post! Thank you for keeping jimo a safe community.")
+                } else {
+                    self?.globalViewState.setWarning("Already reported this post.")
                 }
             })
     }
