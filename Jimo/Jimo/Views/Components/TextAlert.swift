@@ -29,6 +29,7 @@ struct TextAlert: UIViewControllerRepresentable {
                 textField.autocapitalizationType = .sentences
                 textField.delegate = context.coordinator
             }
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in })
             alert.addAction(UIAlertAction(title: "Submit", style: .default) { _ in
                 action(text)
                 text = ""

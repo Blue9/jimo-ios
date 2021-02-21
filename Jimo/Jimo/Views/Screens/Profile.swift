@@ -130,6 +130,7 @@ struct ProfilePosts: View {
                 ForEach(posts, id: \.self) { postId in
                     FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: globalViewState, postId: postId))
                 }
+                Divider()
                 Text("You've reached the end!")
                     .padding()
             }
