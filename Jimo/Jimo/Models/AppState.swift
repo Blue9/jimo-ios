@@ -327,6 +327,12 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    // MARK: - Feedback
+    
+    func submitFeedback(_ request: FeedbackRequest) -> AnyPublisher<SimpleResponse, APIError> {
+        return self.apiClient.submitFeedback(request)
+    }
+    
     // MARK: - Image upload
     
     func uploadImageAndGetURL(image: UIImage) -> AnyPublisher<URL, Error> {

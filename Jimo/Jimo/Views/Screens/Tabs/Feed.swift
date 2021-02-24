@@ -83,17 +83,32 @@ struct Feed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
+    
+    @State private var showFeedback = false
 
     var body: some View {
         NavigationView {
             FeedBody(feedModel: appState.feedModel, feedState: FeedViewState(appState: appState, globalViewState: globalViewState))
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(backgroundColor))
-                .toolbar {
+                .toolbar(content: {
                     ToolbarItem(placement: .principal) {
                         NavTitle("Feed")
                     }
-                }
+                    ToolbarItem(placement: .navigationBarTrailing, content: {
+                        Button(action: {
+                            showFeedback.toggle()
+                        }) {
+                            Image(systemName: "exclamationmark.bubble")
+                        }
+                        .sheet(isPresented: $showFeedback) {
+                            Feedback(presented: $showFeedback)
+                                .environmentObject(appState)
+                                .environment(\.backgroundColor, backgroundColor)
+                                .preferredColorScheme(.light)
+                        }
+                    })
+                })
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
