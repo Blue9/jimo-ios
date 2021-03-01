@@ -117,6 +117,12 @@ struct Endpoint {
             ])
     }
     
+    // MARK: Feedback endpoint
+    
+    static func submitFeedback() -> Endpoint {
+        return Endpoint(path: "/feedback/")
+    }
+    
     static func notificationToken() -> Endpoint {
         return Endpoint(path: "/notifications/token")
     }
@@ -361,6 +367,12 @@ class APIClient: ObservableObject {
     
     func getDiscoverFeed(username: String) -> AnyPublisher<[Post], APIError> {
         doRequest(endpoint: Endpoint.discoverFeed(username: username))
+    }
+    
+    // MARK: Feedback
+    
+    func submitFeedback(_ request: FeedbackRequest) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: Endpoint.submitFeedback(), httpMethod: "POST", body: request)
     }
     
     // MARK: - Helpers

@@ -18,6 +18,12 @@ struct NotificationTokenRequest: Codable {
 }
 
 
+struct FeedbackRequest: Codable {
+    var contents: String
+    var followUp: Bool
+}
+
+
 struct SimpleResponse: Codable {
     var success: Bool
 }

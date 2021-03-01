@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1FC816C625E34249009B803F /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC816C525E34249009B803F /* Feedback.swift */; };
 		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
 		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
@@ -76,6 +77,7 @@
 		C7D2D85725CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D2D85625CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift */; };
 		C7D2D85C25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */; };
 		C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D73FD625A7BCDD007699AF /* ProfileTab.swift */; };
+		C7E2732D25EC62DA00C787DB /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E2732C25EC62DA00C787DB /* Checkbox.swift */; };
 		C7EAD4CF25ABBD9A004A9F53 /* CreatePostVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4CE25ABBD9A004A9F53 /* CreatePostVM.swift */; };
 		C7EAD4D425ABBDCC004A9F53 /* FeedItemVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D325ABBDCC004A9F53 /* FeedItemVM.swift */; };
 		C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D825AC1D49004A9F53 /* APIClient.swift */; };
@@ -111,6 +113,7 @@
 /* Begin PBXFileReference section */
 		0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.debug.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.debug.xcconfig"; sourceTree = "<group>"; };
 		1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.release.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.release.xcconfig"; sourceTree = "<group>"; };
+		1FC816C525E34249009B803F /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
 		46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo-JimoUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7124939F1770230B52A71F08 /* libPods-Jimo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -191,6 +194,7 @@
 		C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKCoordinateSpan+Equatable.swift"; sourceTree = "<group>"; };
 		C7D2D86025CF971A00246BD0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C7D73FD625A7BCDD007699AF /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
+		C7E2732C25EC62DA00C787DB /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
 		C7EAD4CE25ABBD9A004A9F53 /* CreatePostVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostVM.swift; sourceTree = "<group>"; };
 		C7EAD4D325ABBDCC004A9F53 /* FeedItemVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemVM.swift; sourceTree = "<group>"; };
 		C7EAD4D825AC1D49004A9F53 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
@@ -246,6 +250,14 @@
 				C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		1FC816C425E3422E009B803F /* Feedback */ = {
+			isa = PBXGroup;
+			children = (
+				1FC816C525E34249009B803F /* Feedback.swift */,
+			);
+			path = Feedback;
 			sourceTree = "<group>";
 		};
 		C70367042557628200F970DE /* Modifiers */ = {
@@ -377,6 +389,7 @@
 		C75C2F43255619D4009B6ADA /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				1FC816C425E3422E009B803F /* Feedback */,
 				C7AEACF825D8719B00EDEB7D /* Settings */,
 				C7EDC39E25D2F768007B3E77 /* Tabs */,
 				C76E913C25D21E1300762803 /* Onboarding */,
@@ -398,6 +411,7 @@
 				C7D2D83625CE2B9600246BD0 /* Snap */,
 				C749397B255659AE00D1E8D3 /* MultilineTextInput.swift */,
 				C7493980255663E100D1E8D3 /* RoundedButton.swift */,
+				C7E2732C25EC62DA00C787DB /* Checkbox.swift */,
 				C77321DB2557EF390087FAA6 /* URLImage.swift */,
 				C768E9372558B3CB0068FCD5 /* FeedItem.swift */,
 				C7F6D502255A42BA00E8D216 /* SearchBar.swift */,
@@ -804,6 +818,7 @@
 				C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */,
 				C7EC11DB25A0735F0071C65F /* Fonts.swift in Sources */,
 				C7D2D84125CE2B9600246BD0 /* SnapCalculator.swift in Sources */,
+				1FC816C625E34249009B803F /* Feedback.swift in Sources */,
 				C7A80B7225C3916100FF8054 /* ViewPlace.swift in Sources */,
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
 				C74BC93F256E1F4C0095A2BA /* AuthView.swift in Sources */,
@@ -831,6 +846,7 @@
 				C7D2D83F25CE2B9600246BD0 /* SnapState.swift in Sources */,
 				C7EAD4CF25ABBD9A004A9F53 /* CreatePostVM.swift in Sources */,
 				C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */,
+				C7E2732D25EC62DA00C787DB /* Checkbox.swift in Sources */,
 				C7FEBFA125DF42C400A0A685 /* MapTab.swift in Sources */,
 				C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */,
 				C76DEA33255E559C008A9E1B /* Search.swift in Sources */,
