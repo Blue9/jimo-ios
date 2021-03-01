@@ -103,7 +103,10 @@ struct MapKitView: UIViewRepresentable {
                 let placeAnnotation = annotation as? PlaceAnnotation
                 return placeAnnotation == nil || !annotations.contains(placeAnnotation!)
             })
-            view.addAnnotations(annotations)
+            let toAdd = annotations.filter({ annotation in
+                return !view.annotations.contains { $0 as? PlaceAnnotation == annotation }
+            })
+            view.addAnnotations(toAdd)
             view.removeAnnotations(toRemove)
         }
         if view.region != region {
@@ -318,7 +321,10 @@ struct MapView: View {
             }
         }
         .onAppear {
-            mapViewModel.listenToChanges()
+            mapViewModel.startRefreshinghMap()
+        }
+        .onDisappear {
+            mapViewModel.stopRefreshingMap()
         }
         .edgesIgnoringSafeArea(.all)
     }

@@ -177,8 +177,10 @@ struct ViewPlace: View {
                                     NavigationLink(destination: ViewPost(postId: post.postId)) {
                                         URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
                                             .aspectRatio(contentMode: .fill)
-                                            .frame(width: 50, height: 50, alignment: .center)
-                                            .cornerRadius(25)
+                                            .background(Color.white)
+                                            .foregroundColor(.gray)
+                                            .frame(width: 40, height: 40, alignment: .center)
+                                            .cornerRadius(20)
                                     }
                                 }
                             }

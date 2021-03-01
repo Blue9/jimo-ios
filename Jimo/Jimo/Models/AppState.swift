@@ -246,9 +246,9 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
-    func refreshMap(region: MKCoordinateRegion) -> AnyPublisher<Void, APIError> {
-        return self.apiClient.getMap(region: region)
-            .map({ posts in self.setMap(region: region, posts: posts) })
+    func refreshMap() -> AnyPublisher<Void, APIError> {
+        return self.apiClient.getMap()
+            .map({ posts in self.setMap(posts: posts) })
             .map({ _ in return () })
             .eraseToAnyPublisher()
     }
@@ -377,14 +377,9 @@ class AppState: ObservableObject {
         return posts
     }
     
-    private func setMap(region: MKCoordinateRegion, posts: [Post]) {
+    private func setMap(posts: [Post]) {
         _ = addPostsToAllPosts(posts: posts)
-        posts.map({ $0.postId }).forEach({ postId in
-            if !mapModel.posts.contains(postId) {
-                mapModel.posts.append(postId)
-            }
-        })
-        // TODO remove deleted posts
+        mapModel.posts = posts.map({ $0.postId })
     }
     
     private func addPostsToAllPosts(posts: [Post]) -> [PostId] {

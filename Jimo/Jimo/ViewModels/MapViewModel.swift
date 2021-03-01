@@ -20,10 +20,9 @@ class MapViewModel: ObservableObject {
     /// When first launching the map, if preselectedPost != nil we want to open the bottom sheet for it.
     /// This lets us know whether we have done that or not so we don't repeatedly open the bottom sheet.
     var displayedInitialBottomSheetForPresentedPost: Bool = false
-
-    var regionCancellable: Cancellable? = nil
+    
+    var mapRefreshCancellable: Cancellable? = nil
     var annotationsCancellable: Cancellable? = nil
-    var cancellable: Cancellable? = nil
     
     @Published var region = defaultRegion
     @Published var presentedPin: PlaceAnnotation?
@@ -53,29 +52,31 @@ class MapViewModel: ObservableObject {
         }
     }
     
-    func listenToChanges() {
+    func startRefreshinghMap() {
         print("Listening to map changes")
-        regionCancellable = $region
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink { [weak self] region in
-                self?.refreshMap()
+        mapRefreshCancellable = Deferred { Just(Date()) }
+            .append(Timer.publish(every: 60, on: .main, in: .common).autoconnect())
+            .flatMap { [weak self] _ -> AnyPublisher<Void, Never> in
+                guard let self = self else {
+                    return Empty().eraseToAnyPublisher()
+                }
+                return self.refreshMap()
             }
+            .sink {}
         annotationsCancellable = appState.mapModel.$posts
             .sink { [weak self] posts in self?.updateAnnotations(posts: posts) }
     }
     
-    func refreshMap() {
-        let regionToLoad = MKCoordinateRegion(
-            center: region.center,
-            span: MKCoordinateSpan(
-                latitudeDelta: region.span.latitudeDelta,
-                longitudeDelta: region.span.longitudeDelta))
-        cancellable = appState.refreshMap(region: regionToLoad)
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print(error)
-                }
-            }, receiveValue: {})
+    func refreshMap() -> AnyPublisher<Void, Never> {
+        self.appState.refreshMap()
+            .catch { error -> AnyPublisher<Void, Never> in
+                print("Error when getting map", error)
+                return Just(()).eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
+    }
+    
+    func stopRefreshingMap() {
+        mapRefreshCancellable?.cancel()
     }
     
     func updateAnnotations(posts: [PostId]) {
@@ -111,8 +112,14 @@ class PlaceAnnotation: NSObject, MKAnnotation {
     let zIndex: Int
     
     init(posts: [Post], coordinate: CLLocationCoordinate2D, zIndex: Int) {
+        if coordinate.latitude == 0 && coordinate.longitude == 0 {
+            // For some reason annotations at exactly (0, 0) don't appear on the map
+            self.coordinate = CLLocationCoordinate2D(latitude: Double.leastNormalMagnitude,
+                                                     longitude: Double.leastNormalMagnitude)
+        } else {
+            self.coordinate = coordinate
+        }
         self.posts = posts
-        self.coordinate = coordinate
         self.zIndex = zIndex
     }
     
@@ -125,5 +132,9 @@ class PlaceAnnotation: NSObject, MKAnnotation {
             return coordinate == placeAnnotation.coordinate && posts.elementsEqual(placeAnnotation.posts)
         }
         return false
+    }
+    
+    override var hash: Int {
+        return coordinate.latitude.hashValue ^ coordinate.longitude.hashValue
     }
 }

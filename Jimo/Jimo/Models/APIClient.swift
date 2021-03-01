@@ -106,15 +106,8 @@ struct Endpoint {
     
     // MARK: - Map endpoint
     
-    static func getMap(centerLat: Double, centerLong: Double, spanLat: Double, spanLong: Double) -> Endpoint {
-        return Endpoint(
-            path: "/places/map",
-            queryItems: [
-                URLQueryItem(name: "center_lat", value: String(centerLat)),
-                URLQueryItem(name: "center_long", value: String(centerLong)),
-                URLQueryItem(name: "span_lat", value: String(spanLat)),
-                URLQueryItem(name: "span_long", value: String(spanLong))
-            ])
+    static func getMap() -> Endpoint {
+        return Endpoint(path: "/places/map")
     }
     
     // MARK: Feedback endpoint
@@ -282,12 +275,8 @@ class APIClient: ObservableObject {
     /**
      Get the map for the given user.
      */
-    func getMap(region: MKCoordinateRegion) -> AnyPublisher<[Post], APIError> {
-        return doRequest(endpoint: Endpoint.getMap(
-                            centerLat: region.center.latitude,
-                            centerLong: region.center.longitude,
-                            spanLat: region.span.latitudeDelta,
-                            spanLong: region.span.longitudeDelta))
+    func getMap() -> AnyPublisher<[Post], APIError> {
+        return doRequest(endpoint: Endpoint.getMap())
     }
     
     /**
