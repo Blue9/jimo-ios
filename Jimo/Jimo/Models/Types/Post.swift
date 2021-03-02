@@ -39,7 +39,7 @@ struct CreatePostRequest: Codable {
     var place: MaybeCreatePlaceRequest
     var category: String
     var content: String
-    var imageUrl: String?
+    var imageId: String?
     var customLocation: Location?
 }
 

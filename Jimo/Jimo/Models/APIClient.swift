@@ -120,6 +120,10 @@ struct Endpoint {
         return Endpoint(path: "/notifications/token")
     }
     
+    static func uploadImage() -> Endpoint {
+        return Endpoint(path: "/images")
+    }
+    
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "http"
@@ -356,6 +360,21 @@ class APIClient: ObservableObject {
     
     func getDiscoverFeed(username: String) -> AnyPublisher<[Post], APIError> {
         doRequest(endpoint: Endpoint.discoverFeed(username: username))
+    }
+    
+    func uploadImage(imageData: Data) -> AnyPublisher<ImageUploadResponse, APIError> {
+        guard let url = Endpoint.uploadImage().url else {
+            return Fail(error: APIError.endpointError).eraseToAnyPublisher()
+        }
+        
+        return getToken()
+            .flatMap({ token in
+                ImageUploadService.uploadImage(url: url, imageData: imageData, token: token)
+                    .tryMap(self.urlSessionPublisherHandler)
+                    .mapError({ $0 as? APIError ?? APIError.unknownError })
+            })
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
     
     // MARK: Feedback

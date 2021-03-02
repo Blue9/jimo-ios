@@ -27,3 +27,8 @@ struct FeedbackRequest: Codable {
 struct SimpleResponse: Codable {
     var success: Bool
 }
+
+typealias ImageId = String
+struct ImageUploadResponse: Codable {
+    var imageId: ImageId
+}

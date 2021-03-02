@@ -47,25 +47,25 @@ class EditProfileViewModel: ObservableObject {
         updating = true
         hideKeyboard()
         if let image = image {
-            uploadImageCancellable = appState.uploadImageAndGetURL(image: image)
+            uploadImageCancellable = appState.uploadImageAndGetId(image: image)
                 .sink(receiveCompletion: { [weak self] completion in
                     if case let .failure(error) = completion {
                         print("Error when uploading image", error)
                         viewState.setError("Error when uploading image. Try again.")
                         self?.updating = false
                     }
-                }, receiveValue: { [weak self] url in
-                    self?.updateProfile(appState: appState, viewState: viewState, profilePictureUrl: url.absoluteString)
+                }, receiveValue: { [weak self] imageId in
+                    self?.updateProfile(appState: appState, viewState: viewState, profilePictureId: imageId)
                 })
         } else {
-            self.updateProfile(appState: appState, viewState: viewState, profilePictureUrl: nil)
+            self.updateProfile(appState: appState, viewState: viewState, profilePictureId: nil)
         }
     }
     
-    private func updateProfile(appState: AppState, viewState: GlobalViewState, profilePictureUrl: String?) {
+    private func updateProfile(appState: AppState, viewState: GlobalViewState, profilePictureId: String?) {
         cancellable = appState.updateProfile(
             UpdateProfileRequest(
-                profilePictureUrl: profilePictureUrl,
+                profilePictureId: profilePictureId,
                 username: username,
                 firstName: firstName,
                 lastName: lastName))
@@ -81,7 +81,7 @@ class EditProfileViewModel: ObservableObject {
                         viewState.setError("Could not update user")
                     }
                 }
-            }, receiveValue: { response in
+            }, receiveValue: { [weak self] response in
                 if let error = response.error {
                     if let uidError = error.uid {
                         viewState.setWarning(uidError)
@@ -100,6 +100,7 @@ class EditProfileViewModel: ObservableObject {
                     viewState.setSuccess("Updated user!")
                     appState.refreshCurrentUser()
                 }
+                self?.updating = false
             })
     }
 }
@@ -166,6 +167,7 @@ struct EditProfile: View {
                     ProgressView()
                 } else {
                     Text("Update profile")
+                        .background(Color.red)
                 }
             }
             .disabled(buttonDisabled)

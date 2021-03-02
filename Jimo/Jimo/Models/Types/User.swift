@@ -55,7 +55,7 @@ struct CreateUserResponse: Codable {
 
 
 struct UpdateProfileRequest: Codable {
-    var profilePictureUrl: String?
+    var profilePictureId: ImageId?
     var username: String
     var firstName: String
     var lastName: String

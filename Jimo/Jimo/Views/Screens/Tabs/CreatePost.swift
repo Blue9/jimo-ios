@@ -136,6 +136,8 @@ struct CreatePost: View {
     @State private var category: String? = nil
     @State private var content: String = ""
     
+    @State private var posting = false
+    
     @State private var showError = false
     @State private var errorMessage = ""
     
@@ -164,53 +166,59 @@ struct CreatePost: View {
         }
         let customLocation = createPostVM.customLocation.map({ location in Location(coord: location.coordinate) })
         // First upload the image
+        posting = true
+        var request: AnyPublisher<Void, APIError>
         if let image = createPostVM.image {
-            createPostVM.cancellable = appState.uploadImageAndGetURL(image: image)
-                .catch({ error -> AnyPublisher<URL, APIError> in
+            request = appState.uploadImageAndGetId(image: image)
+                .catch({ error -> AnyPublisher<ImageId, APIError> in
                     print("Error when uploading image", error)
-                    self.errorMessage = "Could not upload image."
-                    self.showError = true
+                    if case let .requestError(error) = error,
+                       let first = error?.first {
+                        self.errorMessage = first.value
+                        self.showError = true
+                    } else {
+                        self.errorMessage = "Could not upload image."
+                        self.showError = true
+                    }
                     return Empty().eraseToAnyPublisher()
                 })
-                .flatMap({ url -> AnyPublisher<Void, APIError> in
+                .flatMap({ imageId -> AnyPublisher<Void, APIError> in
                     appState.createPost(CreatePostRequest(place: createPlaceRequest,
                                                           category: category,
                                                           content: content,
-                                                          imageUrl: url.absoluteString,
+                                                          imageId: imageId,
                                                           customLocation: customLocation))
                 })
-                .sink(receiveCompletion: { completion in
-                    if case let .failure(error) = completion {
-                        print("Error when creating post", error)
-                        self.errorMessage = "Could not create post"
-                        self.showError = true
-                    }
-                }, receiveValue: {
-                    self.showSuccess = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self.presented = false
-                    }
-                })
+                .eraseToAnyPublisher()
         } else {
             let createPostRequest = CreatePostRequest(
                 place: createPlaceRequest,
                 category: category,
                 content: content,
-                imageUrl: nil,
+                imageId: nil,
                 customLocation: customLocation)
-            createPostVM.cancellable = appState.createPost(createPostRequest)
-                .sink(receiveCompletion: { completion in
-                    if case .failure(_) = completion {
-                        self.errorMessage = "Could not create post"
-                        self.showError = true
-                    }
-                }, receiveValue: {
-                    self.showSuccess = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self.presented = false
-                    }
-                })
+            request = appState.createPost(createPostRequest)
         }
+        createPostVM.cancellable = request
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("Error when creating post", error)
+                    if case let .requestError(maybeErrors) = error,
+                       let errors = maybeErrors,
+                       let first = errors.first {
+                        self.errorMessage = first.value
+                    } else {
+                        self.errorMessage = "Could not create post"
+                    }
+                    self.showError = true
+                }
+                self.posting = false
+            }, receiveValue: {
+                self.showSuccess = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.presented = false
+                }
+            })
     }
     
     var body: some View {
@@ -301,6 +309,7 @@ struct CreatePost: View {
                             .padding(.horizontal)
                             .padding(.top, 15)
                             .padding(.bottom, 20)
+                            .disabled(posting)
                     }
                 }
             }

@@ -335,34 +335,19 @@ class AppState: ObservableObject {
     
     // MARK: - Image upload
     
-    func uploadImageAndGetURL(image: UIImage) -> AnyPublisher<URL, Error> {
-        guard let firebaseUser = apiClient.authClient.currentUser else {
+    func uploadImageAndGetId(image: UIImage) -> AnyPublisher<ImageId, APIError> {
+        guard apiClient.authClient.currentUser != nil else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         guard case .user(_) = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        guard let jpeg = image.jpegData(compressionQuality: 0.5) else {
+        guard let jpeg = image.jpegData(compressionQuality: 0.33) else {
             return Fail(error: APIError.encodeError).eraseToAnyPublisher()
         }
-        let imagePath = storage.reference().child("images").child(firebaseUser.uid).child("\(UUID()).jpg")
-        return Future<URL, Error> { promise in
-            let metadata = StorageMetadata()
-            metadata.contentType = "image/jpeg"
-            imagePath.putData(jpeg, metadata: metadata) { metadata, error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    imagePath.downloadURL { url, error in
-                        if let error = error {
-                            promise(.failure(error))
-                        } else if let url = url {
-                            promise(.success(url))
-                        }
-                    }
-                }
-            }
-        }.eraseToAnyPublisher()
+        return apiClient.uploadImage(imageData: jpeg)
+            .map({ $0.imageId })
+            .eraseToAnyPublisher()
     }
     
     // MARK: - Helpers
