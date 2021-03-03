@@ -11,6 +11,7 @@
 		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
 		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
+		C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7019F6725EEB10200C1165A /* InviteContactsView.swift */; };
 		C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70367052557629900F970DE /* NavigationViewModifier.swift */; };
 		C703670E255764FD00F970DE /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C703670D255764FD00F970DE /* Profile.swift */; };
 		C70544BC25DE44CD0032D216 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70544BB25DE44CD0032D216 /* Environment.swift */; };
@@ -121,6 +122,7 @@
 		9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.debug.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.release.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.release.xcconfig"; sourceTree = "<group>"; };
 		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C7019F6725EEB10200C1165A /* InviteContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsView.swift; sourceTree = "<group>"; };
 		C70367052557629900F970DE /* NavigationViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModifier.swift; sourceTree = "<group>"; };
 		C703670D255764FD00F970DE /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		C70544BB25DE44CD0032D216 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
@@ -404,6 +406,7 @@
 				C72F3CBD258726BA00DDB76C /* MainAppView.swift */,
 				C736A9EA25A541F60086B809 /* ViewPost.swift */,
 				C7A80B7125C3916100FF8054 /* ViewPlace.swift */,
+				C7019F6725EEB10200C1165A /* InviteContactsView.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -792,6 +795,7 @@
 				C7D2D84225CE2B9600246BD0 /* SnapPoint.swift in Sources */,
 				C75C2F3F255617CA009B6ADA /* CreatePost.swift in Sources */,
 				C736A9EB25A541F60086B809 /* ViewPost.swift in Sources */,
+				C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */,
 				C75C2F202556166D009B6ADA /* User.swift in Sources */,
 				C7EAD4D425ABBDCC004A9F53 /* FeedItemVM.swift in Sources */,
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,

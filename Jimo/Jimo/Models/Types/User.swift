@@ -90,6 +90,7 @@ struct InviteUserRequest: Codable {
 
 struct UserInviteStatus: Codable {
     var invited: Bool
+    var message: String?
 }
 
 

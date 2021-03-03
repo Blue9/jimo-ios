@@ -85,6 +85,7 @@ struct Feed: View {
     @Environment(\.backgroundColor) var backgroundColor
     
     @State private var showFeedback = false
+    @State private var showInvite = false
 
     var body: some View {
         NavigationView {
@@ -92,13 +93,24 @@ struct Feed: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(backgroundColor))
                 .toolbar(content: {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: { showInvite.toggle() }) {
+                            Image(systemName: "person.crop.circle.badge.plus")
+                        }
+                        .sheet(isPresented: $showInvite) {
+                            NavigationView {
+                                InviteContactsView()
+                            }
+                            .environmentObject(appState)
+                            .environment(\.backgroundColor, backgroundColor)
+                            .preferredColorScheme(.light)
+                        }
+                    }
                     ToolbarItem(placement: .principal) {
                         NavTitle("Feed")
                     }
-                    ToolbarItem(placement: .navigationBarTrailing, content: {
-                        Button(action: {
-                            showFeedback.toggle()
-                        }) {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: { showFeedback.toggle() }) {
                             Image(systemName: "exclamationmark.bubble")
                         }
                         .sheet(isPresented: $showFeedback) {
@@ -107,7 +119,7 @@ struct Feed: View {
                                 .environment(\.backgroundColor, backgroundColor)
                                 .preferredColorScheme(.light)
                         }
-                    })
+                    }
                 })
         }
         .navigationViewStyle(StackNavigationViewStyle())

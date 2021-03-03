@@ -97,7 +97,7 @@ class EditProfileViewModel: ObservableObject {
                         viewState.setError("Could not update user")
                     }
                 } else if response.user != nil {
-                    viewState.setSuccess("Updated user!")
+                    viewState.setSuccess("Updated profile!")
                     appState.refreshCurrentUser()
                 }
                 self?.updating = false
@@ -167,7 +167,6 @@ struct EditProfile: View {
                     ProgressView()
                 } else {
                     Text("Update profile")
-                        .background(Color.red)
                 }
             }
             .disabled(buttonDisabled)

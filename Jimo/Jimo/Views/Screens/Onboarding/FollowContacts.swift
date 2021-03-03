@@ -10,7 +10,7 @@ import Combine
 import Contacts
 import PhoneNumberKit
 
-class ContactStore: ObservableObject {
+fileprivate class ContactStore: ObservableObject {
     static let phoneNumberKit = PhoneNumberKit()
     
     @Published var contacts: [PublicUser]? = nil
@@ -119,7 +119,7 @@ class ContactStore: ObservableObject {
 
 
 struct SuggestedUserView: View {
-    @ObservedObject var contactStore: ContactStore
+    @ObservedObject fileprivate var contactStore: ContactStore
     let contact: PublicUser
     
     var profilePicture: URLImage {
@@ -159,7 +159,7 @@ struct SuggestedUserView: View {
 
 struct FollowContacts: View {
     @EnvironmentObject var appState: AppState
-    @StateObject var contactStore = ContactStore()
+    @StateObject private var contactStore = ContactStore()
     @State private var selectedContacts: [CNContact] = []
     
     private var columns: [GridItem] = [
