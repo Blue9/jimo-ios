@@ -13,9 +13,15 @@ struct ProfileTab: View {
     @Environment(\.backgroundColor) var backgroundColor
     @ObservedObject var profileVM: ProfileVM
     
+    @State private var showSettings: Bool = false
+    
     var body: some View {
         NavigationView {
             Profile(profileVM: profileVM)
+                .background(
+                    NavigationLink(destination: Settings()
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState), isActive: $showSettings) {})
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(backgroundColor))
                 .toolbar(content: {
@@ -23,9 +29,7 @@ struct ProfileTab: View {
                         NavTitle("Profile")
                     }
                     ToolbarItem(placement: .navigationBarTrailing, content: {
-                        NavigationLink(destination: Settings()
-                                        .environmentObject(appState)
-                                        .environmentObject(globalViewState)) {
+                        Button(action: { self.showSettings.toggle() }) {
                             Image(systemName: "gearshape")
                         }
                     })
