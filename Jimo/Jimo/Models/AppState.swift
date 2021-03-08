@@ -182,14 +182,43 @@ class AppState: ObservableObject {
     
     // MARK: - User
     
-    func createUser(_ request: CreateUserRequest) -> AnyPublisher<CreateUserResponse, APIError> {
+    func createUser(_ request: CreateUserRequest) -> AnyPublisher<UserFieldError?, APIError> {
         return self.apiClient.createUser(request)
-            .map({ response in
+            .map { response in
                 if let user = response.created {
                     self.currentUser = .user(user)
                 }
-                return response
-            })
+                return response.error
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func createUser(
+        _ request: CreateUserRequest,
+        profilePicture: UIImage
+    ) -> AnyPublisher<UserFieldError?, APIError> {
+        guard let jpeg = getImageData(for: profilePicture) else {
+            return Fail(error: APIError.encodeError).eraseToAnyPublisher()
+        }
+        return self.apiClient.createUser(request)
+            .flatMap { response -> AnyPublisher<UserFieldError?, Never> in
+                if let user = response.created {
+                    return self.apiClient.uploadProfilePicture(imageData: jpeg)
+                        .map { userWithPhoto in
+                            self.currentUser = .user(userWithPhoto)
+                            return response.error
+                        }
+                        .catch { error -> AnyPublisher<UserFieldError?, Never> in
+                            print("Error when setting profile picture", error)
+                            // This will still create the user without the profile picture
+                            // Minor inconvenience for the user but it's fine
+                            self.currentUser = .user(user)
+                            return Just(response.error).eraseToAnyPublisher()
+                        }
+                        .eraseToAnyPublisher()
+                }
+                return Just(response.error).eraseToAnyPublisher()
+            }
             .eraseToAnyPublisher()
     }
     
@@ -342,7 +371,7 @@ class AppState: ObservableObject {
         guard case .user(_) = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        guard let jpeg = image.jpegData(compressionQuality: 0.33) else {
+        guard let jpeg = getImageData(for: image) else {
             return Fail(error: APIError.encodeError).eraseToAnyPublisher()
         }
         return apiClient.uploadImage(imageData: jpeg)
@@ -351,6 +380,10 @@ class AppState: ObservableObject {
     }
     
     // MARK: - Helpers
+    
+    private func getImageData(for image: UIImage) -> Data? {
+        image.jpegData(compressionQuality: 0.33)
+    }
     
     private func setFeed(posts: [Post]) {
         _ = addPostsToAllPosts(posts: posts)

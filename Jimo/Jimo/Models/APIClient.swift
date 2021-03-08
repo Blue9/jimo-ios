@@ -42,6 +42,10 @@ struct Endpoint {
         return Endpoint(path: "/me")
     }
     
+    static func profilePicture() -> Endpoint {
+        return Endpoint(path: "/me/photo")
+    }
+    
     static func createUser() -> Endpoint {
         return Endpoint(path: "/users/")
     }
@@ -249,6 +253,23 @@ class APIClient: ObservableObject {
     }
     
     /**
+     Set the current user's profile picture.
+     */
+    func uploadProfilePicture(imageData: Data) -> AnyPublisher<PublicUser, APIError> {
+        guard let url = Endpoint.profilePicture().url else {
+            return Fail(error: APIError.endpointError).eraseToAnyPublisher()
+        }
+        return getToken()
+            .flatMap { token in
+                ImageUploadService.uploadImage(url: url, imageData: imageData, token: token)
+                    .tryMap(self.urlSessionPublisherHandler)
+                    .mapError { $0 as? APIError ?? APIError.unknownError }
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
+    /**
      Get the given user's preferences.
      */
     func getPreferences(username: String) -> AnyPublisher<UserPreferences, APIError> {
@@ -366,7 +387,6 @@ class APIClient: ObservableObject {
         guard let url = Endpoint.uploadImage().url else {
             return Fail(error: APIError.endpointError).eraseToAnyPublisher()
         }
-        
         return getToken()
             .flatMap({ token in
                 ImageUploadService.uploadImage(url: url, imageData: imageData, token: token)
@@ -418,7 +438,7 @@ class APIClient: ObservableObject {
     }
     
     /**
-     Make a request to the given endpoinrt and pass the result to the given handler.
+     Make a request to the given endpoint and pass the result to the given handler.
      
      - Parameter endpoint: The endpoint.
      */
@@ -427,7 +447,7 @@ class APIClient: ObservableObject {
     }
     
     /**
-     Make a request to the given endpoinrt and pass the result to the given handler.
+     Make a request to the given endpoint and pass the result to the given handler.
      
      - Parameter endpoint: The endpoint.
      */

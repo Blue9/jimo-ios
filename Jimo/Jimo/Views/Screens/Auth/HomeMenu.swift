@@ -41,8 +41,12 @@ struct HomeMenu: View {
                     .font(Font.custom(Poppins.medium, size: 24))
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .frame(height: 60)
-                    .foregroundColor(.white)
-                    .background(Color.red)
+                    .foregroundColor(Color("food"))
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 4))
+                            .background(Color.white)
+                    )
                     .cornerRadius(10)
             }
             .padding(.bottom, 5)
@@ -52,7 +56,7 @@ struct HomeMenu: View {
                 Text("Already have an invite? Sign in")
                     .font(Font.custom(Poppins.medium, size: 16))
                     .frame(minWidth: 0, maxWidth: .infinity)
-                    .foregroundColor(.red)
+                    .foregroundColor(.black)
             }
             
             Spacer()

@@ -11,6 +11,8 @@ import Combine
 let usernameRegex = #"[a-zA-Z0-9_]+"#;
 
 struct Field: View {
+    static let checkmarkSize: CGFloat = 25
+
     @Binding var value: String
     
     let placeholder: String
@@ -23,34 +25,43 @@ struct Field: View {
     var valid: Bool {
         isValid(value)
     }
-    
+
+    var accentColor: Color {
+        valid ? .green : Color("lightgray")
+    }
+
     var body: some View {
-        let field = TextField(placeholder, text: $value)
-            .autocapitalization(autocapitalization)
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 10)
-                            .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
-        
-        if let filter = inputFilter {
-            field.onReceive(Just(value), perform: { newValue in
-                let filtered = filter(newValue)
-                if filtered != newValue {
-                    self.value = filtered
-                }
-            })
-        } else {
-            field
+
+        HStack {
+            if let filter = inputFilter {
+                TextField(placeholder, text: $value)
+                    .autocapitalization(autocapitalization)
+                    .onReceive(Just(value)) { newValue in
+                        let filtered = filter(newValue)
+                        if filtered != newValue {
+                            self.value = filtered
+                        }
+                    }
+            } else {
+                TextField(placeholder, text: $value)
+                    .autocapitalization(autocapitalization)
+            }
+
+            Image(systemName: valid ? "checkmark.circle.fill" : "checkmark.circle")
+                .resizable()
+                .frame(width: Field.checkmarkSize, height: Field.checkmarkSize)
+                .foregroundColor(accentColor)
         }
-        
-        Text(errorMessage)
-            .foregroundColor(valid ? .green : .gray)
-            .padding(.bottom, 10)
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10)
+                        .stroke(accentColor, style: StrokeStyle(lineWidth: 2)))
     }
 }
 
 struct CreateProfileBody: View {
     @EnvironmentObject var appState: AppState
-    
+    @Environment(\.backgroundColor) var backgroundColor
+
     static let usernameReq = "Usernames should be 3-20 characters"
     static let nameReq = "Required field"
     static let serverError = "Unknown server error, try again later"
@@ -59,11 +70,13 @@ struct CreateProfileBody: View {
     
     @State private var requestError = ""
 
+    @State private var profilePicture: UIImage?
     @State private var username: String = ""
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var privateAccount = false
-    
+
+    @State private var showImagePicker = false
     @State private var showServerError = false
     @State private var showRequestError = false
     
@@ -87,13 +100,19 @@ struct CreateProfileBody: View {
             username: username,
             firstName: firstName,
             lastName: lastName)
-        cancellable = appState.createUser(request)
+        var apiRequest: AnyPublisher<UserFieldError?, APIError>
+        if let image = profilePicture {
+            apiRequest = appState.createUser(request, profilePicture: image)
+        } else {
+            apiRequest = appState.createUser(request)
+        }
+        cancellable = apiRequest
             .sink(receiveCompletion: { completion in
-                if case .failure(_) = completion {
+                if case .failure = completion {
                     showServerError = true
                 }
-            }, receiveValue: { response in
-                if let error = response.error {
+            }, receiveValue: { error in
+                if let error = error {
                     if let uidError = error.uid {
                         requestError = uidError
                     } else if let usernameError = error.username {
@@ -114,13 +133,45 @@ struct CreateProfileBody: View {
     
     var body: some View {
         ZStack {
-            VStack(spacing: 10) {
-                Image("logo")
-                    .aspectRatio(contentMode: .fit)
+            VStack(spacing: 20) {
+                Spacer()
 
-                Text("Almost there!")
-                    .padding(.bottom)
-                
+                ZStack {
+                    if let image = profilePicture {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+
+                        Button {
+                            profilePicture = nil
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .foregroundColor(.gray)
+                                .frame(width: 30, height: 30)
+                                .background(Color.white.cornerRadius(15))
+                        }
+                        .padding(.leading, 60)
+                        .padding(.bottom, 60)
+                    } else {
+                        Circle()
+                            .foregroundColor(backgroundColor)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 60)
+                                    .stroke(Color("lightgray"), lineWidth: 4)
+                            )
+                        Text("Add Photo")
+                            .font(Font.custom(Poppins.regular, size: 16))
+                            .padding(.top, 45)
+                    }
+                }
+                .frame(width: 120, height: 120)
+                .cornerRadius(60)
+                .onTapGesture {
+                    showImagePicker = true
+                }
+                .padding(.bottom, 40)
+
                 Field(value: $username, placeholder: "Username",
                       errorMessage: CreateProfileBody.usernameReq,
                       isValid: self.validUsername,
@@ -141,24 +192,34 @@ struct CreateProfileBody: View {
                 Field(value: $lastName, placeholder: "Last name",
                       errorMessage: CreateProfileBody.nameReq,
                       isValid: self.validName)
-                
-                // Toggle(isOn: $privateAccount) {
-                //     Text("Private account")
-                // }
-                
+
+                Spacer()
+
                 Button(action: createProfile) {
-                    Text("Create profile")
+                    Text("Create Profile")
+                        .font(Font.custom(Poppins.medium, size: 24))
                         .frame(minWidth: 0, maxWidth: .infinity)
-                        .frame(height: 50)
-                        .foregroundColor(.white)
-                        .background(Color("attraction"))
+                        .frame(height: 60)
+                        .foregroundColor(Color("food"))
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 4))
+                                .background(Color.white)
+                        )
                         .cornerRadius(10)
                 }
+                .buttonStyle(RaisedButtonStyle())
                 .disabled(!allValid)
-                .padding(.vertical, 20)
-                .shadow(radius: 5)
+                .padding(.bottom, 40)
             }
+            .gesture(DragGesture(minimumDistance: 10).onChanged { _ in hideKeyboard() })
             .padding(.horizontal, 24)
+            .background(backgroundColor.edgesIgnoringSafeArea(.all))
+        }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker(image: $profilePicture, allowsEditing: true)
+                .preferredColorScheme(.light)
+                .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .popup(isPresented: $showServerError, type: .toast, position: .bottom, autohideIn: 2) {
             Toast(text: "Unknown server error. Try again later.", type: .error)
@@ -167,7 +228,7 @@ struct CreateProfileBody: View {
             Toast(text: requestError, type: .warning)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(.white)
+        .navigationBarColor(UIColor(backgroundColor))
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle("Create profile")
