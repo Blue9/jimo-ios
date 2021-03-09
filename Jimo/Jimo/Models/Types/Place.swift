@@ -10,7 +10,7 @@ import MapKit
 
 typealias PlaceId = String
 
-struct Place: Codable, Equatable {
+struct Place: Codable, Equatable, Hashable {
     var placeId: PlaceId
     var name: String
     var location: Location

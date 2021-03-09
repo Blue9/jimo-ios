@@ -128,6 +128,10 @@ struct Endpoint {
         return Endpoint(path: "/notifications/token")
     }
     
+    static func getNotificationsFeed() -> Endpoint {
+        return Endpoint(path: "/notifications/feed")
+    }
+    
     static func uploadImage() -> Endpoint {
         return Endpoint(path: "/images")
     }
@@ -135,7 +139,7 @@ struct Endpoint {
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "http"
-        apiURL.host = "192.168.1.160"
+        apiURL.host = "192.168.1.167"
         apiURL.port = 8000
         apiURL.path = path
         apiURL.queryItems = queryItems
@@ -231,6 +235,13 @@ class APIClient: ObservableObject {
         return doRequest(endpoint: Endpoint.notificationToken(),
                          httpMethod: "DELETE",
                          body: NotificationTokenRequest(token: token))
+    }
+    
+    /**
+     Get the notification feed.
+     */
+    func getNotificationsFeed() -> AnyPublisher<[NotificationItem], APIError> {
+        return doRequest(endpoint: Endpoint.getNotificationsFeed())
     }
     
     // MARK: - User endpoints

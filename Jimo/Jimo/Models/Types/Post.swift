@@ -10,7 +10,7 @@ import MapKit
 
 typealias PostId = String
 
-struct Post: Codable, Equatable, Identifiable {
+struct Post: Codable, Equatable, Identifiable, Hashable {
     var id: PostId {
         postId
     }

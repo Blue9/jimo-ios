@@ -373,6 +373,14 @@ class AppState: ObservableObject {
         return self.apiClient.submitFeedback(request)
     }
     
+    // MARK: - Notifications
+    
+    func getNotificationsFeed() -> AnyPublisher<[NotificationItem], APIError> {
+        return self.apiClient.getNotificationsFeed()
+            .map(self.addNotificationsToFeed)
+            .eraseToAnyPublisher()
+    }
+    
     // MARK: - Image upload
     
     func uploadImageAndGetId(image: UIImage) -> AnyPublisher<ImageId, APIError> {
@@ -394,6 +402,17 @@ class AppState: ObservableObject {
     
     private func getImageData(for image: UIImage) -> Data? {
         image.jpegData(compressionQuality: 0.33)
+    }
+    
+    private func addNotificationsToFeed(items: [NotificationItem]) -> [NotificationItem] {
+        var posts: [Post] = []
+        for item in items {
+            if let post = item.post {
+                posts.append(post)
+            }
+        }
+        _ = addPostsToAllPosts(posts: posts)
+        return items
     }
     
     private func setFeed(posts: [Post]) {
