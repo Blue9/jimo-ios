@@ -19,6 +19,7 @@ extension View {
         autohideIn: Double? = nil,
         closeOnTap: Bool = true,
         closeOnTapOutside: Bool = true, // Originally false
+        dismissCallback: @escaping () -> () = {},
         view: @escaping () -> PopupContent) -> some View {
         self.modifier(
             Popup(
@@ -29,6 +30,7 @@ extension View {
                 autohideIn: autohideIn,
                 closeOnTap: closeOnTap,
                 closeOnTapOutside: closeOnTapOutside,
+                dismissCallback: dismissCallback,
                 view: view)
         )
     }
@@ -62,7 +64,28 @@ extension View {
 }
 
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
-
+    
+    init(isPresented: Binding<Bool>,
+         type: PopupType,
+         position: Position,
+         animation: Animation,
+         autohideIn: Double?,
+         closeOnTap: Bool,
+         closeOnTapOutside: Bool,
+         dismissCallback: @escaping () -> (),
+         view: @escaping () -> PopupContent) {
+        self._isPresented = isPresented
+        self.type = type
+        self.position = position
+        self.animation = animation
+        self.autohideIn = autohideIn
+        self.closeOnTap = closeOnTap
+        self.closeOnTapOutside = closeOnTapOutside
+        self.dismissCallback = dismissCallback
+        self.view = view
+        self.isPresentedRef = ClassReference(self.$isPresented)
+    }
+    
     public enum PopupType {
 
         case `default`
@@ -104,12 +127,18 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
 
+    /// is called on any close action
+    var dismissCallback: () -> ()
+
     var view: () -> PopupContent
 
     /// holder for autohiding dispatch work (to be able to cancel it when needed)
     var dispatchWorkHolder = DispatchWorkHolder()
 
     // MARK: - Private Properties
+    
+    /// Class reference for capturing a weak reference later in dispatch work holder.
+    private var isPresentedRef: ClassReference<Binding<Bool>>?
 
     /// The rect of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
@@ -117,12 +146,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// The rect of popup content
     @State private var sheetContentRect: CGRect = .zero
     
-    /// The current offset, based on the **presented** property
-    private var currentOffset: CGFloat {
-        return isPresented ? displayedOffset : hiddenOffset
-    }
-    
-    @State private var animatedOffset: CGFloat = UIScreen.main.bounds.height
+    @State private var animatedOffset: CGFloat = 1000
 
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
@@ -180,6 +204,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             .addTapIfNotTV(if: closeOnTapOutside) {
                 self.dispatchWorkHolder.work?.cancel()
                 self.isPresented = false
+                self.dismissCallback()
             }
             .background(
                 GeometryReader { proxy -> AnyView in
@@ -201,8 +226,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         // if needed, dispatch autohide and cancel previous one
         if let autohideIn = autohideIn {
             dispatchWorkHolder.work?.cancel()
-            dispatchWorkHolder.work = DispatchWorkItem(block: {
-                self.isPresented = false
+            
+            // Weak reference to avoid the work item capturing the struct,
+            // which would create a retain cycle with the work holder itself.
+            dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef] in
+                isPresentedRef?.value.wrappedValue = false
+                dismissCallback()
             })
             if isPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
@@ -217,6 +246,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                             .addTapIfNotTV(if: closeOnTap) {
                                 self.dispatchWorkHolder.work?.cancel()
                                 self.isPresented = false
+                                self.dismissCallback()
                             }
                             .background(
                                 GeometryReader { proxy -> AnyView in
@@ -234,11 +264,25 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                 }
                 .frame(width: screenSize.width)
                 .offset(y: animatedOffset)
-                .onChange(of: currentOffset, perform: { offset in
-                    withAnimation(animation) {
-                        animatedOffset = offset
+                .onChange(of: hiddenOffset) { offset in
+                    if !isPresented {
+                        if offset < 0 && position == .bottom {
+                            // Fix a problem with toasts jumping to the top of sheets when dismissing sheets
+                            animatedOffset = 1000
+                        } else {
+                            animatedOffset = offset
+                        }
                     }
-                })
+                }
+                .onChange(of: isPresented) { presented in
+                    withAnimation(animation) {
+                        if presented {
+                            animatedOffset = displayedOffset
+                        } else {
+                            animatedOffset = hiddenOffset
+                        }
+                    }
+                }
             }
         }
     }
@@ -246,4 +290,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
 class DispatchWorkHolder {
     var work: DispatchWorkItem?
+}
+
+private final class ClassReference<T> {
+  var value: T
+
+  init(_ value: T) {
+    self.value = value
+  }
 }
