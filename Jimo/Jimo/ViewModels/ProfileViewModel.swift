@@ -30,8 +30,6 @@ class ProfileVM: ObservableObject {
             }
         }
     }
-    @Published var failedToLoadUser = false
-    @Published var failedToLoadFollowStatus = false
     @Published var failedToLoadPosts = false
     
     var isCurrentUser: Bool {
@@ -57,15 +55,12 @@ class ProfileVM: ObservableObject {
         loadUserCancellable = appState.getUser(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self?.failedToLoadUser = true
                     print("Error when loading user", error)
                     if error == .notFound {
                         self?.globalViewState.setError("User not found")
                     } else {
                         self?.globalViewState.setError("Failed to load user")
                     }
-                } else {
-                    self?.failedToLoadUser = false
                 }
                 self?.refreshing = false
             }, receiveValue: { [weak self] user in
@@ -78,10 +73,8 @@ class ProfileVM: ObservableObject {
         loadFollowStatusCancellable = appState.isFollowing(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self?.failedToLoadFollowStatus = true
                     print("Error when loading follow status", error)
-                } else {
-                    self?.failedToLoadFollowStatus = false
+                    self?.globalViewState.setError("Failed to load follow status")
                 }
             }, receiveValue: { [weak self] response in
                 self?.following = response.followed

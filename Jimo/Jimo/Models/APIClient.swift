@@ -75,7 +75,7 @@ struct Endpoint {
     }
     
     static func isFollowing(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/follow_status")
+        return Endpoint(path: "/users/\(username)/followStatus")
     }
     
     // MARK: - Post endpoints

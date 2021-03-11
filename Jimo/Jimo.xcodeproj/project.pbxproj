@@ -90,7 +90,6 @@
 		C7EC11E325A0758D0071C65F /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C7EC11E125A0758D0071C65F /* Poppins-SemiBold.ttf */; };
 		C7EDC3D325D39767007B3E77 /* Wave.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDC3D225D39767007B3E77 /* Wave.swift */; };
 		C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */; };
-		C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D4F5255A397600E8D216 /* Comment.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
 		C7FEBFA125DF42C400A0A685 /* MapTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FEBFA025DF42C400A0A685 /* MapTab.swift */; };
 /* End PBXBuildFile section */
@@ -209,7 +208,6 @@
 		C7EC11E125A0758D0071C65F /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
 		C7EDC3D225D39767007B3E77 /* Wave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wave.swift; sourceTree = "<group>"; };
 		C7F46EFD25610C5100D1BEC7 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
-		C7F6D4F5255A397600E8D216 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		C7FEBFA025DF42C400A0A685 /* MapTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTab.swift; sourceTree = "<group>"; };
 		EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-JimoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -447,7 +445,6 @@
 		C79EA00025AFD51300A38DB8 /* Types */ = {
 			isa = PBXGroup;
 			children = (
-				C7F6D4F5255A397600E8D216 /* Comment.swift */,
 				C74BC92A256E198C0095A2BA /* General.swift */,
 				C7106AF4256084E200C10EFF /* Place.swift */,
 				C75C2F24255616CC009B6ADA /* Post.swift */,
@@ -809,7 +806,6 @@
 				C7F46EFE25610C5100D1BEC7 /* RefreshableScrollView.swift in Sources */,
 				C764145025D0FD4100CBDE3F /* SearchViewModel.swift in Sources */,
 				C7D2D84025CE2B9600246BD0 /* SnapDrawer+init.swift in Sources */,
-				C7F6D4F6255A397600E8D216 /* Comment.swift in Sources */,
 				C7D2D83E25CE2B9600246BD0 /* BlurView.swift in Sources */,
 				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
 				C74BC92B256E198C0095A2BA /* General.swift in Sources */,
