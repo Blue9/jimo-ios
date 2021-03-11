@@ -32,27 +32,28 @@ class SearchViewModel: ObservableObject {
     func listen(appState: AppState) {
         locationSearch.completer.resultTypes = [.address, .pointOfInterest]
         userSearchCancellable = $query
-            .flatMap({ [weak self] query -> AnyPublisher<String, Never> in
-                if query.count == 0 {
-                    self?.userResults.removeAll()
-                }
+            .flatMap { [weak self] query -> AnyPublisher<String, Never> in
                 if query.count < 3 {
+                    self?.userResults.removeAll()
                     return Empty().eraseToAnyPublisher()
                 }
                 if self?.searchType == .places {
                     return Empty().eraseToAnyPublisher()
                 }
                 return Just(query).eraseToAnyPublisher()
-            })
+            }
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            .flatMap({ appState.searchUsers(query: $0) })
-            .catch({ error -> AnyPublisher<[PublicUser], Never> in
-                print("Error when searching", error)
-                return Empty().eraseToAnyPublisher()
-            })
-            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] users in
+            .flatMap { query -> AnyPublisher<[PublicUser], Never> in
+                appState.searchUsers(query: query)
+                    .catch { error -> AnyPublisher<[PublicUser], Never> in
+                        print("Error when searching", error)
+                        return Empty().eraseToAnyPublisher()
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .sink { [weak self] users in
                 self?.userResults = users
-            })
+            }
         placeSearchCancellable = $query
             .flatMap({ [weak self] query -> AnyPublisher<String, Never> in
                 if query.count == 0 {

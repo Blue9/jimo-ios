@@ -277,7 +277,7 @@ struct MapView: View {
         .colorMultiply(backgroundColor)
     }
     
-    var body: some View {
+    var viewBody: some View {
         ZStack {
             MapKitView(
                 region: $mapViewModel.region,
@@ -325,6 +325,14 @@ struct MapView: View {
         }
         .onDisappear {
             mapViewModel.stopRefreshingMap()
+        }
+    }
+    
+    var body: some View {
+        // This fixes a SwiftUI bug where onAppear gets called when the keyboard appears in another view
+        LazyHStack {
+            viewBody
+                .frame(width: UIScreen.main.bounds.width)
         }
         .edgesIgnoringSafeArea(.all)
     }

@@ -53,7 +53,7 @@ class MapViewModel: ObservableObject {
     }
     
     func startRefreshinghMap() {
-        print("Listening to map changes")
+        print("Starting map refresh")
         mapRefreshCancellable = Deferred { Just(Date()) }
             .append(Timer.publish(every: 60, on: .main, in: .common).autoconnect())
             .flatMap { [weak self] _ -> AnyPublisher<Void, Never> in
@@ -76,6 +76,7 @@ class MapViewModel: ObservableObject {
     }
     
     func stopRefreshingMap() {
+        print("Stopped refreshing map")
         mapRefreshCancellable?.cancel()
     }
     
