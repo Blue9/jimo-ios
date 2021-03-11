@@ -85,5 +85,7 @@
 	<string>This lets you see which of your friends are on jimo.</string>
 	<key>FirebaseCrashlyticsCollectionEnabled</key>
 	<false/>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
 </dict>
 </plist>
