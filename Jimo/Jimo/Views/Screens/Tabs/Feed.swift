@@ -15,6 +15,7 @@ class FeedViewState: ObservableObject {
     
     var cancellable: Cancellable? = nil
     @Published var initialized = false
+    @Published var loadingMorePosts = false
     
     init(appState: AppState, globalViewState: GlobalViewState) {
         self.appState = appState
@@ -35,6 +36,22 @@ class FeedViewState: ObservableObject {
                     self.globalViewState.setError("Could not refresh feed")
                 }
                 self.scrollViewRefresh = false
+            }, receiveValue: {})
+    }
+    
+    func loadMorePosts() {
+        loadingMorePosts = true
+        print("Loading more posts")
+        cancellable = appState.loadMoreFeedItems()
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                self.loadingMorePosts = false
+                if case let .failure(error) = completion {
+                    print("Error when loading more posts", error)
+                    self.globalViewState.setError("Could not load more posts")
+                }
             }, receiveValue: {})
     }
     
@@ -68,10 +85,18 @@ struct FeedBody: View {
                     ForEach(feedModel.currentFeed, id: \.self) { postId in
                         FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
                     }
-                    Divider()
-                    Text("You've reached the end!")
-                        .font(Font.custom(Poppins.medium, size: 15))
-                        .padding()
+                    LazyVStack {
+                        // LazyVStack makes sure onAppear only gets called when the view is actually on the screen
+                        Divider()
+                            .onAppear {
+                                feedState.loadMorePosts()
+                            }
+                        ProgressView()
+                            .opacity(feedState.loadingMorePosts ? 1 : 0)
+                        Text("You've reached the end!")
+                            .font(Font.custom(Poppins.medium, size: 15))
+                            .padding()
+                    }
                 }
             }
         }

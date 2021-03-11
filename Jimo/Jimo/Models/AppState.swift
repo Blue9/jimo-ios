@@ -275,6 +275,17 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func loadMoreFeedItems() -> AnyPublisher<Void, APIError> {
+        guard case let CurrentUser.user(user) = self.currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        let beforePostId = feedModel.currentFeed.last
+        return self.apiClient.getFeed(username: user.username, beforePostId: beforePostId)
+            .map(self.appendToFeed)
+            .map({ _ in return () })
+            .eraseToAnyPublisher()
+    }
+    
     func refreshMap() -> AnyPublisher<Void, APIError> {
         return self.apiClient.getMap()
             .map({ posts in self.setMap(posts: posts) })
@@ -386,8 +397,13 @@ class AppState: ObservableObject {
     }
     
     private func setFeed(posts: [Post]) {
-        _ = addPostsToAllPosts(posts: posts)
-        feedModel.currentFeed = posts.map(\.postId)
+        let postIds = addPostsToAllPosts(posts: posts)
+        feedModel.currentFeed = postIds
+    }
+    
+    private func appendToFeed(posts: [Post]) {
+        let postIds = addPostsToAllPosts(posts: posts)
+        feedModel.currentFeed.append(contentsOf: postIds)
     }
     
     private func setDiscoverFeed(posts: [Post]) -> [Post] {

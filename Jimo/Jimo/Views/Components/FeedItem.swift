@@ -134,7 +134,7 @@ struct FeedItem: View {
                     .id(image)
                     .scaledToFill()
                     .foregroundColor(.gray)
-                    .frame(maxHeight: fullPost ? .infinity : 300)
+                    .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : 300)
                     .cornerRadius(0)
                     .contentShape(Rectangle())
                     .background(Color(post.category))

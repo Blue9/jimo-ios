@@ -58,8 +58,12 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/preferences")
     }
     
-    static func feed(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/feed")
+    static func feed(username: String, beforePostId: String? = nil) -> Endpoint {
+        let path = "/users/\(username)/feed"
+        if let before = beforePostId {
+            return Endpoint(path: path, queryItems: [URLQueryItem(name: "before", value: before)])
+        }
+        return Endpoint(path: path)
     }
     
     static func posts(username: String) -> Endpoint {
@@ -293,8 +297,8 @@ class APIClient: ObservableObject {
     /**
      Get the feed for the given user.
      */
-    func getFeed(username: String) -> AnyPublisher<[Post], APIError> {
-        return doRequest(endpoint: Endpoint.feed(username: username))
+    func getFeed(username: String, beforePostId: String? = nil) -> AnyPublisher<[Post], APIError> {
+        return doRequest(endpoint: Endpoint.feed(username: username, beforePostId: beforePostId))
     }
     
     /**
