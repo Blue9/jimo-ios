@@ -20,7 +20,7 @@ protocol User {
     var followingCount: Int { get set }
 }
 
-struct PublicUser: User, Codable, Identifiable, Equatable {
+struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
     var id: UserId {
         username
     }

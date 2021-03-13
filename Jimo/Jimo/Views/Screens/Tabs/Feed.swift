@@ -111,10 +111,20 @@ struct Feed: View {
     
     @State private var showFeedback = false
     @State private var showInvite = false
+    @State private var showNotifications = false
+    
+    @StateObject private var notificationFeedVm = NotificationFeedVM()
 
     var body: some View {
         NavigationView {
             FeedBody(feedModel: appState.feedModel, feedState: FeedViewState(appState: appState, globalViewState: globalViewState))
+                .background(
+                    NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVm)
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState)
+                                    .environment(\.backgroundColor, backgroundColor), isActive: $showNotifications) {}
+                                                                 
+                )
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(backgroundColor))
                 .toolbar(content: {
@@ -133,6 +143,11 @@ struct Feed: View {
                     }
                     ToolbarItem(placement: .principal) {
                         NavTitle("Feed")
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: { self.showNotifications.toggle() }) {
+                            Image(systemName: "bell")
+                        }
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: { showFeedback.toggle() }) {
