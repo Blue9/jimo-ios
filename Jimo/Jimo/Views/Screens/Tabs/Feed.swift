@@ -113,17 +113,16 @@ struct Feed: View {
     @State private var showInvite = false
     @State private var showNotifications = false
     
-    @StateObject private var notificationFeedVm = NotificationFeedVM()
+    @StateObject private var notificationFeedVM = NotificationFeedVM()
 
     var body: some View {
         NavigationView {
             FeedBody(feedModel: appState.feedModel, feedState: FeedViewState(appState: appState, globalViewState: globalViewState))
                 .background(
-                    NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVm)
+                    NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVM)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor), isActive: $showNotifications) {}
-                                                                 
                 )
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(backgroundColor))

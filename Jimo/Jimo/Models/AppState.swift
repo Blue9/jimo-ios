@@ -86,10 +86,10 @@ class AppState: ObservableObject {
     }
     
     func getUsersInContacts(phoneNumbers: [String]) -> AnyPublisher<[PublicUser], APIError> {
-        guard case let .user(user) = currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return apiClient.getUsersInContacts(username: user.username, phoneNumbers: phoneNumbers)
+        return apiClient.getUsersInContacts(phoneNumbers: phoneNumbers)
     }
     
     // MARK: - Auth
@@ -223,10 +223,10 @@ class AppState: ObservableObject {
     }
     
     func updateProfile(_ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
-        guard case let .user(user) = currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return self.apiClient.updateProfile(username: user.username, request)
+        return self.apiClient.updateProfile(request)
             .map({ response in
                 if let user = response.user {
                     self.currentUser = .user(user)
@@ -237,17 +237,17 @@ class AppState: ObservableObject {
     }
     
     func getPreferences() -> AnyPublisher<UserPreferences, APIError> {
-        guard case let .user(user) = currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return self.apiClient.getPreferences(username: user.username)
+        return self.apiClient.getPreferences()
     }
     
     func updatePreferences(_ request: UserPreferences) -> AnyPublisher<UserPreferences, APIError> {
-        guard case let .user(user) = currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return self.apiClient.updatePreferences(username: user.username, request)
+        return self.apiClient.updatePreferences(request)
     }
     
     func getUser(username: String) -> AnyPublisher<PublicUser, APIError> {
@@ -266,21 +266,21 @@ class AppState: ObservableObject {
     }
     
     func refreshFeed() -> AnyPublisher<Void, APIError> {
-        guard case let CurrentUser.user(user) = self.currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return self.apiClient.getFeed(username: user.username)
+        return self.apiClient.getFeed()
             .map(self.setFeed)
             .map({ _ in return () })
             .eraseToAnyPublisher()
     }
     
     func loadMoreFeedItems() -> AnyPublisher<Void, APIError> {
-        guard case let CurrentUser.user(user) = self.currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         let beforePostId = feedModel.currentFeed.last
-        return self.apiClient.getFeed(username: user.username, beforePostId: beforePostId)
+        return self.apiClient.getFeed(beforePostId: beforePostId)
             .map(self.appendToFeed)
             .map({ _ in return () })
             .eraseToAnyPublisher()
@@ -359,10 +359,10 @@ class AppState: ObservableObject {
     // MARK: - Discover
     
     func discoverFeed() -> AnyPublisher<[Post], APIError> {
-        guard case let .user(user) = currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return self.apiClient.getDiscoverFeed(username: user.username)
+        return self.apiClient.getDiscoverFeed()
             .map(self.setDiscoverFeed)
             .eraseToAnyPublisher()
     }

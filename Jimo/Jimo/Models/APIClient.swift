@@ -23,7 +23,7 @@ struct Endpoint {
     }
     
     static func joinWaitlist() -> Endpoint {
-        return Endpoint(path: "/waitlist/")
+        return Endpoint(path: "/waitlist")
     }
     
     static func inviteUser() -> Endpoint {
@@ -32,8 +32,8 @@ struct Endpoint {
     
     // MARK: - Onboarding endpoints
     
-    static func contacts(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/contacts")
+    static func contacts() -> Endpoint {
+        return Endpoint(path: "/me/contacts")
     }
     
     // MARK: - User endpoints
@@ -47,19 +47,19 @@ struct Endpoint {
     }
     
     static func createUser() -> Endpoint {
-        return Endpoint(path: "/users/")
+        return Endpoint(path: "/users")
     }
     
     static func user(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)")
     }
     
-    static func preferences(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/preferences")
+    static func preferences() -> Endpoint {
+        return Endpoint(path: "/me/preferences")
     }
     
-    static func feed(username: String, beforePostId: String? = nil) -> Endpoint {
-        let path = "/users/\(username)/feed"
+    static func feed(beforePostId: String? = nil) -> Endpoint {
+        let path = "/me/feed"
         if let before = beforePostId {
             return Endpoint(path: path, queryItems: [URLQueryItem(name: "before", value: before)])
         }
@@ -85,7 +85,7 @@ struct Endpoint {
     // MARK: - Post endpoints
     
     static func createPost() -> Endpoint {
-        return Endpoint(path: "/posts/")
+        return Endpoint(path: "/posts")
     }
     
     static func post(postId: PostId) -> Endpoint {
@@ -108,20 +108,20 @@ struct Endpoint {
     
     // MARK: - Discover endpoint
     
-    static func discoverFeed(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/discover")
+    static func discoverFeed() -> Endpoint {
+        return Endpoint(path: "/me/discover")
     }
     
     // MARK: - Map endpoint
     
     static func getMap() -> Endpoint {
-        return Endpoint(path: "/places/map")
+        return Endpoint(path: "/me/map")
     }
     
     // MARK: Feedback endpoint
     
     static func submitFeedback() -> Endpoint {
-        return Endpoint(path: "/feedback/")
+        return Endpoint(path: "/feedback")
     }
     
     static func notificationToken() -> Endpoint {
@@ -139,7 +139,7 @@ struct Endpoint {
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "http"
-        apiURL.host = "192.168.1.167"
+        apiURL.host = "192.168.1.160"
         apiURL.port = 8000
         apiURL.path = path
         apiURL.queryItems = queryItems
@@ -211,8 +211,8 @@ class APIClient: ObservableObject {
     /**
      Get users with any of the given phone numbers.
      */
-    func getUsersInContacts(username: String, phoneNumbers: [String]) -> AnyPublisher<[PublicUser], APIError> {
-        return doRequest(endpoint: Endpoint.contacts(username: username),
+    func getUsersInContacts(phoneNumbers: [String]) -> AnyPublisher<[PublicUser], APIError> {
+        return doRequest(endpoint: Endpoint.contacts(),
                          httpMethod: "POST",
                          body: PhoneNumbersRequest(phoneNumbers: phoneNumbers))
     }
@@ -263,8 +263,8 @@ class APIClient: ObservableObject {
     /**
      Update the given user's profile.
      */
-    func updateProfile(username: String, _ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
-        return doRequest(endpoint: Endpoint.user(username: username), httpMethod: "POST", body: request)
+    func updateProfile(_ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
+        return doRequest(endpoint: Endpoint.me(), httpMethod: "POST", body: request)
     }
     
     /**
@@ -287,15 +287,15 @@ class APIClient: ObservableObject {
     /**
      Get the given user's preferences.
      */
-    func getPreferences(username: String) -> AnyPublisher<UserPreferences, APIError> {
-        return doRequest(endpoint: Endpoint.preferences(username: username))
+    func getPreferences() -> AnyPublisher<UserPreferences, APIError> {
+        return doRequest(endpoint: Endpoint.preferences())
     }
     
     /**
      Update the given user's preferences.
      */
-    func updatePreferences(username: String, _ request: UserPreferences) -> AnyPublisher<UserPreferences, APIError> {
-        return doRequest(endpoint: Endpoint.preferences(username: username), httpMethod: "POST", body: request)
+    func updatePreferences(_ request: UserPreferences) -> AnyPublisher<UserPreferences, APIError> {
+        return doRequest(endpoint: Endpoint.preferences(), httpMethod: "POST", body: request)
     }
     
     /**
@@ -308,8 +308,8 @@ class APIClient: ObservableObject {
     /**
      Get the feed for the given user.
      */
-    func getFeed(username: String, beforePostId: String? = nil) -> AnyPublisher<[Post], APIError> {
-        return doRequest(endpoint: Endpoint.feed(username: username, beforePostId: beforePostId))
+    func getFeed(beforePostId: String? = nil) -> AnyPublisher<[Post], APIError> {
+        return doRequest(endpoint: Endpoint.feed(beforePostId: beforePostId))
     }
     
     /**
@@ -394,8 +394,8 @@ class APIClient: ObservableObject {
     
     // MARK: - Discover endpoint
     
-    func getDiscoverFeed(username: String) -> AnyPublisher<[Post], APIError> {
-        doRequest(endpoint: Endpoint.discoverFeed(username: username))
+    func getDiscoverFeed() -> AnyPublisher<[Post], APIError> {
+        doRequest(endpoint: Endpoint.discoverFeed())
     }
     
     func uploadImage(imageData: Data) -> AnyPublisher<ImageUploadResponse, APIError> {

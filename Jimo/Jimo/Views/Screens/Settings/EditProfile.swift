@@ -98,9 +98,6 @@ class EditProfileViewModel: ObservableObject {
                     }
                 } else if response.user != nil {
                     viewState.setSuccess("Updated profile!")
-                    // Even though we set currentUser in appState.updateProfile, SwiftUI doesn't refresh the view,
-                    // probably because the enum case is the same. So, we just manually refresh the current user here.
-                    appState.refreshCurrentUser()
                 }
                 self?.updating = false
             })
