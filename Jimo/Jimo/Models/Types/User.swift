@@ -103,3 +103,7 @@ struct UserWaitlistStatus: Codable {
 struct PhoneNumbersRequest: Codable {
     var phoneNumbers: [String]
 }
+
+struct FollowManyRequest: Codable {
+    var usernames: [String]
+}

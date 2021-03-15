@@ -70,16 +70,13 @@ struct ContentView: View {
                 .navigationViewStyle(StackNavigationViewStyle())
             } else if case let .user(user) = appState.currentUser {
                 // Both exist
-                if appState.isUserOnboarded {
-                    MainAppView(
-                        profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: user),
-                        mapVM: MapViewModel(appState: appState)
-                    )
-                    .transition(.slide)
-                    .id(user) // Force view reset when current user changes (i.e., when updating profile)
-                } else {
-                    OnboardingView()
-                }
+                LoggedInView(
+                    onboardingModel: appState.onboardingModel,
+                    profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: user),
+                    mapVM: MapViewModel(appState: appState)
+                )
+                .transition(.slide)
+                .id(user) // Force view reset when current user changes (i.e., when updating profile)
             } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist
                 NavigationView {

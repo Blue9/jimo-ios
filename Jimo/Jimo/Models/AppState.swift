@@ -40,6 +40,41 @@ class AllPosts: ObservableObject {
     @Published var posts: [PostId: Post] = [:]
 }
 
+class OnboardingModel: ObservableObject {
+    @Published var completedContactsOnboarding: Bool = OnboardingModel.contactsOnboarded()
+    @Published var completedFeaturedUsersOnboarding: Bool = OnboardingModel.featuredUsersOnboarded()
+    
+    init() {
+        // TODO remove
+        completedContactsOnboarding = false
+        completedFeaturedUsersOnboarding = false
+    }
+    
+    var isUserOnboarded: Bool {
+        completedContactsOnboarding && completedFeaturedUsersOnboarding
+    }
+    
+    static func contactsOnboarded() -> Bool {
+        // Returns false if the key hasn't been set
+        UserDefaults.standard.bool(forKey: "contactsOnboarded")
+    }
+    
+    func setContactsOnboarded() {
+        UserDefaults.standard.set(true, forKey: "contactsOnboarded")
+        completedContactsOnboarding = true
+    }
+    
+    static func featuredUsersOnboarded() -> Bool {
+        // Returns false if the key hasn't been set
+        UserDefaults.standard.bool(forKey: "featuredUsersOnboarded")
+    }
+    
+    func setFeaturedUsersOnboarded() {
+        UserDefaults.standard.set(true, forKey: "featuredUsersOnboarded")
+        completedFeaturedUsersOnboarding = true
+    }
+}
+
 
 class AppState: ObservableObject {
     private var apiClient: APIClient
@@ -47,12 +82,12 @@ class AppState: ObservableObject {
     
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
-    @Published var isUserOnboarded: Bool
     
     /// App state vars
     let feedModel = FeedModel()
     let mapModel = MapModel()
     let allPosts = AllPosts()
+    let onboardingModel = OnboardingModel()
     
     let storage = Storage.storage()
     
@@ -61,10 +96,7 @@ class AppState: ObservableObject {
     var registeringToken = false
     
     init(apiClient: APIClient) {
-        // TODO remove
-        UserDefaults.standard.set(false, forKey: "userOnboarded")
         self.apiClient = apiClient
-        self.isUserOnboarded = AppState.userOnboarded()
         updateTokenOnUserChange()
         NotificationCenter.default.addObserver(
             self,
@@ -75,21 +107,22 @@ class AppState: ObservableObject {
     
     // MARK: - User onboarding
     
-    static func userOnboarded() -> Bool {
-        // Returns false if the key hasn't been set
-        UserDefaults.standard.bool(forKey: "userOnboarded")
-    }
-    
-    func setUserOnboarded() {
-        UserDefaults.standard.set(true, forKey: "userOnboarded")
-        isUserOnboarded = true
-    }
-    
     func getUsersInContacts(phoneNumbers: [String]) -> AnyPublisher<[PublicUser], APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return apiClient.getUsersInContacts(phoneNumbers: phoneNumbers)
+    }
+    
+    func getSuggestedUsers() -> AnyPublisher<[PublicUser], APIError> {
+        return apiClient.getSuggestedUsers()
+    }
+    
+    func followMany(usernames: [String]) -> AnyPublisher<SimpleResponse, APIError> {
+        guard case .user = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return apiClient.followMany(usernames: usernames)
     }
     
     // MARK: - Auth

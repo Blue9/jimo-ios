@@ -36,6 +36,14 @@ struct Endpoint {
         return Endpoint(path: "/me/contacts")
     }
     
+    static func suggestedUsers() -> Endpoint {
+        return Endpoint(path: "/me/suggested")
+    }
+    
+    static func followMany() -> Endpoint {
+        return Endpoint(path: "/me/following")
+    }
+    
     // MARK: - User endpoints
     
     static func me() -> Endpoint {
@@ -215,6 +223,22 @@ class APIClient: ObservableObject {
         return doRequest(endpoint: Endpoint.contacts(),
                          httpMethod: "POST",
                          body: PhoneNumbersRequest(phoneNumbers: phoneNumbers))
+    }
+    
+    /**
+     Get the list of suggested users.
+     */
+    func getSuggestedUsers() -> AnyPublisher<[PublicUser], APIError> {
+        return doRequest(endpoint: Endpoint.suggestedUsers())
+    }
+    
+    /**
+     Follow the list of usernames.
+     */
+    func followMany(usernames: [String]) -> AnyPublisher<SimpleResponse, APIError> {
+        return doRequest(endpoint: Endpoint.followMany(),
+                         httpMethod: "POST",
+                         body: FollowManyRequest(usernames: usernames))
     }
     
     // MARK: - Notification endpoints

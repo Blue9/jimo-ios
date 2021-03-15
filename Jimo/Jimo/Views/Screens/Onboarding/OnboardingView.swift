@@ -8,17 +8,19 @@
 import SwiftUI
 
 struct OnboardingView: View {
+    @EnvironmentObject var appState: AppState
+    @ObservedObject var onboardingModel: OnboardingModel
+    
     var body: some View {
         NavigationView {
-            FollowContacts()
-                .navigationBarHidden(true)
+            if !onboardingModel.completedContactsOnboarding {
+                FollowContacts(onboardingModel: onboardingModel)
+                    .navigationBarHidden(true)
+            } else if !onboardingModel.completedFeaturedUsersOnboarding {
+                FollowFeatured(onboardingModel: onboardingModel)
+                    .navigationBarHidden(true)
+            }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-    }
-}
-
-struct OnboardingView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingView()
     }
 }
