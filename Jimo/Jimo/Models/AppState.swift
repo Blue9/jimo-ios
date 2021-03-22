@@ -408,7 +408,7 @@ class AppState: ObservableObject {
     
     // MARK: - Notifications
     
-    func getNotificationsFeed(token: PaginationToken) ->AnyPublisher<NotificationFeedResponse, APIError> {
+    func getNotificationsFeed(token: PaginationToken) -> AnyPublisher<NotificationFeedResponse, APIError> {
         return self.apiClient.getNotificationsFeed(token: token)
             .map(self.addNotificationsToFeed)
             .eraseToAnyPublisher()
