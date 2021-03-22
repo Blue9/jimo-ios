@@ -136,8 +136,10 @@ struct Endpoint {
         return Endpoint(path: "/notifications/token")
     }
     
-    static func getNotificationsFeed() -> Endpoint {
-        return Endpoint(path: "/notifications/feed")
+    static func getNotificationsFeed(token: PaginationToken) -> Endpoint {
+        let queryItems = [URLQueryItem(name: "f", value: token.followId),
+                          URLQueryItem(name: "l", value: token.likeId)]
+        return Endpoint(path: "/notifications/feed", queryItems: queryItems)
     }
     
     static func uploadImage() -> Endpoint {
@@ -264,8 +266,8 @@ class APIClient: ObservableObject {
     /**
      Get the notification feed.
      */
-    func getNotificationsFeed() -> AnyPublisher<[NotificationItem], APIError> {
-        return doRequest(endpoint: Endpoint.getNotificationsFeed())
+    func getNotificationsFeed(token: PaginationToken) -> AnyPublisher<NotificationFeedResponse, APIError> {
+        return doRequest(endpoint: Endpoint.getNotificationsFeed(token: token))
     }
     
     // MARK: - User endpoints

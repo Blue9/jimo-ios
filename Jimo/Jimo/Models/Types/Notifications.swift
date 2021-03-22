@@ -13,15 +13,20 @@ enum ItemType: String, Codable {
     case comment
 }
 
-struct PaginationToken: Codable {
-    var follow_id: String?
-    var like_id: String?
-}
-
 struct NotificationItem: Codable, Hashable {
     var type: ItemType
     var createdAt: Date
     var user: PublicUser
     var itemId: String
     var post: Post?
+}
+
+struct PaginationToken: Codable {
+    var followId: String?
+    var likeId: String?
+}
+
+struct NotificationFeedResponse: Codable {
+    var notifications: [NotificationItem]
+    var token: PaginationToken
 }

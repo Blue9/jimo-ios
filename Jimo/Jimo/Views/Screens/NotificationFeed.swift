@@ -13,10 +13,10 @@ class NotificationFeedVM: ObservableObject {
     private var initialized = false
     
     @Published var feedItems: [NotificationItem] = []
+    @Published var loadingMoreNotifications = false
 
     private var cancellable: Cancellable? = nil
-    //TODO: Implement pagination when close to bottom of feed.
-    private var paginationToken: PaginationToken = PaginationToken()
+    private var token: PaginationToken = PaginationToken()
 
     func initialize(appState: AppState) {
         if initialized {
@@ -31,14 +31,38 @@ class NotificationFeedVM: ObservableObject {
         guard let appState = appState else {
             return
         }
-        cancellable = appState.getNotificationsFeed()
+        self.token = PaginationToken()
+        cancellable = appState.getNotificationsFeed(token: token)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error while load notification feed.", error)
                 }
                 self?.scrollViewRefresh = false
             }, receiveValue: { [weak self] response in
-                self?.feedItems = response
+                self?.feedItems = response.notifications
+                self?.token = response.token
+            })
+    }
+    
+    func loadMoreNotifications() {
+        guard let appState = appState else {
+            return
+        }
+        if feedItems.count < 50 {
+            // This prevents from spamming the API when there is less than a full page of results
+            return
+        }
+        loadingMoreNotifications = true
+        print("Loading more notifications")
+        cancellable = appState.getNotificationsFeed(token: token)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Error while load more notifications.", error)
+                }
+                self?.loadingMoreNotifications = false
+            }, receiveValue: { [weak self] response in
+                self?.feedItems.append(contentsOf: response.notifications)
+                self?.token = response.token
             })
     }
     
@@ -165,9 +189,17 @@ struct NotificationFeed: View {
                     .hidden()
             }
             .listStyle(PlainListStyle())
-
-            Text("You've reached the end!")
-                .font(Font.custom(Poppins.medium, size: 15))
+            
+            LazyVStack {
+                Divider()
+                    .onAppear {
+                        notificationFeedVM.loadMoreNotifications()
+                    }
+                ProgressView()
+                    .opacity(notificationFeedVM.loadingMoreNotifications ? 1 : 0)
+                Text("You've reached the end!")
+                    .font(Font.custom(Poppins.medium, size: 15))
+            }
         }
         .onAppear(perform: { notificationFeedVM.initialize(appState: appState) })
         .background(backgroundColor.edgesIgnoringSafeArea(.all))

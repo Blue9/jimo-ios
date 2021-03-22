@@ -408,8 +408,8 @@ class AppState: ObservableObject {
     
     // MARK: - Notifications
     
-    func getNotificationsFeed() -> AnyPublisher<[NotificationItem], APIError> {
-        return self.apiClient.getNotificationsFeed()
+    func getNotificationsFeed(token: PaginationToken) -> AnyPublisher<NotificationFeedResponse, APIError> {
+        return self.apiClient.getNotificationsFeed(token: token)
             .map(self.addNotificationsToFeed)
             .eraseToAnyPublisher()
     }
@@ -437,15 +437,15 @@ class AppState: ObservableObject {
         image.jpegData(compressionQuality: 0.33)
     }
     
-    private func addNotificationsToFeed(items: [NotificationItem]) -> [NotificationItem] {
+    private func addNotificationsToFeed(response: NotificationFeedResponse) -> NotificationFeedResponse {
         var posts: [Post] = []
-        for item in items {
+        for item in response.notifications {
             if let post = item.post {
                 posts.append(post)
             }
         }
         _ = addPostsToAllPosts(posts: posts)
-        return items
+        return response
     }
     
     private func setFeed(posts: [Post]) {
