@@ -31,6 +31,7 @@ class NotificationFeedVM: ObservableObject {
         guard let appState = appState else {
             return
         }
+        self.token = PaginationToken()
         cancellable = appState.getNotificationsFeed(token: token)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
