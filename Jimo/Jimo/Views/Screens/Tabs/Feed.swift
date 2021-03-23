@@ -22,9 +22,10 @@ class FeedViewState: ObservableObject {
         self.globalViewState = globalViewState
     }
     
-    func refreshFeed() {
+    func refreshFeed(onFinish: OnFinish? = nil) {
         cancellable = appState.refreshFeed()
             .sink(receiveCompletion: { [weak self] completion in
+                onFinish?()
                 guard let self = self else {
                     return
                 }
@@ -35,7 +36,6 @@ class FeedViewState: ObservableObject {
                     print("Error when refreshing feed", error)
                     self.globalViewState.setError("Could not refresh feed")
                 }
-                self.scrollViewRefresh = false
             }, receiveValue: {})
     }
     
@@ -53,15 +53,6 @@ class FeedViewState: ObservableObject {
                     self.globalViewState.setError("Could not load more posts")
                 }
             }, receiveValue: {})
-    }
-    
-    @Published var scrollViewRefresh = false {
-        didSet {
-            if oldValue == false && scrollViewRefresh == true {
-                print("Refreshing")
-                refreshFeed()
-            }
-        }
     }
 }
 
@@ -81,22 +72,30 @@ struct FeedBody: View {
                         feedState.refreshFeed()
                     }
             } else {
-                RefreshableScrollView(refreshing: $feedState.scrollViewRefresh) {
-                    ForEach(feedModel.currentFeed, id: \.self) { postId in
-                        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
-                    }
-                    LazyVStack {
-                        // LazyVStack makes sure onAppear only gets called when the view is actually on the screen
+                RefreshableScrollView {
+                    VStack {
+                        ForEach(feedModel.currentFeed, id: \.self) { postId in
+                            FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
+                        }
                         Divider()
-                            .onAppear {
-                                feedState.loadMorePosts()
-                            }
+
                         ProgressView()
                             .opacity(feedState.loadingMorePosts ? 1 : 0)
                         Text("You've reached the end!")
                             .font(Font.custom(Poppins.medium, size: 15))
                             .padding()
                     }
+                    .background(backgroundColor)
+                } onRefresh: { onFinish in
+                    feedState.refreshFeed(onFinish: onFinish)
+                } onLoadMore: {
+                    if feedModel.currentFeed.count < 50 {
+                        return
+                    }
+                    if feedState.loadingMorePosts {
+                        return
+                    }
+                    feedState.loadMorePosts()
                 }
             }
         }

@@ -27,17 +27,18 @@ class NotificationFeedVM: ObservableObject {
         refreshFeed()
     }
     
-    func refreshFeed() {
+    func refreshFeed(onFinish: OnFinish? = nil) {
         guard let appState = appState else {
+            onFinish?()
             return
         }
         self.token = PaginationToken()
         cancellable = appState.getNotificationsFeed(token: token)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { completion in
+                onFinish?()
                 if case let .failure(error) = completion {
                     print("Error while load notification feed.", error)
                 }
-                self?.scrollViewRefresh = false
             }, receiveValue: { [weak self] response in
                 self?.feedItems = response.notifications
                 self?.token = response.token
@@ -64,15 +65,6 @@ class NotificationFeedVM: ObservableObject {
                 self?.feedItems.append(contentsOf: response.notifications)
                 self?.token = response.token
             })
-    }
-    
-    @Published var scrollViewRefresh = false {
-        didSet {
-            if oldValue == false && scrollViewRefresh == true {
-                print("Refreshing")
-                refreshFeed()
-            }
-        }
     }
 }
 
@@ -174,32 +166,35 @@ struct NotificationFeed: View {
     @Environment(\.backgroundColor) var backgroundColor
     
     var body: some View {
-        RefreshableScrollView(refreshing: $notificationFeedVM.scrollViewRefresh) {
-            Divider()
-                .padding(.bottom, 5)
-                .hidden()
-            ForEach(notificationFeedVM.feedItems, id: \.self) { item in
-                NotificationFeedItem(item: item)
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-                    .environment(\.backgroundColor, backgroundColor)
-                    .padding(.horizontal, 10)
+        RefreshableScrollView {
+            VStack {
                 Divider()
-                    .padding(.horizontal, 10)
+                    .padding(.bottom, 5)
                     .hidden()
-            }
-            .listStyle(PlainListStyle())
-            
-            LazyVStack {
+                
+                ForEach(notificationFeedVM.feedItems, id: \.self) { item in
+                    NotificationFeedItem(item: item)
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                        .environment(\.backgroundColor, backgroundColor)
+                        .padding(.horizontal, 10)
+                    Divider()
+                        .padding(.horizontal, 10)
+                        .hidden()
+                }
+                
                 Divider()
-                    .onAppear {
-                        notificationFeedVM.loadMoreNotifications()
-                    }
+                
                 ProgressView()
                     .opacity(notificationFeedVM.loadingMoreNotifications ? 1 : 0)
                 Text("You've reached the end!")
                     .font(Font.custom(Poppins.medium, size: 15))
             }
+            .background(backgroundColor)
+        } onRefresh: { onFinish in
+            notificationFeedVM.refreshFeed(onFinish: onFinish)
+        } onLoadMore: {
+            notificationFeedVM.loadMoreNotifications()
         }
         .onAppear(perform: { notificationFeedVM.initialize(appState: appState) })
         .background(backgroundColor.edgesIgnoringSafeArea(.all))

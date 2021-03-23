@@ -23,13 +23,6 @@ class ProfileVM: ObservableObject {
     @Published var user: User
     @Published var following: Bool = false
     @Published var posts: [PostId]? = nil
-    @Published var refreshing = false {
-        didSet {
-            if oldValue == false && refreshing == true {
-                self.refresh()
-            }
-        }
-    }
     @Published var failedToLoadPosts = false
     
     var isCurrentUser: Bool {
@@ -45,15 +38,16 @@ class ProfileVM: ObservableObject {
         self.user = user
     }
     
-    func refresh() {
-        loadUser()
+    func refresh(onFinish: OnFinish? = nil) {
+        loadUser(onFinish: onFinish)
         loadFollowStatus()
         loadPosts()
     }
     
-    func loadUser() {
+    func loadUser(onFinish: OnFinish? = nil) {
         loadUserCancellable = appState.getUser(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
+                onFinish?()
                 if case let .failure(error) = completion {
                     print("Error when loading user", error)
                     if error == .notFound {
@@ -62,7 +56,6 @@ class ProfileVM: ObservableObject {
                         self?.globalViewState.setError("Failed to load user")
                     }
                 }
-                self?.refreshing = false
             }, receiveValue: { [weak self] user in
                 self?.user = user
             })

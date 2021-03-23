@@ -153,13 +153,16 @@ struct Profile: View {
     @StateObject var profileVM: ProfileVM
     
     var body: some View {
-        RefreshableScrollView(refreshing: $profileVM.refreshing) {
+        RefreshableScrollView {
             VStack {
                 ProfileHeaderView(profileVM: profileVM)
                 ProfileStatsView(profileVM: profileVM)
                 ProfilePosts(profileVM: profileVM)
             }
             .padding(.top)
+            .background(backgroundColor)
+        } onRefresh: { onFinish in
+            profileVM.refresh(onFinish: onFinish)
         }
         .font(Font.custom(Poppins.medium, size: 15))
         .background(backgroundColor)

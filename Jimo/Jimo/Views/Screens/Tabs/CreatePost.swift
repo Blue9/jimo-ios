@@ -265,16 +265,21 @@ struct CreatePost: View {
                             
                             ZStack(alignment: .topLeading) {
                                 if let image = createPostVM.image {
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .frame(maxWidth: .infinity)
-                                        .aspectRatio(contentMode: .fill)
-                                        .onTapGesture {
-                                            createPostVM.showImagePicker = true
+                                    ZStack {
+                                        GeometryReader { geometry in
+                                            Image(uiImage: image)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(height: geometry.size.height)
+                                                .frame(maxWidth: geometry.size.width)
                                         }
                                         .frame(height: 200)
-                                        .cornerRadius(10)
-                                        .contentShape(Rectangle())
+                                    }
+                                    .cornerRadius(10)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        createPostVM.showImagePicker = true
+                                    }
                                     
                                     Image(systemName: "xmark.circle.fill")
                                         .resizable()

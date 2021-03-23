@@ -11,35 +11,28 @@ import Combine
 class DiscoverViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var initialized: Bool = false
-    @Published var refreshing: Bool = false {
-        didSet {
-            if refreshing {
-                self.loadDiscoverPage()
-            }
-        }
-    }
     
     var appState: AppState?
     private var cancellable: Cancellable? = nil
     private var allPostsCancellable: Cancellable? = nil
     
-    func loadDiscoverPage(initialLoad: Bool = false) {
+    func loadDiscoverPage(initialLoad: Bool = false, onFinish: OnFinish? = nil) {
         guard let appState = appState else {
             if initialLoad {
                 self.initialized = true
             }
-            self.refreshing = false
+            onFinish?()
             return
         }
         cancellable = appState.discoverFeed()
             .sink(receiveCompletion: { [weak self] completion in
+                onFinish?()
                 if case let .failure(error) = completion {
                     print("Error when loading posts", error)
                 }
                 if initialLoad {
                     self?.initialized = true
                 }
-                self?.refreshing = false
             }, receiveValue: { [weak self] posts in
                 self?.posts = posts
             })

@@ -53,7 +53,7 @@ struct Search: View {
             return AnyView(ProgressView().padding(.top, 20))
         } else {
             return AnyView(
-                RefreshableScrollView(refreshing: $discoverViewModel.refreshing) {
+                RefreshableScrollView {
                     LazyVGrid(columns: columns) {
                         ForEach(discoverViewModel.posts) { post in
                             GeometryReader { geometry in
@@ -68,7 +68,11 @@ struct Search: View {
                             .aspectRatio(1, contentMode: .fit)
                             .cornerRadius(10)
                         }
-                    }.padding(10)
+                    }
+                    .padding(10)
+                    .background(backgroundColor)
+                } onRefresh: { onFinish in
+                    discoverViewModel.loadDiscoverPage(onFinish: onFinish)
                 }
             )
         }

@@ -134,6 +134,7 @@ struct FeedItem: View {
                     .id(image)
                     .scaledToFill()
                     .foregroundColor(.gray)
+                    .frame(minHeight: fullPost ? .zero : 300)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : 300)
                     .cornerRadius(0)
                     .contentShape(Rectangle())
@@ -239,6 +240,7 @@ struct FeedItem: View {
                 .padding(.horizontal)
             }
             .padding(.top, 4)
+            .padding(.bottom, 10)
             
             if feedItemVM.deleting {
                 ProgressView()
@@ -246,7 +248,6 @@ struct FeedItem: View {
                     .background(Color.init(.sRGB, white: 1, opacity: 0.5))
             }
         }
-        .padding(.bottom, 10)
     }
     
     var body: some View {

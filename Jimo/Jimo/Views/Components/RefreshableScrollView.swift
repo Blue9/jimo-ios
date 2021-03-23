@@ -2,167 +2,190 @@
 //  RefreshableScrollView.swift
 //  Jimo
 //
-//  Created by Gautam Mekkat on 11/15/20.
+//  Created by Gautam Mekkat on 3/18/21.
 //
 
 import SwiftUI
 
-// From https://gist.github.com/swiftui-lab/3de557a513fbdb2d8fced41e40347e01
-struct RefreshableScrollView<Content: View>: View {
-    @State private var previousScrollOffset: CGFloat = 0
-    @State private var scrollOffset: CGFloat = 0
-    @State private var frozen: Bool = false
-    @State private var rotation: Angle = .degrees(0)
-    
-    var threshold: CGFloat = 80
-    @Binding var refreshing: Bool
-    let content: Content
+typealias OnFinish = () -> Void
+typealias OnRefresh = (@escaping OnFinish) -> Void
+typealias OnLoadMore = () -> Void
 
-    init(height: CGFloat = 80, refreshing: Binding<Bool>, @ViewBuilder content: () -> Content) {
-        self.threshold = height
-        self._refreshing = refreshing
+class RefreshableScrollViewController<Content: View>: UIViewController {
+    var scrollView: UIScrollView
+    
+    var hostingController: UIHostingController<Content>
+    
+    init(scrollView: UIScrollView, content: Content) {
+        self.hostingController = UIHostingController(rootView: content)
+        self.scrollView = scrollView
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Not implemented")
+    }
+    
+    override func loadView() {
+        self.view = scrollView
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        addChild(hostingController)
+        view.addSubview(hostingController.view)
+        hostingController.didMove(toParent: self)
+        
+        fillView(view: hostingController.view, viewToFill: view)
+    }
+    
+    func update(view: Content) {
+        hostingController.rootView = view
+    }
+    
+    private func fillView(view: UIView, viewToFill: UIView) {
+        view.translatesAutoresizingMaskIntoConstraints = false
+        let constraints = [
+            view.leadingAnchor.constraint(equalTo: viewToFill.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: viewToFill.trailingAnchor),
+            view.topAnchor.constraint(equalTo: viewToFill.topAnchor),
+            view.bottomAnchor.constraint(equalTo: viewToFill.bottomAnchor),
+            view.widthAnchor.constraint(equalTo: viewToFill.widthAnchor)
+        ]
+        viewToFill.addConstraints(constraints)
+    }
+}
+
+struct RefreshableScrollView<Content: View>: UIViewControllerRepresentable {
+    typealias UIViewControllerType = RefreshableScrollViewController<Content>
+    
+    var content: Content
+    var onRefresh: OnRefresh
+    var onLoadMore: OnLoadMore?
+    
+    init(
+        @ViewBuilder content: () -> Content,
+        onRefresh: @escaping OnRefresh,
+        onLoadMore: OnLoadMore? = nil
+    ) {
         self.content = content()
+        self.onRefresh = onRefresh
+        self.onLoadMore = onLoadMore
     }
     
-    var body: some View {
-        return VStack {
-            ScrollView {
-                ZStack(alignment: .top) {
-                    MovingView()
-                    VStack {
-                        self.content
-                    }.alignmentGuide(.top, computeValue: { d in (self.refreshing && self.frozen) ? -self.threshold : 0.0 })
-                    SymbolView(height: self.threshold, loading: self.refreshing, frozen: self.frozen, rotation: self.rotation)
-                }
-            }
-            .background(FixedView())
-            .onPreferenceChange(RefreshableKeyTypes.PrefKey.self) { values in
-                self.refreshLogic(values: values)
-            }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self, onRefresh: onRefresh, onLoadMore: onLoadMore)
+    }
+    
+    func makeUIViewController(context: Context) -> RefreshableScrollViewController<Content> {
+        let scrollView = UIScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.alwaysBounceVertical = true
+        scrollView.showsVerticalScrollIndicator = false
+        let refreshControl = UIRefreshControl()
+        scrollView.refreshControl = refreshControl
+        scrollView.addSubview(refreshControl)
+        refreshControl.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.handleRefreshControl),
+            for: .valueChanged
+        )
+        refreshControl.setRandomRefreshColor()
+        refreshControl.backgroundColor = .clear
+        return RefreshableScrollViewController(scrollView: scrollView, content: content)
+    }
+    
+    func updateUIViewController(_ controller: RefreshableScrollViewController<Content>, context: Context) {
+        controller.update(view: content)
+    }
+    
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        var parent: RefreshableScrollView
+        var onRefresh: OnRefresh
+        var onLoadMore: OnLoadMore?
+        
+        /// If we call refreshControl.endRefreshing() while dragging, the scroll view jumps. This accounts for that
+        var shouldEndRefreshLater = false
+        var loadingMore = false
+                
+        init(_ parent: RefreshableScrollView, onRefresh: @escaping OnRefresh, onLoadMore: OnLoadMore?) {
+            self.parent = parent
+            self.onRefresh = onRefresh
+            self.onLoadMore = onLoadMore
         }
-    }
-    
-    func refreshLogic(values: [RefreshableKeyTypes.PrefData]) {
-        DispatchQueue.main.async {
-            // Calculate scroll offset
-            let movingBounds = values.first { $0.vType == .movingView }?.bounds ?? .zero
-            let fixedBounds = values.first { $0.vType == .fixedView }?.bounds ?? .zero
-            
-            self.scrollOffset  = movingBounds.minY - fixedBounds.minY
-            
-            self.rotation = self.symbolRotation(self.scrollOffset)
-            
-            // Crossing the threshold on the way down, we start the refresh process
-            if !self.refreshing && (self.scrollOffset > self.threshold && self.previousScrollOffset <= self.threshold) {
-                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-                self.refreshing = true
+        
+        @objc func handleRefreshControl(sender: UIRefreshControl) {
+            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+            let scrollView = sender.superview as? UIScrollView
+            onRefresh { [weak self] in self?.endRefresh(scrollView, sender) }
+        }
+        
+        func endRefresh(_ scrollView: UIScrollView?, _ refreshControl: UIRefreshControl?) {
+            guard let scrollView = scrollView, let refreshControl = refreshControl else {
+                return
             }
-            
-            if self.refreshing {
-                // Crossing the threshold on the way up, we add a space at the top of the scrollview
-                if self.previousScrollOffset > self.threshold && self.scrollOffset <= self.threshold {
-                    self.frozen = true
-
-                }
+            if !refreshControl.isRefreshing {
+                return
+            }
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            if scrollView.isDragging {
+                self.shouldEndRefreshLater = true
             } else {
-                // remove the sapce at the top of the scroll view
-                self.frozen = false
-            }
-            
-            // Update last scroll offset
-            self.previousScrollOffset = self.scrollOffset
-        }
-    }
-    
-    func symbolRotation(_ scrollOffset: CGFloat) -> Angle {
-        
-        // We will begin rotation, only after we have passed
-        // 60% of the way of reaching the threshold.
-        if scrollOffset < self.threshold * 0.60 {
-            return .degrees(0)
-        } else {
-            // Calculate rotation, based on the amount of scroll offset
-            let h = Double(self.threshold)
-            let d = Double(scrollOffset)
-            let v = max(min(d - (h * 0.6), h * 0.4), 0)
-            return .degrees(180 * v / (h * 0.4))
-        }
-    }
-    
-    struct SymbolView: View {
-        var height: CGFloat
-        var loading: Bool
-        var frozen: Bool
-        var rotation: Angle
-        
-        
-        var body: some View {
-            Group {
-                if self.loading { // If loading, show the activity control
-                    VStack {
-                        Spacer()
-                        ActivityRep()
-                        Spacer()
-                    }.frame(height: height).fixedSize()
-                        .offset(y: -height + (self.loading && self.frozen ? height : 0.0))
-                } else {
-                    Image(systemName: "arrow.down") // If not loading, show the arrow
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: height * 0.25, height: height * 0.25).fixedSize()
-                        .padding(height * 0.375)
-                        .rotationEffect(rotation)
-                        .offset(y: -height + (loading && frozen ? +height : 0.0))
-                }
+                refreshControl.endRefreshing()
+                refreshControl.setRandomRefreshColor()
             }
         }
-    }
-    
-    struct MovingView: View {
-        var body: some View {
-            GeometryReader { proxy in
-                Color.clear.preference(key: RefreshableKeyTypes.PrefKey.self, value: [RefreshableKeyTypes.PrefData(vType: .movingView, bounds: proxy.frame(in: .global))])
-            }.frame(height: 0)
+        
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if shouldEndRefreshLater {
+                scrollView.refreshControl?.endRefreshing()
+                scrollView.refreshControl?.setRandomRefreshColor()
+                scrollView.setContentOffset(.zero, animated: true)
+                shouldEndRefreshLater = false
+            }
         }
-    }
-    
-    struct FixedView: View {
-        var body: some View {
-            GeometryReader { proxy in
-                Color.clear.preference(key: RefreshableKeyTypes.PrefKey.self, value: [RefreshableKeyTypes.PrefData(vType: .fixedView, bounds: proxy.frame(in: .global))])
+        
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            // Load more logic
+            let atBottom = scrollView.contentOffset.y > scrollView.contentSize.height - scrollView.frame.size.height
+            if atBottom && !loadingMore {
+                loadingMore = true
+                onLoadMore?()
+            }
+            if !atBottom {
+                loadingMore = false
             }
         }
     }
 }
 
-struct RefreshableKeyTypes {
-    enum ViewType: Int {
-        case movingView
-        case fixedView
-    }
-
-    struct PrefData: Equatable {
-        let vType: ViewType
-        let bounds: CGRect
-    }
-
-    struct PrefKey: PreferenceKey {
-        static var defaultValue: [PrefData] = []
-
-        static func reduce(value: inout [PrefData], nextValue: () -> [PrefData]) {
-            value.append(contentsOf: nextValue())
+fileprivate extension UIRefreshControl {
+    func setRandomRefreshColor() {
+        guard let color = Colors.colors.randomElement() else {
+            return
         }
+        // The refresh control is a little dark by default so this makes it lighter
+        func scaleColor(_ val: CGFloat, _ scale: CGFloat) -> CGFloat {
+            max(0, min(val * scale, 1))
+        }
+        
+        let baseColor = UIColor(color)
+        let scale: CGFloat = 1.2
+        
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        baseColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        let tintColor = UIColor(
+            red: scaleColor(red, scale),
+            green: scaleColor(green, scale),
+            blue: scaleColor(blue, scale),
+            alpha: alpha
+        )
+        self.tintColor = tintColor
+    }
 
-        typealias Value = [PrefData]
-    }
-}
-
-struct ActivityRep: UIViewRepresentable {
-    func makeUIView(context: UIViewRepresentableContext<ActivityRep>) -> UIActivityIndicatorView {
-        return UIActivityIndicatorView()
-    }
-    
-    func updateUIView(_ uiView: UIActivityIndicatorView, context: UIViewRepresentableContext<ActivityRep>) {
-        uiView.startAnimating()
-    }
 }
