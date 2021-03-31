@@ -46,8 +46,8 @@ class OnboardingModel: ObservableObject {
     
     init() {
         // TODO remove
-        completedContactsOnboarding = false
-        completedFeaturedUsersOnboarding = false
+        // completedContactsOnboarding = false
+        // completedFeaturedUsersOnboarding = false
     }
     
     var isUserOnboarded: Bool {
