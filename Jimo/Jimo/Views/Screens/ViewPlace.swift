@@ -16,10 +16,11 @@ struct PlaceParams {
 }
 
 struct ViewPlace: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
     
     let place: Place?
-    let mutualPosts: [Post]?
     let mapItem: MKMapItem?
     
     @State private var placeParams = PlaceParams(
@@ -28,16 +29,18 @@ struct ViewPlace: View {
         website: "Loading website...")
     @State private var setParams = false
     
+    @State private var loadingMutualPosts = false
+    @State private var mutualPosts: [Post]?
+    @State private var mutualPostsCancellable: AnyCancellable?
+    
     init(place: Place, mutualPosts: [Post]? = nil) {
         self.place = place
-        self.mutualPosts = mutualPosts
         self.mapItem = nil
     }
     
     init(mapItem: MKMapItem) {
         self.mapItem = mapItem
         self.place = nil
-        self.mutualPosts = nil
     }
     
     static func getAddress(placemark: CLPlacemark) -> String {
@@ -71,6 +74,23 @@ struct ViewPlace: View {
             address: ViewPlace.getAddress(placemark: mapItem.placemark),
             phoneNumber: mapItem.phoneNumber ?? "Unknown",
             website: mapItem.url?.absoluteString ?? "Unknown")
+    }
+    
+    private func loadMutualPosts() {
+        guard let place = place else {
+            return
+        }
+        loadingMutualPosts = true
+        mutualPostsCancellable = appState.getMutualPosts(for: place.placeId)
+            .sink { completion in
+                if case let .failure(error) = completion {
+                    print("Error when loading mutual posts", error)
+                    globalViewState.setError("Failed to load mutual posts")
+                }
+                self.loadingMutualPosts = false
+            } receiveValue: { posts in
+                self.mutualPosts = posts.compactMap { appState.allPosts.posts[$0] }
+            }
     }
     
     var name: String {
@@ -166,7 +186,9 @@ struct ViewPlace: View {
                 Spacer()
             }
             Divider()
-            if let mutualPosts = mutualPosts {
+            if loadingMutualPosts {
+                ProgressView()
+            } else if let mutualPosts = mutualPosts, mutualPosts.count > 0 {
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Friends who have been here")
@@ -215,6 +237,11 @@ struct ViewPlace: View {
     var body: some View {
         viewPlaceBody
             .background(backgroundColor)
+            .onAppear {
+                if mutualPosts == nil {
+                    self.loadMutualPosts()
+                }
+            }
     }
 }
 

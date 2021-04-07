@@ -22,8 +22,9 @@ struct MapTab: View {
 
 struct MapTab_Previews: PreviewProvider {
     static let appState = AppState(apiClient: APIClient())
+    static let viewState = GlobalViewState()
     
     static var previews: some View {
-        MapTab(mapModel: appState.mapModel, mapViewModel: MapViewModel(appState: appState))
+        MapTab(mapModel: appState.mapModel, mapViewModel: MapViewModel(appState: appState, viewState: viewState))
     }
 }

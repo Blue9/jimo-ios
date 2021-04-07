@@ -202,7 +202,9 @@ struct FeedItem: View {
                         }
                         
                         NavigationLink(destination: MapView(mapModel: appState.mapModel,
-                                                            mapViewModel: MapViewModel(appState: appState, preselectedPost: post))
+                                                            mapViewModel: MapViewModel(appState: appState,
+                                                                                       viewState: globalViewState,
+                                                                                       preselectedPost: post))
                                         .navigationBarColor(UIColor(backgroundColor))
                                         .toolbar {
                                             ToolbarItem(placement: .principal) {

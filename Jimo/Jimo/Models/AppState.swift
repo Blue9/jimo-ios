@@ -33,6 +33,7 @@ class FeedModel: ObservableObject {
 
 class MapModel: ObservableObject {
     @Published var posts: [PostId] = []
+    @Published var places: [MapPlace] = []
 }
 
 
@@ -319,12 +320,33 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    // MARK: - Map endpoints
+    
     func refreshMap() -> AnyPublisher<Void, APIError> {
         return self.apiClient.getMap()
-            .map({ posts in self.setMap(posts: posts) })
-            .map({ _ in return () })
+            .map { [weak self] places in
+                self?.mapModel.places = places
+            }
             .eraseToAnyPublisher()
     }
+    
+    func loadPlaceIcon(for place: Place) -> AnyPublisher<MapPlaceIcon, APIError> {
+        return self.apiClient.getPlaceIcon(placeId: place.placeId)
+            .map { [weak self] placeIcon in
+                self?.mapModel.places.removeAll { $0.place.placeId == place.placeId }
+                self?.mapModel.places.append(.init(place: place, icon: placeIcon))
+                return placeIcon
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[PostId], APIError> {
+        return self.apiClient.getMutualPosts(for: placeId)
+            .map(self.addPostsToAllPosts)
+            .eraseToAnyPublisher()
+    }
+    
+    // MARK: - Follow endpoints
     
     func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         return self.apiClient.followUser(username: username)

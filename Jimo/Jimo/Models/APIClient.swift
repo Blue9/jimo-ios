@@ -120,10 +120,18 @@ struct Endpoint {
         return Endpoint(path: "/me/discover")
     }
     
-    // MARK: - Map endpoint
+    // MARK: - Map endpoints
     
     static func getMap() -> Endpoint {
         return Endpoint(path: "/me/map")
+    }
+    
+    static func getPlaceIcon(placeId: PlaceId) -> Endpoint {
+        return Endpoint(path: "/places/\(placeId)/icon")
+    }
+    
+    static func getMutualPosts(placeId: PlaceId) -> Endpoint {
+        return Endpoint(path: "/places/\(placeId)/mutualPosts")
     }
     
     // MARK: Feedback endpoint
@@ -341,8 +349,22 @@ class APIClient: ObservableObject {
     /**
      Get the map for the given user.
      */
-    func getMap() -> AnyPublisher<[Post], APIError> {
+    func getMap() -> AnyPublisher<[MapPlace], APIError> {
         return doRequest(endpoint: Endpoint.getMap())
+    }
+    
+    /**
+     Get the mutual posts for the given place
+     */
+    func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
+        return doRequest(endpoint: Endpoint.getMutualPosts(placeId: placeId))
+    }
+    
+    /**
+     Get the place icon for the given place.
+     */
+    func getPlaceIcon(placeId: PlaceId) -> AnyPublisher<MapPlaceIcon, APIError> {
+        return doRequest(endpoint: Endpoint.getPlaceIcon(placeId: placeId))
     }
     
     /**

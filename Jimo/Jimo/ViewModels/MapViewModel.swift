@@ -15,6 +15,7 @@ class MapViewModel: ObservableObject {
         span: MKCoordinateSpan(latitudeDelta: 85.762482, longitudeDelta: 61.276015))
     
     let appState: AppState
+    let globalViewState: GlobalViewState
     let preselectedPost: Post? // If we are navigating to the map from a post
     
     /// When first launching the map, if preselectedPost != nil we want to open the bottom sheet for it.
@@ -23,10 +24,23 @@ class MapViewModel: ObservableObject {
     
     var mapRefreshCancellable: Cancellable? = nil
     var annotationsCancellable: Cancellable? = nil
+    var loadPreselectedPost: Cancellable?
     
     @Published var region = defaultRegion
-    @Published var presentedPin: PlaceAnnotation?
-    @Published var results: [MKMapItem]?
+    @Published var presentedPin: PlaceAnnotation? {
+        didSet {
+            if presentedPin != nil {
+                modalState = .large
+            }
+        }
+    }
+    @Published var results: [MKMapItem]? {
+        didSet {
+            if results != nil {
+                modalState = .large
+            }
+        }
+    }
     @Published var selectedSearchResult: MKMapItem?
     @Published var modalState: OvercastSnapState = .invisible {
         didSet {
@@ -43,19 +57,20 @@ class MapViewModel: ObservableObject {
         preselectedPost == nil
     }
     
-    init(appState: AppState, preselectedPost: Post? = nil) {
+    init(appState: AppState, viewState: GlobalViewState, preselectedPost: Post? = nil) {
         self.appState = appState
+        self.globalViewState = viewState
         self.preselectedPost = preselectedPost
         if let post = preselectedPost {
             region.center = post.location
-            region.span = MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+            region.span = MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)
         }
     }
     
-    func startRefreshinghMap() {
+    func startRefreshingMap() {
         print("Starting map refresh")
         mapRefreshCancellable = Deferred { Just(Date()) }
-            .append(Timer.publish(every: 60, on: .main, in: .common).autoconnect())
+            .append(Timer.publish(every: 60, tolerance: 1, on: .main, in: .common).autoconnect())
             .flatMap { [weak self] _ -> AnyPublisher<Void, Never> in
                 guard let self = self else {
                     return Empty().eraseToAnyPublisher()
@@ -63,8 +78,20 @@ class MapViewModel: ObservableObject {
                 return self.refreshMap()
             }
             .sink {}
-        annotationsCancellable = appState.mapModel.$posts
-            .sink { [weak self] posts in self?.updateAnnotations(posts: posts) }
+        if let post = preselectedPost {
+            loadPreselectedPost = appState.loadPlaceIcon(for: post.place)
+                .sink { [weak self] completion in
+                    if case let .failure(error) = completion {
+                        print("Error loading place", error)
+                        self?.globalViewState.setError("Failed to load place details")
+                    }
+                } receiveValue: { _ in }
+        }
+        annotationsCancellable = appState.mapModel.$places
+            .sink { [weak self] pins in
+                // Handle preselected post
+                self?.updateAnnotations(pins: pins)
+            }
     }
     
     func refreshMap() -> AnyPublisher<Void, Never> {
@@ -80,57 +107,56 @@ class MapViewModel: ObservableObject {
         mapRefreshCancellable?.cancel()
     }
     
-    func updateAnnotations(posts: [PostId]) {
-        var places: [Location: [Post]] = [:]
-        posts.map({ appState.allPosts.posts[$0]! })
-            .forEach({ post in
-                if let location = post.customLocation {
-                    places[location] = (places[location] ?? []) + [post]
-                } else {
-                    places[post.place.location] = (places[post.place.location] ?? []) + [post]
-                }
-            })
-        mapAnnotations = places.enumerated().map({ (i, e) in
-            let (location, posts) = e
-            return PlaceAnnotation(posts: posts, coordinate: location.coordinate(), zIndex: i)
+    func updateAnnotations(pins: [MapPlace]) {
+        var newPins = pins
+        // If we are presenting a pin then don't remove it even if it's not in pins
+        if let presentedPin = presentedPin,
+           !newPins.map({ $0.place.placeId }).contains(presentedPin.pin.place.placeId)
+        {
+            newPins.append(presentedPin.pin)
+        }
+        mapAnnotations = newPins.enumerated().map({ (i, pin) in
+            return PlaceAnnotation(pin: pin, zIndex: i)
         })
-        if let post = preselectedPost, !displayedInitialBottomSheetForPresentedPost {
-            self.mapAnnotations.forEach({ placeAnnotation in
-                if placeAnnotation.posts.map({ $0.postId }).contains(post.postId) {
-                    presentedPin = placeAnnotation
-                    modalState = .tiny
-                    displayedInitialBottomSheetForPresentedPost = true
-                }
-            })
+        // Handle preselected post
+        if let post = preselectedPost,
+           !displayedInitialBottomSheetForPresentedPost,
+           let annotation = mapAnnotations.first(where: { $0.pin.place.placeId == post.place.placeId })
+        {
+            presentedPin = annotation
+            modalState = .tiny
+            displayedInitialBottomSheetForPresentedPost = true
         }
     }
 }
 
 
 class PlaceAnnotation: NSObject, MKAnnotation {
-    let coordinate: CLLocationCoordinate2D
-    let posts: [Post]
+    let pin: MapPlace
     let zIndex: Int
     
-    init(posts: [Post], coordinate: CLLocationCoordinate2D, zIndex: Int) {
+    var coordinate: CLLocationCoordinate2D {
+        let coordinate = pin.place.location.coordinate()
         if coordinate.latitude == 0 && coordinate.longitude == 0 {
             // For some reason annotations at exactly (0, 0) don't appear on the map
-            self.coordinate = CLLocationCoordinate2D(latitude: Double.leastNormalMagnitude,
-                                                     longitude: Double.leastNormalMagnitude)
+            return .init(latitude: Double.leastNormalMagnitude, longitude: Double.leastNormalMagnitude)
         } else {
-            self.coordinate = coordinate
+            return coordinate
         }
-        self.posts = posts
+    }
+    
+    init(pin: MapPlace, zIndex: Int) {
+        self.pin = pin
         self.zIndex = zIndex
     }
     
-    func place() -> Place {
-        return self.posts.first!.place
+    var place: Place {
+        pin.place
     }
     
     override func isEqual(_ object: Any?) -> Bool {
         if let placeAnnotation = object as? PlaceAnnotation {
-            return coordinate == placeAnnotation.coordinate && posts.elementsEqual(placeAnnotation.posts)
+            return pin == placeAnnotation.pin
         }
         return false
     }

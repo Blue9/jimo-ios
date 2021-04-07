@@ -47,3 +47,14 @@ struct MaybeCreatePlaceRequest: Codable {
     var location: Location
     var region: Region?
 }
+
+struct MapPlaceIcon: Codable, Equatable {
+    var category: String?
+    var iconUrl: String?
+    var numMutualPosts: Int
+}
+
+struct MapPlace: Codable, Equatable {
+    var place: Place
+    var icon: MapPlaceIcon
+}
