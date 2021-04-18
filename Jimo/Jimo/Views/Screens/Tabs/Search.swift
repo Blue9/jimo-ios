@@ -120,7 +120,7 @@ struct Search: View {
             .listStyle(PlainListStyle())
             
             if let place = searchViewModel.selectedPlaceResult {
-                NavigationLink(destination: ViewPlace(mapItem: place)
+                NavigationLink(destination: ViewPlace(viewPlaceVM: ViewMKMapItemVM(mapItem: place))
                                 .navigationBarTitleDisplayMode(.inline)
                                 .navigationBarColor(UIColor(backgroundColor))
                                 .toolbar {

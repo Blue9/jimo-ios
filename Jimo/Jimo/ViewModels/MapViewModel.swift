@@ -115,6 +115,9 @@ class MapViewModel: ObservableObject {
         {
             newPins.append(presentedPin.pin)
         }
+        newPins.sort(by: { place1, place2 in
+            return place1.icon.numMutualPosts < place2.icon.numMutualPosts
+        })
         mapAnnotations = newPins.enumerated().map({ (i, pin) in
             return PlaceAnnotation(pin: pin, zIndex: i)
         })

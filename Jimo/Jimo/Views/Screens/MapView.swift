@@ -9,6 +9,7 @@ import MapKit
 import SwiftUI
 import Combine
 import SDWebImage
+import CoreLocation
 
 
 class LocationAnnotationView: MKAnnotationView {
@@ -22,12 +23,20 @@ class LocationAnnotationView: MKAnnotationView {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         frame = CGRect(x: 0, y: 0, width: 50, height: 50)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
+        clusteringIdentifier = PinClusterAnnotationView.clusteringIdentifier
+        collisionMode = .circle
         setupUI()
     }
     
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override var annotation: MKAnnotation? {
+        willSet {
+            clusteringIdentifier = PinClusterAnnotationView.clusteringIdentifier
+        }
     }
     
     // MARK: Setup
@@ -78,6 +87,70 @@ class LocationAnnotationView: MKAnnotationView {
     }
 }
 
+class PinClusterAnnotationView: MKAnnotationView {
+    static let clusteringIdentifier = "pinCluster"
+    
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        collisionMode = .circle
+        updateView()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override var annotation: MKAnnotation? {
+        didSet {
+            updateView()
+        }
+    }
+    
+    func updateView() {
+        if let clusterAnnotation = annotation as? MKClusterAnnotation {
+            self.image = image(count: clusterAnnotation.memberAnnotations.count)
+        } else {
+            self.image = image(count: 1)
+        }
+    }
+    
+    func image(count: Int) -> UIImage {
+        let bounds = CGRect(origin: .zero, size: CGSize(width: 40, height: 40))
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { _ in
+            UIColor.orange.setFill()
+            UIBezierPath(ovalIn: bounds).fill()
+            
+            UIColor.init(white: 1, alpha: 0.9).setFill()
+            UIBezierPath.init(ovalIn: bounds.insetBy(dx: 4, dy: 4)).fill()
+            
+            let attributes: [NSAttributedString.Key : Any] = [
+                NSAttributedString.Key.foregroundColor: UIColor.black as Any,
+                NSAttributedString.Key.font: UIFont(name: Poppins.medium, size: 14) as Any,
+            ]
+            
+            let text: NSString = NSString(string: "\(count)")
+            let size = text.size(withAttributes: attributes)
+            let origin = CGPoint(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2)
+            let rect = CGRect(origin: origin, size: size)
+            text.draw(in: rect, withAttributes: attributes)
+        }
+    }
+}
+
+class PinMapView: MKMapView {
+    var placeAnnotations: [PlaceAnnotation]
+    
+    init() {
+        self.placeAnnotations = []
+        super.init(frame: .zero)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 
 struct MapKitView: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
@@ -85,24 +158,29 @@ struct MapKitView: UIViewRepresentable {
     var annotations: [PlaceAnnotation]
     var images: [String: Data] = [:]
     
-    func makeUIView(context: Context) -> MKMapView {
-        let mapView = MKMapView()
+    func makeUIView(context: Context) -> PinMapView {
+        let mapView: PinMapView = PinMapView()
+        mapView.placeAnnotations = annotations
         mapView.tintAdjustmentMode = .normal
+        mapView.tintColor = .systemBlue
+        mapView.showsUserLocation = true
+        mapView.register(LocationAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
+        mapView.register(PinClusterAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultClusterAnnotationViewReuseIdentifier)
         mapView.delegate = context.coordinator
         return mapView
     }
     
-    func updateUIView(_ view: MKMapView, context: Context) {
-        if !view.annotations.map({ $0 as? PlaceAnnotation }).elementsEqual(annotations) {
-            let toRemove = view.annotations.filter({ annotation in
-                let placeAnnotation = annotation as? PlaceAnnotation
-                return placeAnnotation == nil || !annotations.contains(placeAnnotation!)
+    func updateUIView(_ view: PinMapView, context: Context) {
+        if !view.placeAnnotations.elementsEqual(annotations) {
+            let toRemove = view.placeAnnotations.filter({ annotation in
+                return !annotations.contains(annotation)
             })
             let toAdd = annotations.filter({ annotation in
-                return !view.annotations.contains { $0 as? PlaceAnnotation == annotation }
+                return !view.placeAnnotations.contains { $0 == annotation }
             })
             view.addAnnotations(toAdd)
             view.removeAnnotations(toRemove)
+            view.placeAnnotations = annotations
         }
         if view.region != region {
             view.setRegion(region, animated: true)
@@ -125,7 +203,9 @@ struct MapKitView: UIViewRepresentable {
         }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-            let annotation = annotation as! PlaceAnnotation
+            guard let annotation = annotation as? PlaceAnnotation else {
+                return nil
+            }
             let identifier = "Placemark"
             
             let view = LocationAnnotationView(
@@ -136,9 +216,12 @@ struct MapKitView: UIViewRepresentable {
         }
         
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-            let annotation = view.annotation as! PlaceAnnotation
-            parent.selectedPin = annotation
-            mapView.deselectAnnotation(annotation, animated: false)
+            if let annotation = view.annotation as? PlaceAnnotation {
+                parent.selectedPin = annotation
+                mapView.deselectAnnotation(annotation, animated: false)
+            } else if let annotation = view.annotation as? MKClusterAnnotation {
+                mapView.showAnnotations(annotation.memberAnnotations, animated: true)
+            }
         }
         
         func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
@@ -215,7 +298,7 @@ fileprivate struct SearchResult: View {
             VStack(alignment: .leading) {
                 Text(name)
                     .font(Font.custom(Poppins.medium, size: 16))
-                Text(ViewPlace.getAddress(placemark: place.placemark))
+                Text(ViewPlace<ViewMKMapItemVM>.getAddress(placemark: place.placemark))
                     .font(Font.custom(Poppins.regular, size: 14))
             }
             Spacer()
@@ -269,7 +352,7 @@ fileprivate struct SelectedSearchResult: View {
                     selectedSearchResult = nil
                 }
             }
-            ViewPlace(mapItem: place)
+            ViewPlace(viewPlaceVM: ViewMKMapItemVM(mapItem: place))
         }
         .frame(maxHeight: .infinity)
         .background(backgroundColor)
@@ -283,6 +366,8 @@ struct MapView: View {
     
     @ObservedObject var mapModel: MapModel
     @StateObject var mapViewModel: MapViewModel
+    
+    let locationManager = CLLocationManager()
     
     var body: some View {
         ZStack {
@@ -331,7 +416,7 @@ struct MapView: View {
                             }
                         }
                     } else if let placeAnnotation = mapViewModel.presentedPin {
-                        ViewPlace(place: placeAnnotation.place)
+                        ViewPlace(viewPlaceVM: ViewPinVM(pin: placeAnnotation.pin))
                             .id(placeAnnotation.self)
                             .frame(maxHeight: .infinity)
                     } else {
@@ -343,14 +428,15 @@ struct MapView: View {
         }
         .edgesIgnoringSafeArea(.all)
         .appear {
+            locationManager.requestWhenInUseAuthorization()
             mapViewModel.startRefreshingMap()
         }
         .disappear {
             mapViewModel.stopRefreshingMap()
         }
+        .accentColor(.blue)
     }
 }
-
 
 struct MapView_Previews: PreviewProvider {
     static let appState = AppState(apiClient: APIClient())
