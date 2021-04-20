@@ -8,7 +8,7 @@
 import SwiftUI
 
 class TabBar: ObservableObject {
-    let newPostTag = 3
+    let newPostTag = 2
     
     @Published var newPostSelected = false
     var previousSelection: Int
@@ -28,8 +28,8 @@ class TabBar: ObservableObject {
     }
     
     init() {
-        self.selection = 1
-        self.previousSelection = 1
+        self.selection = 0
+        self.previousSelection = 0
     }
 }
 
@@ -48,37 +48,43 @@ struct MainAppView: View {
     
     var body: some View {
         ZStack {
-            TabView(selection: $tabBar.selection) {
-                Feed()
-                    .tabItem {
-                        Image("feedIcon")
-                        Text("Home")
-                    }
-                    .tag(1)
-                MapTab(mapModel: appState.mapModel, mapViewModel: mapVM)
-                    .tabItem {
-                        Image("mapIcon")
-                        Text("Map")
-                    }
-                    .tag(2)
-                Text("")
-                    .tabItem {
-                        Image("postIcon")
-                        Text("New")
-                    }
-                    .tag(3)
-                Search()
-                    .tabItem {
-                        Image("searchIcon")
-                        Text("Search")
-                    }
-                    .tag(4)
-                ProfileTab(profileVM: profileVM)
-                    .tabItem {
-                        Image("profileIcon")
-                        Text("Profile")
-                    }
-                    .tag(5)
+            UIKitTabView(selectedIndex: $tabBar.selection) {
+                UIKitTabView.Tab(
+                    view: AnyView(Feed()
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState)
+                                    .environment(\.backgroundColor, backgroundColor)),
+                    barItem: .init(title: "Home", image: UIImage(named: "feedIcon"), tag: 0)
+                )
+                
+                UIKitTabView.Tab(
+                    view: AnyView(MapTab(mapModel: appState.mapModel, mapViewModel: mapVM)
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState)
+                                    .environment(\.backgroundColor, backgroundColor)),
+                    barItem: .init(title: "Map", image: UIImage(named: "mapIcon"), tag: 1)
+                )
+                UIKitTabView.Tab(
+                    view: AnyView(Text("")
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState)
+                                    .environment(\.backgroundColor, backgroundColor)),
+                    barItem: .init(title: "New", image: UIImage(named: "postIcon"), tag: 2)
+                )
+                UIKitTabView.Tab(
+                    view: AnyView(Search()
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState)
+                                    .environment(\.backgroundColor, backgroundColor)),
+                    barItem: .init(title: "Search", image: UIImage(named: "searchIcon"), tag: 3)
+                )
+                UIKitTabView.Tab(
+                    view: AnyView(ProfileTab(profileVM: profileVM)
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState)
+                                    .environment(\.backgroundColor, backgroundColor)),
+                    barItem: .init(title: "Profile", image: UIImage(named: "profileIcon"), tag: 4)
+                )
             }
         }
         .sheet(isPresented: $tabBar.newPostSelected) {
