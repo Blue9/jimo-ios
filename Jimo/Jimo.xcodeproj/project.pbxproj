@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -72,9 +72,10 @@
 		C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77321DB2557EF390087FAA6 /* URLImage.swift */; };
 		C773DFBD25DF90FA00E40102 /* TextAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = C773DFBC25DF90FA00E40102 /* TextAlert.swift */; };
 		C7770C0C2612FD0F00F28B26 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7770C0B2612FD0F00F28B26 /* LaunchScreen.storyboard */; };
-		C786C3112603F3AF00232406 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C786C3102603F3AF00232406 /* RefreshableScrollView.swift */; };
+		C782598D262AC76F00C82ECF /* ASCollectionView in Frameworks */ = {isa = PBXBuildFile; productRef = C782598C262AC76F00C82ECF /* ASCollectionView */; };
 		C79183482597DABF006B4056 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79183472597DABF006B4056 /* PopupView.swift */; };
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
+		C79795BB26290C7A00649D35 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79795BA26290C7A00649D35 /* RefreshableScrollView.swift */; };
 		C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79EA00125AFD56F00A38DB8 /* AppState.swift */; };
 		C7A80B7225C3916100FF8054 /* ViewPlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A80B7125C3916100FF8054 /* ViewPlace.swift */; };
 		C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */; };
@@ -202,9 +203,9 @@
 		C77321DB2557EF390087FAA6 /* URLImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImage.swift; sourceTree = "<group>"; };
 		C773DFBC25DF90FA00E40102 /* TextAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAlert.swift; sourceTree = "<group>"; };
 		C7770C0B2612FD0F00F28B26 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
-		C786C3102603F3AF00232406 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		C79183472597DABF006B4056 /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		C791835E2597EC64006B4056 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C79795BA26290C7A00649D35 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		C79EA00125AFD56F00A38DB8 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C7A80B7125C3916100FF8054 /* ViewPlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewPlace.swift; sourceTree = "<group>"; };
 		C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfile.swift; sourceTree = "<group>"; };
@@ -245,6 +246,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
+				C782598D262AC76F00C82ECF /* ASCollectionView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,7 +471,7 @@
 				C77321DB2557EF390087FAA6 /* URLImage.swift */,
 				C768E9372558B3CB0068FCD5 /* FeedItem.swift */,
 				C7F6D502255A42BA00E8D216 /* SearchBar.swift */,
-				C786C3102603F3AF00232406 /* RefreshableScrollView.swift */,
+				C79795BA26290C7A00649D35 /* RefreshableScrollView.swift */,
 				C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */,
 				C79183472597DABF006B4056 /* PopupView.swift */,
 				C71B1B142599B7FE004BF1CD /* Toast.swift */,
@@ -596,6 +598,9 @@
 			dependencies = (
 			);
 			name = Jimo;
+			packageProductDependencies = (
+				C782598C262AC76F00C82ECF /* ASCollectionView */,
+			);
 			productName = GoodplacesApp;
 			productReference = C75C2EDB25561309009B6ADA /* Jimo.app */;
 			productType = "com.apple.product-type.application";
@@ -670,6 +675,9 @@
 				Base,
 			);
 			mainGroup = C75C2ED225561308009B6ADA;
+			packageReferences = (
+				C782598B262AC76F00C82ECF /* XCRemoteSwiftPackageReference "ASCollectionView" */,
+			);
 			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -867,7 +875,6 @@
 				C768AB0D25C3802A005550B6 /* MapViewModel.swift in Sources */,
 				C7D2D85225CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift in Sources */,
 				C773DFBD25DF90FA00E40102 /* TextAlert.swift in Sources */,
-				C786C3112603F3AF00232406 /* RefreshableScrollView.swift in Sources */,
 				C764145025D0FD4100CBDE3F /* SearchViewModel.swift in Sources */,
 				C7D2D84025CE2B9600246BD0 /* SnapDrawer+init.swift in Sources */,
 				C7D2D83E25CE2B9600246BD0 /* BlurView.swift in Sources */,
@@ -878,6 +885,7 @@
 				C73ED522260EFE79005CC0B4 /* View+disappear.swift in Sources */,
 				C749397C255659AE00D1E8D3 /* MultilineTextInput.swift in Sources */,
 				C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */,
+				C79795BB26290C7A00649D35 /* RefreshableScrollView.swift in Sources */,
 				C70AE46725CA7DC4009920E8 /* WaitlistView.swift in Sources */,
 				C70AE47F25CA8EC5009920E8 /* VerifyPhoneNumber.swift in Sources */,
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
@@ -1257,6 +1265,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C782598B262AC76F00C82ECF /* XCRemoteSwiftPackageReference "ASCollectionView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apptekstudios/ASCollectionView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C782598C262AC76F00C82ECF /* ASCollectionView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C782598B262AC76F00C82ECF /* XCRemoteSwiftPackageReference "ASCollectionView" */;
+			productName = ASCollectionView;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C75C2ED325561308009B6ADA /* Project object */;
 }

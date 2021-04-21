@@ -13,7 +13,7 @@ class DiscoverViewModel: ObservableObject {
     @Published var initialized: Bool = false
     
     var appState: AppState?
-    private var cancellable: Cancellable? = nil
+    private var loadFeedCancellable: Cancellable? = nil
     private var allPostsCancellable: Cancellable? = nil
     
     func loadDiscoverPage(initialLoad: Bool = false, onFinish: OnFinish? = nil) {
@@ -24,7 +24,7 @@ class DiscoverViewModel: ObservableObject {
             onFinish?()
             return
         }
-        cancellable = appState.discoverFeed()
+        loadFeedCancellable = appState.discoverFeed()
             .sink(receiveCompletion: { [weak self] completion in
                 onFinish?()
                 if case let .failure(error) = completion {
@@ -46,5 +46,9 @@ class DiscoverViewModel: ObservableObject {
                 }
                 self.posts = self.posts.compactMap({ post in posts[post.postId] })
             })
+    }
+    
+    func stopListeningToPostUpdates() {
+        allPostsCancellable?.cancel()
     }
 }

@@ -6,69 +6,42 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
-// From https://www.hackingwithswift.com/forums/swiftui/loading-images/3292/3299
 struct URLImage: View {
-    private enum LoadState {
-        case loading, success, failure
-    }
-
-    private class Loader: ObservableObject {
-        var data = Data()
-        var state = LoadState.loading
-
-        init(url: String?) {
-            guard let someURL = url  else {
-                self.state = .failure
-                return
-            }
-            guard let parsedURL = URL(string: someURL) else {
-                self.state = .failure
-                return
-            }
-
-            URLSession.shared.dataTask(with: parsedURL) { data, response, error in
-                if let data = data, data.count > 0 {
-                    self.data = data
-                    self.state = .success
-                } else {
-                    self.state = .failure
-                }
-
-                DispatchQueue.main.async {
-                    self.objectWillChange.send()
-                }
-            }.resume()
-        }
-    }
-
-    @StateObject private var loader: Loader
-    var loading: Image
-    var failure: Image
-
+    private var url: URL?
+    private var loading: Image
+    private var failure: Image
+    private var maxDim: CGFloat
+    
     var body: some View {
-        selectImage()
-            .resizable()
+        WebImage(
+            url: url,
+            context: [.imageThumbnailPixelSize: CGSize(width: maxDim, height: maxDim)]
+        )
+        .resizable()
+        .placeholder {
+            Color.white.opacity(0.5)
+        }
+        .transition(.fade(duration: 0.5))
+        .scaledToFill()
     }
 
-    init(url: String?, loading: Image = Image("grayRect"), failure: Image = Image("imageFail")) {
-        _loader = StateObject(wrappedValue: Loader(url: url))
+    init(
+        url: String?,
+        loading: Image = Image("grayRect"),
+        failure: Image = Image("imageFail"),
+        thumbnail: Bool = false
+    ) {
+        if let url = url {
+            self.url = URL(string: url)
+        }
         self.loading = loading
         self.failure = failure
-    }
-
-    private func selectImage() -> Image {
-        switch loader.state {
-        case .loading:
-            return loading
-        case .failure:
-            return failure
-        default:
-            if let image = UIImage(data: loader.data) {
-                return Image(uiImage: image)
-            } else {
-                return failure
-            }
+        if thumbnail {
+            self.maxDim = 300
+        } else {
+            self.maxDim = 1080
         }
     }
 }

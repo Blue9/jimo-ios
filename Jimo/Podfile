@@ -15,6 +15,7 @@ target 'Jimo' do
 
   pod 'GoogleSignIn'
   pod 'SDWebImage'
+  pod 'SDWebImageSwiftUI'
 
   pod 'PhoneNumberKit', '~> 3.3'
 

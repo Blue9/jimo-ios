@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ASCollectionView
 
 
 struct ProfileHeaderView: View {
@@ -119,53 +120,77 @@ struct ProfileStatsView: View {
     }
 }
 
-struct ProfilePosts: View {
+struct Profile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @ObservedObject var profileVM: ProfileVM
-    
-    var body: some View {
-        if let posts = profileVM.posts {
-            VStack {
-                ForEach(posts, id: \.self) { postId in
-                    FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: globalViewState, postId: postId))
-                }
-                Divider()
-                Text("You've reached the end!")
-                    .padding()
-            }
-        } else if profileVM.failedToLoadPosts {
-            Text("Failed to load posts")
-                .padding()
-        } else {
-            ProgressView()
-                .onAppear {
-                    profileVM.loadFollowStatus()
-                    profileVM.loadPosts()
-                }
-        }
-    }
-}
-
-
-struct Profile: View {
     @Environment(\.backgroundColor) var backgroundColor
     @StateObject var profileVM: ProfileVM
     
-    var body: some View {
-        RefreshableScrollView {
-            VStack {
-                ProfileHeaderView(profileVM: profileVM)
-                ProfileStatsView(profileVM: profileVM)
-                ProfilePosts(profileVM: profileVM)
+    private var section: ASCollectionViewSection<Int> {
+        ASCollectionViewSection(id: 2, data: profileVM.posts, dataID: \.self) { postId, _ in
+            if postId == "" {
+                EmptyView()
+            } else {
+                FeedItem(feedItemVM: FeedItemVM(appState: appState,
+                                                viewState: globalViewState, postId: postId,
+                                                onDelete: { profileVM.removePost(postId: postId) }))
+                    .frame(width: UIScreen.main.bounds.width)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.top)
-            .background(backgroundColor)
-        } onRefresh: { onFinish in
+        }
+    }
+    
+    var body: some View {
+        ASCollectionView {
+            section
+                .sectionHeader {
+                    VStack {
+                        ProfileHeaderView(profileVM: profileVM)
+                        ProfileStatsView(profileVM: profileVM)
+                    }
+                    .padding(.bottom, 10)
+                }
+            ASCollectionViewSection(id: 3) {
+                Group {
+                    if profileVM.loadStatus == .success {
+                        Divider()
+                        Text("You've reached the end!")
+                            .padding()
+                    } else if profileVM.loadStatus == .failed {
+                        Text("Failed to load posts")
+                            .padding()
+                    } else { // notInitialized
+                        ProgressView()
+                            .appear {
+                                profileVM.loadFollowStatus()
+                                profileVM.loadPosts()
+                            }
+                    }
+                }
+                .padding(.top)
+            }
+        }
+        .shouldScrollToAvoidKeyboard(false)
+        .layout {
+            .list(itemSize: .estimated(200))
+        }
+        .animateOnDataRefresh(true)
+        .alwaysBounceVertical(true)
+        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+        .onPullToRefresh { onFinish in
             profileVM.refresh(onFinish: onFinish)
         }
         .font(Font.custom(Poppins.medium, size: 15))
         .background(backgroundColor)
+        .appear {
+            profileVM.removeDeletedPosts()
+            /// Similar to feed:
+            /// This is a hack that forces the collection view to refresh. Without this, if a feed item resizes
+            /// itself (e.g. when editing), its bounding box won't refresh, so the feed item's layout will get messed up.
+            /// There is also `.shouldRecreateLayoutOnStateChange()` which works but is noticeably slower and doesn't look as nice
+            profileVM.posts.append("")
+        }
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
 }
 

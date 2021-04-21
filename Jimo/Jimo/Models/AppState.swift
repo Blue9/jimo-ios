@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import MapKit
 import Firebase
+import SDWebImage
 
 
 enum CurrentUser {
@@ -76,7 +77,6 @@ class OnboardingModel: ObservableObject {
     }
 }
 
-
 class AppState: ObservableObject {
     private var apiClient: APIClient
     private var cancelBag: Set<AnyCancellable> = .init()
@@ -97,6 +97,10 @@ class AppState: ObservableObject {
     var registeringToken = false
     
     init(apiClient: APIClient) {
+        // Uncomment the two lines below to clear the image cache
+        // SDImageCache.shared.clearMemory()
+        // SDImageCache.shared.clearDisk()
+        
         self.apiClient = apiClient
         updateTokenOnUserChange()
         NotificationCenter.default.addObserver(
@@ -299,13 +303,12 @@ class AppState: ObservableObject {
             .store(in: &self.cancelBag)
     }
     
-    func refreshFeed() -> AnyPublisher<Void, APIError> {
+    func refreshFeed() -> AnyPublisher<[PostId], APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return self.apiClient.getFeed()
             .map(self.setFeed)
-            .map({ _ in return () })
             .eraseToAnyPublisher()
     }
     
@@ -470,9 +473,10 @@ class AppState: ObservableObject {
         return response
     }
     
-    private func setFeed(posts: [Post]) {
+    private func setFeed(posts: [Post]) -> [PostId] {
         let postIds = addPostsToAllPosts(posts: posts)
         feedModel.currentFeed = postIds
+        return postIds
     }
     
     private func appendToFeed(posts: [Post]) {

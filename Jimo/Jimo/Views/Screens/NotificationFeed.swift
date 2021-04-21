@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import ASCollectionView
 
 class NotificationFeedVM: ObservableObject {
     private var appState: AppState?
@@ -17,7 +18,7 @@ class NotificationFeedVM: ObservableObject {
 
     private var cancellable: Cancellable? = nil
     private var token: PaginationToken = PaginationToken()
-
+    
     func initialize(appState: AppState) {
         if initialized {
             return
@@ -109,7 +110,7 @@ struct NotificationFeedItem: View {
     var destinationView: some View {
         if item.type == ItemType.like {
             if let post = item.post {
-                return AnyView(ViewPost(postId: post.id))
+                return AnyView(ViewPost(postId: post.postId))
             }
         }
         return AnyView(
@@ -132,8 +133,10 @@ struct NotificationFeedItem: View {
                 VStack(alignment: .leading) {
                     if item.type == ItemType.follow {
                         Text(item.user.username + " has followed you!")
+                            .lineLimit(1)
                     } else if item.type == ItemType.like {
                         Text(item.user.username + " has liked your post!")
+                            .lineLimit(1)
                     }
                     Text(relativeTime)
                         .font(Font.custom(Poppins.regular, size: 13))
@@ -144,7 +147,6 @@ struct NotificationFeedItem: View {
                         .onAppear(perform: {
                             relativeTime = getRelativeTime()
                         })
-                    Spacer()
                 }
                 
                 Spacer()
@@ -166,38 +168,47 @@ struct NotificationFeed: View {
     @Environment(\.backgroundColor) var backgroundColor
     
     var body: some View {
-        RefreshableScrollView {
-            VStack {
+        ASCollectionView {
+            ASCollectionViewSection(id: 1, data: notificationFeedVM.feedItems, dataID: \.self) { item, _ in
+                NotificationFeedItem(item: item)
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+                    .environment(\.backgroundColor, backgroundColor)
+                    .padding(.horizontal, 10)
+                    .fixedSize(horizontal: false, vertical: true)
+                Divider()
+                    .padding(.horizontal, 10)
+                    .hidden()
+            }
+            .sectionHeader {
                 Divider()
                     .padding(.bottom, 5)
                     .hidden()
-                
-                ForEach(notificationFeedVM.feedItems, id: \.self) { item in
-                    NotificationFeedItem(item: item)
-                        .environmentObject(appState)
-                        .environmentObject(globalViewState)
-                        .environment(\.backgroundColor, backgroundColor)
-                        .padding(.horizontal, 10)
-                    Divider()
-                        .padding(.horizontal, 10)
-                        .hidden()
-                }
-                
-                Divider()
-                
-                ProgressView()
-                    .opacity(notificationFeedVM.loadingMoreNotifications ? 1 : 0)
-                Text("You've reached the end!")
-                    .font(Font.custom(Poppins.medium, size: 15))
             }
-            .background(backgroundColor)
-        } onRefresh: { onFinish in
-            notificationFeedVM.refreshFeed(onFinish: onFinish)
-        } onLoadMore: {
-            notificationFeedVM.loadMoreNotifications()
+            .sectionFooter {
+                VStack {
+                    Divider()
+                        .appear {
+                            notificationFeedVM.loadMoreNotifications()
+                        }
+                    ProgressView()
+                        .opacity(notificationFeedVM.loadingMoreNotifications ? 1 : 0)
+                    Text("You've reached the end!")
+                        .font(Font.custom(Poppins.medium, size: 15))
+                }
+            }
         }
-        .onAppear(perform: { notificationFeedVM.initialize(appState: appState) })
+        .alwaysBounceVertical()
+        .shouldScrollToAvoidKeyboard(false)
+        .layout {
+            .list(itemSize: .absolute(50))
+        }
+        .onPullToRefresh { onFinish in
+            notificationFeedVM.refreshFeed(onFinish: onFinish)
+        }
+        .ignoresSafeArea(.keyboard, edges: .all)
         .background(backgroundColor.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: { notificationFeedVM.initialize(appState: appState) })
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(backgroundColor))
         .toolbar(content: {

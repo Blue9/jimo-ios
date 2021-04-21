@@ -5,9 +5,12 @@
 //  Created by Gautam Mekkat on 11/14/20.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 
+enum ProfileLoadStatus {
+    case notInitialized, failed, success
+}
 
 class ProfileVM: ObservableObject {
     let appState: AppState
@@ -22,8 +25,10 @@ class ProfileVM: ObservableObject {
     
     @Published var user: User
     @Published var following: Bool = false
-    @Published var posts: [PostId]? = nil
-    @Published var failedToLoadPosts = false
+    @Published var posts: [PostId] = []
+    
+    /// This really just tracks the post loading (ignores user and follow status) for simplicity
+    @Published var loadStatus = ProfileLoadStatus.notInitialized
     
     var isCurrentUser: Bool {
         guard case let .user(currentUser) = appState.currentUser else {
@@ -36,6 +41,17 @@ class ProfileVM: ObservableObject {
         self.appState = appState
         self.globalViewState = globalViewState
         self.user = user
+    }
+    
+    func removePost(postId: PostId) {
+        posts = posts.filter({ postId != $0 })
+    }
+    
+    /// Remove any posts that are no longer in the app state (i.e., deleted posts)
+    func removeDeletedPosts() {
+        withAnimation {
+            posts = posts.compactMap({ appState.allPosts.posts[$0]?.postId })
+        }
     }
     
     func refresh(onFinish: OnFinish? = nil) {
@@ -78,7 +94,7 @@ class ProfileVM: ObservableObject {
         loadPostsCancellable = appState.getPosts(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self?.failedToLoadPosts = true
+                    self?.loadStatus = .failed
                     print("Error when loading posts", error)
                     if error == .notFound {
                         self?.globalViewState.setError("User not found")
@@ -86,10 +102,17 @@ class ProfileVM: ObservableObject {
                         self?.globalViewState.setError("Failed to load posts")
                     }
                 } else {
-                    self?.failedToLoadPosts = false
+                    self?.loadStatus = .success
                 }
             }, receiveValue: { [weak self] posts in
-                self?.posts = posts
+                if self?.loadStatus == .notInitialized {
+                    /// Having the initial load be animated can be kind of jarring
+                    self?.posts = posts
+                } else {
+                    withAnimation {
+                        self?.posts = posts
+                    }
+                }
             })
     }
     

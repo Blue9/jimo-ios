@@ -34,6 +34,10 @@ class FeedItemVM: ObservableObject {
         self.onDelete = onDelete
     }
     
+    deinit {
+        stopListeningToPostUpdates()
+    }
+    
     func listenToPostUpdates() {
         updatePostCancellable = appState.allPosts.$posts
             .sink(receiveValue: { [weak self] posts in
@@ -44,6 +48,10 @@ class FeedItemVM: ObservableObject {
                     self.post = posts[self.postId]
                 }
             })
+    }
+    
+    func stopListeningToPostUpdates() {
+        updatePostCancellable?.cancel()
     }
         
     func likePost() {

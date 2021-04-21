@@ -7,15 +7,18 @@
 
 import SwiftUI
 import Combine
-
+import ASCollectionView
 
 class FeedViewState: ObservableObject {
     let appState: AppState
     let globalViewState: GlobalViewState
     
-    var cancellable: Cancellable? = nil
+    var refreshFeedCancellable: AnyCancellable?
+    var listenToFeedCancellable: AnyCancellable?
+    
     @Published var initialized = false
     @Published var loadingMorePosts = false
+    @Published var feed: [PostId] = []
     
     init(appState: AppState, globalViewState: GlobalViewState) {
         self.appState = appState
@@ -23,7 +26,7 @@ class FeedViewState: ObservableObject {
     }
     
     func refreshFeed(onFinish: OnFinish? = nil) {
-        cancellable = appState.refreshFeed()
+        refreshFeedCancellable = appState.refreshFeed()
             .sink(receiveCompletion: { [weak self] completion in
                 onFinish?()
                 guard let self = self else {
@@ -36,13 +39,34 @@ class FeedViewState: ObservableObject {
                     print("Error when refreshing feed", error)
                     self.globalViewState.setError("Could not refresh feed")
                 }
-            }, receiveValue: {})
+            }, receiveValue: { [weak self] feed in
+                withAnimation {
+                    self?.feed = feed
+                    self?.initialized = true
+                }
+            })
+    }
+    
+    func listenToFeedChanges() {
+        listenToFeedCancellable = appState.feedModel.$currentFeed
+            .sink { [weak self] feed in
+                withAnimation {
+                    self?.feed = feed
+                }
+            }
+    }
+    
+    func stopListeningToFeedChanges() {
+        listenToFeedCancellable?.cancel()
     }
     
     func loadMorePosts() {
+        if loadingMorePosts {
+            return
+        }
         loadingMorePosts = true
         print("Loading more posts")
-        cancellable = appState.loadMoreFeedItems()
+        refreshFeedCancellable = appState.loadMoreFeedItems()
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else {
                     return
@@ -60,8 +84,17 @@ struct FeedBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
-    @ObservedObject var feedModel: FeedModel
     @StateObject var feedState: FeedViewState
+    
+    private func loadMore() {
+        if feedState.feed.count < 50 {
+            return
+        }
+        if feedState.loadingMorePosts {
+            return
+        }
+        feedState.loadMorePosts()
+    }
     
     var body: some View {
         Group {
@@ -72,31 +105,57 @@ struct FeedBody: View {
                         feedState.refreshFeed()
                     }
             } else {
-                RefreshableScrollView {
-                    VStack {
-                        ForEach(feedModel.currentFeed, id: \.self) { postId in
+                ASCollectionView {
+                    ASCollectionViewSection(id: 1, data: feedState.feed, dataID: \.self) { postId, _ in
+                        if postId == "" {
+                            /// This is explained below
+                            EmptyView()
+                                .frame(width: 0, height: 0)
+                                .hidden()
+                        } else {
                             FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
+                                .frame(width: UIScreen.main.bounds.width)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        Divider()
-
-                        ProgressView()
-                            .opacity(feedState.loadingMorePosts ? 1 : 0)
-                        Text("You've reached the end!")
-                            .font(Font.custom(Poppins.medium, size: 15))
-                            .padding()
                     }
-                    .background(backgroundColor)
-                } onRefresh: { onFinish in
-                    feedState.refreshFeed(onFinish: onFinish)
-                } onLoadMore: {
-                    if feedModel.currentFeed.count < 50 {
-                        return
+                    
+                    ASCollectionViewSection(id: 2) {
+                        VStack {
+                            Divider()
+                            
+                            ProgressView()
+                                .opacity(feedState.loadingMorePosts ? 1 : 0)
+                            Text("You've reached the end!")
+                                .font(Font.custom(Poppins.medium, size: 15))
+                                .padding()
+                        }
                     }
-                    if feedState.loadingMorePosts {
-                        return
-                    }
-                    feedState.loadMorePosts()
                 }
+                .shouldScrollToAvoidKeyboard(false)
+                .layout {
+                    .list(itemSize: .estimated(200))
+                }
+                .alwaysBounceVertical()
+                .onReachedBoundary { boundary in
+                    if boundary == .bottom {
+                        loadMore()
+                    }
+                }
+                .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+                .onPullToRefresh { onFinish in
+                    feedState.refreshFeed(onFinish: onFinish)
+                }
+                .appear {
+                    feedState.listenToFeedChanges()
+                    /// This is a hack that forces the collection view to refresh. Without this, if a feed item resizes
+                    /// itself (e.g. when editing), its bounding box won't refresh, so the feed item's layout will get messed up.
+                    /// There is also `.shouldRecreateLayoutOnStateChange()` which works but is noticeably slower and doesn't look as nice
+                    feedState.feed.append("")
+                }
+                .disappear {
+                    feedState.stopListeningToFeedChanges()
+                }
+                .ignoresSafeArea(.keyboard, edges: .all)
             }
         }
         .background(backgroundColor)
@@ -116,7 +175,7 @@ struct Feed: View {
 
     var body: some View {
         NavigationView {
-            FeedBody(feedModel: appState.feedModel, feedState: FeedViewState(appState: appState, globalViewState: globalViewState))
+            FeedBody(feedState: FeedViewState(appState: appState, globalViewState: globalViewState))
                 .background(
                     NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVM)
                                     .environmentObject(appState)

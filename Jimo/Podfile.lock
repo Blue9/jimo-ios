@@ -126,6 +126,8 @@ PODS:
   - SDWebImage (5.10.3):
     - SDWebImage/Core (= 5.10.3)
   - SDWebImage/Core (5.10.3)
+  - SDWebImageSwiftUI (2.0.1):
+    - SDWebImage (~> 5.10)
 
 DEPENDENCIES:
   - Firebase/Analytics
@@ -136,6 +138,7 @@ DEPENDENCIES:
   - GoogleSignIn
   - PhoneNumberKit (~> 3.3)
   - SDWebImage
+  - SDWebImageSwiftUI
 
 SPEC REPOS:
   trunk:
@@ -160,6 +163,7 @@ SPEC REPOS:
     - PhoneNumberKit
     - PromisesObjC
     - SDWebImage
+    - SDWebImageSwiftUI
 
 SPEC CHECKSUMS:
   AppAuth: 31bcec809a638d7bd2f86ea8a52bd45f6e81e7c7
@@ -183,7 +187,8 @@ SPEC CHECKSUMS:
   PhoneNumberKit: 4ce83273551c4d2ae10b7361162f4283dd02835f
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SDWebImage: e378178472b735e84b007bfb55514c97948a0598
+  SDWebImageSwiftUI: ff3dc77f69330e6513c655bcb9b5080a033405a5
 
-PODFILE CHECKSUM: cf35b47dab78cf3547dd39a56dc9d23aa19fca86
+PODFILE CHECKSUM: e4e56b844514545ce4fccda23b97dfb6fd9417b3
 
 COCOAPODS: 1.10.0

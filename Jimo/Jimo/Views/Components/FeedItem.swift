@@ -15,25 +15,16 @@ struct NoButtonStyle: ButtonStyle {
 
 struct FeedItemLikes: View {
     @ObservedObject var feedItemVM: FeedItemVM
+    var post: Post
     
     private var showFilledHeart: Bool {
-        guard let post = post else {
-            return false
-        }
         return (post.liked || feedItemVM.liking) && !feedItemVM.unliking
     }
     
     private var likeCount: Int {
-        guard let post = post else {
-            return 0
-        }
         let inc = feedItemVM.liking ? 1 : 0
         let dec = feedItemVM.unliking ? 1 : 0
         return post.likeCount + inc - dec
-    }
-    
-    var post: Post? {
-        feedItemVM.post
     }
     
     var body: some View {
@@ -65,7 +56,7 @@ struct FeedItemLikes: View {
     }
 }
 
-struct FeedItem: View {
+struct FeedItemBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
@@ -80,6 +71,8 @@ struct FeedItem: View {
     @State private var relativeTime: String = ""
     
     @State private var viewFullPost = false
+    
+    var post: Post
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -96,13 +89,13 @@ struct FeedItem: View {
     
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
-            return user.username == feedItemVM.post?.user.username
+            return user.username == post.user.username
         }
         // Should never be here since user should be logged in
         return false
     }
     
-    func profileView(post: Post) -> some View {
+    var profileView: some View {
         Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: post.user))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(UIColor(backgroundColor))
@@ -117,13 +110,14 @@ struct FeedItem: View {
         ViewPost(postId: feedItemVM.postId)
     }
     
-    func postContent(post: Post) -> some View {
+    var postContent: some View {
         let content = VStack(alignment: .leading) {
             if post.content.count > 0 {
                 Text(post.content)
+                    .lineLimit(fullPost ? nil : 2)
                     .padding(.top, 10)
                     .padding(.horizontal)
-                    .frame(maxWidth: .infinity, minHeight: 10, maxHeight: fullPost ? .infinity : 64, alignment: .leading)
+                    .frame(maxWidth: .infinity, minHeight: 10, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
             
@@ -131,9 +125,7 @@ struct FeedItem: View {
                 URLImage(url: image,
                          loading: Image("grayRect").resizable(),
                          failure: Image("imageFail"))
-                    .id(image)
-                    .scaledToFill()
-                    .foregroundColor(.gray)
+                    .id(post.imageUrl)
                     .frame(minHeight: fullPost ? .zero : 300)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : 300)
                     .cornerRadius(0)
@@ -149,18 +141,25 @@ struct FeedItem: View {
                 }
                 .buttonStyle(NoButtonStyle()))
         } else {
-            return AnyView(content)
+            return AnyView(content.onTapGesture(count: 2) {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                if post.liked {
+                    feedItemVM.unlikePost()
+                } else {
+                    feedItemVM.likePost()
+                }
+            })
         }
     }
     
-    func postBody(post: Post) -> some View {
+    var postBody: some View {
         ZStack(alignment: .top) {
             Rectangle()
                 .frame(height: 32)
                 .foregroundColor(Color(post.category))
             VStack(alignment: .leading) {
                 HStack(alignment: .top) {
-                    NavigationLink(destination: profileView(post: post)) {
+                    NavigationLink(destination: profileView) {
                         URLImage(
                             url: post.user.profilePictureUrl,
                             loading: Image(systemName: "person.crop.circle"),
@@ -179,7 +178,7 @@ struct FeedItem: View {
                     
                     VStack(alignment: .leading) {
                         HStack {
-                            NavigationLink(destination: profileView(post: post)) {
+                            NavigationLink(destination: profileView) {
                                 Text(post.user.firstName + " " + post.user.lastName)
                                     .font(Font.custom(Poppins.medium, size: 16))
                                     .bold()
@@ -215,7 +214,7 @@ struct FeedItem: View {
                                 Text(post.place.name)
                             }
                             .foregroundColor(.black)
-                            .font(Font.custom(Poppins.regular, size: 13))
+                            .font(Font.custom(Poppins.regular, size: 14))
                             .offset(y: 6)
                         }
                         .buttonStyle(NoButtonStyle())
@@ -223,12 +222,12 @@ struct FeedItem: View {
                 }
                 .padding(.leading)
                 
-                postContent(post: post)
-                    .font(Font.custom(Poppins.regular, size: 16))
+                postContent
+                    .font(Font.custom(Poppins.regular, size: 14))
                 
                 HStack {
                     Text(relativeTime)
-                        .font(Font.custom(Poppins.regular, size: 13))
+                        .font(Font.custom(Poppins.regular, size: 14))
                         .foregroundColor(.gray)
                         .onReceive(timer, perform: { _ in
                             relativeTime = getRelativeTime(post: post)
@@ -236,7 +235,7 @@ struct FeedItem: View {
                     
                     Spacer()
                     
-                    FeedItemLikes(feedItemVM: feedItemVM)
+                    FeedItemLikes(feedItemVM: feedItemVM, post: post)
                 }
                 .padding(.top, 4)
                 .padding(.horizontal)
@@ -253,46 +252,84 @@ struct FeedItem: View {
     }
     
     var body: some View {
-        if let post = feedItemVM.post {
-            postBody(post: post)
-                .background(backgroundColor)
-                .onTapGesture {
-                    viewFullPost = true
-                }
-                .onAppear {
-                    if !initialized {
-                        relativeTime = getRelativeTime(post: post)
-                        feedItemVM.listenToPostUpdates()
-                        initialized = true
+        postBody
+            .background(backgroundColor)
+            .onTapGesture {
+                viewFullPost = true
+            }
+            .contextMenu {
+                if post.liked {
+                    Button(action: { feedItemVM.unlikePost() }) {
+                        Text("Unlike")
+                    }
+                } else {
+                    Button(action: { feedItemVM.likePost() }) {
+                        Text("Like")
                     }
                 }
-                .actionSheet(isPresented: $showPostOptions) {
-                    ActionSheet(
-                        title: Text("Post options"),
-                        buttons: isMyPost ? [
-                            .destructive(Text("Delete"), action: {
-                                showConfirmDelete = true
-                            }),
-                            .cancel()
-                        ] : [
-                            .default(Text("Report"), action: {
-                                showConfirmReport = true
-                            }),
-                            .cancel()
-                        ])
+                
+                if isMyPost {
+                    Button(action: { showConfirmDelete.toggle() }) {
+                        Text("Delete post")
+                    }
+                } else {
+                    Button(action: { showConfirmReport.toggle() }) {
+                        Text("Report post")
+                    }
                 }
-                .alert(isPresented: $showConfirmDelete) {
-                    Alert(title: Text("Are you sure?"),
-                          message: Text("You can't undo this action"),
-                          primaryButton: .destructive(Text("Delete post")) {
-                            feedItemVM.deletePost()
-                          },
-                          secondaryButton: .cancel())
+            }
+            .onAppear {
+                if !initialized {
+                    relativeTime = getRelativeTime(post: post)
+                    feedItemVM.listenToPostUpdates()
+                    initialized = true
                 }
-                .textAlert(isPresented: $showConfirmReport, title: "Report post",
-                           message: "Tell us what's wrong with this post. Please include your email address in case we need to follow up.") { text in
-                    feedItemVM.reportPost(details: text)
-                }
+            }
+            /// .appear works slightly differently than onAppear and is more accurate, onAppear is kind of buggy but tends to trigger earlier so faster updates
+            .appear {
+                feedItemVM.listenToPostUpdates()
+            }
+            .disappear {
+                feedItemVM.stopListeningToPostUpdates()
+            }
+            .actionSheet(isPresented: $showPostOptions) {
+                ActionSheet(
+                    title: Text("Post options"),
+                    buttons: isMyPost ? [
+                        .destructive(Text("Delete"), action: {
+                            showConfirmDelete = true
+                        }),
+                        .cancel()
+                    ] : [
+                        .default(Text("Report"), action: {
+                            showConfirmReport = true
+                        }),
+                        .cancel()
+                    ])
+            }
+            .alert(isPresented: $showConfirmDelete) {
+                Alert(title: Text("Are you sure?"),
+                      message: Text("You can't undo this action"),
+                      primaryButton: .destructive(Text("Delete post")) {
+                        feedItemVM.deletePost()
+                      },
+                      secondaryButton: .cancel())
+            }
+            .textAlert(isPresented: $showConfirmReport, title: "Report post",
+                       message: "Tell us what's wrong with this post. Please include your email address in case we need to follow up.") { text in
+                feedItemVM.reportPost(details: text)
+            }
+    }
+}
+
+struct FeedItem: View {
+    @StateObject var feedItemVM: FeedItemVM
+    
+    var fullPost: Bool = false
+    
+    var body: some View {
+        if let post = feedItemVM.post {
+            FeedItemBody(feedItemVM: feedItemVM, post: post, fullPost: fullPost)
         } else {
             EmptyView()
         }
@@ -323,7 +360,7 @@ struct FeedItem_Previews: PreviewProvider {
         customLocation: nil)
     
     static var previews: some View {
-        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: GlobalViewState(), postId: post.postId))
+        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: GlobalViewState(), postId: post.id))
             .environmentObject(appState)
             .environmentObject(GlobalViewState())
     }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import ASCollectionView
 
 
 struct Search: View {
@@ -52,30 +53,41 @@ struct Search: View {
         if !discoverViewModel.initialized {
             return AnyView(ProgressView().padding(.top, 20))
         } else {
-            return AnyView(
-                RefreshableScrollView {
-                    LazyVGrid(columns: columns) {
-                        ForEach(discoverViewModel.posts) { post in
-                            GeometryReader { geometry in
-                                NavigationLink(destination: ViewPost(postId: post.postId)) {
-                                    URLImage(url: post.imageUrl, loading: Image("grayRect"), failure: Image("grayRect"))
-                                        .foregroundColor(.black)
-                                        .scaledToFill()
-                                        .frame(maxWidth: .infinity)
-                                        .frame(height: geometry.size.width)
-                                }
-                            }
-                            .aspectRatio(1, contentMode: .fit)
-                            .cornerRadius(10)
-                        }
+            return AnyView(discoverFeedLoaded)
+        }
+    }
+    
+    var discoverFeedLoaded: some View {
+        ASCollectionView {
+            ASCollectionViewSection(id: 1, data: discoverViewModel.posts) { post, _ in
+                GeometryReader { geometry in
+                    NavigationLink(destination: ViewPost(postId: post.postId)) {
+                        URLImage(url: post.imageUrl, thumbnail: true)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: geometry.size.width)
                     }
-                    .padding(10)
-                    .background(backgroundColor)
-                } onRefresh: { onFinish in
-                    discoverViewModel.loadDiscoverPage(onFinish: onFinish)
                 }
+                .aspectRatio(1, contentMode: .fit)
+                .background(Color(post.category))
+                .cornerRadius(10)
+            }
+        }
+        .alwaysBounceVertical()
+        .shouldScrollToAvoidKeyboard(false)
+        .layout {
+            .grid(
+                layoutMode: .fixedNumberOfColumns(3),
+                itemSpacing: 10,
+                lineSpacing: 10,
+                itemSize: .estimated(80),
+                sectionInsets: .init(top: 0, leading: 10, bottom: 0, trailing: 10)
             )
         }
+        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+        .onPullToRefresh { onFinish in
+            discoverViewModel.loadDiscoverPage(onFinish: onFinish)
+        }
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
     
     var userResults: some View {
@@ -140,11 +152,14 @@ struct Search: View {
             VStack(spacing: 0) {
                 SearchBar(text: $searchViewModel.query, minimal: true, placeholder: "Search")
                     .padding(.bottom, 0)
-                Picker(selection: $searchViewModel.searchType, label: Text("What do you want to search for")) {
-                    Text("People").tag(SearchType.people)
-                    Text("Places").tag(SearchType.places)
+                
+                if searchViewModel.query.count > 0 {
+                    Picker(selection: $searchViewModel.searchType, label: Text("What do you want to search for")) {
+                        Text("People").tag(SearchType.people)
+                        Text("Places").tag(SearchType.places)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
                 }
-                .pickerStyle(SegmentedPickerStyle())
                 
                 if searchViewModel.query.isEmpty {
                     discoverFeed
@@ -166,14 +181,17 @@ struct Search: View {
                     NavTitle("Discover")
                 }
             }
-            .onAppear {
+            .appear {
                 if !initialLoadCompleted {
                     discoverViewModel.appState = appState
                     searchViewModel.listen(appState: appState)
                     discoverViewModel.loadDiscoverPage(initialLoad: true)
-                    discoverViewModel.listenToPostUpdates()
                     initialLoadCompleted = true
                 }
+                discoverViewModel.listenToPostUpdates()
+            }
+            .disappear {
+                discoverViewModel.stopListeningToPostUpdates()
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
