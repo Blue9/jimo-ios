@@ -17,13 +17,14 @@ class LocationAnnotationView: MKAnnotationView {
     // MARK: Initialization
     
     private var pin: MapPlace
+    private var clusteringEnabled: Bool
     
-    init(annotation: PlaceAnnotation, reuseIdentifier: String) {
+    init(annotation: PlaceAnnotation, reuseIdentifier: String, clusteringEnabled: Bool) {
         self.pin = annotation.pin
+        self.clusteringEnabled = clusteringEnabled
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         frame = CGRect(x: 0, y: 0, width: 50, height: 50)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
-        clusteringIdentifier = PinClusterAnnotationView.clusteringIdentifier
         collisionMode = .circle
         setupUI()
     }
@@ -35,7 +36,7 @@ class LocationAnnotationView: MKAnnotationView {
     
     override var annotation: MKAnnotation? {
         willSet {
-            clusteringIdentifier = PinClusterAnnotationView.clusteringIdentifier
+            clusteringIdentifier = clusteringEnabled ? PinClusterAnnotationView.clusteringIdentifier : nil
         }
     }
     
@@ -140,9 +141,11 @@ class PinClusterAnnotationView: MKAnnotationView {
 
 class PinMapView: MKMapView {
     var placeAnnotations: [PlaceAnnotation]
+    var clusteringEnabled: Bool
     
-    init() {
+    init(clusteringEnabled: Bool) {
         self.placeAnnotations = []
+        self.clusteringEnabled = clusteringEnabled
         super.init(frame: .zero)
     }
     
@@ -155,11 +158,12 @@ class PinMapView: MKMapView {
 struct MapKitView: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     @Binding var selectedPin: PlaceAnnotation?
+    var clusteringEnabled: Bool
     var annotations: [PlaceAnnotation]
     var images: [String: Data] = [:]
     
     func makeUIView(context: Context) -> PinMapView {
-        let mapView: PinMapView = PinMapView()
+        let mapView: PinMapView = PinMapView(clusteringEnabled: clusteringEnabled)
         mapView.placeAnnotations = annotations
         mapView.tintAdjustmentMode = .normal
         mapView.tintColor = .systemBlue
@@ -171,6 +175,11 @@ struct MapKitView: UIViewRepresentable {
     }
     
     func updateUIView(_ view: PinMapView, context: Context) {
+        if view.clusteringEnabled != clusteringEnabled {
+            view.clusteringEnabled = clusteringEnabled
+            view.removeAnnotations(view.annotations)
+            view.addAnnotations(annotations)
+        }
         if !view.placeAnnotations.elementsEqual(annotations) {
             let toRemove = view.placeAnnotations.filter({ annotation in
                 return !annotations.contains(annotation)
@@ -207,10 +216,13 @@ struct MapKitView: UIViewRepresentable {
                 return nil
             }
             let identifier = "Placemark"
+            /// mapView should always be a PinMapView
+            let clusteringEnabled = (mapView as? PinMapView)?.clusteringEnabled ?? true
             
             let view = LocationAnnotationView(
                 annotation: annotation,
-                reuseIdentifier: identifier)
+                reuseIdentifier: identifier,
+                clusteringEnabled: clusteringEnabled)
             view.zPriority = MKAnnotationViewZPriority(rawValue: MKAnnotationViewZPriority.RawValue(annotation.zIndex))
             return view
         }
@@ -259,7 +271,7 @@ struct MapSearch: View {
                 .padding(.horizontal, 15)
                 .padding(.top, 50)
                 .padding(.bottom, 15)
-                .background(backgroundColor.opacity(0.9))
+                .background(backgroundColor)
             
             if locationSearch.searchQuery.count > 0 {
                 List(locationSearch.completions) { completion in
@@ -283,7 +295,6 @@ struct MapSearch: View {
                     mapViewModel.modalState = .invisible
                 }
             }
-            
             Spacer()
         }
     }
@@ -359,14 +370,86 @@ fileprivate struct SelectedSearchResult: View {
     }
 }
 
+fileprivate struct ClusterToggleButton: View {
+    @Binding var clusteringEnabled: Bool
+    
+    private struct ClusterButtonPinView: View {
+        @Environment(\.backgroundColor) var backgroundColor
+        var color: Color
+        
+        var body: some View {
+            ZStack {
+                Circle()
+                    .frame(width: 22.5, height: 22.5)
+                    .foregroundColor(backgroundColor)
+                Image("pin")
+                    .resizable()
+                    .foregroundColor(color)
+                    .frame(width: 30, height: 30)
+                    .offset(y: 1.5)
+            }
+        }
+    }
+    
+    var buttonBody: some View {
+        Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            withAnimation {
+                clusteringEnabled.toggle()
+            }
+        }) {
+            ZStack {
+                Circle()
+                    .fill(
+                        AngularGradient(
+                            gradient: Gradient(colors: Colors.colors + [Colors.colors[0]]),
+                            center: .center)
+                    )
+                    .frame(width: 60, height: 60)
+                
+                Circle()
+                    .frame(width: 55, height: 55)
+                    .contentShape(Circle())
+                    .foregroundColor(Color.white.opacity(0.9))
+                
+                ClusterButtonPinView(color: Color("attraction"))
+                    .rotationEffect(Angle(degrees: clusteringEnabled ? 0 : -10))
+                    .scaleEffect(0.8)
+                    .offset(x: clusteringEnabled ? 0 : -10)
+                
+                ClusterButtonPinView(color: Color("lodging"))
+                    .rotationEffect(Angle(degrees: clusteringEnabled ? 0 : 10))
+                    .scaleEffect(0.8)
+                    .offset(x: clusteringEnabled ? 0 : 10)
+                
+                ClusterButtonPinView(color: Color(clusteringEnabled ? "food" : "shopping"))
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .padding(.vertical, 30)
+        .padding(.horizontal, 15)
+    }
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            HStack {
+                buttonBody
+                Spacer()
+            }
+        }
+    }
+}
+
 
 struct MapView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var mapModel: MapModel
+    @ObservedObject var localSettings: LocalSettings
     @StateObject var mapViewModel: MapViewModel
-    
+    @State private var initialized = false
     let locationManager = CLLocationManager()
     
     var body: some View {
@@ -374,6 +457,7 @@ struct MapView: View {
             MapKitView(
                 region: $mapViewModel.region,
                 selectedPin: $mapViewModel.presentedPin,
+                clusteringEnabled: localSettings.clusteringEnabled,
                 annotations: mapViewModel.mapAnnotations
             )
             .onTapGesture {
@@ -382,16 +466,20 @@ struct MapView: View {
             }
             
             if mapViewModel.preselectedPost == nil {
-                // Only show search if there is no preselected post
+                // Only show these if there is no preselected post
+                ClusterToggleButton(clusteringEnabled: $localSettings.clusteringEnabled)
                 MapSearch(mapViewModel: mapViewModel)
             }
             
             GeometryReader { geometry in
                 SnapDrawer(state: $mapViewModel.modalState,
-                           large: 400,
-                           tiny: 150,
+                           large: 350,
+                           tiny: 100,
                            allowInvisible: true,
-                           background: backgroundColor) { state in
+                           background: ZStack {
+                            backgroundColor.opacity(0.5)
+                            BlurView()
+                           }) { state in
                     if let results = mapViewModel.results {
                         ZStack {
                             SearchResultsView(
@@ -426,9 +514,20 @@ struct MapView: View {
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
-        .edgesIgnoringSafeArea(.all)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .edgesIgnoringSafeArea(.top)
         .appear {
             locationManager.requestWhenInUseAuthorization()
+            locationManager.startUpdatingLocation()
+            if !initialized {
+                if mapViewModel.preselectedPost == nil, let location = locationManager.location {
+                    mapViewModel.region = MKCoordinateRegion(
+                        center: location.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 2, longitudeDelta: 2)
+                    )
+                }
+                initialized = true
+            }
             mapViewModel.startRefreshingMap()
         }
         .disappear {
@@ -443,8 +542,13 @@ struct MapView_Previews: PreviewProvider {
     static let viewState = GlobalViewState()
     
     static var previews: some View {
-        MapView(mapModel: appState.mapModel, mapViewModel: MapViewModel(appState: appState, viewState: viewState))
-            .environmentObject(appState)
-            .environmentObject(GlobalViewState())
+        MapView(
+            mapModel: appState.mapModel,
+            localSettings: appState.localSettings,
+            mapViewModel: MapViewModel(appState: appState, viewState: viewState)
+        )
+        .environmentObject(appState)
+        .environmentObject(GlobalViewState())
     }
 }
+

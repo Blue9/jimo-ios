@@ -133,6 +133,7 @@ struct Search: View {
             
             if let place = searchViewModel.selectedPlaceResult {
                 NavigationLink(destination: ViewPlace(viewPlaceVM: ViewMKMapItemVM(mapItem: place))
+                                .background(backgroundColor)
                                 .navigationBarTitleDisplayMode(.inline)
                                 .navigationBarColor(UIColor(backgroundColor))
                                 .toolbar {

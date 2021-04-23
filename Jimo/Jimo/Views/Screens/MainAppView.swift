@@ -58,7 +58,7 @@ struct MainAppView: View {
                 )
                 
                 UIKitTabView.Tab(
-                    view: AnyView(MapTab(mapModel: appState.mapModel, mapViewModel: mapVM)
+                    view: AnyView(MapTab(mapModel: appState.mapModel, localSettings: appState.localSettings, mapViewModel: mapVM)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),

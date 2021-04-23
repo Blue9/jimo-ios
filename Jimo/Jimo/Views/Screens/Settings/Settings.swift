@@ -123,6 +123,12 @@ struct Settings: View {
             }
             .disabled(settingsViewModel.loading)
             
+            Section(header: Text("Map")) {
+                Toggle(isOn: $appState.localSettings.clusteringEnabled) {
+                    Text("Cluster pins on map")
+                }
+            }
+            
             Section(header: Text("Account")) {
                 Button(action: { settingsViewModel.signOut() }) {
                     Text("Sign out")

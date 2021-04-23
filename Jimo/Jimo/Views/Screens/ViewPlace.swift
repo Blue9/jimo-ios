@@ -311,7 +311,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             Spacer()
         }
         .font(Font.custom(Poppins.regular, size: 16))
-        .padding()
+        .padding(.horizontal)
         .appear {
             viewPlaceVM.getMapItem(handle: { mapItem in
                 if let mapItem = mapItem {
@@ -325,7 +325,6 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
     
     var body: some View {
         viewPlaceBody
-            .background(backgroundColor)
             .appear {
                 if viewPlaceVM.mutualPosts == nil {
                     viewPlaceVM.loadMutualPosts(appState: appState, globalViewState: globalViewState)

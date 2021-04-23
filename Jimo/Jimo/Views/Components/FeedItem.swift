@@ -201,6 +201,7 @@ struct FeedItemBody: View {
                         }
                         
                         NavigationLink(destination: MapView(mapModel: appState.mapModel,
+                                                            localSettings: appState.localSettings,
                                                             mapViewModel: MapViewModel(appState: appState,
                                                                                        viewState: globalViewState,
                                                                                        preselectedPost: post))

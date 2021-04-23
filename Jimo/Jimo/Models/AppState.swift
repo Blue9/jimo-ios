@@ -27,6 +27,33 @@ enum FirebaseSession {
 }
 
 
+class LocalSettings: ObservableObject {
+    static let clusteringEnabledKey = "clusteringEnabled"
+    static let clusteringEnabledDefault = true
+    
+    @Published var clusteringEnabled: Bool {
+        didSet {
+            LocalSettings.setClusteringEnabled(clusteringEnabled: clusteringEnabled)
+        }
+    }
+    
+    init() {
+        let existingValue = UserDefaults.standard.object(forKey: LocalSettings.clusteringEnabledKey)
+        clusteringEnabled = existingValue == nil ? LocalSettings.clusteringEnabledDefault : LocalSettings.isClusteringEnabled()
+    }
+    
+    // MARK: - Map clustering
+    
+    static func isClusteringEnabled() -> Bool {
+        UserDefaults.standard.bool(forKey: LocalSettings.clusteringEnabledKey)
+    }
+    
+    static func setClusteringEnabled(clusteringEnabled: Bool) {
+        UserDefaults.standard.set(clusteringEnabled, forKey: LocalSettings.clusteringEnabledKey)
+    }
+}
+
+
 class FeedModel: ObservableObject {
     @Published var currentFeed: [PostId] = []
 }
@@ -47,7 +74,7 @@ class OnboardingModel: ObservableObject {
     @Published var completedFeaturedUsersOnboarding: Bool = OnboardingModel.featuredUsersOnboarded()
     
     init() {
-        // TODO remove
+        // Uncomment to enable onboarding view
         // completedContactsOnboarding = false
         // completedFeaturedUsersOnboarding = false
     }
@@ -89,6 +116,8 @@ class AppState: ObservableObject {
     let mapModel = MapModel()
     let allPosts = AllPosts()
     let onboardingModel = OnboardingModel()
+    
+    var localSettings = LocalSettings()
     
     let storage = Storage.storage()
     
