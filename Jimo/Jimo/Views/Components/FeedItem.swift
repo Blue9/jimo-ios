@@ -44,7 +44,7 @@ struct FeedItemLikes: View {
                 }
             } else {
                 Button(action: {
-                    UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     feedItemVM.likePost()
                 }) {
                     Image(systemName: "heart")

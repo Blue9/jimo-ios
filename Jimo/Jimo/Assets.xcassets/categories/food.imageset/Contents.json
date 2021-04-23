@@ -6,12 +6,12 @@
       "scale" : "1x"
     },
     {
-      "filename" : "Food icon.png",
+      "filename" : "food@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Food icon-1.png",
+      "filename" : "food@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
