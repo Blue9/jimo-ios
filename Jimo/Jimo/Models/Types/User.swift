@@ -83,6 +83,15 @@ struct FollowUserResponse: Codable {
 }
 
 
+enum UserRelation: String, Codable {
+    case following, blocked
+}
+
+struct RelationToUser: Codable {
+    var relation: UserRelation?
+}
+
+
 struct InviteUserRequest: Codable {
     var phoneNumber: String
 }

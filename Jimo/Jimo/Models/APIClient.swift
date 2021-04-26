@@ -16,6 +16,16 @@ struct Endpoint {
     let path: String
     var queryItems: [URLQueryItem] = []
     
+    var url: URL? {
+        var apiURL = URLComponents()
+        apiURL.scheme = "https"
+        apiURL.host = "api-v0.jimoapp.com"
+        apiURL.port = 443
+        apiURL.path = path
+        apiURL.queryItems = queryItems
+        return apiURL.url
+    }
+    
     // MARK: - Invite + waitlist endpoints
     
     static func waitlistStatus() -> Endpoint {
@@ -78,6 +88,8 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/posts")
     }
     
+    // MARK: - Relation endpoints
+    
     static func follow(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/follow")
     }
@@ -86,8 +98,20 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/unfollow")
     }
     
-    static func isFollowing(username: String) -> Endpoint {
+    static func block(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/block")
+    }
+    
+    static func unblock(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/unblock")
+    }
+    
+    static func followStatus(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/followStatus")
+    }
+    
+    static func followStatusV2(username: String) -> Endpoint {
+        return Endpoint(path: "/users/\(username)/followStatusV2")
     }
     
     // MARK: - Post endpoints
@@ -152,16 +176,6 @@ struct Endpoint {
     
     static func uploadImage() -> Endpoint {
         return Endpoint(path: "/images")
-    }
-    
-    var url: URL? {
-        var apiURL = URLComponents()
-        apiURL.scheme = "https"
-        apiURL.host = "api-v0.jimoapp.com"
-        apiURL.port = 443
-        apiURL.path = path
-        apiURL.queryItems = queryItems
-        return apiURL.url
     }
 }
 
@@ -374,6 +388,8 @@ class APIClient: ObservableObject {
         doRequest(endpoint: Endpoint.posts(username: username))
     }
     
+    // MARK: - Relation endpoints
+    
     /**
      Follow user.
      */
@@ -388,11 +404,26 @@ class APIClient: ObservableObject {
         doRequest(endpoint: Endpoint.unfollow(username: username), httpMethod: "POST")
     }
     
+    func blockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: Endpoint.block(username: username), httpMethod: "POST")
+    }
+    
+    func unblockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: Endpoint.unblock(username: username), httpMethod: "POST")
+    }
+    
     /**
      Get follow status.
      */
-    func isFollowing(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
-        doRequest(endpoint: Endpoint.isFollowing(username: username))
+    func followStatus(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
+        doRequest(endpoint: Endpoint.followStatus(username: username))
+    }
+    
+    /**
+     Get follow status.
+     */
+    func followStatusV2(to username: String) -> AnyPublisher<RelationToUser, APIError> {
+        doRequest(endpoint: Endpoint.followStatusV2(username: username))
     }
     
     // MARK: - Post endpoints

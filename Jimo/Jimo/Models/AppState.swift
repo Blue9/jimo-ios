@@ -378,7 +378,7 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
-    // MARK: - Follow endpoints
+    // MARK: - Relation endpoints
     
     func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         return self.apiClient.followUser(username: username)
@@ -388,8 +388,20 @@ class AppState: ObservableObject {
         return self.apiClient.unfollowUser(username: username)
     }
     
+    func blockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
+        return self.apiClient.blockUser(username: username)
+    }
+    
+    func unblockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
+        return self.apiClient.unblockUser(username: username)
+    }
+    
     func isFollowing(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
-        return self.apiClient.isFollowing(username: username)
+        return self.apiClient.followStatus(username: username)
+    }
+    
+    func relation(to username: String) -> AnyPublisher<RelationToUser, APIError> {
+        return self.apiClient.followStatusV2(to: username)
     }
     
     // MARK: - Post

@@ -20,11 +20,11 @@ class ProfileVM: ObservableObject {
     var loadFollowStatusCancellable: Cancellable? = nil
     var loadPostsCancellable: Cancellable? = nil
     
-    var followUserCancellable: Cancellable? = nil
-    var unfollowUserCancellable: Cancellable? = nil
+    var relationCancellable: AnyCancellable?
     
     @Published var user: User
-    @Published var following: Bool = false
+    @Published var loadedRelation = false
+    @Published var relationToUser: UserRelation?
     @Published var posts: [PostId] = []
     
     /// This really just tracks the post loading (ignores user and follow status) for simplicity
@@ -56,7 +56,7 @@ class ProfileVM: ObservableObject {
     
     func refresh(onFinish: OnFinish? = nil) {
         loadUser(onFinish: onFinish)
-        loadFollowStatus()
+        loadFollowStatusV2()
         loadPosts()
     }
     
@@ -86,8 +86,23 @@ class ProfileVM: ObservableObject {
                     self?.globalViewState.setError("Failed to load follow status")
                 }
             }, receiveValue: { [weak self] response in
-                self?.following = response.followed
+                self?.relationToUser = response.followed ? .following : nil
+                self?.loadedRelation = true
             })
+    }
+    
+    func loadFollowStatusV2() {
+        guard !isCurrentUser else { return }
+        loadFollowStatusCancellable = appState.relation(to: user.username)
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Error when loading follow status (v2)", error)
+                    self?.globalViewState.setError("Failed to load follow status")
+                }
+            } receiveValue: { [weak self] relation in
+                self?.relationToUser = relation.relation
+                self?.loadedRelation = true
+            }
     }
     
     func loadPosts() {
@@ -117,30 +132,78 @@ class ProfileVM: ObservableObject {
     }
     
     func followUser() {
-        followUserCancellable = appState.followUser(username: user.username)
+        relationCancellable = appState.followUser(username: user.username)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when following", error)
                 }
             }, receiveValue: { [weak self] response in
-                self?.following = response.followed
+                self?.relationToUser = response.followed ? .following : nil
                 if let count = response.followers {
                     self?.user.followerCount = count
                 }
-
             })
     }
     
     func unfollowUser() {
-        unfollowUserCancellable = appState.unfollowUser(username: user.username)
+        relationCancellable = appState.unfollowUser(username: user.username)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when unfollowing", error)
                 }
             }, receiveValue: { [weak self] response in
-                self?.following = response.followed
+                self?.relationToUser = response.followed ? .following : nil
                 if let count = response.followers {
                     self?.user.followerCount = count
+                }
+            })
+    }
+    
+    func blockUser() {
+        guard relationToUser == nil else {
+            globalViewState.setError("Cannot block someone you already follow or block")
+            return
+        }
+        relationCancellable = appState.blockUser(username: user.username)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case let .failure(error) = completion {
+                    if case let .requestError(maybeErrors) = error,
+                       let errors = maybeErrors,
+                       let first = errors.first {
+                        self?.globalViewState.setError(first.value)
+                    } else {
+                        self?.globalViewState.setError("Could not block user")
+                    }
+                    print("Error when blocking user", error)
+                }
+            }, receiveValue: { [weak self] response in
+                if response.success {
+                    self?.relationToUser = .blocked
+                    self?.posts.removeAll()
+                }
+            })
+    }
+    
+    func unblockUser() {
+        guard relationToUser == .blocked else {
+            globalViewState.setError("This user is not blocked")
+            return
+        }
+        relationCancellable = appState.unblockUser(username: user.username)
+            .sink(receiveCompletion: { [weak self] completion in
+                if case let .failure(error) = completion {
+                    if case let .requestError(maybeErrors) = error,
+                       let errors = maybeErrors,
+                       let first = errors.first {
+                        self?.globalViewState.setError(first.value)
+                    } else {
+                        self?.globalViewState.setError("Could not unblock user")
+                    }
+                    print("Error when unblocking user", error)
+                }
+            }, receiveValue: { [weak self] response in
+                if response.success {
+                    self?.relationToUser = nil
                 }
             })
     }

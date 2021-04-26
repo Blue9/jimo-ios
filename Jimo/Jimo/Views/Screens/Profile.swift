@@ -52,7 +52,18 @@ struct ProfileHeaderView: View {
                 
                 if isCurrentUser {
                     Spacer().frame(height: 30)
-                } else if profileVM.following {
+                } else if !profileVM.loadedRelation {
+                    Text("Loading...")
+                        .padding(5)
+                        .font(Font.custom(Poppins.regular, size: 14))
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .foregroundColor(.gray)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray, lineWidth: 1)
+                        )
+                } else if profileVM.relationToUser == .following {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         profileVM.unfollowUser()
@@ -67,6 +78,18 @@ struct ProfileHeaderView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.gray, lineWidth: 1)
                             )
+                    }.frame(height: 30)
+                } else if profileVM.relationToUser == .blocked {
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        profileVM.unblockUser()
+                    }) {
+                        Text("Unblock")
+                            .padding(5)
+                            .font(Font.custom(Poppins.regular, size: 14))
+                            .background(Color.red)
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
                     }.frame(height: 30)
                 } else {
                     Button(action: {
@@ -140,7 +163,7 @@ struct Profile: View {
         }
     }
     
-    var body: some View {
+    var profileBody: some View {
         ASCollectionView {
             section
                 .sectionHeader {
@@ -162,7 +185,7 @@ struct Profile: View {
                     } else { // notInitialized
                         ProgressView()
                             .appear {
-                                profileVM.loadFollowStatus()
+                                profileVM.loadFollowStatusV2()
                                 profileVM.loadPosts()
                             }
                     }
@@ -191,6 +214,53 @@ struct Profile: View {
             profileVM.posts.append("")
         }
         .ignoresSafeArea(.keyboard, edges: .all)
+    }
+    
+    @State private var showUserOptions = false
+    @State private var confirmBlockUser = false
+    
+    var body: some View {
+        profileBody
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if !profileVM.isCurrentUser {
+                        Button {
+                            showUserOptions.toggle()
+                        } label: {
+                            Image(systemName: "ellipsis")
+                        }
+                    } else {
+                        EmptyView()
+                    }
+                }
+            }
+            .actionSheet(isPresented: $showUserOptions) {
+                if profileVM.relationToUser == .blocked {
+                    return ActionSheet(
+                        title: Text("Options"),
+                        buttons: [
+                            .destructive(Text("Unblock"), action: { profileVM.unblockUser() }),
+                            .cancel()
+                        ]
+                    )
+                } else {
+                    return ActionSheet(
+                        title: Text("Options"),
+                        buttons: [
+                            .destructive(Text("Block"), action: { confirmBlockUser = true }),
+                            .cancel()
+                        ]
+                    )
+                }
+            }
+            .alert(isPresented: $confirmBlockUser) {
+                Alert(
+                    title: Text("Confirm"),
+                    message: Text("Block @\(profileVM.user.username)? They won't know you blocked them."),
+                    primaryButton: .default(Text("Block")) { profileVM.blockUser() },
+                    secondaryButton: .cancel()
+                )
+            }
     }
 }
 
