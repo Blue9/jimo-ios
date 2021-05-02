@@ -17,7 +17,7 @@ class NotificationFeedVM: ObservableObject {
     @Published var loadingMoreNotifications = false
 
     private var cancellable: Cancellable? = nil
-    private var token: PaginationToken = PaginationToken()
+    private var cursor: String?
     
     func initialize(appState: AppState) {
         if initialized {
@@ -33,8 +33,8 @@ class NotificationFeedVM: ObservableObject {
             onFinish?()
             return
         }
-        self.token = PaginationToken()
-        cancellable = appState.getNotificationsFeed(token: token)
+        self.cursor = nil
+        cancellable = appState.getNotificationsFeed(token: nil)
             .sink(receiveCompletion: { completion in
                 onFinish?()
                 if case let .failure(error) = completion {
@@ -42,21 +42,17 @@ class NotificationFeedVM: ObservableObject {
                 }
             }, receiveValue: { [weak self] response in
                 self?.feedItems = response.notifications
-                self?.token = response.token
+                self?.cursor = response.cursor
             })
     }
     
     func loadMoreNotifications() {
-        guard let appState = appState else {
-            return
-        }
-        if feedItems.count < 50 {
-            // This prevents from spamming the API when there is less than a full page of results
+        guard let appState = appState, cursor != nil else {
             return
         }
         loadingMoreNotifications = true
         print("Loading more notifications")
-        cancellable = appState.getNotificationsFeed(token: token)
+        cancellable = appState.getNotificationsFeed(token: cursor)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error while load more notifications.", error)
@@ -64,7 +60,7 @@ class NotificationFeedVM: ObservableObject {
                 self?.loadingMoreNotifications = false
             }, receiveValue: { [weak self] response in
                 self?.feedItems.append(contentsOf: response.notifications)
-                self?.token = response.token
+                self?.cursor = response.cursor
             })
     }
 }
@@ -188,9 +184,7 @@ struct NotificationFeed: View {
             .sectionFooter {
                 VStack {
                     Divider()
-                        .appear {
-                            notificationFeedVM.loadMoreNotifications()
-                        }
+                    
                     ProgressView()
                         .opacity(notificationFeedVM.loadingMoreNotifications ? 1 : 0)
                     Text("You've reached the end!")
@@ -205,6 +199,11 @@ struct NotificationFeed: View {
         }
         .onPullToRefresh { onFinish in
             notificationFeedVM.refreshFeed(onFinish: onFinish)
+        }
+        .onReachedBoundary { boundary in
+            if boundary == .bottom {
+                notificationFeedVM.loadMoreNotifications()
+            }
         }
         .ignoresSafeArea(.keyboard, edges: .all)
         .background(backgroundColor.edgesIgnoringSafeArea(.all))

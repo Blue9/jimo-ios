@@ -19,7 +19,7 @@ struct Endpoint {
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "https"
-        apiURL.host = "api-v0.jimoapp.com"
+        apiURL.host = "api.jimoapp.com"
         apiURL.port = 443
         apiURL.path = path
         apiURL.queryItems = queryItems
@@ -76,10 +76,10 @@ struct Endpoint {
         return Endpoint(path: "/me/preferences")
     }
     
-    static func feed(beforePostId: String? = nil) -> Endpoint {
+    static func feed(cursor: String? = nil) -> Endpoint {
         let path = "/me/feed"
-        if let before = beforePostId {
-            return Endpoint(path: path, queryItems: [URLQueryItem(name: "before", value: before)])
+        if let cursor = cursor {
+            return Endpoint(path: path, queryItems: [URLQueryItem(name: "cursor", value: cursor)])
         }
         return Endpoint(path: path)
     }
@@ -106,11 +106,7 @@ struct Endpoint {
         return Endpoint(path: "/users/\(username)/unblock")
     }
     
-    static func followStatus(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/followStatus")
-    }
-    
-    static func followStatusV2(username: String) -> Endpoint {
+    static func relation(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/followStatusV2")
     }
     
@@ -168,10 +164,9 @@ struct Endpoint {
         return Endpoint(path: "/notifications/token")
     }
     
-    static func getNotificationsFeed(token: PaginationToken) -> Endpoint {
-        let queryItems = [URLQueryItem(name: "f", value: token.followId),
-                          URLQueryItem(name: "l", value: token.likeId)]
-        return Endpoint(path: "/notifications/feed", queryItems: queryItems)
+    static func getNotificationsFeed(token: String?) -> Endpoint {
+        let queryItems = [URLQueryItem(name: "cursor", value: token)]
+        return Endpoint(path: "/notifications/feed", queryItems: token != nil ? queryItems : [])
     }
     
     static func uploadImage() -> Endpoint {
@@ -288,7 +283,7 @@ class APIClient: ObservableObject {
     /**
      Get the notification feed.
      */
-    func getNotificationsFeed(token: PaginationToken) -> AnyPublisher<NotificationFeedResponse, APIError> {
+    func getNotificationsFeed(token: String?) -> AnyPublisher<NotificationFeedResponse, APIError> {
         return doRequest(endpoint: Endpoint.getNotificationsFeed(token: token))
     }
     
@@ -356,8 +351,8 @@ class APIClient: ObservableObject {
     /**
      Get the feed for the given user.
      */
-    func getFeed(beforePostId: String? = nil) -> AnyPublisher<[Post], APIError> {
-        return doRequest(endpoint: Endpoint.feed(beforePostId: beforePostId))
+    func getFeed(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        return doRequest(endpoint: Endpoint.feed(cursor: cursor))
     }
     
     /**
@@ -415,15 +410,8 @@ class APIClient: ObservableObject {
     /**
      Get follow status.
      */
-    func followStatus(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
-        doRequest(endpoint: Endpoint.followStatus(username: username))
-    }
-    
-    /**
-     Get follow status.
-     */
-    func followStatusV2(to username: String) -> AnyPublisher<RelationToUser, APIError> {
-        doRequest(endpoint: Endpoint.followStatusV2(username: username))
+    func relation(to username: String) -> AnyPublisher<RelationToUser, APIError> {
+        doRequest(endpoint: Endpoint.relation(username: username))
     }
     
     // MARK: - Post endpoints

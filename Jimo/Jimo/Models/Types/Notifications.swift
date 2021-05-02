@@ -21,12 +21,7 @@ struct NotificationItem: Codable, Hashable {
     var post: Post?
 }
 
-struct PaginationToken: Codable {
-    var followId: String?
-    var likeId: String?
-}
-
 struct NotificationFeedResponse: Codable {
     var notifications: [NotificationItem]
-    var token: PaginationToken
+    var cursor: String?
 }

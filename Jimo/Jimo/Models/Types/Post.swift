@@ -35,6 +35,12 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
 }
 
 
+struct FeedResponse: Codable {
+    var posts: [Post]
+    var cursor: String?
+}
+
+
 struct CreatePostRequest: Codable {
     var place: MaybeCreatePlaceRequest
     var category: String

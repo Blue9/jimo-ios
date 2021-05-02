@@ -185,7 +185,7 @@ struct Profile: View {
                     } else { // notInitialized
                         ProgressView()
                             .appear {
-                                profileVM.loadFollowStatusV2()
+                                profileVM.loadRelation()
                                 profileVM.loadPosts()
                             }
                     }

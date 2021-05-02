@@ -21,7 +21,7 @@ struct URLImage: View {
         )
         .resizable()
         .placeholder {
-            Color.white.opacity(0.5)
+            loading.resizable()
         }
         .transition(.fade(duration: 0.5))
         .scaledToFill()

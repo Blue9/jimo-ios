@@ -87,9 +87,6 @@ struct FeedBody: View {
     @StateObject var feedState: FeedViewState
     
     private func loadMore() {
-        if feedState.feed.count < 50 {
-            return
-        }
         if feedState.loadingMorePosts {
             return
         }

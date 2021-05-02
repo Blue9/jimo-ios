@@ -56,6 +56,7 @@ class LocalSettings: ObservableObject {
 
 class FeedModel: ObservableObject {
     @Published var currentFeed: [PostId] = []
+    @Published var cursor: String?
 }
 
 
@@ -345,8 +346,10 @@ class AppState: ObservableObject {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        let beforePostId = feedModel.currentFeed.last
-        return self.apiClient.getFeed(beforePostId: beforePostId)
+        guard let cursor = feedModel.cursor else {
+            return Empty().eraseToAnyPublisher()
+        }
+        return self.apiClient.getFeed(cursor: cursor)
             .map(self.appendToFeed)
             .map({ _ in return () })
             .eraseToAnyPublisher()
@@ -396,12 +399,8 @@ class AppState: ObservableObject {
         return self.apiClient.unblockUser(username: username)
     }
     
-    func isFollowing(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
-        return self.apiClient.followStatus(username: username)
-    }
-    
     func relation(to username: String) -> AnyPublisher<RelationToUser, APIError> {
-        return self.apiClient.followStatusV2(to: username)
+        return self.apiClient.relation(to: username)
     }
     
     // MARK: - Post
@@ -474,7 +473,7 @@ class AppState: ObservableObject {
     
     // MARK: - Notifications
     
-    func getNotificationsFeed(token: PaginationToken) -> AnyPublisher<NotificationFeedResponse, APIError> {
+    func getNotificationsFeed(token: String?) -> AnyPublisher<NotificationFeedResponse, APIError> {
         return self.apiClient.getNotificationsFeed(token: token)
             .map(self.addNotificationsToFeed)
             .eraseToAnyPublisher()
@@ -514,15 +513,17 @@ class AppState: ObservableObject {
         return response
     }
     
-    private func setFeed(posts: [Post]) -> [PostId] {
-        let postIds = addPostsToAllPosts(posts: posts)
+    private func setFeed(feed: FeedResponse) -> [PostId] {
+        let postIds = addPostsToAllPosts(posts: feed.posts)
         feedModel.currentFeed = postIds
+        feedModel.cursor = feed.cursor
         return postIds
     }
     
-    private func appendToFeed(posts: [Post]) {
-        let postIds = addPostsToAllPosts(posts: posts)
+    private func appendToFeed(feed: FeedResponse) {
+        let postIds = addPostsToAllPosts(posts: feed.posts)
         feedModel.currentFeed.append(contentsOf: postIds)
+        feedModel.cursor = feed.cursor
     }
     
     private func setDiscoverFeed(posts: [Post]) -> [Post] {
@@ -601,7 +602,7 @@ class AppState: ObservableObject {
             print("Missing token")
             return
         }
-        print("Received notification for new token", token)
+        // print("Received notification for new token", token)
         registerNewNotificationToken(token: token)
     }
     
@@ -624,7 +625,7 @@ class AppState: ObservableObject {
             if let error = error {
                 print("Error fetching FCM registration token: \(error)")
             } else if let token = token {
-                print("FCM registration token: \(token)")
+                // print("FCM registration token: \(token)")
                 self.registerNewNotificationToken(token: token)
             }
         }

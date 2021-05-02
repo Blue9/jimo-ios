@@ -17,7 +17,7 @@ class ProfileVM: ObservableObject {
     let globalViewState: GlobalViewState
     
     var loadUserCancellable: Cancellable? = nil
-    var loadFollowStatusCancellable: Cancellable? = nil
+    var loadRelationCancellable: Cancellable? = nil
     var loadPostsCancellable: Cancellable? = nil
     
     var relationCancellable: AnyCancellable?
@@ -55,15 +55,14 @@ class ProfileVM: ObservableObject {
     }
     
     func refresh(onFinish: OnFinish? = nil) {
-        loadUser(onFinish: onFinish)
-        loadFollowStatusV2()
-        loadPosts()
+        loadUser()
+        loadRelation()
+        loadPosts(onFinish: onFinish)
     }
     
-    func loadUser(onFinish: OnFinish? = nil) {
+    func loadUser() {
         loadUserCancellable = appState.getUser(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
-                onFinish?()
                 if case let .failure(error) = completion {
                     print("Error when loading user", error)
                     if error == .notFound {
@@ -77,23 +76,9 @@ class ProfileVM: ObservableObject {
             })
     }
     
-    func loadFollowStatus() {
+    func loadRelation() {
         guard !isCurrentUser else { return }
-        loadFollowStatusCancellable = appState.isFollowing(username: user.username)
-            .sink(receiveCompletion: { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Error when loading follow status", error)
-                    self?.globalViewState.setError("Failed to load follow status")
-                }
-            }, receiveValue: { [weak self] response in
-                self?.relationToUser = response.followed ? .following : nil
-                self?.loadedRelation = true
-            })
-    }
-    
-    func loadFollowStatusV2() {
-        guard !isCurrentUser else { return }
-        loadFollowStatusCancellable = appState.relation(to: user.username)
+        loadRelationCancellable = appState.relation(to: user.username)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error when loading follow status (v2)", error)
@@ -105,9 +90,10 @@ class ProfileVM: ObservableObject {
             }
     }
     
-    func loadPosts() {
+    func loadPosts(onFinish: OnFinish? = nil) {
         loadPostsCancellable = appState.getPosts(username: user.username)
             .sink(receiveCompletion: { [weak self] completion in
+                onFinish?()
                 if case let .failure(error) = completion {
                     self?.loadStatus = .failed
                     print("Error when loading posts", error)
