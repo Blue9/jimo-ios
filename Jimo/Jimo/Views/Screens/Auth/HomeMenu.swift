@@ -19,13 +19,9 @@ struct RaisedButtonStyle: ButtonStyle {
 struct HomeMenu: View {
     var body: some View {
         VStack {
-            ZStack(alignment: .bottomTrailing) {
-                Image("logo")
-                    .aspectRatio(contentMode: .fit)
-                    .padding(.bottom, 12)
-                Text("beta")
-            }
-            .padding(.bottom, 40)
+            Image("logo")
+                .aspectRatio(contentMode: .fit)
+                .padding(.bottom, 40)
             
             VStack(alignment: .leading, spacing: 20) {
                 Text("We can’t wait to get jimo out to the world, but for now we’re invite only.")
