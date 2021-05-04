@@ -107,7 +107,7 @@ struct Endpoint {
     }
     
     static func relation(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/followStatusV2")
+        return Endpoint(path: "/users/\(username)/relation")
     }
     
     // MARK: - Post endpoints
