@@ -85,9 +85,19 @@ struct EnterPhoneNumber: View {
                 .shadow(radius: 5)
                 .padding(.bottom, 10)
                 
-                Text("By entering your number, you’re agreeing to our Terms of Service and Privacy Policy.")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                VStack {
+                    Text("By proceeding, you’re agreeing to our")
+                    HStack(spacing: 0) {
+                        Link("Terms of Service", destination: URL(string: "https://www.jimoapp.com/terms")!)
+                            .foregroundColor(.blue)
+                        Text(" and ")
+                        Link("Privacy Policy", destination: URL(string: "https://www.jimoapp.com/privacy-policy")!)
+                            .foregroundColor(.blue)
+                        Text(".")
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(.gray)
                 
                 NavigationLink(destination: VerifyPhoneNumber(), isActive: $nextStep) {
                     EmptyView()
