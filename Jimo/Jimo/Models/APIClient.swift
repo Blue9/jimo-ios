@@ -84,8 +84,12 @@ struct Endpoint {
         return Endpoint(path: path)
     }
     
-    static func posts(username: String) -> Endpoint {
-        return Endpoint(path: "/users/\(username)/posts")
+    static func posts(username: String, cursor: String? = nil) -> Endpoint {
+        let path = "/users/\(username)/posts"
+        if let cursor = cursor {
+            return Endpoint(path: path, queryItems: [URLQueryItem(name: "cursor", value: cursor)])
+        }
+        return Endpoint(path: path)
     }
     
     // MARK: - Relation endpoints
@@ -379,8 +383,8 @@ class APIClient: ObservableObject {
     /**
      Get the posts by the given user.
      */
-    func getPosts(username: String) -> AnyPublisher<[Post], APIError> {
-        doRequest(endpoint: Endpoint.posts(username: username))
+    func getPosts(username: String, cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        doRequest(endpoint: Endpoint.posts(username: username, cursor: cursor))
     }
     
     // MARK: - Relation endpoints

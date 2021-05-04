@@ -177,6 +177,10 @@ struct Profile: View {
                 Group {
                     if profileVM.loadStatus == .success {
                         Divider()
+                        
+                        ProgressView()
+                            .opacity(profileVM.loadingMore ? 1 : 0)
+                        
                         Text("You've reached the end!")
                             .padding()
                     } else if profileVM.loadStatus == .failed {
@@ -202,6 +206,11 @@ struct Profile: View {
         .scrollIndicatorsEnabled(horizontal: false, vertical: false)
         .onPullToRefresh { onFinish in
             profileVM.refresh(onFinish: onFinish)
+        }
+        .onReachedBoundary { boundary in
+            if boundary == .bottom {
+                profileVM.loadMorePosts()
+            }
         }
         .font(Font.custom(Poppins.medium, size: 15))
         .background(backgroundColor)

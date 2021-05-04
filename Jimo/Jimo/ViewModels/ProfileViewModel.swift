@@ -26,9 +26,11 @@ class ProfileVM: ObservableObject {
     @Published var loadedRelation = false
     @Published var relationToUser: UserRelation?
     @Published var posts: [PostId] = []
+    @Published var cursor: String?
     
     /// This really just tracks the post loading (ignores user and follow status) for simplicity
     @Published var loadStatus = ProfileLoadStatus.notInitialized
+    @Published var loadingMore = false
     
     var isCurrentUser: Bool {
         guard case let .user(currentUser) = appState.currentUser else {
@@ -105,14 +107,37 @@ class ProfileVM: ObservableObject {
                 } else {
                     self?.loadStatus = .success
                 }
-            }, receiveValue: { [weak self] posts in
+            }, receiveValue: { [weak self] userFeed in
                 if self?.loadStatus == .notInitialized {
                     /// Having the initial load be animated can be kind of jarring
-                    self?.posts = posts
+                    self?.posts = userFeed.posts.map { $0.postId }
+                    self?.cursor = userFeed.cursor
                 } else {
                     withAnimation {
-                        self?.posts = posts
+                        self?.posts = userFeed.posts.map { $0.postId }
+                        self?.cursor = userFeed.cursor
                     }
+                }
+            })
+    }
+    
+    func loadMorePosts() {
+        guard let cursor = cursor else {
+            // No more to load
+            return
+        }
+        loadingMore = true
+        loadPostsCancellable = appState.getPosts(username: user.username, cursor: cursor)
+            .sink(receiveCompletion: { [weak self] completion in
+                self?.loadingMore = false
+                if case let .failure(error) = completion {
+                    print("Error when loading more posts", error)
+                    self?.globalViewState.setError("Failed to load more posts")
+                }
+            }, receiveValue: { [weak self] userFeed in
+                withAnimation {
+                    self?.posts.append(contentsOf: userFeed.posts.map { $0.postId })
+                    self?.cursor = userFeed.cursor
                 }
             })
     }

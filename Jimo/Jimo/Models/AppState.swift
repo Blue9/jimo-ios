@@ -422,9 +422,12 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
-    func getPosts(username: String) -> AnyPublisher<[PostId], APIError> {
-        return self.apiClient.getPosts(username: username)
-            .map(self.addPostsToAllPosts)
+    func getPosts(username: String, cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        return self.apiClient.getPosts(username: username, cursor: cursor)
+            .map { response in
+                _ = self.addPostsToAllPosts(posts: response.posts)
+                return response
+            }
             .eraseToAnyPublisher()
     }
     
