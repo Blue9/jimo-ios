@@ -80,6 +80,8 @@ struct CreateProfileBody: View {
     @State private var showServerError = false
     @State private var showRequestError = false
     
+    @State private var creatingProfile = false
+    
     func validUsername(username: String) -> Bool {
         return username.count >= 3 && username.count <= 20
     }
@@ -95,6 +97,7 @@ struct CreateProfileBody: View {
     }
     
     func createProfile() {
+        creatingProfile = true
         hideKeyboard()
         let request = CreateUserRequest(
             username: username,
@@ -108,6 +111,7 @@ struct CreateProfileBody: View {
         }
         cancellable = apiRequest
             .sink(receiveCompletion: { completion in
+                creatingProfile = false
                 if case .failure = completion {
                     showServerError = true
                 }
@@ -209,7 +213,7 @@ struct CreateProfileBody: View {
                         .cornerRadius(10)
                 }
                 .buttonStyle(RaisedButtonStyle())
-                .disabled(!allValid)
+                .disabled(!allValid || creatingProfile)
                 .padding(.bottom, 40)
             }
             .gesture(DragGesture(minimumDistance: 10).onChanged { _ in hideKeyboard() })

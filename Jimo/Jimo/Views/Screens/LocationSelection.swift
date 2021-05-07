@@ -44,30 +44,47 @@ private struct LocationSelectionPin: View {
 }
 
 struct LocationSelection: View {
+    @Environment(\.presentationMode) var presentationMode
     @State var mapRegion: MKCoordinateRegion
-    @Binding var active: Bool
     
     var afterConfirm: (MKCoordinateRegion) -> Void
 
     var body: some View {
-        ZStack {
-            Map(coordinateRegion: $mapRegion)
-            LocationSelectionPin()
-            VStack {
-                Spacer()
+        VStack {
+            ZStack(alignment: .center) {
                 HStack {
-                    ActionButton(text: "Cancel", color: .gray, action: {
-                        self.active = false
-                    })
-                    Spacer(minLength: 20)
-                    ActionButton(text: "Update", action: {
-                        self.active = false
-                        self.afterConfirm(mapRegion)
-                    })
+                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                        Text("Cancel")
+                            .padding(.horizontal, 15)
+                    }
+                    Spacer()
                 }
-                .padding(.horizontal, 70)
+                
+                NavTitle("Location")
             }
-            .padding(.bottom, 60)
+            .padding(.top, 15)
+            .padding(.bottom, 10)
+            
+            ZStack {
+                Map(coordinateRegion: $mapRegion)
+                LocationSelectionPin()
+                VStack {
+                    Spacer()
+                    HStack {
+                        ActionButton(text: "Cancel", color: .gray, action: {
+                            presentationMode.wrappedValue.dismiss()
+                        })
+                        Spacer(minLength: 20)
+                        ActionButton(text: "Update", action: {
+                            presentationMode.wrappedValue.dismiss()
+                            self.afterConfirm(mapRegion)
+                        })
+                    }
+                    .padding(.horizontal, 70)
+                }
+                .padding(.bottom, 60)
+            }
+            .edgesIgnoringSafeArea(.all)
         }
     }
 }
@@ -78,6 +95,6 @@ struct LocationSelection_Previews: PreviewProvider {
     @State static var selectedRegion: MKCoordinateRegion? = nil
     
     static var previews: some View {
-        LocationSelection(mapRegion: mapRegion, active: $active, afterConfirm: {_ in })
+        LocationSelection(mapRegion: mapRegion, afterConfirm: {_ in })
     }
 }

@@ -9,9 +9,8 @@ import SwiftUI
 import MapKit
 
 struct PlaceSearch: View {
+    @Environment(\.presentationMode) var presentationMode
     @StateObject var locationSearch: LocationSearch = LocationSearch()
-    
-    @Binding var active: Bool
     @State var showAlert = false
     
     var selectPlace: (MKMapItem) -> Void
@@ -44,13 +43,22 @@ struct PlaceSearch: View {
 //        ])
     }
     
-    init(active: Binding<Bool>, selectPlace: @escaping (MKMapItem) -> Void) {
-        _active = active
-        self.selectPlace = selectPlace
-    }
-    
     var body: some View {
         VStack {
+            ZStack(alignment: .center) {
+                HStack {
+                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                        Text("Cancel")
+                            .padding(.horizontal, 15)
+                    }
+                    Spacer()
+                }
+                
+                NavTitle("Name")
+            }
+            .padding(.top, 15)
+            .padding(.bottom, 10)
+            
             SearchBar(text: $locationSearch.searchQuery, placeholder: "Search for a place")
             List(locationSearch.completions) { completion in
                 HStack {
@@ -72,7 +80,7 @@ struct PlaceSearch: View {
                         }
                         let places = response?.mapItems
                         if places != nil && places!.count > 0 {
-                            self.active = false
+                            presentationMode.wrappedValue.dismiss()
                             self.selectPlace(places![0])
                         } else {
                             self.showAlert = true
@@ -95,6 +103,6 @@ struct PlaceSearch: View {
 struct PlaceSearch_Previews: PreviewProvider {
     @State static var active = true
     static var previews: some View {
-        PlaceSearch(active: $active, selectPlace: {_ in })
+        PlaceSearch(selectPlace: {_ in })
     }
 }

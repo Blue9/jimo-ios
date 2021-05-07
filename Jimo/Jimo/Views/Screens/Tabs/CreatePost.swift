@@ -230,11 +230,7 @@ struct CreatePost: View {
                             .padding(.vertical)
                         
                         Group {
-                            NavigationLink(
-                                destination: PlaceSearch(
-                                    active: $createPostVM.placeSearchActive,
-                                    selectPlace: createPostVM.selectPlace),
-                                isActive: $createPostVM.placeSearchActive) {
+                            Button(action: { createPostVM.activeSheet = .placeSearch }) {
                                 FormInputButton(
                                     name: "Name",
                                     content: createPostVM.name,
@@ -243,12 +239,7 @@ struct CreatePost: View {
                             
                             CreatePostDivider()
                             
-                            NavigationLink(
-                                destination: LocationSelection(
-                                    mapRegion: createPostVM.mapRegion,
-                                    active: $createPostVM.locationSearchActive,
-                                    afterConfirm: createPostVM.selectLocation),
-                                isActive: $createPostVM.locationSearchActive) {
+                            Button(action: { createPostVM.activeSheet = .locationSelection }) {
                                 FormInputButton(
                                     name: "Location",
                                     content: createPostVM.locationString,
@@ -278,7 +269,7 @@ struct CreatePost: View {
                                     .cornerRadius(10)
                                     .contentShape(Rectangle())
                                     .onTapGesture {
-                                        createPostVM.showImagePicker = true
+                                        createPostVM.activeSheet = .imagePicker
                                     }
                                     
                                     Image(systemName: "xmark.circle.fill")
@@ -297,7 +288,7 @@ struct CreatePost: View {
                                     RoundedRectangle(cornerRadius: 10, style: .continuous)
                                         .fill(Color.gray.opacity(0.2))
                                         .onTapGesture {
-                                            createPostVM.showImagePicker = true
+                                            createPostVM.activeSheet = .imagePicker
                                         }
                                         .frame(height: 200)
                                         .cornerRadius(10)
@@ -318,6 +309,7 @@ struct CreatePost: View {
                     }
                 }
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
             .background(backgroundColor.edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(UIColor(backgroundColor))
@@ -337,12 +329,20 @@ struct CreatePost: View {
             .popup(isPresented: $showSuccess, type: .toast, autohideIn: 2) {
                 Toast(text: successMessage, type: .success)
             }
-            .sheet(isPresented: $createPostVM.showImagePicker) {
-                ImagePicker(image: $createPostVM.image)
-                    .preferredColorScheme(.light)
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
+            .sheet(item: $createPostVM.activeSheet) { (activeSheet: CreatePostActiveSheet) in
+                Group {
+                    switch activeSheet {
+                    case .placeSearch:
+                        PlaceSearch(selectPlace: createPostVM.selectPlace)
+                    case .locationSelection:
+                        LocationSelection(mapRegion: createPostVM.mapRegion, afterConfirm: createPostVM.selectLocation)
+                    case .imagePicker:
+                        ImagePicker(image: $createPostVM.image)
+                    }
+                }
+                .ignoresSafeArea(.keyboard, edges: .bottom)
+                .preferredColorScheme(.light)
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

@@ -9,6 +9,14 @@ import SwiftUI
 import Combine
 import MapKit
 
+enum CreatePostActiveSheet: String, Identifiable {
+    case placeSearch, locationSelection, imagePicker
+    
+    var id: String {
+        self.rawValue
+    }
+}
+
 class CreatePostVM: ObservableObject {
     var mapRegion: MKCoordinateRegion {
         let location = useCustomLocation ? customLocation : selectedLocation
@@ -24,6 +32,8 @@ class CreatePostVM: ObservableObject {
     var cancellable: Cancellable? = nil
 
     @Published var useCustomLocation = false
+    
+    @Published var activeSheet: CreatePostActiveSheet?
     
     /// Used for navigation links
     @Published var placeSearchActive = false
