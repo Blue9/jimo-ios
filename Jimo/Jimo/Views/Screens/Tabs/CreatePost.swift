@@ -50,7 +50,7 @@ struct CategoryPicker: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Category")
+                Text("Select category")
                     .font(Font.custom(Poppins.semiBold, size: 16))
                 Spacer()
             }
@@ -87,18 +87,24 @@ struct FormInputButton: View {
     var clearAction: () -> Void
     
     var body: some View {
-        Text(content ?? name)
-            .font(Font.custom(content != nil ? Poppins.regular : Poppins.medium, size: 15))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading)
-            .padding(.trailing, 40)
-            .padding(.vertical, 12)
-            .foregroundColor(.black)
-            .overlay(content == nil ? nil : Button(action: clearAction) {
-                Image(systemName: "xmark.circle")
-                    .foregroundColor(.gray)
-                    .padding(.trailing)
-            }, alignment: .trailing)
+        Group {
+            if let content = content {
+                Text(name + ": ").font(Font.custom(Poppins.medium, size: 15))
+                    + Text(content).font(Font.custom(Poppins.regular, size: 15))
+            } else {
+                Text(name).font(Font.custom(Poppins.medium, size: 15))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.leading)
+        .padding(.trailing, 40)
+        .padding(.vertical, 12)
+        .foregroundColor(.black)
+        .overlay(content == nil ? nil : Button(action: clearAction) {
+            Image(systemName: "xmark.circle")
+                .foregroundColor(.gray)
+                .padding(.trailing)
+        }, alignment: .trailing)
     }
 }
 
@@ -248,11 +254,11 @@ struct CreatePost: View {
                             
                             CreatePostDivider()
                             
-                            FormInputText(name: "Write a Note (Recommended)", text: $content)
+                            FormInputText(name: "Write a note (recommended)", text: $content)
                             
                             CreatePostDivider()
                             
-                            FormInputButton(name: "Photo (Recommended)", clearAction: {})
+                            FormInputButton(name: "Photo (recommended)", clearAction: {})
                             
                             ZStack(alignment: .topLeading) {
                                 if let image = createPostVM.image {
@@ -308,6 +314,7 @@ struct CreatePost: View {
                             .disabled(posting)
                     }
                 }
+                .gesture(DragGesture().onChanged { _ in hideKeyboard() })
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .background(backgroundColor.edgesIgnoringSafeArea(.all))
