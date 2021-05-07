@@ -18,6 +18,7 @@ enum SearchType {
 class SearchViewModel: ObservableObject {
     @Published var searchType: SearchType = .people
     @Published var query: String = ""
+    @Published var searchBarFocused = false
     @Published var userResults: [PublicUser] = []
     @Published var placeResults: [MKLocalSearchCompletion] = []
     
@@ -38,7 +39,7 @@ class SearchViewModel: ObservableObject {
                 }
                 return Just(query).eraseToAnyPublisher()
             }
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .debounce(for: 0.2, scheduler: DispatchQueue.main)
             .flatMap { query -> AnyPublisher<[PublicUser], Never> in
                 appState.searchUsers(query: query)
                     .catch { error -> AnyPublisher<[PublicUser], Never> in

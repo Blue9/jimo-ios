@@ -7,64 +7,61 @@
 
 import SwiftUI
 
-// From https://www.albertomoral.com/blog/uisearchbar-and-swiftui
-struct SearchBar: UIViewRepresentable {
+struct SearchBar: View {
     @Binding var text: String
-    var minimal = false
-    var placeholder: String = ""
-    var textFieldColor: UIColor? = nil
-
-    class Coordinator: NSObject, UISearchBarDelegate {
-        @Binding var text: String
-
-        init(text: Binding<String>) {
-            _text = text
-        }
-
-        func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-            text = searchText
-        }
-        
-        func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-            searchBar.setShowsCancelButton(true, animated: true)
-        }
-        
-        func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-            searchBar.setShowsCancelButton(false, animated: true)
-        }
-        
-        func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-            hideKeyboard()
-        }
-    }
+    @Binding var isActive: Bool
     
-    func makeCoordinator() -> SearchBar.Coordinator {
-        return Coordinator(text: $text)
-    }
-
-    func makeUIView(context: UIViewRepresentableContext<SearchBar>) -> UISearchBar {
-        let searchBar = UISearchBar(frame: .zero)
-        searchBar.delegate = context.coordinator
-        searchBar.placeholder = placeholder
-        searchBar.searchBarStyle = minimal ? .minimal : .default;
-        if let textFieldColor = textFieldColor {
-            searchBar.searchTextField.backgroundColor = textFieldColor;
-            searchBar.searchTextField.borderStyle = .roundedRect
+    var placeholder: String = "Search"
+    
+    var body: some View {
+        HStack {
+            TextField(placeholder, text: $text)
+                .padding(8)
+                .padding(.horizontal, 25)
+                .background(Color(.systemGray5))
+                .cornerRadius(8)
+                .overlay(
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 8)
+                        
+                        if isActive {
+                            Button(action: {
+                                withAnimation {
+                                    self.text = ""
+                                }
+                            }) {
+                                Image(systemName: "multiply.circle.fill")
+                                    .foregroundColor(.gray)
+                                    .padding(.trailing, 8)
+                            }
+                        }
+                    }
+                )
+                .padding(.horizontal, 10)
+                .onTapGesture {
+                    withAnimation {
+                        self.isActive = true
+                    }
+                }
+            
+            if isActive {
+                Button(action: {
+                    withAnimation {
+                        self.isActive = false
+                        self.text = ""
+                    }
+                    hideKeyboard()
+                }) {
+                    Text("Cancel")
+                        .foregroundColor(.blue)
+                }
+                .padding(.trailing, 10)
+                .transition(.move(edge: .trailing))
+            }
         }
-        return searchBar
-    }
-
-    func updateUIView(_ uiView: UISearchBar, context: UIViewRepresentableContext<SearchBar>) {
-        if uiView.text != text {
-            uiView.text = text
-        }
-    }
-}
-
-struct SearchBar_Previews: PreviewProvider {
-    @State static var text: String = ""
-
-    static var previews: some View {
-        SearchBar(text: $text)
+        .padding(.vertical, 6)
     }
 }

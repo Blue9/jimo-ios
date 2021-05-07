@@ -12,35 +12,12 @@ struct PlaceSearch: View {
     @Environment(\.presentationMode) var presentationMode
     @StateObject var locationSearch: LocationSearch = LocationSearch()
     @State var showAlert = false
+    @State var searchBarFocused = false
     
     var selectPlace: (MKMapItem) -> Void
     
     func setupLocationSearch() {
         locationSearch.completer.resultTypes = [.address, .pointOfInterest]
-//        locationSearch.completer.pointOfInterestFilter = .init(including: [
-//            .amusementPark,
-//            .aquarium,
-//            .bakery,
-//            .beach,
-//            .brewery,
-//            .cafe,
-//            .campground,
-//            .foodMarket,
-//            .hotel,
-//            .library,
-//            .marina,
-//            .movieTheater,
-//            .museum,
-//            .nationalPark,
-//            .nightlife,
-//            .park,
-//            .restaurant,
-//            .stadium,
-//            .store,
-//            .theater,
-//            .winery,
-//            .zoo
-//        ])
     }
     
     var body: some View {
@@ -59,7 +36,7 @@ struct PlaceSearch: View {
             .padding(.top, 15)
             .padding(.bottom, 10)
             
-            SearchBar(text: $locationSearch.searchQuery, placeholder: "Search for a place")
+            SearchBar(text: $locationSearch.searchQuery, isActive: $searchBarFocused, placeholder: "Search for a place")
             List(locationSearch.completions) { completion in
                 HStack {
                     VStack(alignment: .leading) {

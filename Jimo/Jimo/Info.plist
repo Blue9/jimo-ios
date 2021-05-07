@@ -32,9 +32,9 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
-	<false/>
+	<true/>
 	<key>FirebaseCrashlyticsCollectionEnabled</key>
-	<false/>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSContactsUsageDescription</key>

@@ -246,7 +246,6 @@ struct MapSearch: View {
     @Environment(\.backgroundColor) var backgroundColor
     @StateObject var mapViewModel: MapViewModel
     @StateObject var locationSearch: LocationSearch = LocationSearch()
-    @State var query: String = ""
     @State var lastSearched: String? = nil
     
     func search(completion: MKLocalSearchCompletion) {
@@ -262,40 +261,45 @@ struct MapSearch: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            SearchBar(
-                text: $locationSearch.searchQuery,
-                minimal: true,
-                placeholder: "Search places",
-                textFieldColor: .init(white: 1, alpha: 0.4))
-                .padding(.horizontal, 15)
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                if locationSearch.searchQuery.count > 0 {
+                    List(locationSearch.completions) { completion in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(completion.title)
+                                Text(completion.subtitle)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            self.search(completion: completion)
+                        }
+                    }
+                    .listStyle(PlainListStyle())
+                    .colorMultiply(backgroundColor)
+                    .onAppear {
+                        mapViewModel.modalState = .invisible
+                    }
+                    .padding(.top, 100)
+                    .background(backgroundColor)
+                }
+                Spacer()
+            }
+            
+            VStack(spacing: 0) {
+                MapSearchBar(
+                    text: $locationSearch.searchQuery,
+                    placeholder: "Search places"
+                )
+                .padding(.horizontal, 20)
                 .padding(.top, 50)
                 .padding(.bottom, 15)
-                .background(backgroundColor)
-            
-            if locationSearch.searchQuery.count > 0 {
-                List(locationSearch.completions) { completion in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(completion.title)
-                            Text(completion.subtitle)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        self.search(completion: completion)
-                    }
-                }
-                .listStyle(PlainListStyle())
-                .colorMultiply(backgroundColor)
-                .onAppear {
-                    mapViewModel.modalState = .invisible
-                }
+                Spacer()
             }
-            Spacer()
         }
     }
 }

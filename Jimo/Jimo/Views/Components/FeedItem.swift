@@ -212,7 +212,7 @@ struct FeedItemBody: View {
                                             }
                                         }) {
                             HStack {
-                                Text(post.place.name)
+                                Text(post.place.name).lineLimit(1)
                             }
                             .foregroundColor(.black)
                             .font(Font.custom(Poppins.regular, size: 14))

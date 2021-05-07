@@ -107,6 +107,7 @@ struct Search: View {
                 }
             }
         }
+        .gesture(DragGesture().onChanged { _ in hideKeyboard() })
         .colorMultiply(backgroundColor)
         .listStyle(PlainListStyle())
     }
@@ -150,11 +151,17 @@ struct Search: View {
         }
     }
     
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                SearchBar(text: $searchViewModel.query, minimal: true, placeholder: "Search users")
-                    .padding(.bottom, 0)
+                SearchBar(
+                    text: $searchViewModel.query,
+                    isActive: $searchViewModel.searchBarFocused,
+                    placeholder: "Search users"
+                )
+                .padding(.bottom, 0)
                 
                 if placeSearchEnabled {
                     Picker(selection: $searchViewModel.searchType, label: Text("What do you want to search for")) {
@@ -164,7 +171,7 @@ struct Search: View {
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 
-                if searchViewModel.query.isEmpty {
+                if !searchViewModel.searchBarFocused {
                     discoverFeed
                 } else if searchViewModel.searchType == .people {
                     userResults
