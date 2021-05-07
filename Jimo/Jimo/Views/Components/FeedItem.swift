@@ -115,7 +115,6 @@ struct FeedItemBody: View {
             if post.content.count > 0 {
                 Text(post.content)
                     .lineLimit(fullPost ? nil : 2)
-                    .padding(.top, 10)
                     .padding(.horizontal)
                     .frame(maxWidth: .infinity, minHeight: 10, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -133,6 +132,7 @@ struct FeedItemBody: View {
                     .background(Color(post.category))
             }
         }
+        .padding(.top, 10)
         
         if !fullPost {
             return AnyView(
