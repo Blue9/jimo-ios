@@ -127,6 +127,7 @@ fileprivate struct ContactView: View {
     
     private func sendMessage() {
         let sms: String = "sms:+\(contact.phoneNumber)&body=Hey, I invited you to jimo using the number \(contact.phoneNumber) 🙂."
+            + "\n\nhttps://apps.apple.com/app/id1541360118"
         let url: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         UIApplication.shared.open(URL.init(string: url)!, options: [:], completionHandler: nil)
     }
