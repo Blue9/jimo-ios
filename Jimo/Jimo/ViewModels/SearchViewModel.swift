@@ -33,10 +33,6 @@ class SearchViewModel: ObservableObject {
         locationSearch.completer.resultTypes = [.address, .pointOfInterest]
         userSearchCancellable = $query
             .flatMap { [weak self] query -> AnyPublisher<String, Never> in
-                if query.count < 3 {
-                    self?.userResults.removeAll()
-                    return Empty().eraseToAnyPublisher()
-                }
                 if self?.searchType == .places {
                     return Empty().eraseToAnyPublisher()
                 }

@@ -154,22 +154,36 @@ struct EditProfile: View {
                 }
             }
             
-            TextField("Username", text: $editProfileViewModel.username)
-                .autocapitalization(.none)
-            
-            TextField("First name", text: $editProfileViewModel.firstName)
-            TextField("Last name", text: $editProfileViewModel.lastName)
-            
-            Button(action: { editProfileViewModel.updateProfile(
-                    appState: appState, viewState: globalViewState)}) {
-                if editProfileViewModel.updating {
-                    ProgressView()
-                } else {
-                    Text("Update profile")
-                }
+            HStack(spacing: 10) {
+                Text("Username").bold()
+                TextField("Username", text: $editProfileViewModel.username)
+                    .autocapitalization(.none)
             }
-            .disabled(buttonDisabled)
+            
+            HStack(spacing: 10) {
+                Text("First name").bold()
+                TextField("First name", text: $editProfileViewModel.firstName)
+            }
+            
+            HStack(spacing: 10) {
+                Text("Last name").bold()
+                TextField("Last name", text: $editProfileViewModel.lastName)
+            }
+            
+            Section {
+                Button(action: { editProfileViewModel.updateProfile(
+                        appState: appState, viewState: globalViewState)}) {
+                    if editProfileViewModel.updating {
+                        ProgressView()
+                    } else {
+                        Text("Update profile")
+                            .foregroundColor(buttonDisabled ? .gray : .blue)
+                    }
+                }
+                .disabled(buttonDisabled)
+            }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
             editProfileViewModel.initialize(appState: appState)
         }

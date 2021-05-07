@@ -10,6 +10,8 @@ import MapKit
 import ASCollectionView
 
 
+let placeSearchEnabled = false // Not super useful right now
+
 struct Search: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
@@ -151,10 +153,10 @@ struct Search: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                SearchBar(text: $searchViewModel.query, minimal: true, placeholder: "Search")
+                SearchBar(text: $searchViewModel.query, minimal: true, placeholder: "Search users")
                     .padding(.bottom, 0)
                 
-                if searchViewModel.query.count > 0 {
+                if placeSearchEnabled {
                     Picker(selection: $searchViewModel.searchType, label: Text("What do you want to search for")) {
                         Text("People").tag(SearchType.people)
                         Text("Places").tag(SearchType.places)

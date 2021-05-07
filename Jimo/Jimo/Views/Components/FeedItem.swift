@@ -157,7 +157,7 @@ struct FeedItemBody: View {
             Rectangle()
                 .frame(height: 32)
                 .foregroundColor(Color(post.category))
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top) {
                     NavigationLink(destination: profileView) {
                         URLImage(
@@ -228,7 +228,7 @@ struct FeedItemBody: View {
                 
                 HStack {
                     Text(relativeTime)
-                        .font(Font.custom(Poppins.regular, size: 14))
+                        .font(Font.custom(Poppins.regular, size: 12))
                         .foregroundColor(.gray)
                         .onReceive(timer, perform: { _ in
                             relativeTime = getRelativeTime(post: post)
@@ -238,11 +238,11 @@ struct FeedItemBody: View {
                     
                     FeedItemLikes(feedItemVM: feedItemVM, post: post)
                 }
-                .padding(.top, 4)
+                .padding(.top, 8)
                 .padding(.horizontal)
             }
             .padding(.top, 4)
-            .padding(.bottom, 10)
+            .padding(.bottom, 6)
             
             if feedItemVM.deleting {
                 ProgressView()

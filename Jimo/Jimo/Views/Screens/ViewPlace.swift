@@ -192,7 +192,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
     }
     
     var viewPlaceBody: some View {
-        ScrollView {
+        VStack {
             HStack {
                 VStack(alignment: .leading) {
                     Text(viewPlaceVM.displayName)
@@ -235,6 +235,40 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                 }
             }
             Divider()
+            
+            
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Friends who have been here")
+                        .foregroundColor(.gray)
+                    ScrollView(.horizontal) {
+                        HStack {
+                            if viewPlaceVM.loadingMutualPosts {
+                                ProgressView()
+                            } else if let mutualPosts = viewPlaceVM.mutualPosts, mutualPosts.count > 0 {
+                                ForEach(mutualPosts, id: \.postId) { post in
+                                    NavigationLink(destination: ViewPost(postId: post.postId)) {
+                                        URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
+                                            .aspectRatio(contentMode: .fill)
+                                            .background(Color.white)
+                                            .foregroundColor(.gray)
+                                            .frame(width: 40, height: 40, alignment: .center)
+                                            .cornerRadius(20)
+                                    }
+                                }
+                            } else {
+                                Text("-")
+                            }
+                        }
+                    }
+                }
+                Spacer()
+            }
+            Divider()
+            
+            
+            
+            
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading) {
                     Text("Phone")
@@ -280,33 +314,6 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                     }
                 }
                 Spacer()
-            }
-            Divider()
-            if viewPlaceVM.loadingMutualPosts {
-                ProgressView()
-            } else if let mutualPosts = viewPlaceVM.mutualPosts, mutualPosts.count > 0 {
-                HStack(alignment: .bottom) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Friends who have been here")
-                            .foregroundColor(.gray)
-                        ScrollView(.horizontal) {
-                            HStack {
-                                ForEach(mutualPosts, id: \.postId) { post in
-                                    NavigationLink(destination: ViewPost(postId: post.postId)) {
-                                        URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
-                                            .aspectRatio(contentMode: .fill)
-                                            .background(Color.white)
-                                            .foregroundColor(.gray)
-                                            .frame(width: 40, height: 40, alignment: .center)
-                                            .cornerRadius(20)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    Spacer()
-                }
-                Divider()
             }
             Spacer()
         }

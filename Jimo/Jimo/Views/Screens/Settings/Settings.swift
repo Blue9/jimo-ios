@@ -114,11 +114,16 @@ struct Settings: View {
                             .font(.caption)
                     }
                 }
+                .disabled(true)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    globalViewState.setWarning("Coming soon!")
+                }
                 
                 Button(action: {
                     settingsViewModel.updatePreferences(appState: appState, viewState: globalViewState)
                 }) {
-                    Text("Update notification preferences")
+                    Text("Update notification preferences").foregroundColor(.blue)
                 }
             }
             .disabled(settingsViewModel.loading)
