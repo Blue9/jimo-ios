@@ -55,7 +55,7 @@ struct LocationSelection: View {
                 HStack {
                     Button(action: { presentationMode.wrappedValue.dismiss() }) {
                         Text("Cancel")
-                            .padding(.horizontal, 15)
+                            .padding(.leading, 15)
                     }
                     Spacer()
                 }

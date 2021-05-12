@@ -19,7 +19,7 @@ enum CreatePostActiveSheet: String, Identifiable {
 
 class CreatePostVM: ObservableObject {
     var mapRegion: MKCoordinateRegion {
-        let location = useCustomLocation ? customLocation : selectedLocation
+        let location = useCustomLocation ? customLocation : selectedLocation?.placemark
         if let place = location {
             return MKCoordinateRegion(
                 center: place.coordinate,
@@ -47,7 +47,7 @@ class CreatePostVM: ObservableObject {
     @Published var name: String? = nil
     
     /// Set when user searches and selects a location
-    @Published var selectedLocation: MKPlacemark? = nil
+    @Published var selectedLocation: MKMapItem? = nil
     
     /// Set when user selects a custom location
     @Published var customLocation: MKPlacemark? = nil
@@ -60,10 +60,10 @@ class CreatePostVM: ObservableObject {
         /// For whatever reason, the default placemark title is "United States"
         /// Example: Mount Everest Base Camp has placemark title "United States"
         /// WTF Apple
-        if selectedLocation?.title == "United States" {
+        if selectedLocation?.placemark.title == "United States" {
             return "View on map"
         }
-        return selectedLocation?.title
+        return selectedLocation?.placemark.title
     }
     
     var maybeCreatePlaceRequest: MaybeCreatePlaceRequest? {
@@ -71,16 +71,20 @@ class CreatePostVM: ObservableObject {
             return nil
         }
         var region: Region? = nil
-        if let placemark = selectedLocation,
-           let area = placemark.region as? CLCircularRegion {
-            region = Region(coord: placemark.coordinate, radius: area.radius.magnitude)
+        if let area = location.placemark.region as? CLCircularRegion {
+            region = Region(coord: location.placemark.coordinate, radius: area.radius.magnitude)
         }
-        return MaybeCreatePlaceRequest(name: name, location: Location(coord: location.coordinate), region: region)
+        return MaybeCreatePlaceRequest(
+            name: name,
+            location: Location(coord: location.placemark.coordinate),
+            region: region,
+            additionalData: AdditionalPlaceDataRequest(location)
+        )
     }
     
     func selectPlace(placeSelection: MKMapItem) {
         useCustomLocation = false
-        selectedLocation = placeSelection.placemark
+        selectedLocation = placeSelection
         name = placeSelection.name
     }
     

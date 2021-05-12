@@ -252,8 +252,8 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                             .aspectRatio(contentMode: .fill)
                                             .background(Color.white)
                                             .foregroundColor(.gray)
-                                            .frame(width: 40, height: 40, alignment: .center)
-                                            .cornerRadius(20)
+                                            .frame(width: 45, height: 45, alignment: .center)
+                                            .cornerRadius(22.5)
                                     }
                                 }
                             } else {

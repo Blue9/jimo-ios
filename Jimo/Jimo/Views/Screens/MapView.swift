@@ -208,7 +208,9 @@ struct MapKitView: UIViewRepresentable {
         }
         
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
-            parent.region = mapView.region
+            DispatchQueue.main.async {
+                self.parent.region = mapView.region
+            }
         }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -456,10 +458,12 @@ struct MapView: View {
     @State private var initialized = false
     let locationManager = CLLocationManager()
     
+    @State private var region = MapViewModel.defaultRegion
+    
     var body: some View {
         ZStack {
             MapKitView(
-                region: $mapViewModel.region,
+                region: $region,
                 selectedPin: $mapViewModel.presentedPin,
                 clusteringEnabled: localSettings.clusteringEnabled,
                 annotations: mapViewModel.mapAnnotations
@@ -496,14 +500,17 @@ struct MapView: View {
                                     selectedSearchResult: $mapViewModel.selectedSearchResult,
                                     place: place
                                 )
-                                .transition(.move(edge: .trailing))
                                 .onAppear {
-                                    mapViewModel.region.center = place.placemark.coordinate
-                                    mapViewModel.region = MKCoordinateRegion(
+                                    let mapItemRegion = place.placemark.region as? CLCircularRegion
+                                    let radiusMeters = mapItemRegion?.radius ?? 120
+                                    let radiusDegrees = radiusMeters / 111111 // Approximate
+                                    region = MKCoordinateRegion(
                                         center: CLLocationCoordinate2D(
                                             latitude: place.placemark.coordinate.latitude - 0.00025,
                                             longitude: place.placemark.coordinate.longitude),
-                                        span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
+                                        span: MKCoordinateSpan(
+                                            latitudeDelta: radiusDegrees,
+                                            longitudeDelta: radiusDegrees))
                                 }
                             }
                         }
@@ -525,10 +532,16 @@ struct MapView: View {
             locationManager.startUpdatingLocation()
             if !initialized {
                 if mapViewModel.preselectedPost == nil, let location = locationManager.location {
-                    mapViewModel.region = MKCoordinateRegion(
-                        center: location.coordinate,
-                        span: MKCoordinateSpan(latitudeDelta: 2, longitudeDelta: 2)
-                    )
+                    DispatchQueue.main.async {
+                        self.region = MKCoordinateRegion(
+                            center: location.coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 2, longitudeDelta: 2)
+                        )
+                    }
+                }
+                if let post = mapViewModel.preselectedPost {
+                    region.center = post.location
+                    region.span = MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)
                 }
                 initialized = true
             }

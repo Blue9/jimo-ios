@@ -26,7 +26,6 @@ class MapViewModel: ObservableObject {
     var annotationsCancellable: Cancellable? = nil
     var loadPreselectedPost: Cancellable?
     
-    @Published var region = defaultRegion
     @Published var presentedPin: PlaceAnnotation? {
         didSet {
             if presentedPin != nil {
@@ -61,10 +60,6 @@ class MapViewModel: ObservableObject {
         self.appState = appState
         self.globalViewState = viewState
         self.preselectedPost = preselectedPost
-        if let post = preselectedPost {
-            region.center = post.location
-            region.span = MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)
-        }
     }
     
     func startRefreshingMap() {

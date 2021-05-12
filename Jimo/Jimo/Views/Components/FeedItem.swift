@@ -211,13 +211,14 @@ struct FeedItemBody: View {
                                                 NavTitle("View Place")
                                             }
                                         }) {
-                            HStack {
-                                Text(post.place.name).lineLimit(1)
+                            HStack(spacing: 0) {
+                                Text(post.place.name)
                             }
+                            .lineLimit(1)
                             .foregroundColor(.black)
                             .font(Font.custom(Poppins.regular, size: 14))
-                            .offset(y: 6)
                         }
+                        .offset(y: 6)
                         .buttonStyle(NoButtonStyle())
                     }
                 }

@@ -46,6 +46,40 @@ struct MaybeCreatePlaceRequest: Codable {
     var name: String
     var location: Location
     var region: Region?
+    var additionalData: AdditionalPlaceDataRequest?
+}
+
+struct AdditionalPlaceDataRequest: Codable {
+    var countryCode: String?
+    var country: String?
+    var postalCode: String?
+    var administrativeArea: String?
+    var subAdministrativeArea: String?
+    var locality: String?
+    var subLocality: String?
+    var thoroughfare: String?
+    var subThoroughfare: String?
+    var poiCategory: String?
+    var phoneNumber: String?
+    var url: String?
+    var timeZone: String?
+    
+    init(_ mapItem: MKMapItem) {
+        let placemark = mapItem.placemark
+        countryCode = placemark.countryCode
+        country = placemark.country
+        postalCode = placemark.postalCode
+        administrativeArea = placemark.administrativeArea
+        subAdministrativeArea = placemark.subAdministrativeArea
+        locality = placemark.locality
+        subLocality = placemark.subLocality
+        thoroughfare = placemark.thoroughfare
+        subThoroughfare = placemark.subThoroughfare
+        poiCategory = mapItem.pointOfInterestCategory?.rawValue
+        phoneNumber = mapItem.phoneNumber
+        url = mapItem.url?.absoluteString
+        timeZone = mapItem.timeZone?.description
+    }
 }
 
 struct MapPlaceIcon: Codable, Equatable {
