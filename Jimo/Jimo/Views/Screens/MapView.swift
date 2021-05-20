@@ -389,6 +389,7 @@ fileprivate struct ClusterToggleButton: View {
                     .frame(width: 22.5, height: 22.5)
                     .foregroundColor(backgroundColor)
                 Image("pin")
+                    .renderingMode(.template)
                     .resizable()
                     .foregroundColor(color)
                     .frame(width: 30, height: 30)
@@ -545,7 +546,9 @@ struct MapView: View {
                 }
                 initialized = true
             }
-            mapViewModel.startRefreshingMap()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                mapViewModel.startRefreshingMap()
+            }
         }
         .disappear {
             mapViewModel.stopRefreshingMap()
