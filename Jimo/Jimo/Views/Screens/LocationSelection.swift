@@ -74,14 +74,14 @@ struct LocationSelection: View {
                         ActionButton(text: "Cancel", color: .gray, action: {
                             presentationMode.wrappedValue.dismiss()
                         })
-                        Spacer(minLength: 20)
+                        Spacer().frame(width: 20)
                         ActionButton(text: "Update", action: {
                             presentationMode.wrappedValue.dismiss()
                             self.afterConfirm(mapRegion)
                         })
                     }
-                    .padding(.horizontal, 70)
                 }
+                .padding(.horizontal)
                 .padding(.bottom, 60)
             }
             .edgesIgnoringSafeArea(.all)
