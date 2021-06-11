@@ -41,7 +41,7 @@ class NotificationFeedVM: ObservableObject {
                     print("Error while load notification feed.", error)
                 }
             }, receiveValue: { [weak self] response in
-                self?.feedItems = response.notifications
+                self?.feedItems = response.notifications.filter{ item in item.type != .unknown }
                 self?.cursor = response.cursor
             })
     }
@@ -59,7 +59,7 @@ class NotificationFeedVM: ObservableObject {
                 }
                 self?.loadingMoreNotifications = false
             }, receiveValue: { [weak self] response in
-                self?.feedItems.append(contentsOf: response.notifications)
+                self?.feedItems.append(contentsOf: response.notifications.filter{ item in item.type != .unknown })
                 self?.cursor = response.cursor
             })
     }
