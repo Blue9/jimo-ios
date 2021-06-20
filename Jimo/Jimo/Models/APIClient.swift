@@ -92,6 +92,16 @@ struct Endpoint {
         return Endpoint(path: path)
     }
     
+    static func followers(username: String, cursor: String? = nil) -> Endpoint {
+        let queryItems = [URLQueryItem(name: "cursor", value: cursor)]
+        return Endpoint(path: "/users/\(username)/followers", queryItems: cursor != nil ? queryItems : [])
+    }
+    
+    static func following(username: String, cursor: String? = nil) -> Endpoint {
+        let queryItems = [URLQueryItem(name: "cursor", value: cursor)]
+        return Endpoint(path: "/users/\(username)/following", queryItems: cursor != nil ? queryItems : [])
+    }
+    
     // MARK: - Relation endpoints
     
     static func follow(username: String) -> Endpoint {
@@ -385,6 +395,20 @@ class APIClient: ObservableObject {
      */
     func getPosts(username: String, cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
         doRequest(endpoint: Endpoint.posts(username: username, cursor: cursor))
+    }
+    
+    /**
+     Get list of followers for given user.
+     */
+    func getFollowers(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
+        doRequest(endpoint: Endpoint.followers(username: username, cursor: cursor))
+    }
+    
+    /**
+     Get list of followed users for given user.
+     */
+    func getFollowing(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
+        doRequest(endpoint: Endpoint.following(username: username, cursor: cursor))
     }
     
     // MARK: - Relation endpoints

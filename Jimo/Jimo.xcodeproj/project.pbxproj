@@ -10,6 +10,7 @@
 		1F98464425EF38AB0075AF04 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F98464325EF38AB0075AF04 /* Notifications.swift */; };
 		1F98464A25EF409E0075AF04 /* NotificationFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F98464925EF409E0075AF04 /* NotificationFeed.swift */; };
 		1FC816C625E34249009B803F /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC816C525E34249009B803F /* Feedback.swift */; };
+		1FFF5CEC264A384D005BB943 /* UserFollowFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF5CEB264A384D005BB943 /* UserFollowFeed.swift */; };
 		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
 		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
@@ -132,6 +133,7 @@
 		1F98464325EF38AB0075AF04 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		1F98464925EF409E0075AF04 /* NotificationFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFeed.swift; sourceTree = "<group>"; };
 		1FC816C525E34249009B803F /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
+		1FFF5CEB264A384D005BB943 /* UserFollowFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFollowFeed.swift; sourceTree = "<group>"; };
 		46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo-JimoUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7124939F1770230B52A71F08 /* libPods-Jimo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -458,6 +460,7 @@
 				C7A80B7125C3916100FF8054 /* ViewPlace.swift */,
 				C7019F6725EEB10200C1165A /* InviteContactsView.swift */,
 				1F98464925EF409E0075AF04 /* NotificationFeed.swift */,
+				1FFF5CEB264A384D005BB943 /* UserFollowFeed.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -927,6 +930,7 @@
 				C7D2D84A25CE55C600246BD0 /* UINavigationController+UIGestureRecognizerDelegate.swift in Sources */,
 				C703670E255764FD00F970DE /* Profile.swift in Sources */,
 				C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */,
+				1FFF5CEC264A384D005BB943 /* UserFollowFeed.swift in Sources */,
 				C7D2D83F25CE2B9600246BD0 /* SnapState.swift in Sources */,
 				C7EAD4CF25ABBD9A004A9F53 /* CreatePostVM.swift in Sources */,
 				C721D897255B653C00FFC4E6 /* LocationSelection.swift in Sources */,

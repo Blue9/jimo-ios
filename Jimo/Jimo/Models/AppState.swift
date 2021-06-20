@@ -355,6 +355,14 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func getFollowers(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
+        return self.apiClient.getFollowers(username: username, cursor: cursor)
+    }
+    
+    func getFollowing(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
+        return self.apiClient.getFollowing(username: username, cursor: cursor)
+    }
+    
     // MARK: - Map endpoints
     
     func refreshMap() -> AnyPublisher<Void, APIError> {

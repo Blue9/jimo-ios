@@ -114,6 +114,8 @@ struct ProfileHeaderView: View {
 
 struct ProfileStatsView: View {
     @ObservedObject var profileVM: ProfileVM
+    @Binding var showFollowers: Bool
+    @Binding var showFollowing: Bool
     
     var user: User {
         profileVM.user
@@ -127,15 +129,19 @@ struct ProfileStatsView: View {
             }
             .frame(width: 80)
             Spacer()
-            VStack {
-                Text(String(user.followerCount))
-                Text("Followers")
+            Button(action: { showFollowers.toggle() }) {
+                VStack {
+                    Text(String(user.followerCount))
+                    Text("Followers")
+                }
             }
             .frame(width: 80)
             Spacer()
-            VStack {
-                Text(String(user.followingCount))
-                Text("Following")
+            Button(action: { showFollowing.toggle()} ) {
+                VStack {
+                    Text(String(user.followingCount))
+                    Text("Following")
+                }
             }
             .frame(width: 80)
         }
@@ -169,7 +175,9 @@ struct Profile: View {
                 .sectionHeader {
                     VStack {
                         ProfileHeaderView(profileVM: profileVM)
-                        ProfileStatsView(profileVM: profileVM)
+                        ProfileStatsView(profileVM: profileVM,
+                                         showFollowers: $showFollowers,
+                                         showFollowing: $showFollowing)
                     }
                     .padding(.bottom, 10)
                 }
@@ -226,6 +234,8 @@ struct Profile: View {
     }
     
     @State private var showUserOptions = false
+    @State private var showFollowers = false
+    @State private var showFollowing = false
     @State private var confirmBlockUser = false
     
     var body: some View {
@@ -270,6 +280,22 @@ struct Profile: View {
                     secondaryButton: .cancel()
                 )
             }
+            .background(
+                NavigationLink(destination: FollowFeed(followFeedVM: FollowFeedVM(user: profileVM.user,
+                                                                                  type: FollowType.followers),
+                                                       navTitle: "Followers")
+                                .environmentObject(appState)
+                                .environmentObject(globalViewState)
+                                .environment(\.backgroundColor, backgroundColor), isActive: $showFollowers) {}
+            )
+            .background(
+                NavigationLink(destination: FollowFeed(followFeedVM: FollowFeedVM(user: profileVM.user,
+                                                                                  type: FollowType.following),
+                                                       navTitle: "Following")
+                                .environmentObject(appState)
+                                .environmentObject(globalViewState)
+                                .environment(\.backgroundColor, backgroundColor), isActive: $showFollowing) {}
+            )
     }
 }
 
