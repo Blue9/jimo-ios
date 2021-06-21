@@ -51,9 +51,7 @@ class ProfileVM: ObservableObject {
     
     /// Remove any posts that are no longer in the app state (i.e., deleted posts)
     func removeDeletedPosts() {
-        withAnimation {
-            posts = posts.compactMap({ appState.allPosts.posts[$0]?.postId })
-        }
+        posts = posts.compactMap({ appState.allPosts.posts[$0]?.postId })
     }
     
     func refresh(onFinish: OnFinish? = nil) {
@@ -108,16 +106,8 @@ class ProfileVM: ObservableObject {
                     self?.loadStatus = .success
                 }
             }, receiveValue: { [weak self] userFeed in
-                if self?.loadStatus == .notInitialized {
-                    /// Having the initial load be animated can be kind of jarring
-                    self?.posts = userFeed.posts.map { $0.postId }
-                    self?.cursor = userFeed.cursor
-                } else {
-                    withAnimation {
-                        self?.posts = userFeed.posts.map { $0.postId }
-                        self?.cursor = userFeed.cursor
-                    }
-                }
+                self?.posts = userFeed.posts.map { $0.postId }
+                self?.cursor = userFeed.cursor
             })
     }
     
@@ -135,10 +125,8 @@ class ProfileVM: ObservableObject {
                     self?.globalViewState.setError("Failed to load more posts")
                 }
             }, receiveValue: { [weak self] userFeed in
-                withAnimation {
-                    self?.posts.append(contentsOf: userFeed.posts.map { $0.postId })
-                    self?.cursor = userFeed.cursor
-                }
+                self?.posts.append(contentsOf: userFeed.posts.map { $0.postId })
+                self?.cursor = userFeed.cursor
             })
     }
     

@@ -165,7 +165,7 @@ struct NotificationFeed: View {
     
     var body: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: 1, data: notificationFeedVM.feedItems, dataID: \.self) { item, _ in
+            ASCollectionViewSection(id: 0, data: notificationFeedVM.feedItems, dataID: \.self) { item, _ in
                 NotificationFeedItem(item: item)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
