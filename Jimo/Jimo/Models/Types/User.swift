@@ -37,7 +37,8 @@ struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
 struct UserPreferences: Codable {
     var followNotifications: Bool
     var postLikedNotifications: Bool
-    var postNotifications: Bool
+    var commentNotifications: Bool
+    var commentLikedNotifications: Bool
 }
 
 

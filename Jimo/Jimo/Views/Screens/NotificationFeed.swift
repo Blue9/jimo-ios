@@ -91,7 +91,7 @@ struct NotificationFeedItem: View {
             .foregroundColor(.gray)
             .background(Color.white)
             .cornerRadius(50)
-            .padding(.trailing)
+            .padding(.trailing, 5)
     }
     
     func postPreview(post: Post) -> some View {
@@ -107,6 +107,10 @@ struct NotificationFeedItem: View {
         if item.type == ItemType.like {
             if let post = item.post {
                 return AnyView(ViewPost(postId: post.postId))
+            }
+        } else if item.type == ItemType.comment {
+            if let post = item.post {
+                return AnyView(ViewPost(postId: post.postId, highlightedComment: item.comment))
             }
         }
         return AnyView(
@@ -128,14 +132,17 @@ struct NotificationFeedItem: View {
                 
                 VStack(alignment: .leading) {
                     if item.type == ItemType.follow {
-                        Text(item.user.username + " has followed you!")
+                        Text(item.user.username + " started following you.")
                             .lineLimit(1)
                     } else if item.type == ItemType.like {
-                        Text(item.user.username + " has liked your post!")
+                        Text(item.user.username + " liked your post.")
+                            .lineLimit(1)
+                    } else if item.type == ItemType.comment {
+                        Text(item.user.username + " commented on your post.")
                             .lineLimit(1)
                     }
                     Text(relativeTime)
-                        .font(Font.custom(Poppins.regular, size: 13))
+                        .font(.caption)
                         .foregroundColor(.gray)
                         .onReceive(timer, perform: { _ in
                             relativeTime = getRelativeTime()
@@ -144,6 +151,7 @@ struct NotificationFeedItem: View {
                             relativeTime = getRelativeTime()
                         })
                 }
+                .font(Font.custom(Poppins.regular, size: 14))
                 
                 Spacer()
                 

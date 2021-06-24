@@ -10,9 +10,10 @@ import Combine
 
 
 class SettingsViewModel: ObservableObject {
-    @Published var postNotifications: Bool = false
-    @Published var likeNotifications: Bool = false
+    @Published var postLikedNotifications: Bool = false
     @Published var followNotifications: Bool = false
+    @Published var commentNotifications: Bool = false
+    @Published var commentLikedNotifications: Bool = false
     @Published var loading = true
     
     @Published var confirmSignOut = false
@@ -41,8 +42,9 @@ class SettingsViewModel: ObservableObject {
         loading = true
         setPreferencesCancellable = appState.updatePreferences(
             .init(followNotifications: followNotifications,
-                  postLikedNotifications: likeNotifications,
-                  postNotifications: postNotifications))
+                  postLikedNotifications: postLikedNotifications,
+                  commentNotifications: commentNotifications,
+                  commentLikedNotifications: commentLikedNotifications))
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error when setting preferences", error)
@@ -60,9 +62,10 @@ class SettingsViewModel: ObservableObject {
     }
     
     private func setPreferences(_ preferences: UserPreferences) {
-        self.postNotifications = preferences.postNotifications
-        self.likeNotifications = preferences.postLikedNotifications
+        self.postLikedNotifications = preferences.postLikedNotifications
         self.followNotifications = preferences.followNotifications
+        self.commentNotifications = preferences.commentNotifications
+        self.commentLikedNotifications = preferences.commentLikedNotifications
     }
     
     func signOut() {
@@ -85,45 +88,8 @@ struct Settings: View {
             }
             
             Section(header: Text("Notifications")) {
-                Toggle(isOn: $settingsViewModel.followNotifications) {
-                    VStack(alignment: .leading) {
-                        Text("Follow notifications")
-                        
-                        Text("Get notified when someone follows you")
-                            .foregroundColor(.gray)
-                            .font(.caption)
-                    }
-                }
-                
-                Toggle(isOn: $settingsViewModel.likeNotifications) {
-                    VStack(alignment: .leading) {
-                        Text("Like notifications")
-                        
-                        Text("Get notified when someone likes your post")
-                            .foregroundColor(.gray)
-                            .font(.caption)
-                    }
-                }
-                
-                Toggle(isOn: $settingsViewModel.postNotifications) {
-                    VStack(alignment: .leading) {
-                        Text("Post notifications")
-                        
-                        Text("Get notified when someone you follow makes a new post")
-                            .foregroundColor(.gray)
-                            .font(.caption)
-                    }
-                }
-                .disabled(true)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    globalViewState.setWarning("Coming soon!")
-                }
-                
-                Button(action: {
-                    settingsViewModel.updatePreferences(appState: appState, viewState: globalViewState)
-                }) {
-                    Text("Update notification preferences").foregroundColor(.blue)
+                NavigationLink(destination: EditNotifications(settingsViewModel: settingsViewModel)) {
+                    Text("Edit notification settings")
                 }
             }
             .disabled(settingsViewModel.loading)

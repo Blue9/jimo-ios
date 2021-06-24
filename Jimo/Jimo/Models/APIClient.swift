@@ -132,6 +132,28 @@ struct Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
     
+    // MARK: - Comment endpoints
+    
+    static func comments(for postId: PostId, cursor: String? = nil) -> Endpoint {
+        let path = "/posts/\(postId)/comments"
+        if let cursor = cursor {
+            return Endpoint(path: path, queryItems: [URLQueryItem(name: "cursor", value: cursor)])
+        }
+        return Endpoint(path: path)
+    }
+    
+    static func createComment() -> Endpoint {
+        return Endpoint(path: "/comments")
+    }
+    
+    static func comment(commentId: CommentId) -> Endpoint {
+        return Endpoint(path: "/comments/\(commentId)")
+    }
+    
+    static func commentLikes(commentId: CommentId) -> Endpoint {
+        return Endpoint(path: "/comments/\(commentId)/likes")
+    }
+    
     // MARK: - Search endpoints
     
     static func searchUser(query: String) -> Endpoint {
@@ -190,6 +212,15 @@ enum APIError: Error, Equatable {
     case notFound
     case serverError
     case unknownError
+    
+    var message: String? {
+        if case let .requestError(maybeErrors) = self,
+           let errors = maybeErrors,
+           let first = errors.first {
+            return first.value
+        }
+        return nil
+    }
 }
 
 struct EmptyBody: Encodable {
@@ -455,6 +486,30 @@ class APIClient: ObservableObject {
         doRequest(endpoint: Endpoint.reportPost(postId: postId),
                   httpMethod: "POST",
                   body: ReportPostRequest(details: details))
+    }
+    
+    // MARK: - Comment endpoints
+    
+    func getComments(for postId: PostId, cursor: String? = nil) -> AnyPublisher<CommentPage, APIError> {
+        doRequest(endpoint: Endpoint.comments(for: postId, cursor: cursor))
+    }
+    
+    func createComment(for postId: PostId, content: String) -> AnyPublisher<Comment, APIError> {
+        doRequest(endpoint: Endpoint.createComment(),
+                  httpMethod: "POST",
+                  body: CreateCommentRequest(postId: postId, content: content))
+    }
+    
+    func deleteComment(commentId: CommentId) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: Endpoint.comment(commentId: commentId), httpMethod: "DELETE")
+    }
+    
+    func likeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
+        doRequest(endpoint: Endpoint.commentLikes(commentId: commentId), httpMethod: "POST")
+    }
+    
+    func unlikeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
+        doRequest(endpoint: Endpoint.commentLikes(commentId: commentId), httpMethod: "DELETE")
     }
     
     // MARK: - Search endpoints

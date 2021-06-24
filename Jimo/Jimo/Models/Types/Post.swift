@@ -22,6 +22,7 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var imageUrl: String?
     var createdAt: Date
     var likeCount: Int
+    var commentCount: Int
     var liked: Bool
     var customLocation: Location?
     
