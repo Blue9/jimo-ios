@@ -149,6 +149,7 @@ struct CommentItem: View {
                 
                 Text(comment.content)
                     .font(Font.custom(Poppins.regular, size: 12))
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 Text(relativeTime)
                     .font(.caption)
