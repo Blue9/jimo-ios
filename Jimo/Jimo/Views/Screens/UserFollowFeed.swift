@@ -53,7 +53,7 @@ class FollowFeedVM: ObservableObject {
                     print("Error while load follows feed.", error)
                 }
             }, receiveValue: { [weak self] response in
-                self?.feedItems = response.follow.filter { $0.relation != UserRelation.blocked }
+                self?.feedItems = response.users.filter { $0.relation != UserRelation.blocked }
                 self?.cursor = response.cursor
             })
     }
@@ -71,7 +71,7 @@ class FollowFeedVM: ObservableObject {
                 }
                 self?.loadingMoreFollows = false
             }, receiveValue: { [weak self] response in
-                self?.feedItems.append(contentsOf: response.follow.filter { $0.relation != UserRelation.blocked })
+                self?.feedItems.append(contentsOf: response.users.filter { $0.relation != UserRelation.blocked })
                 self?.cursor = response.cursor
             })
     }
@@ -207,7 +207,7 @@ struct FollowFeed: View {
     var body: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 1, data: followFeedVM.feedItems, dataID: \.self) { item, _ in
-                FollowFeedItemView(followFeedItemVM: FollowFeedItemVM(appState: appState, relation: item.relation),                  item: item)
+                FollowFeedItemView(followFeedItemVM: FollowFeedItemVM(appState: appState, relation: item.relation), item: item)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
                     .environment(\.backgroundColor, backgroundColor)

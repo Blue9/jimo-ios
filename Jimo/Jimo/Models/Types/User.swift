@@ -91,7 +91,7 @@ struct FollowFeedItem: Codable, Hashable {
 
 
 struct FollowFeedResponse: Codable {
-    var follow: [FollowFeedItem]
+    var users: [FollowFeedItem]
     var cursor: String?
 }
 
