@@ -53,7 +53,7 @@ class FollowFeedVM: ObservableObject {
                     print("Error while load follows feed.", error)
                 }
             }, receiveValue: { [weak self] response in
-                self?.feedItems = response.users.filter { $0.relation != UserRelation.blocked }
+                self?.feedItems = response.users
                 self?.cursor = response.cursor
             })
     }
@@ -71,7 +71,7 @@ class FollowFeedVM: ObservableObject {
                 }
                 self?.loadingMoreFollows = false
             }, receiveValue: { [weak self] response in
-                self?.feedItems.append(contentsOf: response.users.filter { $0.relation != UserRelation.blocked })
+                self?.feedItems.append(contentsOf: response.users)
                 self?.cursor = response.cursor
             })
     }
@@ -117,6 +117,42 @@ class FollowFeedItemVM: ObservableObject {
                 self.relation = nil
             })
     }
+    
+    func unblockUser(item: FollowFeedItem) {
+        relationCancellable = appState.unblockUser(username: item.user.username)
+            .sink(receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("Error when unfollowing", error)
+                }
+            }, receiveValue: { [self] _ in
+                self.relation = nil
+            })
+    }
+}
+
+struct FollowFeedItemButton: View {
+    let action: () -> ()
+    let text: String
+    let background: Color
+    let foreground: Color
+    
+    var body: some View {
+        Button(action: {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            action()
+        }) {
+            Text(text)
+                .padding(5)
+                .font(Font.custom(Poppins.regular, size: 14))
+                .background(background)
+                .cornerRadius(10)
+                .foregroundColor(foreground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.gray, lineWidth: 1)
+                )
+        }.frame(height: 30)
+    }
 }
 
 struct FollowFeedItemView: View {
@@ -158,6 +194,31 @@ struct FollowFeedItemView: View {
         }
         return item.user.username == currentUser.username
     }
+    
+    var followItemButton: FollowFeedItemButton {
+        if followFeedItemVM.relation == .following {
+            return FollowFeedItemButton(
+                action: { followFeedItemVM.unfollowUser(item: item) },
+                text: "Following",
+                background: .white,
+                foreground: .gray
+            )
+        } else if followFeedItemVM.relation == .blocked {
+            return FollowFeedItemButton(
+                action: { followFeedItemVM.unblockUser(item: item) },
+                text: "Unblock",
+                background: .red,
+                foreground: .white
+            )
+        } else {
+            return FollowFeedItemButton(
+                action: { followFeedItemVM.followUser(item: item) },
+                text: "Follow",
+                background: .blue,
+                foreground: .white
+            )
+        }
+    }
 
     var body: some View {
         NavigationLink(destination: destinationView) {
@@ -171,23 +232,7 @@ struct FollowFeedItemView: View {
                 }
                 Spacer()
                 if (!isCurrentUser) {
-                    Button(action: {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        followFeedItemVM.relation != nil ?
-                            followFeedItemVM.unfollowUser(item: item)
-                            : followFeedItemVM.followUser(item: item)
-                    }) {
-                        Text(followFeedItemVM.relation != nil ? "Following" : "Follow")
-                            .padding(5)
-                            .font(Font.custom(Poppins.regular, size: 14))
-                            .background(followFeedItemVM.relation != nil ? Color.white : Color.blue)
-                            .cornerRadius(10)
-                            .foregroundColor(followFeedItemVM.relation != nil ? .gray : .white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-                    }.frame(height: 30)
+                    followItemButton
                 }
             }
         }
