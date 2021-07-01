@@ -16,17 +16,11 @@ class LocationAnnotationView: MKAnnotationView {
     
     // MARK: Initialization
     
-    private var pin: MapPlace
-    private var clusteringEnabled: Bool
-    
-    init(annotation: PlaceAnnotation, reuseIdentifier: String, clusteringEnabled: Bool) {
-        self.pin = annotation.pin
-        self.clusteringEnabled = clusteringEnabled
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         frame = CGRect(x: 0, y: 0, width: 50, height: 50)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
         collisionMode = .circle
-        setupUI()
     }
     
     @available(*, unavailable)
@@ -35,14 +29,17 @@ class LocationAnnotationView: MKAnnotationView {
     }
     
     override var annotation: MKAnnotation? {
-        willSet {
-            clusteringIdentifier = clusteringEnabled ? PinClusterAnnotationView.clusteringIdentifier : nil
+        didSet {
+            if let annotation = annotation, let placeAnnotation = annotation as? PlaceAnnotation {
+                setupUI(for: placeAnnotation.pin)
+            }
         }
     }
     
     // MARK: Setup
     
-    private func setupUI() {
+    private func setupUI(for pin: MapPlace) {
+        subviews.forEach({ $0.removeFromSuperview() })
         backgroundColor = .clear
         
         let view = UIImageView(image: UIImage(named: "pin")?.withRenderingMode(.alwaysTemplate))
@@ -52,9 +49,11 @@ class LocationAnnotationView: MKAnnotationView {
         var image: UIImageView
         if let url = pin.icon.iconUrl {
             image = UIImageView()
+            let transformer = SDImageResizingTransformer(size: CGSize(width: 100, height: 100), scaleMode: .fill)
             image.sd_setImage(
                 with: URL(string: url),
-                placeholderImage: UIImage(systemName: "person.crop.circle"))
+                placeholderImage: UIImage(systemName: "person.crop.circle"),
+                context: [.imageTransformer: transformer])
             image.backgroundColor = .white
             image.contentMode = .scaleAspectFill;
             image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 7.5, dy: 4.75)
@@ -217,15 +216,20 @@ struct MapKitView: UIViewRepresentable {
             guard let annotation = annotation as? PlaceAnnotation else {
                 return nil
             }
-            let identifier = "Placemark"
+            var view = mapView.dequeueReusableAnnotationView(withIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
             /// mapView should always be a PinMapView
             let clusteringEnabled = (mapView as? PinMapView)?.clusteringEnabled ?? true
             
-            let view = LocationAnnotationView(
-                annotation: annotation,
-                reuseIdentifier: identifier,
-                clusteringEnabled: clusteringEnabled)
-            view.zPriority = MKAnnotationViewZPriority(rawValue: MKAnnotationViewZPriority.RawValue(annotation.zIndex))
+            if view == nil {
+                view = LocationAnnotationView(
+                    annotation: annotation,
+                    reuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
+            }
+            if clusteringEnabled {
+                view?.clusteringIdentifier = clusteringEnabled ? MKMapViewDefaultClusterAnnotationViewReuseIdentifier : MKMapViewDefaultAnnotationViewReuseIdentifier
+            }
+            view?.annotation = annotation
+            view?.zPriority = MKAnnotationViewZPriority(rawValue: MKAnnotationViewZPriority.RawValue(annotation.zIndex))
             return view
         }
         

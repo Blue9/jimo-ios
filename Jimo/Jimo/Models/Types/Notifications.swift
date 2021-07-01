@@ -10,6 +10,7 @@ import Foundation
 enum ItemType: String, Codable {
     case follow
     case like
+    case comment
     case unknown
 }
 
@@ -25,6 +26,7 @@ struct NotificationItem: Codable, Hashable {
     var user: PublicUser
     var itemId: String
     var post: Post?
+    var comment: Comment?
 }
 
 struct NotificationFeedResponse: Codable {

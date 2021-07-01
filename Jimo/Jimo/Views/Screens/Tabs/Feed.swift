@@ -103,20 +103,13 @@ struct FeedBody: View {
                     }
             } else {
                 ASCollectionView {
-                    ASCollectionViewSection(id: 1, data: feedState.feed, dataID: \.self) { postId, _ in
-                        if postId == "" {
-                            /// This is explained below
-                            EmptyView()
-                                .frame(width: 0, height: 0)
-                                .hidden()
-                        } else {
-                            FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
-                                .frame(width: UIScreen.main.bounds.width)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
+                    ASCollectionViewSection(id: 0, data: feedState.feed, dataID: \.self) { postId, _ in
+                        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
+                            .frame(width: UIScreen.main.bounds.width)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     
-                    ASCollectionViewSection(id: 2) {
+                    ASCollectionViewSection(id: 1) {
                         VStack {
                             Divider()
                             
@@ -144,10 +137,6 @@ struct FeedBody: View {
                 }
                 .appear {
                     feedState.listenToFeedChanges()
-                    /// This is a hack that forces the collection view to refresh. Without this, if a feed item resizes
-                    /// itself (e.g. when editing), its bounding box won't refresh, so the feed item's layout will get messed up.
-                    /// There is also `.shouldRecreateLayoutOnStateChange()` which works but is noticeably slower and doesn't look as nice
-                    feedState.feed.append("")
                 }
                 .disappear {
                     feedState.stopListeningToFeedChanges()

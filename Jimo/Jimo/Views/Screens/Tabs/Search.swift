@@ -61,7 +61,7 @@ struct Search: View {
     
     var discoverFeedLoaded: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: 1, data: discoverViewModel.posts) { post, _ in
+            ASCollectionViewSection(id: 0, data: discoverViewModel.posts) { post, _ in
                 GeometryReader { geometry in
                     NavigationLink(destination: ViewPost(postId: post.postId)) {
                         URLImage(url: post.imageUrl, thumbnail: true)

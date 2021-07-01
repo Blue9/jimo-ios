@@ -459,6 +459,28 @@ class AppState: ObservableObject {
         return self.apiClient.reportPost(postId: postId, details: details)
     }
     
+    // MARK: - Comment
+    
+    func getComments(for postId: PostId, cursor: String? = nil) -> AnyPublisher<CommentPage, APIError> {
+        return self.apiClient.getComments(for: postId, cursor: cursor)
+    }
+    
+    func createComment(for postId: PostId, content: String) -> AnyPublisher<Comment, APIError> {
+        return self.apiClient.createComment(for: postId, content: content)
+    }
+    
+    func deleteComment(commentId: CommentId) -> AnyPublisher<SimpleResponse, APIError> {
+        apiClient.deleteComment(commentId: commentId)
+    }
+    
+    func likeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
+        apiClient.likeComment(commentId: commentId)
+    }
+    
+    func unlikeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
+        apiClient.unlikeComment(commentId: commentId)
+    }
+    
     // MARK: - Search
     
     func searchUsers(query: String) -> AnyPublisher<[PublicUser], APIError> {
@@ -582,6 +604,7 @@ class AppState: ObservableObject {
             imageUrl: post.imageUrl,
             createdAt: post.createdAt,
             likeCount: likes,
+            commentCount: post.commentCount,
             liked: liked,
             customLocation: post.customLocation)
     }

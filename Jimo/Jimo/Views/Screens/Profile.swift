@@ -156,16 +156,12 @@ struct Profile: View {
     @StateObject var profileVM: ProfileVM
     
     private var section: ASCollectionViewSection<Int> {
-        ASCollectionViewSection(id: 2, data: profileVM.posts, dataID: \.self) { postId, _ in
-            if postId == "" {
-                EmptyView()
-            } else {
-                FeedItem(feedItemVM: FeedItemVM(appState: appState,
-                                                viewState: globalViewState, postId: postId,
-                                                onDelete: { profileVM.removePost(postId: postId) }))
-                    .frame(width: UIScreen.main.bounds.width)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+        ASCollectionViewSection(id: 0, data: profileVM.posts, dataID: \.self) { postId, _ in
+            FeedItem(feedItemVM: FeedItemVM(appState: appState,
+                                            viewState: globalViewState, postId: postId,
+                                            onDelete: { profileVM.removePost(postId: postId) }))
+                .frame(width: UIScreen.main.bounds.width)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
     
@@ -181,7 +177,7 @@ struct Profile: View {
                     }
                     .padding(.bottom, 10)
                 }
-            ASCollectionViewSection(id: 3) {
+            ASCollectionViewSection(id: 1) {
                 Group {
                     if profileVM.loadStatus == .success {
                         Divider()
@@ -209,7 +205,7 @@ struct Profile: View {
         .layout {
             .list(itemSize: .estimated(200))
         }
-        .animateOnDataRefresh(true)
+        .animateOnDataRefresh(false)
         .alwaysBounceVertical(true)
         .scrollIndicatorsEnabled(horizontal: false, vertical: false)
         .onPullToRefresh { onFinish in
@@ -224,11 +220,6 @@ struct Profile: View {
         .background(backgroundColor)
         .appear {
             profileVM.removeDeletedPosts()
-            /// Similar to feed:
-            /// This is a hack that forces the collection view to refresh. Without this, if a feed item resizes
-            /// itself (e.g. when editing), its bounding box won't refresh, so the feed item's layout will get messed up.
-            /// There is also `.shouldRecreateLayoutOnStateChange()` which works but is noticeably slower and doesn't look as nice
-            profileVM.posts.append("")
         }
         .ignoresSafeArea(.keyboard, edges: .all)
     }

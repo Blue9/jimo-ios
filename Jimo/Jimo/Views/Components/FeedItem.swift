@@ -22,17 +22,11 @@ struct FeedItemLikes: View {
     }
     
     private var likeCount: Int {
-        let inc = feedItemVM.liking ? 1 : 0
-        let dec = feedItemVM.unliking ? 1 : 0
-        return post.likeCount + inc - dec
+        post.likeCount
     }
     
     var body: some View {
         HStack {
-            Text(String(likeCount))
-                .font(Font.custom(Poppins.regular, size: 14))
-                .opacity(likeCount > 0 ? 1 : 0) // Build view regardless to keep height consistent
-            
             if showFilledHeart {
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -40,8 +34,8 @@ struct FeedItemLikes: View {
                 }) {
                     Image(systemName: "heart.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(.red)
                 }
+                .foregroundColor(.red)
             } else {
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -49,12 +43,26 @@ struct FeedItemLikes: View {
                 }) {
                     Image(systemName: "heart")
                         .font(.system(size: 20))
-                        .foregroundColor(.red)
                 }
+                .foregroundColor(.red)
             }
         }
+        .offset(y: 0.5)
     }
 }
+
+struct FeedItemComments: View {
+    @ObservedObject var feedItemVM: FeedItemVM
+    var post: Post
+    
+    var body: some View {
+        Image(systemName: "bubble.right")
+            .font(.system(size: 20))
+            .foregroundColor(.black)
+            .offset(y: 1.5)
+    }
+}
+
 
 struct FeedItemBody: View {
     @EnvironmentObject var appState: AppState
@@ -123,7 +131,8 @@ struct FeedItemBody: View {
             if let image = post.imageUrl {
                 URLImage(url: image,
                          loading: Image("grayRect").resizable(),
-                         failure: Image("imageFail"))
+                         failure: Image("imageFail"),
+                         imageHeight: feedItemVM.imageHeight)
                     .id(post.imageUrl)
                     .frame(minHeight: fullPost ? .zero : 300)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : 300)
@@ -227,23 +236,37 @@ struct FeedItemBody: View {
                 postContent
                     .font(Font.custom(Poppins.regular, size: 14))
                 
-                HStack {
-                    Text(relativeTime)
-                        .font(Font.custom(Poppins.regular, size: 12))
+                HStack(spacing: 5) {
+                    
+                    FeedItemLikes(feedItemVM: feedItemVM, post: post)
+                    
+                    Text("\(post.likeCount) like\(post.likeCount != 1 ? "s" : "")")
+                        .font(.caption)
                         .foregroundColor(.gray)
-                        .onReceive(timer, perform: { _ in
-                            relativeTime = getRelativeTime(post: post)
-                        })
+                    
+                    Spacer().frame(width: 4)
+                    
+                    FeedItemComments(feedItemVM: feedItemVM, post: post)
+                    
+                    Text("\(post.commentCount) comment\(post.commentCount != 1 ? "s" : "")")
+                        .font(.caption)
+                        .foregroundColor(.gray)
                     
                     Spacer()
                     
-                    FeedItemLikes(feedItemVM: feedItemVM, post: post)
+                    Text(relativeTime)
+                        .onReceive(timer, perform: { _ in
+                            relativeTime = getRelativeTime(post: post)
+                        })
+                        .font(.caption)
+                        .foregroundColor(.gray)
                 }
                 .padding(.top, 8)
-                .padding(.horizontal)
+                .padding(.horizontal, 10)
+                
             }
             .padding(.top, 4)
-            .padding(.bottom, 6)
+            .padding(.bottom, fullPost ? 0 : 6)
             
             if feedItemVM.deleting {
                 ProgressView()
@@ -358,6 +381,7 @@ struct FeedItem_Previews: PreviewProvider {
         imageUrl: "https://i.imgur.com/ugITQw2.jpg",
         createdAt: Date(),
         likeCount: 10,
+        commentCount: 10,
         liked: false,
         customLocation: nil)
     

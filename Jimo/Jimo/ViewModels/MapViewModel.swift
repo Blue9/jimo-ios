@@ -65,7 +65,7 @@ class MapViewModel: ObservableObject {
     func startRefreshingMap() {
         print("Starting map refresh")
         mapRefreshCancellable = Deferred { Just(Date()) }
-            .append(Timer.publish(every: 60, tolerance: 1, on: .main, in: .common).autoconnect())
+            .append(Timer.publish(every: 120, tolerance: 5, on: .main, in: .common).autoconnect())
             .flatMap { [weak self] _ -> AnyPublisher<Void, Never> in
                 guard let self = self else {
                     return Empty().eraseToAnyPublisher()

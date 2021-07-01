@@ -13,6 +13,7 @@ class FeedItemVM: ObservableObject {
     let globalViewState: GlobalViewState
     let postId: PostId
     
+    var imageHeight: Binding<CGFloat?>?
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false
@@ -26,12 +27,19 @@ class FeedItemVM: ObservableObject {
     
     var onDelete: (() -> Void)?
     
-    init(appState: AppState, viewState: GlobalViewState, postId: PostId, onDelete: (() -> Void)? = nil) {
+    init(
+        appState: AppState,
+        viewState: GlobalViewState,
+        postId: PostId,
+        onDelete: (() -> Void)? = nil,
+        imageHeight: Binding<CGFloat?>? = nil
+    ) {
         self.appState = appState
         self.globalViewState = viewState
         self.postId = postId
         self.post = appState.allPosts.posts[postId]
         self.onDelete = onDelete
+        self.imageHeight = imageHeight
     }
     
     deinit {
