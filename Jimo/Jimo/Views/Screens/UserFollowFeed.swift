@@ -172,7 +172,6 @@ struct FollowFeedItemView: View {
             .foregroundColor(.gray)
             .background(Color.white)
             .cornerRadius(50)
-            .padding(.trailing)
     }
     
     var destinationView: some View {
@@ -227,10 +226,14 @@ struct FollowFeedItemView: View {
                 
                 VStack(alignment: .leading) {
                     Text("@" + item.user.username)
+                        .font(Font.custom(Poppins.medium, size: 14))
                     Text(item.user.firstName + " " + item.user.lastName)
                         .lineLimit(1)
+                        .font(Font.custom(Poppins.regular, size: 12))
                 }
+                
                 Spacer()
+                
                 if (!isCurrentUser) {
                     followItemButton
                 }
