@@ -32,7 +32,7 @@
 		C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7260C582585D27C0002A335 /* CreateProfileView.swift */; };
 		C72F3CB92587264A00DDB76C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CB82587264A00DDB76C /* Feed.swift */; };
 		C72F3CBE258726BA00DDB76C /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CBD258726BA00DDB76C /* MainAppView.swift */; };
-		C7315BC1266AD7D50086BD52 /* EditNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7315BC0266AD7D50086BD52 /* EditNotifications.swift */; };
+		C7315BC1266AD7D50086BD52 /* EditPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7315BC0266AD7D50086BD52 /* EditPreferences.swift */; };
 		C7317F3F25E5C5840070E938 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7317F3E25E5C5840070E938 /* ImageUploadService.swift */; };
 		C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7318C902560E1F000E75BE6 /* HideKeyboard.swift */; };
 		C736A9EB25A541F60086B809 /* ViewPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C736A9EA25A541F60086B809 /* ViewPost.swift */; };
@@ -163,7 +163,7 @@
 		C72E1D1125CA1ADD0091C894 /* Jimo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Jimo.entitlements; sourceTree = "<group>"; };
 		C72F3CB82587264A00DDB76C /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
 		C72F3CBD258726BA00DDB76C /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
-		C7315BC0266AD7D50086BD52 /* EditNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNotifications.swift; sourceTree = "<group>"; };
+		C7315BC0266AD7D50086BD52 /* EditPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPreferences.swift; sourceTree = "<group>"; };
 		C7317F3E25E5C5840070E938 /* ImageUploadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadService.swift; sourceTree = "<group>"; };
 		C7318C902560E1F000E75BE6 /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		C736A9EA25A541F60086B809 /* ViewPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewPost.swift; sourceTree = "<group>"; };
@@ -545,7 +545,7 @@
 			children = (
 				C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */,
 				C7AEACFC25D8720E00EDEB7D /* Settings.swift */,
-				C7315BC0266AD7D50086BD52 /* EditNotifications.swift */,
+				C7315BC0266AD7D50086BD52 /* EditPreferences.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -923,7 +923,7 @@
 				C74183E025D6E3A2007F13C1 /* GlobalViewState.swift in Sources */,
 				C712B6E9262E497900DAEB1D /* UIKitTabView.swift in Sources */,
 				C7317F3F25E5C5840070E938 /* ImageUploadService.swift in Sources */,
-				C7315BC1266AD7D50086BD52 /* EditNotifications.swift in Sources */,
+				C7315BC1266AD7D50086BD52 /* EditPreferences.swift in Sources */,
 				C7EDC3D325D39767007B3E77 /* Wave.swift in Sources */,
 				C768E9382558B3CB0068FCD5 /* FeedItem.swift in Sources */,
 				C71B1B152599B7FE004BF1CD /* Toast.swift in Sources */,

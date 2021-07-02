@@ -14,6 +14,7 @@ class SettingsViewModel: ObservableObject {
     @Published var followNotifications: Bool = false
     @Published var commentNotifications: Bool = false
     @Published var commentLikedNotifications: Bool = false
+    @Published var searchableByPhoneNumber: Bool = false
     @Published var loading = true
     
     @Published var confirmSignOut = false
@@ -44,7 +45,8 @@ class SettingsViewModel: ObservableObject {
             .init(followNotifications: followNotifications,
                   postLikedNotifications: postLikedNotifications,
                   commentNotifications: commentNotifications,
-                  commentLikedNotifications: commentLikedNotifications))
+                  commentLikedNotifications: commentLikedNotifications,
+                  searchableByPhoneNumber: searchableByPhoneNumber))
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error when setting preferences", error)
@@ -55,7 +57,7 @@ class SettingsViewModel: ObservableObject {
                 guard let self = self else {
                     return
                 }
-                viewState.setSuccess("Updated notification preferences!")
+                viewState.setSuccess("Updated preferences!")
                 self.setPreferences(preferences)
                 self.loading = false
             })
@@ -66,6 +68,7 @@ class SettingsViewModel: ObservableObject {
         self.followNotifications = preferences.followNotifications
         self.commentNotifications = preferences.commentNotifications
         self.commentLikedNotifications = preferences.commentLikedNotifications
+        self.searchableByPhoneNumber = preferences.searchableByPhoneNumber
     }
     
     func signOut() {
@@ -87,9 +90,9 @@ struct Settings: View {
                 }
             }
             
-            Section(header: Text("Notifications")) {
-                NavigationLink(destination: EditNotifications(settingsViewModel: settingsViewModel)) {
-                    Text("Edit notification settings")
+            Section(header: Text("Preferences")) {
+                NavigationLink(destination: EditPreferences(settingsViewModel: settingsViewModel)) {
+                    Text("Edit preferences")
                 }
             }
             .disabled(settingsViewModel.loading)
