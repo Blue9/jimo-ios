@@ -1,5 +1,5 @@
 //
-//  EditNotifications.swift
+//  EditPreferences.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 6/4/21.
@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct EditNotifications: View {
+struct EditPreferences: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @ObservedObject var settingsViewModel: SettingsViewModel
     
-    var body: some View {
-        Form {
+    var notificationSection: some View {
+        Group {
             Toggle(isOn: $settingsViewModel.followNotifications) {
                 VStack(alignment: .leading) {
                     Text("Followers")
@@ -53,6 +53,26 @@ struct EditNotifications: View {
                         .font(.caption)
                 }
             }
+        }
+    }
+    
+    var body: some View {
+        Form {
+            Section(header: Text("Notifications")) {
+                notificationSection
+            }
+            
+            Section(header: Text("Privacy")) {
+                Toggle(isOn: $settingsViewModel.searchableByPhoneNumber) {
+                    VStack(alignment: .leading) {
+                        Text("Searchable by phone number")
+                        
+                        Text("Allow other users to find you using your phone number")
+                            .foregroundColor(.gray)
+                            .font(.caption)
+                    }
+                }
+            }
             
             Button(action: {
                 settingsViewModel.updatePreferences(appState: appState, viewState: globalViewState)
@@ -64,7 +84,7 @@ struct EditNotifications: View {
         .navigationBarColor(.white)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                NavTitle("Notification settings")
+                NavTitle("Preferences")
             }
         }
     }

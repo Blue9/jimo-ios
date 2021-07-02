@@ -39,6 +39,7 @@ struct UserPreferences: Codable {
     var postLikedNotifications: Bool
     var commentNotifications: Bool
     var commentLikedNotifications: Bool
+    var searchableByPhoneNumber: Bool
 }
 
 
