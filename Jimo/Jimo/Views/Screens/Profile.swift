@@ -113,7 +113,13 @@ struct ProfileHeaderView: View {
 }
 
 struct ProfileStatsView: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
+    
     @ObservedObject var profileVM: ProfileVM
+    @State private var showFollowers = false
+    @State private var showFollowing = false
     
     var user: User {
         profileVM.user
@@ -127,19 +133,39 @@ struct ProfileStatsView: View {
             }
             .frame(width: 80)
             Spacer()
-            VStack {
-                Text(String(user.followerCount))
-                Text("Followers")
+            Button(action: { showFollowers.toggle() }) {
+                VStack {
+                    Text(String(user.followerCount))
+                    Text("Followers")
+                }
             }
             .frame(width: 80)
             Spacer()
-            VStack {
-                Text(String(user.followingCount))
-                Text("Following")
+            Button(action: { showFollowing.toggle()} ) {
+                VStack {
+                    Text(String(user.followingCount))
+                    Text("Following")
+                }
             }
             .frame(width: 80)
         }
         .padding(.horizontal, 40)
+        .background(
+            NavigationLink(destination: FollowFeed(followFeedVM: FollowFeedVM(user: profileVM.user,
+                                                                              type: FollowType.followers),
+                                                   navTitle: "Followers")
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState)
+                            .environment(\.backgroundColor, backgroundColor), isActive: $showFollowers) {}
+        )
+        .background(
+            NavigationLink(destination: FollowFeed(followFeedVM: FollowFeedVM(user: profileVM.user,
+                                                                              type: FollowType.following),
+                                                   navTitle: "Following")
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState)
+                            .environment(\.backgroundColor, backgroundColor), isActive: $showFollowing) {}
+        )
     }
 }
 
@@ -149,27 +175,28 @@ struct Profile: View {
     @Environment(\.backgroundColor) var backgroundColor
     @StateObject var profileVM: ProfileVM
     
-    private var section: ASCollectionViewSection<Int> {
-        ASCollectionViewSection(id: 0, data: profileVM.posts, dataID: \.self) { postId, _ in
-            FeedItem(feedItemVM: FeedItemVM(appState: appState,
-                                            viewState: globalViewState, postId: postId,
-                                            onDelete: { profileVM.removePost(postId: postId) }))
-                .frame(width: UIScreen.main.bounds.width)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
+    @State private var showUserOptions = false
+    @State private var confirmBlockUser = false
     
     var profileBody: some View {
         ASCollectionView {
-            section
-                .sectionHeader {
-                    VStack {
-                        ProfileHeaderView(profileVM: profileVM)
-                        ProfileStatsView(profileVM: profileVM)
-                    }
-                    .padding(.bottom, 10)
+            ASCollectionViewSection(id: 0) {
+                VStack {
+                    ProfileHeaderView(profileVM: profileVM)
+                    ProfileStatsView(profileVM: profileVM)
                 }
-            ASCollectionViewSection(id: 1) {
+                .padding(.bottom, 10)
+            }
+            
+            ASCollectionViewSection(id: 1, data: profileVM.posts, dataID: \.self) { postId, _ in
+                FeedItem(feedItemVM: FeedItemVM(appState: appState,
+                                                viewState: globalViewState, postId: postId,
+                                                onDelete: { profileVM.removePost(postId: postId) }))
+                    .frame(width: UIScreen.main.bounds.width)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            ASCollectionViewSection(id: 2) {
                 Group {
                     if profileVM.loadStatus == .success {
                         Divider()
@@ -215,9 +242,6 @@ struct Profile: View {
         }
         .ignoresSafeArea(.keyboard, edges: .all)
     }
-    
-    @State private var showUserOptions = false
-    @State private var confirmBlockUser = false
     
     var body: some View {
         profileBody

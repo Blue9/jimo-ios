@@ -85,6 +85,18 @@ struct FollowUserResponse: Codable {
 }
 
 
+struct FollowFeedItem: Codable, Hashable {
+    var user: PublicUser
+    var relation: UserRelation?
+}
+
+
+struct FollowFeedResponse: Codable {
+    var users: [FollowFeedItem]
+    var cursor: String?
+}
+
+
 enum UserRelation: String, Codable {
     case following, blocked
 }
