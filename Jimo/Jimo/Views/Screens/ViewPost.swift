@@ -54,7 +54,7 @@ struct ViewPost: View {
     
     var body: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: 0) {
+            ASCollectionViewSection(id: imageHeight == nil ? -1 : 0) {
                 postItem
             }
             
@@ -81,11 +81,10 @@ struct ViewPost: View {
         }
         .backgroundColor(UIColor(backgroundColor))
         .shouldScrollToAvoidKeyboard(true)
-        .shouldInvalidateLayoutOnStateChange(true, animated: false)
         .layout { sectionId in
             switch sectionId {
             case 0: // post
-                return .list(itemSize: .estimated(imageHeight ?? 1080), spacing: 0)
+                return .list(itemSize: .estimated(1080), spacing: 0)
             default:
                 return .list(itemSize: .estimated(50), spacing: 0)
             }
