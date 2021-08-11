@@ -44,10 +44,11 @@ struct ProfileHeaderView: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text(name)
                     .font(Font.custom(Poppins.medium, size: 18))
-                    .fontWeight(.semibold)
+                    .minimumScaleFactor(0.5)
                     .frame(height: 25)
                 Text("@" + user.username)
                     .frame(height: 25)
+                    .font(Font.custom(Poppins.regular, size: 14))
                     .padding(.bottom, 5)
                 
                 if isCurrentUser {

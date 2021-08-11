@@ -51,9 +51,9 @@ struct URLImage: View {
         self.loading = loading
         self.failure = failure
         if thumbnail {
-            self.maxDim = 300
+            self.maxDim = 500
         } else {
-            self.maxDim = 1080
+            self.maxDim = 3000
         }
         if let imageHeight = imageHeight {
             self.state.imageHeight = imageHeight

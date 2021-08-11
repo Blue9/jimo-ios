@@ -134,8 +134,8 @@ struct FeedItemBody: View {
                          failure: Image("imageFail"),
                          imageHeight: feedItemVM.imageHeight)
                     .id(post.imageUrl)
-                    .frame(minHeight: fullPost ? .zero : 300)
-                    .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : 300)
+                    .frame(minHeight: fullPost ? .zero : UIScreen.main.bounds.width)
+                    .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : UIScreen.main.bounds.width)
                     .cornerRadius(0)
                     .contentShape(Rectangle())
                     .background(Color(post.category))
@@ -222,6 +222,8 @@ struct FeedItemBody: View {
                                         }) {
                             HStack(spacing: 0) {
                                 Text(post.place.name)
+                                    .minimumScaleFactor(0.5)
+                                    .padding(.trailing, 10)
                             }
                             .lineLimit(1)
                             .foregroundColor(.black)
