@@ -14,17 +14,12 @@ class MapViewModel: ObservableObject {
         center: CLLocationCoordinate2D(latitude: 37.13284, longitude: -95.78558),
         span: MKCoordinateSpan(latitudeDelta: 85.762482, longitudeDelta: 61.276015))
     
-    let appState: AppState
-    let globalViewState: GlobalViewState
-    let preselectedPost: Post? // If we are navigating to the map from a post
-    
     /// When first launching the map, if preselectedPost != nil we want to open the bottom sheet for it.
     /// This lets us know whether we have done that or not so we don't repeatedly open the bottom sheet.
     var displayedInitialBottomSheetForPresentedPost: Bool = false
     
-    var mapRefreshCancellable: Cancellable? = nil
-    var annotationsCancellable: Cancellable? = nil
-    var loadPreselectedPost: Cancellable?
+    var mapRefreshCancellable: Cancellable?
+    var loadPreselectedPlace: Cancellable?
     
     @Published var presentedPin: PlaceAnnotation? {
         didSet {
@@ -52,17 +47,7 @@ class MapViewModel: ObservableObject {
     }
     @Published var mapAnnotations: [PlaceAnnotation] = []
     
-    var showSearchBar: Bool {
-        preselectedPost == nil
-    }
-    
-    init(appState: AppState, viewState: GlobalViewState, preselectedPost: Post? = nil) {
-        self.appState = appState
-        self.globalViewState = viewState
-        self.preselectedPost = preselectedPost
-    }
-    
-    func startRefreshingMap() {
+    func startRefreshingMap(appState: AppState, globalViewState: GlobalViewState, preselectedPlace: Place?) {
         print("Starting map refresh")
         mapRefreshCancellable = Deferred { Just(Date()) }
             .append(Timer.publish(every: 120, tolerance: 5, on: .main, in: .common).autoconnect())
@@ -70,31 +55,46 @@ class MapViewModel: ObservableObject {
                 guard let self = self else {
                     return Empty().eraseToAnyPublisher()
                 }
-                return self.refreshMap()
+                return self.refreshMap(appState: appState)
             }
             .sink {}
-        if let post = preselectedPost {
-            loadPreselectedPost = appState.loadPlaceIcon(for: post.place)
-                .sink { [weak self] completion in
-                    if case let .failure(error) = completion {
-                        print("Error loading place", error)
-                        self?.globalViewState.setError("Failed to load place details")
-                    }
-                } receiveValue: { _ in }
+    }
+    
+    func presentPreselectedPlace(place: Place, appState: AppState, globalViewState: GlobalViewState) {
+        if self.displayedInitialBottomSheetForPresentedPost {
+            // Already presented
+            return
         }
-        annotationsCancellable = appState.mapModel.$places
-            .sink { [weak self] pins in
-                // Handle preselected post
-                self?.updateAnnotations(pins: pins)
+        loadPreselectedPlace = appState.loadPlaceIcon(for: place)
+            .sink { completion in
+                if case let .failure(error) = completion {
+                    print("Error loading place", error)
+                    globalViewState.setError("Failed to load place details")
+                }
+            } receiveValue: { [weak self] icon in
+                guard let self = self else {
+                    return
+                }
+                let pin = PlaceAnnotation(pin: MapPlace(place: place, icon: icon), zIndex: 0)
+                self.presentedPin = pin
+                if !self.mapAnnotations.contains(where: { $0.place.placeId == pin.place.placeId }) {
+                    self.mapAnnotations.append(pin)
+                }
+                self.modalState = .tiny
+                self.displayedInitialBottomSheetForPresentedPost = true
             }
     }
     
-    func refreshMap() -> AnyPublisher<Void, Never> {
-        self.appState.refreshMap()
-            .catch { error -> AnyPublisher<Void, Never> in
+    func refreshMap(appState: AppState) -> AnyPublisher<Void, Never> {
+        appState.refreshMap()
+            .catch { error -> AnyPublisher<[MapPlace], Never> in
                 print("Error when getting map", error)
-                return Just(()).eraseToAnyPublisher()
-            }.eraseToAnyPublisher()
+                return Just([]).eraseToAnyPublisher()
+            }
+            .map { [weak self] places in
+                self?.updateAnnotations(pins: places)
+            }
+            .eraseToAnyPublisher()
     }
     
     func stopRefreshingMap() {
@@ -114,17 +114,8 @@ class MapViewModel: ObservableObject {
             return place1.icon.numMutualPosts < place2.icon.numMutualPosts
         })
         mapAnnotations = newPins.enumerated().map({ (i, pin) in
-            return PlaceAnnotation(pin: pin, zIndex: i)
+            PlaceAnnotation(pin: pin, zIndex: i)
         })
-        // Handle preselected post
-        if let post = preselectedPost,
-           !displayedInitialBottomSheetForPresentedPost,
-           let annotation = mapAnnotations.first(where: { $0.pin.place.placeId == post.place.placeId })
-        {
-            presentedPin = annotation
-            modalState = .tiny
-            displayedInitialBottomSheetForPresentedPost = true
-        }
     }
 }
 

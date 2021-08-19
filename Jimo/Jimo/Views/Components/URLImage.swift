@@ -8,12 +8,12 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-class URLImageState: ObservableObject {
-    var imageHeight: Binding<CGFloat?>?
+fileprivate class LoadState {
+    var imageLoaded: Binding<Bool>?
 }
 
 struct URLImage: View {
-    var state = URLImageState()
+    private var loadState = LoadState()
     
     private var url: URL?
     private var loading: Image
@@ -28,7 +28,7 @@ struct URLImage: View {
         .resizable()
         .onSuccess { image, data, cacheType in
             DispatchQueue.main.async {
-                self.state.imageHeight?.wrappedValue = image.size.height
+                self.loadState.imageLoaded?.wrappedValue = true
             }
         }
         .placeholder {
@@ -43,7 +43,7 @@ struct URLImage: View {
         loading: Image = Image("grayRect"),
         failure: Image = Image("imageFail"),
         thumbnail: Bool = false,
-        imageHeight: Binding<CGFloat?>? = nil
+        imageLoaded: Binding<Bool>? = nil
     ) {
         if let url = url {
             self.url = URL(string: url)
@@ -55,8 +55,8 @@ struct URLImage: View {
         } else {
             self.maxDim = 3000
         }
-        if let imageHeight = imageHeight {
-            self.state.imageHeight = imageHeight
+        if let imageLoaded = imageLoaded {
+            self.loadState.imageLoaded = imageLoaded
         }
     }
 }

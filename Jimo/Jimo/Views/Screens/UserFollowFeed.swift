@@ -15,31 +15,35 @@ enum FollowType {
 }
 
 class FollowFeedVM: ObservableObject {
-    @Published var user: User
-    @Published var type: FollowType
+    let nc = NotificationCenter.default
+    
     @Published var feedItems: [FollowFeedItem] = []
     @Published var loadingMoreFollows = false
 
-    private var cancellable: Cancellable? = nil
+    private var cancellable: Cancellable?
     private var cursor: String?
-    private var initialized = false
     
-    init(user: User, type: FollowType) {
-        self.user = user
-        self.type = type
+    init() {
+        nc.addObserver(self, selector: #selector(userRelationChanged), name: UserPublisher.userRelationChanged, object: nil)
     }
     
-    func initialize(appState: AppState, viewState: GlobalViewState) {
-        if initialized {
-            return
+    @objc private func userRelationChanged(notification: Notification) {
+        let payload = notification.object as! UserRelationPayload
+        let feedIndex = feedItems.indices.first(where: { feedItems[$0].user.username == payload.username })
+        if let i = feedIndex {
+            feedItems[i].relation = payload.relation
         }
-        initialized = true
-        refreshFeed(appState: appState, viewState: viewState)
     }
     
-    func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
+    func refreshFollows(
+        type: FollowType,
+        for username: String,
+        appState: AppState,
+        viewState: GlobalViewState,
+        onFinish: OnFinish? = nil
+    ) {
         self.cursor = nil
-        cancellable = callApi(appState: appState, cursor: nil)
+        cancellable = callApi(appState: appState, type: type, username: username, cursor: nil)
             .sink(receiveCompletion: { completion in
                 onFinish?()
                 if case let .failure(error) = completion {
@@ -52,13 +56,13 @@ class FollowFeedVM: ObservableObject {
             })
     }
     
-    func loadMoreFollows(appState: AppState, viewState: GlobalViewState) {
+    func loadMoreFollows(type: FollowType, for username: String, appState: AppState, viewState: GlobalViewState) {
         guard cursor != nil else {
             return
         }
         loadingMoreFollows = true
         print("Loading more follows")
-        cancellable = callApi(appState: appState, cursor: cursor)
+        cancellable = callApi(appState: appState, type: type, username: username, cursor: cursor)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error while load more follows.", error)
@@ -71,63 +75,51 @@ class FollowFeedVM: ObservableObject {
             })
     }
     
-    func callApi(appState: AppState, cursor: String?) -> AnyPublisher<FollowFeedResponse, APIError> {
+    func callApi(
+        appState: AppState,
+        type: FollowType,
+        username: String,
+        cursor: String?
+    ) -> AnyPublisher<FollowFeedResponse, APIError> {
         if type == FollowType.followers {
-            return appState.getFollowers(username: user.username, cursor: cursor)
+            return appState.getFollowers(username: username, cursor: cursor)
         } else {
-            return appState.getFollowing(username: user.username, cursor: cursor)
+            return appState.getFollowing(username: username, cursor: cursor)
         }
     }
 }
 
 class FollowFeedItemVM: ObservableObject {
-    var appState: AppState
-    var viewState: GlobalViewState
+    private var relationCancellable: AnyCancellable?
     
-    @Published var relation: UserRelation?
-    
-    private var relationCancellable: AnyCancellable? = nil
-    
-    init(appState: AppState, viewState: GlobalViewState, relation: UserRelation?) {
-        self.appState = appState
-        self.viewState = viewState
-        self.relation = relation
-    }
-    
-    func followUser(item: FollowFeedItem){
+    func followUser(appState: AppState, viewState: GlobalViewState, item: FollowFeedItem) {
         relationCancellable = appState.followUser(username: item.user.username)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when following", error)
-                    self?.viewState.setError("Failed to follow user.")
+                    viewState.setError("Failed to follow user.")
                 }
-            }, receiveValue: { [self] _ in
-                self.relation = UserRelation.following
-            })
+            }, receiveValue: { _ in })
     }
 
-    func unfollowUser(item: FollowFeedItem) {
+    func unfollowUser(appState: AppState, viewState: GlobalViewState, item: FollowFeedItem) {
         relationCancellable = appState.unfollowUser(username: item.user.username)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when unfollowing", error)
-                    self?.viewState.setError("Failed to unfollow user.")
+                    viewState.setError("Failed to unfollow user.")
                 }
-            }, receiveValue: { [self] _ in
-                self.relation = nil
-            })
+            }, receiveValue: { _ in })
     }
     
-    func unblockUser(item: FollowFeedItem) {
+    func unblockUser(appState: AppState, viewState: GlobalViewState, item: FollowFeedItem) {
         relationCancellable = appState.unblockUser(username: item.user.username)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when unblocking", error)
-                    self?.viewState.setError("Failed to unblock user.")
+                    viewState.setError("Failed to unblock user.")
                 }
-            }, receiveValue: { [self] _ in
-                self.relation = nil
-            })
+            }, receiveValue: { _ in })
     }
 }
 
@@ -159,12 +151,19 @@ struct FollowFeedItemButton: View {
 struct FollowFeedItemView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @ObservedObject var followFeedItemVM: FollowFeedItemVM
     @Environment(\.backgroundColor) var backgroundColor
     
-    var item: FollowFeedItem
+    @StateObject var followFeedItemVM = FollowFeedItemVM()
     
-    let defaultProfileImage: Image = Image(systemName: "person.crop.circle")
+    let item: FollowFeedItem
+    let defaultProfileImage = Image(systemName: "person.crop.circle")
+    
+    var isCurrentUser: Bool {
+        guard case let .user(currentUser) = appState.currentUser else {
+            return false
+        }
+        return item.user.username == currentUser.username
+    }
     
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultProfileImage, failure: defaultProfileImage)
@@ -175,44 +174,28 @@ struct FollowFeedItemView: View {
             .cornerRadius(50)
     }
     
-    var destinationView: some View {
-        return AnyView(
-            Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: item.user))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(backgroundColor))
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-            })
-        )
+    @ViewBuilder var destinationView: some View {
+        ProfileScreen(initialUser: item.user)
     }
     
-    var isCurrentUser: Bool {
-        guard case let .user(currentUser) = appState.currentUser else {
-            return false
-        }
-        return item.user.username == currentUser.username
-    }
-    
-    var followItemButton: FollowFeedItemButton {
-        if followFeedItemVM.relation == .following {
-            return FollowFeedItemButton(
-                action: { followFeedItemVM.unfollowUser(item: item) },
+    @ViewBuilder var followItemButton: some View {
+        if item.relation == .following {
+            FollowFeedItemButton(
+                action: { followFeedItemVM.unfollowUser(appState: appState, viewState: globalViewState, item: item) },
                 text: "Following",
                 background: .white,
                 foreground: .gray
             )
-        } else if followFeedItemVM.relation == .blocked {
-            return FollowFeedItemButton(
-                action: { followFeedItemVM.unblockUser(item: item) },
+        } else if item.relation == .blocked {
+            FollowFeedItemButton(
+                action: { followFeedItemVM.unblockUser(appState: appState, viewState: globalViewState, item: item) },
                 text: "Unblock",
                 background: .red,
                 foreground: .white
             )
         } else {
-            return FollowFeedItemButton(
-                action: { followFeedItemVM.followUser(item: item) },
+            FollowFeedItemButton(
+                action: { followFeedItemVM.followUser(appState: appState, viewState: globalViewState, item: item) },
                 text: "Follow",
                 background: .blue,
                 foreground: .white
@@ -248,27 +231,24 @@ struct FollowFeedItemView: View {
 struct FollowFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @ObservedObject var followFeedVM: FollowFeedVM
     @Environment(\.backgroundColor) var backgroundColor
     
-    var navTitle: String
+    @StateObject var followFeedVM = FollowFeedVM()
+    @State private var initialized = false
+    
+    let navTitle: String
+    let type: FollowType
+    let username: String
     
     var body: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: 1, data: followFeedVM.feedItems, dataID: \.self) { item, _ in
-                FollowFeedItemView(
-                    followFeedItemVM: FollowFeedItemVM(
-                                    appState: appState,
-                                    viewState: globalViewState,
-                                    relation: item.relation
-                    ),
-                    item: item
-                )
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
-                .environment(\.backgroundColor, backgroundColor)
-                .padding(.horizontal, 10)
-                .fixedSize(horizontal: false, vertical: true)
+            ASCollectionViewSection(id: 1, data: followFeedVM.feedItems) { item, _ in
+                FollowFeedItemView(item: item)
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+                    .environment(\.backgroundColor, backgroundColor)
+                    .padding(.horizontal, 10)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .sectionFooter {
                 VStack {
@@ -287,16 +267,32 @@ struct FollowFeed: View {
             .list(itemSize: .absolute(50))
         }
         .onPullToRefresh { onFinish in
-            followFeedVM.refreshFeed(appState: appState, viewState: globalViewState, onFinish: onFinish)
+            followFeedVM.refreshFollows(
+                type: type,
+                for: username,
+                appState: appState,
+                viewState: globalViewState,
+                onFinish: onFinish
+            )
         }
         .onReachedBoundary { boundary in
             if boundary == .bottom {
-                followFeedVM.loadMoreFollows(appState: appState, viewState: globalViewState)
+                followFeedVM.loadMoreFollows(
+                    type: type,
+                    for: username,
+                    appState: appState,
+                    viewState: globalViewState
+                )
             }
         }
         .ignoresSafeArea(.keyboard, edges: .all)
         .background(backgroundColor.edgesIgnoringSafeArea(.all))
-        .onAppear(perform: { followFeedVM.initialize(appState: appState, viewState: globalViewState) })
+        .onAppear {
+            if !initialized {
+                followFeedVM.refreshFollows(type: type, for: username, appState: appState, viewState: globalViewState)
+                initialized = true
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(backgroundColor))
         .toolbar(content: {

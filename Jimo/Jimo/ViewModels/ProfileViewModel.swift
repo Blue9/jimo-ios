@@ -13,8 +13,7 @@ enum ProfileLoadStatus {
 }
 
 class ProfileVM: ObservableObject {
-    let appState: AppState
-    let globalViewState: GlobalViewState
+    let nc = NotificationCenter.default
     
     var loadUserCancellable: Cancellable? = nil
     var loadRelationCancellable: Cancellable? = nil
@@ -22,53 +21,67 @@ class ProfileVM: ObservableObject {
     
     var relationCancellable: AnyCancellable?
     
-    @Published var user: User
+    @Published var user: User?
     @Published var loadedRelation = false
     @Published var relationToUser: UserRelation?
-    @Published var posts: [PostId] = []
+    @Published var posts: [Post] = []
     @Published var cursor: String?
     
     /// This really just tracks the post loading (ignores user and follow status) for simplicity
     @Published var loadStatus = ProfileLoadStatus.notInitialized
     @Published var loadingMore = false
     
-    var isCurrentUser: Bool {
+    init() {
+        nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
+    }
+    
+    @objc private func postCreated(notification: Notification) {
+        let post = notification.object as! Post
+        posts.insert(post, at: 0)
+    }
+    
+    @objc private func postLiked(notification: Notification) {
+        let like = notification.object as! PostLikePayload
+        let postIndex = posts.indices.first(where: { posts[$0].postId == like.postId })
+        if let i = postIndex {
+            posts[i].likeCount = like.likeCount
+            posts[i].liked = like.liked
+        }
+    }
+    
+    @objc private func postDeleted(notification: Notification) {
+        let postId = notification.object as! PostId
+        posts.removeAll(where: { $0.postId == postId })
+    }
+    
+    func isCurrentUser(appState: AppState, username: String) -> Bool {
         guard case let .user(currentUser) = appState.currentUser else {
             return false
         }
-        return user.username == currentUser.username
-    }
-    
-    init(appState: AppState, globalViewState: GlobalViewState, user: User) {
-        self.appState = appState
-        self.globalViewState = globalViewState
-        self.user = user
+        return username == currentUser.username
     }
     
     func removePost(postId: PostId) {
-        posts = posts.filter({ postId != $0 })
+        posts = posts.filter({ postId != $0.postId })
     }
     
-    /// Remove any posts that are no longer in the app state (i.e., deleted posts)
-    func removeDeletedPosts() {
-        posts = posts.compactMap({ appState.allPosts.posts[$0]?.postId })
+    func refresh(username: String, appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
+        loadUser(username: username, appState: appState, viewState: viewState)
+        loadRelation(username: username, appState: appState, viewState: viewState)
+        loadPosts(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
     }
     
-    func refresh(onFinish: OnFinish? = nil) {
-        loadUser()
-        loadRelation()
-        loadPosts(onFinish: onFinish)
-    }
-    
-    func loadUser() {
-        loadUserCancellable = appState.getUser(username: user.username)
-            .sink(receiveCompletion: { [weak self] completion in
+    func loadUser(username: String, appState: AppState, viewState: GlobalViewState) {
+        loadUserCancellable = appState.getUser(username: username)
+            .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when loading user", error)
                     if error == .notFound {
-                        self?.globalViewState.setError("User not found")
+                        viewState.setError("User not found")
                     } else {
-                        self?.globalViewState.setError("Failed to load user")
+                        viewState.setError("Failed to load user")
                     }
                 }
             }, receiveValue: { [weak self] user in
@@ -76,13 +89,13 @@ class ProfileVM: ObservableObject {
             })
     }
     
-    func loadRelation() {
-        guard !isCurrentUser else { return }
-        loadRelationCancellable = appState.relation(to: user.username)
-            .sink { [weak self] completion in
+    func loadRelation(username: String, appState: AppState, viewState: GlobalViewState) {
+        guard !isCurrentUser(appState: appState, username: username) else { return }
+        loadRelationCancellable = appState.relation(to: username)
+            .sink { completion in
                 if case let .failure(error) = completion {
                     print("Error when loading follow status (v2)", error)
-                    self?.globalViewState.setError("Failed to load follow status")
+                    viewState.setError("Failed to load follow status")
                 }
             } receiveValue: { [weak self] relation in
                 self?.relationToUser = relation.relation
@@ -90,48 +103,48 @@ class ProfileVM: ObservableObject {
             }
     }
     
-    func loadPosts(onFinish: OnFinish? = nil) {
-        loadPostsCancellable = appState.getPosts(username: user.username)
+    func loadPosts(username: String, appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
+        loadPostsCancellable = appState.getPosts(username: username)
             .sink(receiveCompletion: { [weak self] completion in
                 onFinish?()
                 if case let .failure(error) = completion {
                     self?.loadStatus = .failed
                     print("Error when loading posts", error)
                     if error == .notFound {
-                        self?.globalViewState.setError("User not found")
+                        viewState.setError("User not found")
                     } else {
-                        self?.globalViewState.setError("Failed to load posts")
+                        viewState.setError("Failed to load posts")
                     }
                 } else {
                     self?.loadStatus = .success
                 }
             }, receiveValue: { [weak self] userFeed in
-                self?.posts = userFeed.posts.map { $0.postId }
+                self?.posts = userFeed.posts
                 self?.cursor = userFeed.cursor
             })
     }
     
-    func loadMorePosts() {
+    func loadMorePosts(username: String, appState: AppState, viewState: GlobalViewState) {
         guard let cursor = cursor else {
             // No more to load
             return
         }
         loadingMore = true
-        loadPostsCancellable = appState.getPosts(username: user.username, cursor: cursor)
+        loadPostsCancellable = appState.getPosts(username: username, cursor: cursor)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.loadingMore = false
                 if case let .failure(error) = completion {
                     print("Error when loading more posts", error)
-                    self?.globalViewState.setError("Failed to load more posts")
+                    viewState.setError("Failed to load more posts")
                 }
             }, receiveValue: { [weak self] userFeed in
-                self?.posts.append(contentsOf: userFeed.posts.map { $0.postId })
+                self?.posts.append(contentsOf: userFeed.posts)
                 self?.cursor = userFeed.cursor
             })
     }
     
-    func followUser() {
-        relationCancellable = appState.followUser(username: user.username)
+    func followUser(username: String, appState: AppState, viewState: GlobalViewState) {
+        relationCancellable = appState.followUser(username: username)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when following", error)
@@ -139,13 +152,13 @@ class ProfileVM: ObservableObject {
             }, receiveValue: { [weak self] response in
                 self?.relationToUser = response.followed ? .following : nil
                 if let count = response.followers {
-                    self?.user.followerCount = count
+                    self?.user?.followerCount = count
                 }
             })
     }
     
-    func unfollowUser() {
-        relationCancellable = appState.unfollowUser(username: user.username)
+    func unfollowUser(username: String, appState: AppState, viewState: GlobalViewState) {
+        relationCancellable = appState.unfollowUser(username: username)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when unfollowing", error)
@@ -153,25 +166,25 @@ class ProfileVM: ObservableObject {
             }, receiveValue: { [weak self] response in
                 self?.relationToUser = response.followed ? .following : nil
                 if let count = response.followers {
-                    self?.user.followerCount = count
+                    self?.user?.followerCount = count
                 }
             })
     }
     
-    func blockUser() {
+    func blockUser(username: String, appState: AppState, viewState: GlobalViewState) {
         guard relationToUser == nil else {
-            globalViewState.setError("Cannot block someone you already follow or block")
+            viewState.setError("Cannot block someone you already follow or block")
             return
         }
-        relationCancellable = appState.blockUser(username: user.username)
-            .sink(receiveCompletion: { [weak self] completion in
+        relationCancellable = appState.blockUser(username: username)
+            .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     if case let .requestError(maybeErrors) = error,
                        let errors = maybeErrors,
                        let first = errors.first {
-                        self?.globalViewState.setError(first.value)
+                        viewState.setError(first.value)
                     } else {
-                        self?.globalViewState.setError("Could not block user")
+                        viewState.setError("Could not block user")
                     }
                     print("Error when blocking user", error)
                 }
@@ -183,20 +196,20 @@ class ProfileVM: ObservableObject {
             })
     }
     
-    func unblockUser() {
+    func unblockUser(username: String, appState: AppState, viewState: GlobalViewState) {
         guard relationToUser == .blocked else {
-            globalViewState.setError("This user is not blocked")
+            viewState.setError("This user is not blocked")
             return
         }
-        relationCancellable = appState.unblockUser(username: user.username)
-            .sink(receiveCompletion: { [weak self] completion in
+        relationCancellable = appState.unblockUser(username: username)
+            .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     if case let .requestError(maybeErrors) = error,
                        let errors = maybeErrors,
                        let first = errors.first {
-                        self?.globalViewState.setError(first.value)
+                        viewState.setError(first.value)
                     } else {
-                        self?.globalViewState.setError("Could not unblock user")
+                        viewState.setError("Could not unblock user")
                     }
                     print("Error when unblocking user", error)
                 }

@@ -19,8 +19,8 @@ class SettingsViewModel: ObservableObject {
     
     @Published var confirmSignOut = false
     
-    var getPreferencesCancellable: Cancellable? = nil
-    var setPreferencesCancellable: Cancellable? = nil
+    var getPreferencesCancellable: Cancellable?
+    var setPreferencesCancellable: Cancellable?
     
     func loadPreferences(appState: AppState, viewState: GlobalViewState) {
         loading = true

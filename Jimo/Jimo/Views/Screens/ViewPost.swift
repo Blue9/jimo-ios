@@ -8,38 +8,66 @@
 import SwiftUI
 import ASCollectionView
 
+class PostDeletionListener: ObservableObject {
+    let nc = NotificationCenter.default
+    
+    var postId: PostId?
+    var onDelete: (() -> ())?
+    
+    func onPostDelete(postId: PostId, onDelete: @escaping () -> ()) {
+        if self.postId != nil {
+            // already observing
+            return
+        }
+        self.postId = postId
+        self.onDelete = onDelete
+        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
+    }
+    
+    @objc func postDeleted(notification: Notification) {
+        guard let postId = postId, let onDelete = onDelete else {
+            return
+        }
+        let deletedPostId = notification.object as! PostId
+        if postId == deletedPostId {
+            onDelete()
+        }
+    }
+}
+
 struct ViewPost: View {
+    let postDeletionListener = PostDeletionListener()
+    
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
-    @Environment(\.presentationMode) var presentation
+    @Environment(\.presentationMode) var presentationMode
+    
     @StateObject private var commentsViewModel = CommentsViewModel()
     @State private var initializedComments = false
-    @State private var imageHeight: CGFloat?
+    @State private var imageLoaded = false
     
-    let postId: PostId
+    let post: Post
     var highlightedComment: Comment? = nil
     
     var colorTheme: Color {
-        if let post = appState.allPosts.posts[postId] {
-            return Color(post.category)
-        } else {
-            return Color.black
+        return Color(post.category)
+    }
+    
+    var isMyPost: Bool {
+        if case let .user(user) = appState.currentUser {
+            return user.username == post.user.username
         }
+        // Should never be here since user should be logged in
+        return false
     }
     
     var postItem: some View {
-        FeedItem(
-            feedItemVM: FeedItemVM(
-                appState: appState,
-                viewState: globalViewState,
-                postId: postId,
-                onDelete: { presentation.wrappedValue.dismiss() },
-                imageHeight: $imageHeight
-            ),
-            fullPost: true
-        )
-        .fixedSize(horizontal: false, vertical: true)
+        TrackedImageFeedItem(post: post, fullPost: true, imageLoaded: $imageLoaded)
+            .fixedSize(horizontal: false, vertical: true)
+            .onAppear {
+                postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
+            }
     }
     
     var commentField: some View {
@@ -54,13 +82,13 @@ struct ViewPost: View {
     
     var body: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: imageHeight == nil ? -1 : 0) {
+            ASCollectionViewSection(id: imageLoaded ? 0 : -1) {
                 postItem
             }
             
-            ASCollectionViewSection(id: 1, data: commentsViewModel.comments, dataID: \.id) { comment, _ in
+            ASCollectionViewSection(id: 1, data: commentsViewModel.comments) { comment, _ in
                 ZStack(alignment: .bottom) {
-                    CommentItem(commentsViewModel: commentsViewModel, comment: comment)
+                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
                     Divider().padding(.horizontal, 10)
                 }
                 .background(backgroundColor)
@@ -84,7 +112,7 @@ struct ViewPost: View {
         .layout { sectionId in
             switch sectionId {
             case 0: // post
-                return .list(itemSize: .estimated(1080), spacing: 0)
+                return .list(itemSize: .estimated(300), spacing: 0)
             default:
                 return .list(itemSize: .estimated(50), spacing: 0)
             }
@@ -103,7 +131,7 @@ struct ViewPost: View {
             if !initializedComments {
                 initializedComments = true
                 commentsViewModel.highlightedComment = highlightedComment
-                commentsViewModel.postId = postId
+                commentsViewModel.postId = post.postId
                 commentsViewModel.appState = appState
                 commentsViewModel.viewState = globalViewState
                 commentsViewModel.loadComments()
@@ -134,7 +162,6 @@ struct ViewPost_Previews: PreviewProvider {
     static let api = APIClient()
     static let appState: AppState = {
         let state = AppState(apiClient: api)
-        state.allPosts.posts[post.postId] = post
         state.currentUser = .user(user)
         return state
     }()
@@ -159,7 +186,7 @@ struct ViewPost_Previews: PreviewProvider {
         customLocation: nil)
     
     static var previews: some View {
-        ViewPost(postId: post.postId)
+        ViewPost(post: post)
             .environmentObject(appState)
             .environmentObject(GlobalViewState())
     }

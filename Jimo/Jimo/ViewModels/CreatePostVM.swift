@@ -18,6 +18,8 @@ enum CreatePostActiveSheet: String, Identifiable {
 }
 
 class CreatePostVM: ObservableObject {
+    var cancellable: Cancellable?
+    
     var mapRegion: MKCoordinateRegion {
         let location = useCustomLocation ? customLocation : selectedLocation?.placemark
         if let place = location {
@@ -28,8 +30,6 @@ class CreatePostVM: ObservableObject {
             return MapViewModel.defaultRegion
         }
     }
-    
-    var cancellable: Cancellable? = nil
 
     @Published var useCustomLocation = false
     
@@ -44,13 +44,13 @@ class CreatePostVM: ObservableObject {
     @Published var image: UIImage?
     
     // Sent to server
-    @Published var name: String? = nil
+    @Published var name: String?
     
     /// Set when user searches and selects a location
-    @Published var selectedLocation: MKMapItem? = nil
+    @Published var selectedLocation: MKMapItem?
     
     /// Set when user selects a custom location
-    @Published var customLocation: MKPlacemark? = nil
+    @Published var customLocation: MKPlacemark?
     
     var locationString: String? {
         return useCustomLocation ? "Custom location (View on map)" : selectedPlaceAddress

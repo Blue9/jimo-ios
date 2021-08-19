@@ -85,7 +85,10 @@ struct FollowUserResponse: Codable {
 }
 
 
-struct FollowFeedItem: Codable, Hashable {
+struct FollowFeedItem: Identifiable, Codable, Hashable {
+    var id: String {
+        user.id
+    }
     var user: PublicUser
     var relation: UserRelation?
 }

@@ -10,15 +10,15 @@ import Combine
 
 class FeaturedUserStore: SuggestedUserStore {
     @Published var allUsers: [PublicUser] = []
-    @Published var selected: [PublicUser] = []
+    @Published var selectedUsernames: Set<String> = []
     @Published var loadingSuggestedUsers = false
-    @Published var loadingSuggestedUsersError: Error? = nil
+    @Published var loadingSuggestedUsersError: Error?
     
     @Published var followingLoading = false
     @Published var followManyFailed = false
     
-    private var getUsersCancellable: Cancellable? = nil
-    private var followUsersCancellable: Cancellable? = nil
+    private var getUsersCancellable: Cancellable?
+    private var followUsersCancellable: Cancellable?
     
     func getExistingUsers(appState: AppState) {
         loadingSuggestedUsers = true
@@ -31,7 +31,7 @@ class FeaturedUserStore: SuggestedUserStore {
                 }
             } receiveValue: { [weak self] users in
                 self?.allUsers = users
-                self?.selected = users
+                self?.selectAll()
                 self?.loadingSuggestedUsersError = nil
                 self?.loadingSuggestedUsers = false
             }
@@ -39,8 +39,7 @@ class FeaturedUserStore: SuggestedUserStore {
     
     func follow(appState: AppState) {
         followingLoading = true
-        let toFollow = selected.compactMap({ $0.username })
-        followUsersCancellable = appState.followMany(usernames: toFollow)
+        followUsersCancellable = appState.followMany(usernames: Array(selectedUsernames))
             .sink { [weak self] completion in
                 self?.followingLoading = false
                 if case let .failure(error) = completion {
@@ -57,19 +56,19 @@ class FeaturedUserStore: SuggestedUserStore {
             }
     }
     
-    func toggleSelected(for contact: PublicUser) {
-        if selected.contains(contact) {
-            selected.removeAll { contact == $0 }
+    func toggleSelected(for username: String) {
+        if selectedUsernames.contains(username) {
+            selectedUsernames.remove(username)
         } else {
-            selected.append(contact)
+            selectedUsernames.insert(username)
         }
     }
     
     func clearAll() {
-        selected.removeAll()
+        selectedUsernames.removeAll()
     }
     
     func selectAll() {
-        selected = allUsers
+        selectedUsernames = Set(allUsers.map { $0.username })
     }
 }

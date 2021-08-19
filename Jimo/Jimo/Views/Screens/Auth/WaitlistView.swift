@@ -16,7 +16,7 @@ struct WaitlistView: View {
     @State private var showError = false
     @State private var errorMessage = "Failed to check invite status"
     
-    @State var waitlistCancellable: Cancellable? = nil
+    @State private var waitlistCancellable: Cancellable? = nil
     
     func checkInviteStatus() {
         self.loading = true

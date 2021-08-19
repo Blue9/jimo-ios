@@ -11,13 +11,14 @@ struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
-    @ObservedObject var profileVM: ProfileVM
+    
+    let currentUser: PublicUser
     
     @State private var showSettings: Bool = false
     
     var body: some View {
         NavigationView {
-            Profile(profileVM: profileVM)
+            Profile(initialUser: currentUser)
                 .background(
                     NavigationLink(destination: Settings()
                                     .environmentObject(appState)
@@ -38,12 +39,3 @@ struct ProfileTab: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
-
-//struct ProfileTab_Previews: PreviewProvider {
-//    static let model = AppModel()
-//    
-//    static var previews: some View {
-//        ProfileTab(profileVM: ProfileVM(model: model, username: "gautam"))
-//            .environmentObject(model)
-//    }
-//}

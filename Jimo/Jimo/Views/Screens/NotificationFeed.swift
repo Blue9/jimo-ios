@@ -10,35 +10,22 @@ import Combine
 import ASCollectionView
 
 class NotificationFeedVM: ObservableObject {
-    private var appState: AppState?
-    private var initialized = false
-    
     @Published var feedItems: [NotificationItem] = []
-    @Published var loadingMoreNotifications = false
+    @Published var loading = false
 
-    private var cancellable: Cancellable? = nil
+    private var cancellable: Cancellable?
     private var cursor: String?
     
-    func initialize(appState: AppState) {
-        if initialized {
-            return
-        }
-        initialized = true
-        self.appState = appState
-        refreshFeed()
-    }
-    
-    func refreshFeed(onFinish: OnFinish? = nil) {
-        guard let appState = appState else {
-            onFinish?()
-            return
-        }
-        self.cursor = nil
+    func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
+        cursor = nil
+        loading = true
         cancellable = appState.getNotificationsFeed(token: nil)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
+                self?.loading = false
                 onFinish?()
                 if case let .failure(error) = completion {
                     print("Error while load notification feed.", error)
+                    viewState.setError("Could not load activity feed.")
                 }
             }, receiveValue: { [weak self] response in
                 self?.feedItems = response.notifications.filter{ item in item.type != .unknown }
@@ -46,18 +33,19 @@ class NotificationFeedVM: ObservableObject {
             })
     }
     
-    func loadMoreNotifications() {
-        guard let appState = appState, cursor != nil else {
+    func loadMoreNotifications(appState: AppState, viewState: GlobalViewState) {
+        guard cursor != nil else {
             return
         }
-        loadingMoreNotifications = true
+        loading = true
         print("Loading more notifications")
         cancellable = appState.getNotificationsFeed(token: cursor)
             .sink(receiveCompletion: { [weak self] completion in
+                self?.loading = false
                 if case let .failure(error) = completion {
                     print("Error while load more notifications.", error)
+                    viewState.setError("Could not load more items.")
                 }
-                self?.loadingMoreNotifications = false
             }, receiveValue: { [weak self] response in
                 self?.feedItems.append(contentsOf: response.notifications.filter{ item in item.type != .unknown })
                 self?.cursor = response.cursor
@@ -69,11 +57,10 @@ struct NotificationFeedItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
-    let item: NotificationItem
     
     @State private var relativeTime: String = ""
-    let formatter = RelativeDateTimeFormatter()
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
+    let item: NotificationItem
     let defaultProfileImage: Image = Image(systemName: "person.crop.circle")
     let defaultPostImage: Image = Image(systemName: "square")
     
@@ -81,7 +68,7 @@ struct NotificationFeedItem: View {
         if Date().timeIntervalSince(item.createdAt) < 1 {
             return "just now"
         }
-        return formatter.localizedString(for: item.createdAt, relativeTo: Date())
+        return appState.dateTimeFormatter.localizedString(for: item.createdAt, relativeTo: Date())
     }
     
     func profilePicture(user: User) -> some View {
@@ -103,26 +90,18 @@ struct NotificationFeedItem: View {
             .padding(.trailing)
     }
     
-    var destinationView: some View {
+    @ViewBuilder var destinationView: some View {
         if item.type == ItemType.like {
             if let post = item.post {
-                return AnyView(ViewPost(postId: post.postId))
+                ViewPost(post: post)
             }
         } else if item.type == ItemType.comment {
             if let post = item.post {
-                return AnyView(ViewPost(postId: post.postId, highlightedComment: item.comment))
+                ViewPost(post: post, highlightedComment: item.comment)
             }
+        } else {
+            ProfileScreen(initialUser: item.user)
         }
-        return AnyView(
-            Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: item.user))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(backgroundColor))
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-            })
-        )
     }
 
     var body: some View {
@@ -144,12 +123,11 @@ struct NotificationFeedItem: View {
                     Text(relativeTime)
                         .font(.caption)
                         .foregroundColor(.gray)
-                        .onReceive(timer, perform: { _ in
-                            relativeTime = getRelativeTime()
-                        })
-                        .onAppear(perform: {
-                            relativeTime = getRelativeTime()
-                        })
+                        .onAppear {
+                            if relativeTime == "" {
+                                relativeTime = getRelativeTime()
+                            }
+                        }
                 }
                 .font(Font.custom(Poppins.regular, size: 14))
                 
@@ -168,12 +146,15 @@ struct NotificationFeedItem: View {
 struct NotificationFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @ObservedObject var notificationFeedVM: NotificationFeedVM
     @Environment(\.backgroundColor) var backgroundColor
+    
+    @StateObject private var notificationFeedVM = NotificationFeedVM()
+    
+    @State private var initialized = false
     
     var body: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: 0, data: notificationFeedVM.feedItems, dataID: \.self) { item, _ in
+            ASCollectionViewSection(id: 0, data: notificationFeedVM.feedItems) { item, _ in
                 NotificationFeedItem(item: item)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
@@ -194,7 +175,7 @@ struct NotificationFeed: View {
                     Divider()
                     
                     ProgressView()
-                        .opacity(notificationFeedVM.loadingMoreNotifications ? 1 : 0)
+                        .opacity(notificationFeedVM.loading ? 1 : 0)
                     Text("You've reached the end!")
                         .font(Font.custom(Poppins.medium, size: 15))
                 }
@@ -206,16 +187,21 @@ struct NotificationFeed: View {
             .list(itemSize: .absolute(50))
         }
         .onPullToRefresh { onFinish in
-            notificationFeedVM.refreshFeed(onFinish: onFinish)
+            notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState, onFinish: onFinish)
         }
         .onReachedBoundary { boundary in
             if boundary == .bottom {
-                notificationFeedVM.loadMoreNotifications()
+                notificationFeedVM.loadMoreNotifications(appState: appState, viewState: globalViewState)
             }
         }
         .ignoresSafeArea(.keyboard, edges: .all)
         .background(backgroundColor.edgesIgnoringSafeArea(.all))
-        .onAppear(perform: { notificationFeedVM.initialize(appState: appState) })
+        .onAppear {
+            if !initialized {
+                notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState)
+                initialized = true
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(backgroundColor))
         .toolbar(content: {

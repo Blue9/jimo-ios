@@ -23,8 +23,8 @@ fileprivate struct Contact: Identifiable {
 fileprivate class ContactStore: ObservableObject {
     static private let phoneNumberKit = PhoneNumberKit()
     
-    @Published var contacts: [Contact]? = nil
-    @Published var error: Error? = nil
+    @Published var contacts: [Contact]?
+    @Published var error: Error?
     @Published var loading = false
     
     

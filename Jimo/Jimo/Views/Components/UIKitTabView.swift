@@ -33,7 +33,7 @@ public struct UIKitTabView: View {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct TabBuilder {
     public static func buildBlock(_ items: UIKitTabView.Tab...) -> [UIKitTabView.Tab] {
         items

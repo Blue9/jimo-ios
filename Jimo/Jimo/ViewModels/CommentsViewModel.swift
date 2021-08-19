@@ -15,8 +15,7 @@ class SingleCommentVM: ObservableObject {
     func likeComment(
         appState: AppState,
         globalViewState: GlobalViewState,
-        commentId: CommentId,
-        then: @escaping (Int) -> ()
+        commentId: CommentId
     ) {
         likingComment = true
         cancellable = appState.likeComment(commentId: commentId)
@@ -25,16 +24,13 @@ class SingleCommentVM: ObservableObject {
                 if case .failure(_) = completion {
                     globalViewState.setError("Could not like comment")
                 }
-            } receiveValue: { response in
-                then(response.likes)
-            }
+            } receiveValue: { _ in }
     }
     
     func unlikeComment(
         appState: AppState,
         globalViewState: GlobalViewState,
-        commentId: CommentId,
-        then: @escaping (Int) -> ()
+        commentId: CommentId
     ) {
         likingComment = true
         cancellable = appState.unlikeComment(commentId: commentId)
@@ -43,13 +39,13 @@ class SingleCommentVM: ObservableObject {
                 if case .failure(_) = completion {
                     globalViewState.setError("Could not unlike comment")
                 }
-            } receiveValue: { response in
-                then(response.likes)
-            }
+            } receiveValue: { _ in }
     }
 }
 
 class CommentsViewModel: ObservableObject {
+    let nc = NotificationCenter.default
+    
     @Published var newCommentText = ""
     @Published var creatingComment = false
     @Published var comments: [Comment] = []
@@ -72,6 +68,33 @@ class CommentsViewModel: ObservableObject {
     var createCommentCancellable: AnyCancellable?
     var deleteCommentCancellable: AnyCancellable?
     
+    init() {
+        nc.addObserver(self, selector: #selector(commentCreated), name: CommentPublisher.commentCreated, object: nil)
+        nc.addObserver(self, selector: #selector(commentLikes), name: CommentPublisher.commentLikes, object: nil)
+        nc.addObserver(self, selector: #selector(commentDeleted), name: CommentPublisher.commentDeleted, object: nil)
+    }
+    
+    @objc private func commentCreated(notification: Notification) {
+        let comment = notification.object as! Comment
+        if comment.postId == postId {
+            self.comments.insert(comment, at: 0)
+        }
+    }
+    
+    @objc private func commentLikes(notification: Notification) {
+        let like = notification.object as! CommentLikePayload
+        let commentIndex = comments.indices.first(where: { comments[$0].commentId == like.commentId })
+        if let i = commentIndex {
+            comments[i].likeCount = like.likeCount
+            comments[i].liked = like.liked
+        }
+    }
+    
+    @objc private func commentDeleted(notification: Notification) {
+        let commentId = notification.object as! CommentId
+        comments.removeAll(where: { $0.commentId == commentId })
+    }
+    
     func createComment() {
         guard let postId = postId, let appState = appState, let viewState = viewState else {
             return
@@ -88,10 +111,8 @@ class CommentsViewModel: ObservableObject {
                     print("Error when loading comments", error)
                     viewState.setError(error.message ?? "Could not create comment")
                 }
-            } receiveValue: { [weak self] comment in
-                self?.comments.insert(comment, at: 0)
+            } receiveValue: { [weak self] _ in
                 self?.newCommentText = ""
-                appState.allPosts.posts[postId]?.commentCount += 1
             }
     }
     
@@ -119,7 +140,7 @@ class CommentsViewModel: ObservableObject {
     }
     
     func deleteComment(commentId: CommentId) {
-        guard let postId = postId, let appState = appState, let viewState = viewState else {
+        guard let appState = appState, let viewState = viewState else {
             return
         }
         deleteCommentCancellable = appState.deleteComment(commentId: commentId)
@@ -127,13 +148,11 @@ class CommentsViewModel: ObservableObject {
                 if case .failure(_) = completion {
                     viewState.setError("Could not delete comment")
                 }
-            } receiveValue: { [weak self] response in
+            } receiveValue: { response in
                 if !response.success {
                     viewState.setError("Could not delete comment")
                 } else {
                     viewState.setSuccess("Deleted comment")
-                    self?.comments.removeAll { $0.commentId == commentId }
-                    appState.allPosts.posts[postId]?.commentCount -= 1
                 }
             }
     }

@@ -9,9 +9,6 @@ import SwiftUI
 import MapKit
 import ASCollectionView
 
-
-let placeSearchEnabled = false // Not super useful right now
-
 struct Search: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
@@ -20,7 +17,7 @@ struct Search: View {
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
     
-    @State var initialLoadCompleted = false
+    @State private var initialLoadCompleted = false
     
     let defaultImage: Image = Image(systemName: "person.crop.circle")
     
@@ -41,21 +38,14 @@ struct Search: View {
     }
     
     func profileView(user: User) -> some View {
-        Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: user))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(backgroundColor))
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-            })
+        ProfileScreen(initialUser: user)
     }
     
-    var discoverFeed: some View {
+    @ViewBuilder var discoverFeed: some View {
         if !discoverViewModel.initialized {
-            return AnyView(ProgressView().padding(.top, 20))
+            ProgressView().padding(.top, 20)
         } else {
-            return AnyView(discoverFeedLoaded)
+            discoverFeedLoaded
         }
     }
     
@@ -63,7 +53,7 @@ struct Search: View {
         ASCollectionView {
             ASCollectionViewSection(id: 0, data: discoverViewModel.posts) { post, _ in
                 GeometryReader { geometry in
-                    NavigationLink(destination: ViewPost(postId: post.postId)) {
+                    NavigationLink(destination: ViewPost(post: post)) {
                         URLImage(url: post.imageUrl, thumbnail: true)
                             .frame(maxWidth: .infinity)
                             .frame(height: geometry.size.width)
@@ -87,7 +77,7 @@ struct Search: View {
         }
         .scrollIndicatorsEnabled(horizontal: false, vertical: false)
         .onPullToRefresh { onFinish in
-            discoverViewModel.loadDiscoverPage(onFinish: onFinish)
+            discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
         }
         .ignoresSafeArea(.keyboard, edges: .all)
     }
@@ -112,47 +102,6 @@ struct Search: View {
         .listStyle(PlainListStyle())
     }
     
-    var placeResults: some View {
-        VStack {
-            List(searchViewModel.placeResults) { (searchCompletion: MKLocalSearchCompletion) in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(searchCompletion.title)
-                            .font(Font.custom(Poppins.medium, size: 16))
-                        Text(searchCompletion.subtitle)
-                            .font(Font.custom(Poppins.regular, size: 14))
-                    }
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    hideKeyboard()
-                    searchViewModel.selectPlace(appState: appState, completion: searchCompletion)
-                }
-            }
-            .colorMultiply(backgroundColor)
-            .listStyle(PlainListStyle())
-            
-            if let place = searchViewModel.selectedPlaceResult {
-                NavigationLink(destination: ViewPlace(viewPlaceVM: ViewMKMapItemVM(mapItem: place))
-                                .background(backgroundColor)
-                                .navigationBarTitleDisplayMode(.inline)
-                                .navigationBarColor(UIColor(backgroundColor))
-                                .toolbar {
-                                    ToolbarItem(placement: .principal) {
-                                        NavTitle("View place")
-                                    }
-                                },
-                               isActive: $searchViewModel.showPlaceResult) {
-                    EmptyView()
-                }
-            }
-        }
-    }
-    
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
@@ -163,20 +112,10 @@ struct Search: View {
                 )
                 .padding(.bottom, 0)
                 
-                if placeSearchEnabled {
-                    Picker(selection: $searchViewModel.searchType, label: Text("What do you want to search for")) {
-                        Text("People").tag(SearchType.people)
-                        Text("Places").tag(SearchType.places)
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                
                 if !searchViewModel.searchBarFocused {
                     discoverFeed
-                } else if searchViewModel.searchType == .people {
+                } else {
                     userResults
-                } else if searchViewModel.searchType == .places {
-                    placeResults
                 }
                 
                 Spacer()
@@ -193,15 +132,10 @@ struct Search: View {
             }
             .appear {
                 if !initialLoadCompleted {
-                    discoverViewModel.appState = appState
-                    searchViewModel.listen(appState: appState)
-                    discoverViewModel.loadDiscoverPage(initialLoad: true)
                     initialLoadCompleted = true
+                    searchViewModel.listen(appState: appState)
+                    discoverViewModel.loadDiscoverPage(appState: appState)
                 }
-                discoverViewModel.listenToPostUpdates()
-            }
-            .disappear {
-                discoverViewModel.stopListeningToPostUpdates()
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())

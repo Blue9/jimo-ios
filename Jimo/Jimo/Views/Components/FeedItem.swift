@@ -14,8 +14,11 @@ struct NoButtonStyle: ButtonStyle {
 }
 
 struct FeedItemLikes: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
+    
     @ObservedObject var feedItemVM: FeedItemVM
-    var post: Post
+    let post: Post
     
     private var showFilledHeart: Bool {
         return (post.liked || feedItemVM.liking) && !feedItemVM.unliking
@@ -30,7 +33,7 @@ struct FeedItemLikes: View {
             if showFilledHeart {
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    feedItemVM.unlikePost()
+                    feedItemVM.unlikePost(postId: post.id, appState: appState, viewState: globalViewState)
                 }) {
                     Image(systemName: "heart.fill")
                         .font(.system(size: 20))
@@ -39,7 +42,7 @@ struct FeedItemLikes: View {
             } else {
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    feedItemVM.likePost()
+                    feedItemVM.likePost(postId: post.id, appState: appState, viewState: globalViewState)
                 }) {
                     Image(systemName: "heart")
                         .font(.system(size: 20))
@@ -69,31 +72,18 @@ struct FeedItemBody: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
     
-    @StateObject var feedItemVM: FeedItemVM
+    @ObservedObject var feedItemVM: FeedItemVM
+    @Binding var imageLoaded: Bool
     
     @State private var showPostOptions = false
     @State private var showConfirmDelete = false
     @State private var showConfirmReport = false
-    
     @State private var initialized = false
-    @State private var relativeTime: String = ""
-    
     @State private var viewFullPost = false
     
-    var post: Post
-    
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
-    let formatter = RelativeDateTimeFormatter()
+    let post: Post
     /// If true, the full content is shown and is not tappable. This is used for the view post screen.
     var fullPost = false
-    
-    func getRelativeTime(post: Post) -> String {
-        if Date().timeIntervalSince(post.createdAt) < 1 {
-            return "just now"
-        }
-        return formatter.localizedString(for: post.createdAt, relativeTo: Date())
-    }
     
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
@@ -104,21 +94,14 @@ struct FeedItemBody: View {
     }
     
     var profileView: some View {
-        Profile(profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: post.user))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(backgroundColor))
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-            })
+        ProfileScreen(initialUser: post.user)
     }
     
     var fullPostView: some View {
-        ViewPost(postId: feedItemVM.postId)
+        ViewPost(post: post)
     }
     
-    var postContent: some View {
+    @ViewBuilder var postContent: some View {
         let content = VStack(alignment: .leading) {
             if post.content.count > 0 {
                 Text(post.content)
@@ -132,32 +115,30 @@ struct FeedItemBody: View {
                 URLImage(url: image,
                          loading: Image("grayRect").resizable(),
                          failure: Image("imageFail"),
-                         imageHeight: feedItemVM.imageHeight)
-                    .id(post.imageUrl)
+                         imageLoaded: $imageLoaded)
                     .frame(minHeight: fullPost ? .zero : UIScreen.main.bounds.width)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : UIScreen.main.bounds.width)
-                    .cornerRadius(0)
                     .contentShape(Rectangle())
+                    .clipped()
                     .background(Color(post.category))
             }
         }
         .padding(.top, 10)
         
         if !fullPost {
-            return AnyView(
-                NavigationLink(destination: fullPostView, isActive: $viewFullPost) {
-                    content.background(backgroundColor)
-                }
-                .buttonStyle(NoButtonStyle()))
+            NavigationLink(destination: fullPostView, isActive: $viewFullPost) {
+                content.background(backgroundColor)
+            }
+            .buttonStyle(NoButtonStyle())
         } else {
-            return AnyView(content.onTapGesture(count: 2) {
+            content.onTapGesture(count: 2) {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 if post.liked {
-                    feedItemVM.unlikePost()
+                    feedItemVM.unlikePost(postId: post.id, appState: appState, viewState: globalViewState)
                 } else {
-                    feedItemVM.likePost()
+                    feedItemVM.likePost(postId: post.id, appState: appState, viewState: globalViewState)
                 }
-            })
+            }
         }
     }
     
@@ -172,16 +153,17 @@ struct FeedItemBody: View {
                         URLImage(
                             url: post.user.profilePictureUrl,
                             loading: Image(systemName: "person.crop.circle"),
-                            failure: Image(systemName: "person.crop.circle"))
-                            .id(post.user.profilePictureUrl)
-                            .foregroundColor(.gray)
-                            .background(Color.white)
-                            .font(.system(size: 16, weight: .light))
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 50, height: 50, alignment: .center)
-                            .cornerRadius(25)
-                            .padding(.trailing, 6)
-                            .padding(.top, 4)
+                            failure: Image(systemName: "person.crop.circle"),
+                            thumbnail: true
+                        )
+                        .foregroundColor(.gray)
+                        .background(Color.white)
+                        .font(.system(size: 16, weight: .light))
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 50, alignment: .center)
+                        .cornerRadius(25)
+                        .padding(.trailing, 6)
+                        .padding(.top, 4)
                     }
                     .buttonStyle(NoButtonStyle())
                     
@@ -209,11 +191,8 @@ struct FeedItemBody: View {
                             }
                         }
                         
-                        NavigationLink(destination: MapView(mapModel: appState.mapModel,
-                                                            localSettings: appState.localSettings,
-                                                            mapViewModel: MapViewModel(appState: appState,
-                                                                                       viewState: globalViewState,
-                                                                                       preselectedPost: post))
+                        NavigationLink(destination: MapView(localSettings: appState.localSettings,
+                                                            preselectedPlace: post.place)
                                         .navigationBarColor(UIColor(backgroundColor))
                                         .toolbar {
                                             ToolbarItem(placement: .principal) {
@@ -256,10 +235,7 @@ struct FeedItemBody: View {
                     
                     Spacer()
                     
-                    Text(relativeTime)
-                        .onReceive(timer, perform: { _ in
-                            relativeTime = getRelativeTime(post: post)
-                        })
+                    Text(appState.dateTimeFormatter.localizedString(for: post.createdAt, relativeTo: Date()))
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
@@ -286,11 +262,11 @@ struct FeedItemBody: View {
             }
             .contextMenu {
                 if post.liked {
-                    Button(action: { feedItemVM.unlikePost() }) {
+                    Button(action: { feedItemVM.unlikePost(postId: post.id, appState: appState, viewState: globalViewState) }) {
                         Text("Unlike")
                     }
                 } else {
-                    Button(action: { feedItemVM.likePost() }) {
+                    Button(action: { feedItemVM.likePost(postId: post.id, appState: appState, viewState: globalViewState) }) {
                         Text("Like")
                     }
                 }
@@ -304,20 +280,6 @@ struct FeedItemBody: View {
                         Text("Report post")
                     }
                 }
-            }
-            .onAppear {
-                if !initialized {
-                    relativeTime = getRelativeTime(post: post)
-                    feedItemVM.listenToPostUpdates()
-                    initialized = true
-                }
-            }
-            /// .appear works slightly differently than onAppear and is more accurate, onAppear is kind of buggy but tends to trigger earlier so faster updates
-            .appear {
-                feedItemVM.listenToPostUpdates()
-            }
-            .disappear {
-                feedItemVM.stopListeningToPostUpdates()
             }
             .actionSheet(isPresented: $showPostOptions) {
                 ActionSheet(
@@ -338,28 +300,38 @@ struct FeedItemBody: View {
                 Alert(title: Text("Are you sure?"),
                       message: Text("You can't undo this action"),
                       primaryButton: .destructive(Text("Delete post")) {
-                        feedItemVM.deletePost()
+                        feedItemVM.deletePost(postId: post.id, appState: appState, viewState: globalViewState)
                       },
                       secondaryButton: .cancel())
             }
             .textAlert(isPresented: $showConfirmReport, title: "Report post",
                        message: "Tell us what's wrong with this post. Please include your email address in case we need to follow up.") { text in
-                feedItemVM.reportPost(details: text)
+                feedItemVM.reportPost(postId: post.id, details: text, appState: appState, viewState: globalViewState)
             }
     }
 }
 
 struct FeedItem: View {
-    @StateObject var feedItemVM: FeedItemVM
+    @State var imageLoaded = false
     
+    let post: Post
     var fullPost: Bool = false
     
     var body: some View {
-        if let post = feedItemVM.post {
-            FeedItemBody(feedItemVM: feedItemVM, post: post, fullPost: fullPost)
-        } else {
-            EmptyView()
-        }
+        TrackedImageFeedItem(post: post, fullPost: fullPost, imageLoaded: $imageLoaded)
+    }
+}
+
+struct TrackedImageFeedItem: View {
+    @StateObject var feedItemVM = FeedItemVM()
+    
+    let post: Post
+    let fullPost: Bool
+    
+    @Binding var imageLoaded: Bool
+    
+    var body: some View {
+        FeedItemBody(feedItemVM: feedItemVM, imageLoaded: $imageLoaded, post: post, fullPost: fullPost)
     }
 }
 
@@ -388,7 +360,7 @@ struct FeedItem_Previews: PreviewProvider {
         customLocation: nil)
     
     static var previews: some View {
-        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: GlobalViewState(), postId: post.id))
+        FeedItem(post: post)
             .environmentObject(appState)
             .environmentObject(GlobalViewState())
     }

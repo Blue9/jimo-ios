@@ -12,12 +12,11 @@ struct LoggedInView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @ObservedObject var onboardingModel: OnboardingModel
     
-    var profileVM: ProfileVM
-    var mapVM: MapViewModel
+    let currentUser: PublicUser
     
     var body: some View {
         if onboardingModel.isUserOnboarded {
-            MainAppView(profileVM: profileVM, mapVM: mapVM)
+            MainAppView(currentUser: currentUser)
         } else {
             OnboardingView(onboardingModel: appState.onboardingModel)
         }

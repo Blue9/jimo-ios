@@ -18,8 +18,6 @@ struct PlaceParams {
 protocol ViewPlaceVM: ObservableObject {
     var name: String { get }
     
-    var displayName: String { get }
-    
     var location: CLLocationCoordinate2D? { get }
     
     var loadingMutualPosts: Bool { get }
@@ -31,13 +29,6 @@ protocol ViewPlaceVM: ObservableObject {
 }
 
 class ViewPinVM: ViewPlaceVM {
-    static let categoryEmojis = [
-        "food": "🍹",
-        "activity": "🥾",
-        "attraction": "🏛️",
-        "lodging": "🛌",
-        "shopping": "🛍️",
-    ]
     let pin: MapPlace
     
     @Published var loadingMutualPosts = false
@@ -46,19 +37,6 @@ class ViewPinVM: ViewPlaceVM {
     
     var name: String {
         pin.place.name
-    }
-    
-    var displayName: String {
-        name + emojiSuffix
-    }
-    
-    var emojiSuffix: String {
-        if let category = pin.icon.category,
-           let emoji = ViewPinVM.categoryEmojis[category]{
-            return " " + emoji
-        } else {
-            return ""
-        }
     }
     
     var location: CLLocationCoordinate2D? {
@@ -79,7 +57,7 @@ class ViewPinVM: ViewPlaceVM {
                 }
                 self.loadingMutualPosts = false
             } receiveValue: { posts in
-                self.mutualPosts = posts.compactMap { appState.allPosts.posts[$0] }
+                self.mutualPosts = posts
             }
     }
     
@@ -122,10 +100,6 @@ class ViewMKMapItemVM: ViewPlaceVM {
         mapItem.name ?? "Unknown"
     }
     
-    var displayName: String {
-        name
-    }
-    
     var location: CLLocationCoordinate2D? {
         mapItem.placemark.coordinate
     }
@@ -163,8 +137,8 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
         let components = [
             streetAddress,
             placemark.locality,
-            placemark.administrativeArea,
-            placemark.country];
+            placemark.administrativeArea
+        ];
         let address = components.compactMap({ $0 }).joined(separator: ", ")
         if let countryCode = placemark.isoCountryCode {
             return getEmojiFromCountryCode(countryCode: countryCode) + " " + address
@@ -195,8 +169,8 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
         VStack {
             HStack {
                 VStack(alignment: .leading) {
-                    Text(viewPlaceVM.displayName)
-                        .font(Font.custom(Poppins.semiBold, size: 20))
+                    Text(viewPlaceVM.name)
+                        .font(Font.custom(Poppins.medium, size: 18))
                         .bold()
                     Text(placeParams.address ?? "Loading address...")
                 }
@@ -236,7 +210,6 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             }
             Divider()
             
-            
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Friends who have been here")
@@ -247,7 +220,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                 ProgressView()
                             } else if let mutualPosts = viewPlaceVM.mutualPosts, mutualPosts.count > 0 {
                                 ForEach(mutualPosts, id: \.postId) { post in
-                                    NavigationLink(destination: ViewPost(postId: post.postId)) {
+                                    NavigationLink(destination: ViewPost(post: post)) {
                                         URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
                                             .aspectRatio(contentMode: .fill)
                                             .background(Color.white)
@@ -265,9 +238,6 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                 Spacer()
             }
             Divider()
-            
-            
-            
             
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading) {
@@ -339,12 +309,3 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             }
     }
 }
-
-//struct ViewPlace_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ViewPlace(pin: MapPlace(
-//            place: Place(placeId: "placeId", name: "Covent Garden", location: Location(coord: .init(latitude: 51.5117, longitude: -0.1240))),
-//            icon: .init(category: "food", iconUrl: nil, numMutualPosts: 10)
-//        ))
-//    }
-//}

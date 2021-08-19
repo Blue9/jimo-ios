@@ -20,7 +20,10 @@ extension ItemType {
     }
 }
 
-struct NotificationItem: Codable, Hashable {
+struct NotificationItem: Identifiable, Codable, Hashable {
+    var id: String {
+        itemId
+    }
     var type: ItemType
     var createdAt: Date
     var user: PublicUser

@@ -11,8 +11,8 @@ import MapKit
 struct PlaceSearch: View {
     @Environment(\.presentationMode) var presentationMode
     @StateObject var locationSearch: LocationSearch = LocationSearch()
-    @State var showAlert = false
-    @State var searchBarFocused = false
+    @State private var showAlert = false
+    @State private var searchBarFocused = false
     
     var selectPlace: (MKMapItem) -> Void
     

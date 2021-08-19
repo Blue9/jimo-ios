@@ -53,23 +53,6 @@ class LocalSettings: ObservableObject {
     }
 }
 
-
-class FeedModel: ObservableObject {
-    @Published var currentFeed: [PostId] = []
-    @Published var cursor: String?
-}
-
-
-class MapModel: ObservableObject {
-    @Published var posts: [PostId] = []
-    @Published var places: [MapPlace] = []
-}
-
-
-class AllPosts: ObservableObject {
-    @Published var posts: [PostId: Post] = [:]
-}
-
 class OnboardingModel: ObservableObject {
     @Published var completedContactsOnboarding: Bool = OnboardingModel.contactsOnboarded()
     @Published var completedFeaturedUsersOnboarding: Bool = OnboardingModel.featuredUsersOnboarded()
@@ -112,15 +95,15 @@ class AppState: ObservableObject {
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
     
-    /// App state vars
-    let feedModel = FeedModel()
-    let mapModel = MapModel()
-    let allPosts = AllPosts()
+    let dateTimeFormatter = RelativeDateTimeFormatter()
     let onboardingModel = OnboardingModel()
-    
     var localSettings = LocalSettings()
     
     let storage = Storage.storage()
+    
+    let userPublisher = UserPublisher()
+    let postPublisher = PostPublisher()
+    let commentPublisher = CommentPublisher()
     
     // If we're signing out don't register any new FCM tokens
     var signingOut = false
@@ -158,6 +141,13 @@ class AppState: ObservableObject {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return apiClient.followMany(usernames: usernames)
+            .map { response in
+                for username in usernames {
+                    self.userPublisher.userRelationChanged(username: username, relation: .following)
+                }
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     // MARK: - Auth
@@ -333,26 +323,12 @@ class AppState: ObservableObject {
             .store(in: &self.cancelBag)
     }
     
-    func refreshFeed() -> AnyPublisher<[PostId], APIError> {
-        guard case .user = currentUser else {
-            return Fail(error: APIError.authError).eraseToAnyPublisher()
-        }
+    func refreshFeed() -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getFeed()
-            .map(self.setFeed)
-            .eraseToAnyPublisher()
     }
     
-    func loadMoreFeedItems() -> AnyPublisher<Void, APIError> {
-        guard case .user = currentUser else {
-            return Fail(error: APIError.authError).eraseToAnyPublisher()
-        }
-        guard let cursor = feedModel.cursor else {
-            return Empty().eraseToAnyPublisher()
-        }
+    func loadMoreFeedItems(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getFeed(cursor: cursor)
-            .map(self.appendToFeed)
-            .map({ _ in return () })
-            .eraseToAnyPublisher()
     }
     
     func getFollowers(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
@@ -365,46 +341,54 @@ class AppState: ObservableObject {
     
     // MARK: - Map endpoints
     
-    func refreshMap() -> AnyPublisher<Void, APIError> {
+    func refreshMap() -> AnyPublisher<[MapPlace], APIError> {
         return self.apiClient.getMap()
-            .map { [weak self] places in
-                self?.mapModel.places = places
-            }
-            .eraseToAnyPublisher()
     }
     
     func loadPlaceIcon(for place: Place) -> AnyPublisher<MapPlaceIcon, APIError> {
         return self.apiClient.getPlaceIcon(placeId: place.placeId)
-            .map { [weak self] placeIcon in
-                self?.mapModel.places.removeAll { $0.place.placeId == place.placeId }
-                self?.mapModel.places.append(.init(place: place, icon: placeIcon))
-                return placeIcon
-            }
-            .eraseToAnyPublisher()
     }
     
-    func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[PostId], APIError> {
+    func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
         return self.apiClient.getMutualPosts(for: placeId)
-            .map(self.addPostsToAllPosts)
-            .eraseToAnyPublisher()
     }
     
     // MARK: - Relation endpoints
     
     func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         return self.apiClient.followUser(username: username)
+            .map { response in
+                self.userPublisher.userRelationChanged(username: username, relation: .following)
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     func unfollowUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         return self.apiClient.unfollowUser(username: username)
+            .map { response in
+                self.userPublisher.userRelationChanged(username: username, relation: nil)
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     func blockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.blockUser(username: username)
+            .map { response in
+                self.userPublisher.userRelationChanged(username: username, relation: .blocked)
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     func unblockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.unblockUser(username: username)
+            .map { response in
+                self.userPublisher.userRelationChanged(username: username, relation: nil)
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     func relation(to username: String) -> AnyPublisher<RelationToUser, APIError> {
@@ -415,43 +399,39 @@ class AppState: ObservableObject {
     
     func createPost(_ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
         return self.apiClient.createPost(request)
-            .map(self.newPost)
-            .map({ _ in return () })
+            .map { post in
+                self.postPublisher.postCreated(post: post)
+            }
             .eraseToAnyPublisher()
     }
     
     func deletePost(postId: PostId) -> AnyPublisher<Void, APIError> {
         return self.apiClient.deletePost(postId: postId)
-            .map({
-                if $0.deleted {
-                    self.removePost(postId: postId)
-                }
-            })
+            .map { _ in
+                self.postPublisher.postDeleted(postId: postId)
+            }
             .eraseToAnyPublisher()
     }
     
     func getPosts(username: String, cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getPosts(username: username, cursor: cursor)
-            .map { response in
-                _ = self.addPostsToAllPosts(posts: response.posts)
-                return response
+    }
+    
+    func likePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
+        return self.apiClient.likePost(postId: postId)
+            .map { like in
+                self.postPublisher.postLiked(postId: postId, likeCount: like.likes)
+                return like
             }
             .eraseToAnyPublisher()
     }
     
-    func likePost(postId: PostId) -> AnyPublisher<Void, APIError> {
-        return self.apiClient.likePost(postId: postId)
-            .map({ response in
-                self.updatePostLikes(postId: postId, liked: true, likes: response.likes)
-            })
-            .eraseToAnyPublisher()
-    }
-    
-    func unlikePost(postId: PostId) -> AnyPublisher<Void, APIError> {
+    func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         return self.apiClient.unlikePost(postId: postId)
-            .map({ response in
-                self.updatePostLikes(postId: postId, liked: false, likes: response.likes)
-            })
+            .map { like in
+                self.postPublisher.postUnliked(postId: postId, likeCount: like.likes)
+                return like
+            }
             .eraseToAnyPublisher()
     }
     
@@ -462,23 +442,43 @@ class AppState: ObservableObject {
     // MARK: - Comment
     
     func getComments(for postId: PostId, cursor: String? = nil) -> AnyPublisher<CommentPage, APIError> {
-        return self.apiClient.getComments(for: postId, cursor: cursor)
+        apiClient.getComments(for: postId, cursor: cursor)
     }
     
     func createComment(for postId: PostId, content: String) -> AnyPublisher<Comment, APIError> {
-        return self.apiClient.createComment(for: postId, content: content)
+        apiClient.createComment(for: postId, content: content)
+            .map { comment in
+                self.commentPublisher.commentCreated(comment: comment)
+                return comment
+            }
+            .eraseToAnyPublisher()
     }
     
     func deleteComment(commentId: CommentId) -> AnyPublisher<SimpleResponse, APIError> {
         apiClient.deleteComment(commentId: commentId)
+            .map { response in
+                self.commentPublisher.commentDeleted(commentId: commentId)
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     func likeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
         apiClient.likeComment(commentId: commentId)
+            .map { response in
+                self.commentPublisher.commentLikes(commentId: commentId, likeCount: response.likes, liked: true)
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     func unlikeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
         apiClient.unlikeComment(commentId: commentId)
+            .map { response in
+                self.commentPublisher.commentLikes(commentId: commentId, likeCount: response.likes, liked: false)
+                return response
+            }
+            .eraseToAnyPublisher()
     }
     
     // MARK: - Search
@@ -494,7 +494,6 @@ class AppState: ObservableObject {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return self.apiClient.getDiscoverFeed()
-            .map(self.setDiscoverFeed)
             .eraseToAnyPublisher()
     }
     
@@ -508,7 +507,6 @@ class AppState: ObservableObject {
     
     func getNotificationsFeed(token: String?) -> AnyPublisher<NotificationFeedResponse, APIError> {
         return self.apiClient.getNotificationsFeed(token: token)
-            .map(self.addNotificationsToFeed)
             .eraseToAnyPublisher()
     }
     
@@ -533,80 +531,6 @@ class AppState: ObservableObject {
     
     private func getImageData(for image: UIImage) -> Data? {
         image.jpegData(compressionQuality: 0.33)
-    }
-    
-    private func addNotificationsToFeed(response: NotificationFeedResponse) -> NotificationFeedResponse {
-        var posts: [Post] = []
-        for item in response.notifications {
-            if let post = item.post {
-                posts.append(post)
-            }
-        }
-        _ = addPostsToAllPosts(posts: posts)
-        return response
-    }
-    
-    private func setFeed(feed: FeedResponse) -> [PostId] {
-        let postIds = addPostsToAllPosts(posts: feed.posts)
-        feedModel.currentFeed = postIds
-        feedModel.cursor = feed.cursor
-        return postIds
-    }
-    
-    private func appendToFeed(feed: FeedResponse) {
-        let postIds = addPostsToAllPosts(posts: feed.posts)
-        feedModel.currentFeed.append(contentsOf: postIds)
-        feedModel.cursor = feed.cursor
-    }
-    
-    private func setDiscoverFeed(posts: [Post]) -> [Post] {
-        _ = addPostsToAllPosts(posts: posts)
-        return posts
-    }
-    
-    private func setMap(posts: [Post]) {
-        _ = addPostsToAllPosts(posts: posts)
-        mapModel.posts = posts.map({ $0.postId })
-    }
-    
-    private func addPostsToAllPosts(posts: [Post]) -> [PostId] {
-        posts.forEach({ post in
-            if allPosts.posts[post.postId] != post {
-                allPosts.posts[post.postId] = post
-            }
-        })
-        return posts.map(\.postId)
-    }
-    
-    private func newPost(post: Post) {
-        allPosts.posts[post.postId] = post
-        feedModel.currentFeed.insert(post.postId, at: 0)
-        mapModel.posts.append(post.postId)
-    }
-    
-    private func removePost(postId: PostId) {
-        feedModel.currentFeed.removeAll(where: { $0 == postId })
-        mapModel.posts.removeAll(where: { $0 == postId })
-        allPosts.posts.removeValue(forKey: postId)
-    }
-    
-    private func updatePostLikes(postId: PostId, liked: Bool, likes: Int) {
-        guard let post = allPosts.posts[postId] else {
-            print("Cannot update likes for post, does not exist", postId)
-            return
-        }
-        allPosts.posts[postId] = Post(
-            postId: post.postId,
-            user: post.user,
-            place: post.place,
-            category: post.category,
-            content: post.content,
-            imageUrl: post.imageUrl,
-            createdAt: post.createdAt,
-            likeCount: likes,
-            commentCount: post.commentCount,
-            liked: liked,
-            customLocation: post.customLocation)
     }
     
     private func signOutAndClearData() {
@@ -700,9 +624,6 @@ class AppState: ObservableObject {
         } else {
             self.firebaseSession = .doesNotExist
             if signingOut {
-                self.mapModel.posts.removeAll()
-                self.feedModel.currentFeed.removeAll()
-                self.allPosts.posts.removeAll()
                 self.currentUser = .empty
                 self.signingOut = false
             }

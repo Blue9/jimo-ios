@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Firebase
-import GoogleSignIn
+import FirebaseAnalytics
 
 let gcmMessageIDKey = "gcm.message_id"
 
@@ -28,16 +28,13 @@ struct JimoApp: App {
 }
 
 // For Google sign in, phone auth, and notification setup
-class AppDelegate: NSObject, UIApplicationDelegate, GIDSignInDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
         Analytics.setAnalyticsCollectionEnabled(true)
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
-        
-        GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
-        GIDSignIn.sharedInstance().delegate = self
         
         Messaging.messaging().delegate = self
         
@@ -57,21 +54,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, GIDSignInDelegate, UNUserNot
         
         application.registerForRemoteNotifications()
         return true
-    }
-    
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-        guard let user = user else {
-            return
-        }
-        let credential = GoogleAuthProvider.credential(
-            withIDToken: user.authentication.idToken,
-            accessToken: user.authentication.accessToken)
-        Auth.auth().signIn(with: credential) { (result, error) in
-            if let error = error {
-                print(error.localizedDescription)
-                return
-            }
-        }
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

@@ -27,7 +27,7 @@ struct SuggestedUserView<T: SuggestedUserStore>: View {
                     .frame(width: 80, height: 80)
                     .cornerRadius(40)
                 
-                if userStore.selected.contains(user) {
+                if userStore.selectedUsernames.contains(user.username) {
                     Image("selectedContact")
                         .resizable()
                         .frame(width: 26, height: 26)
@@ -38,9 +38,8 @@ struct SuggestedUserView<T: SuggestedUserStore>: View {
             Text(user.firstName + " " + user.lastName)
                 .font(Font.custom(Poppins.regular, size: 12))
         }
-        .frame(minHeight: 120)
         .onTapGesture {
-            userStore.toggleSelected(for: user)
+            userStore.toggleSelected(for: user.username)
         }
     }
 }

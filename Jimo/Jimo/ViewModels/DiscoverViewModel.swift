@@ -9,46 +9,42 @@ import Foundation
 import Combine
 
 class DiscoverViewModel: ObservableObject {
+    let nc = NotificationCenter.default
+    
     @Published var posts: [Post] = []
-    @Published var initialized: Bool = false
+    @Published var initialized = false
     
-    var appState: AppState?
-    private var loadFeedCancellable: Cancellable? = nil
-    private var allPostsCancellable: Cancellable? = nil
+    private var loadFeedCancellable: Cancellable?
     
-    func loadDiscoverPage(initialLoad: Bool = false, onFinish: OnFinish? = nil) {
-        guard let appState = appState else {
-            if initialLoad {
-                self.initialized = true
-            }
-            onFinish?()
-            return
+    init() {
+        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
+    }
+    
+    @objc private func postLiked(notification: Notification) {
+        let like = notification.object as! PostLikePayload
+        let postIndex = posts.indices.first(where: { posts[$0].postId == like.postId })
+        if let i = postIndex {
+            posts[i].likeCount = like.likeCount
+            posts[i].liked = like.liked
         }
+    }
+    
+    @objc private func postDeleted(notification: Notification) {
+        let postId = notification.object as! PostId
+        posts.removeAll(where: { $0.postId == postId })
+    }
+    
+    func loadDiscoverPage(appState: AppState, onFinish: OnFinish? = nil) {
         loadFeedCancellable = appState.discoverFeed()
             .sink(receiveCompletion: { [weak self] completion in
+                self?.initialized = true
                 onFinish?()
                 if case let .failure(error) = completion {
                     print("Error when loading posts", error)
                 }
-                if initialLoad {
-                    self?.initialized = true
-                }
             }, receiveValue: { [weak self] posts in
                 self?.posts = posts
             })
-    }
-    
-    func listenToPostUpdates() {
-        allPostsCancellable = appState?.allPosts.$posts
-            .sink(receiveValue: { [weak self] posts in
-                guard let self = self else {
-                    return
-                }
-                self.posts = self.posts.compactMap({ post in posts[post.postId] })
-            })
-    }
-    
-    func stopListeningToPostUpdates() {
-        allPostsCancellable?.cancel()
     }
 }

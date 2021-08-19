@@ -9,23 +9,44 @@ import SwiftUI
 import Combine
 import ASCollectionView
 
-class FeedViewState: ObservableObject {
-    let appState: AppState
-    let globalViewState: GlobalViewState
+class FeedViewModel: ObservableObject {
+    let nc = NotificationCenter.default
+    
+    @Published var feed: [Post] = []
+    @Published var initialized = false
+    @Published var loadingMorePosts = false
+    
+    var cursor: String?
     
     var refreshFeedCancellable: AnyCancellable?
     var listenToFeedCancellable: AnyCancellable?
     
-    @Published var initialized = false
-    @Published var loadingMorePosts = false
-    @Published var feed: [PostId] = []
-    
-    init(appState: AppState, globalViewState: GlobalViewState) {
-        self.appState = appState
-        self.globalViewState = globalViewState
+    init() {
+        nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
     
-    func refreshFeed(onFinish: OnFinish? = nil) {
+    @objc private func postCreated(notification: Notification) {
+        let post = notification.object as! Post
+        feed.insert(post, at: 0)
+    }
+    
+    @objc private func postLiked(notification: Notification) {
+        let like = notification.object as! PostLikePayload
+        let postIndex = feed.indices.first(where: { feed[$0].postId == like.postId })
+        if let i = postIndex {
+            feed[i].likeCount = like.likeCount
+            feed[i].liked = like.liked
+        }
+    }
+    
+    @objc private func postDeleted(notification: Notification) {
+        let postId = notification.object as! PostId
+        feed.removeAll(where: { $0.postId == postId })
+    }
+    
+    func refreshFeed(appState: AppState, globalViewState: GlobalViewState, onFinish: OnFinish? = nil) {
         refreshFeedCancellable = appState.refreshFeed()
             .sink(receiveCompletion: { [weak self] completion in
                 onFinish?()
@@ -37,36 +58,22 @@ class FeedViewState: ObservableObject {
                 }
                 if case let .failure(error) = completion {
                     print("Error when refreshing feed", error)
-                    self.globalViewState.setError("Could not refresh feed")
+                    globalViewState.setError("Could not refresh feed")
                 }
             }, receiveValue: { [weak self] feed in
-                withAnimation {
-                    self?.feed = feed
-                    self?.initialized = true
-                }
+                self?.feed = feed.posts
+                self?.cursor = feed.cursor
+                self?.initialized = true
             })
     }
     
-    func listenToFeedChanges() {
-        listenToFeedCancellable = appState.feedModel.$currentFeed
-            .sink { [weak self] feed in
-                withAnimation {
-                    self?.feed = feed
-                }
-            }
-    }
-    
-    func stopListeningToFeedChanges() {
-        listenToFeedCancellable?.cancel()
-    }
-    
-    func loadMorePosts() {
-        if loadingMorePosts {
+    func loadMorePosts(appState: AppState, globalViewState: GlobalViewState) {
+        guard let cursor = cursor, !loadingMorePosts else {
             return
         }
         loadingMorePosts = true
         print("Loading more posts")
-        refreshFeedCancellable = appState.loadMoreFeedItems()
+        refreshFeedCancellable = appState.loadMoreFeedItems(cursor: cursor)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else {
                     return
@@ -74,9 +81,12 @@ class FeedViewState: ObservableObject {
                 self.loadingMorePosts = false
                 if case let .failure(error) = completion {
                     print("Error when loading more posts", error)
-                    self.globalViewState.setError("Could not load more posts")
+                    globalViewState.setError("Could not load more posts")
                 }
-            }, receiveValue: {})
+            }, receiveValue: { [weak self] nextPage in
+                self?.feed.append(contentsOf: nextPage.posts)
+                self?.cursor = nextPage.cursor
+            })
     }
 }
 
@@ -84,64 +94,62 @@ struct FeedBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
-    @StateObject var feedState: FeedViewState
+    @StateObject var feedViewModel = FeedViewModel()
     
     private func loadMore() {
-        if feedState.loadingMorePosts {
+        if feedViewModel.loadingMorePosts {
             return
         }
-        feedState.loadMorePosts()
+        feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
+    }
+    
+    var initializedFeed: some View {
+        ASCollectionView {
+            ASCollectionViewSection(id: 0, data: feedViewModel.feed) { post, _ in
+                FeedItem(post: post)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            ASCollectionViewSection(id: 1) {
+                VStack {
+                    Divider()
+                    
+                    ProgressView()
+                        .opacity(feedViewModel.loadingMorePosts ? 1 : 0)
+                    Text("You've reached the end!")
+                        .font(Font.custom(Poppins.medium, size: 15))
+                        .padding()
+                }
+            }
+        }
+        .shouldScrollToAvoidKeyboard(false)
+        .layout {
+            .list(itemSize: .estimated(200))
+        }
+        .alwaysBounceVertical()
+        .onReachedBoundary { boundary in
+            if boundary == .bottom {
+                loadMore()
+            }
+        }
+        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+        .onPullToRefresh { onFinish in
+            feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
+        }
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
     
     var body: some View {
         Group {
-            if !feedState.initialized {
+            if !feedViewModel.initialized {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .onAppear {
-                        feedState.refreshFeed()
+                        feedViewModel.refreshFeed(appState: appState, globalViewState: viewState)
                     }
             } else {
-                ASCollectionView {
-                    ASCollectionViewSection(id: 0, data: feedState.feed, dataID: \.self) { postId, _ in
-                        FeedItem(feedItemVM: FeedItemVM(appState: appState, viewState: viewState, postId: postId))
-                            .frame(width: UIScreen.main.bounds.width)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    
-                    ASCollectionViewSection(id: 1) {
-                        VStack {
-                            Divider()
-                            
-                            ProgressView()
-                                .opacity(feedState.loadingMorePosts ? 1 : 0)
-                            Text("You've reached the end!")
-                                .font(Font.custom(Poppins.medium, size: 15))
-                                .padding()
-                        }
-                    }
-                }
-                .shouldScrollToAvoidKeyboard(false)
-                .layout {
-                    .list(itemSize: .estimated(200))
-                }
-                .alwaysBounceVertical()
-                .onReachedBoundary { boundary in
-                    if boundary == .bottom {
-                        loadMore()
-                    }
-                }
-                .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-                .onPullToRefresh { onFinish in
-                    feedState.refreshFeed(onFinish: onFinish)
-                }
-                .appear {
-                    feedState.listenToFeedChanges()
-                }
-                .disappear {
-                    feedState.stopListeningToFeedChanges()
-                }
-                .ignoresSafeArea(.keyboard, edges: .all)
+                initializedFeed
             }
         }
         .background(backgroundColor)
@@ -161,9 +169,9 @@ struct Feed: View {
 
     var body: some View {
         NavigationView {
-            FeedBody(feedState: FeedViewState(appState: appState, globalViewState: globalViewState))
+            FeedBody()
                 .background(
-                    NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVM)
+                    NavigationLink(destination: NotificationFeed()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor), isActive: $showNotifications) {}

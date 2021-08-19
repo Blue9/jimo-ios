@@ -9,15 +9,9 @@ import SwiftUI
 import Combine
 
 class FeedItemVM: ObservableObject {
-    let appState: AppState
-    let globalViewState: GlobalViewState
-    let postId: PostId
-    
-    var imageHeight: Binding<CGFloat?>?
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false
-    @Published var post: Post?
     
     var updatePostCancellable: Cancellable? = nil
     var likeCancellable: Cancellable? = nil
@@ -25,97 +19,58 @@ class FeedItemVM: ObservableObject {
     var deleteCancellable: Cancellable? = nil
     var reportCancellable: Cancellable? = nil
     
-    var onDelete: (() -> Void)?
-    
-    init(
-        appState: AppState,
-        viewState: GlobalViewState,
-        postId: PostId,
-        onDelete: (() -> Void)? = nil,
-        imageHeight: Binding<CGFloat?>? = nil
-    ) {
-        self.appState = appState
-        self.globalViewState = viewState
-        self.postId = postId
-        self.post = appState.allPosts.posts[postId]
-        self.onDelete = onDelete
-        self.imageHeight = imageHeight
-    }
-    
-    deinit {
-        stopListeningToPostUpdates()
-    }
-    
-    func listenToPostUpdates() {
-        updatePostCancellable = appState.allPosts.$posts
-            .sink(receiveValue: { [weak self] posts in
-                guard let self = self else {
-                    return
-                }
-                if self.post != posts[self.postId] {
-                    self.post = posts[self.postId]
-                }
-            })
-    }
-    
-    func stopListeningToPostUpdates() {
-        updatePostCancellable?.cancel()
-    }
-        
-    func likePost() {
+    func likePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         liking = true
         likeCancellable = appState.likePost(postId: postId)
             .sink(receiveCompletion: { [weak self] completion in
-                print("Liked post")
                 self?.liking = false
                 if case let .failure(error) = completion {
                     print("Error when liking", error)
-                    self?.globalViewState.setError("Failed to like post")
+                    viewState.setError("Failed to like post")
                 }
-            }, receiveValue: {})
+            }, receiveValue: { response in
+                print("Liked post")
+            })
     }
     
-    func unlikePost() {
+    func unlikePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         unliking = true
         unlikeCancellable = appState.unlikePost(postId: postId)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.unliking = false
-                print("Unliked post")
                 if case let .failure(error) = completion {
                     print("Error when unliking", error)
-                    self?.globalViewState.setError("Failed to unlike post")
+                    viewState.setError("Failed to unlike post")
                 }
-            }, receiveValue: {})
+            }, receiveValue: { response in
+                print("Unliked post")
+            })
     }
     
-    func deletePost() {
+    func deletePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         deleting = true
         deleteCancellable = appState.deletePost(postId: postId)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.deleting = false
                 if case let .failure(error) = completion {
                     print("Error when deleting", error)
-                    self?.globalViewState.setError("Failed to delete post")
+                    viewState.setError("Failed to delete post")
                 }
-            }, receiveValue: { [weak self] _ in
-                if let onDelete = self?.onDelete {
-                    onDelete()
-                }
-            })
+            }, receiveValue: {})
     }
     
-    func reportPost(details: String) {
+    func reportPost(postId: PostId, details: String, appState: AppState, viewState: GlobalViewState) {
         reportCancellable = appState.reportPost(postId: postId, details: details)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when reporting", error)
-                    self?.globalViewState.setError("Failed to report post")
+                    viewState.setError("Failed to report post")
                 }
-            }, receiveValue: { [weak self] response in
+            }, receiveValue: { response in
                 if response.success {
-                    self?.globalViewState.setSuccess("Reported post! Thank you for keeping jimo a safe community.")
+                    viewState.setSuccess("Reported post! Thank you for keeping jimo a safe community.")
                 } else {
-                    self?.globalViewState.setWarning("Already reported this post.")
+                    viewState.setWarning("You already reported this post.")
                 }
             })
     }

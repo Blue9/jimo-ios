@@ -72,8 +72,7 @@ struct ContentView: View {
                 // Both exist
                 LoggedInView(
                     onboardingModel: appState.onboardingModel,
-                    profileVM: ProfileVM(appState: appState, globalViewState: globalViewState, user: user),
-                    mapVM: MapViewModel(appState: appState, viewState: globalViewState)
+                    currentUser: user
                 )
                 .transition(.slide)
                 .id(user) // Force view reset when current user changes (i.e., when updating profile)

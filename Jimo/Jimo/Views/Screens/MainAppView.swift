@@ -11,8 +11,6 @@ class TabBar: ObservableObject {
     let newPostTag = 2
     
     @Published var newPostSelected = false
-    var previousSelection: Int
-    
     @Published var selection: Int {
         didSet {
             if selection == newPostTag {
@@ -23,13 +21,15 @@ class TabBar: ObservableObject {
         }
     }
     
-    func reset() {
-        selection = previousSelection
-    }
+    var previousSelection: Int
     
     init() {
         self.selection = 0
         self.previousSelection = 0
+    }
+    
+    func reset() {
+        selection = previousSelection
     }
 }
 
@@ -43,8 +43,7 @@ struct MainAppView: View {
     @Environment(\.backgroundColor) var backgroundColor
     @StateObject var tabBar = TabBar()
     
-    let profileVM: ProfileVM
-    let mapVM: MapViewModel
+    let currentUser: PublicUser
     
     var body: some View {
         ZStack {
@@ -58,7 +57,7 @@ struct MainAppView: View {
                 )
                 
                 UIKitTabView.Tab(
-                    view: AnyView(MapTab(mapModel: appState.mapModel, localSettings: appState.localSettings, mapViewModel: mapVM)
+                    view: AnyView(MapTab(localSettings: appState.localSettings)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),
@@ -79,7 +78,7 @@ struct MainAppView: View {
                     barItem: .init(title: "Search", image: UIImage(named: "searchIcon"), tag: 3)
                 )
                 UIKitTabView.Tab(
-                    view: AnyView(ProfileTab(profileVM: profileVM)
+                    view: AnyView(ProfileTab(currentUser: currentUser)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),
@@ -88,7 +87,7 @@ struct MainAppView: View {
             }
         }
         .sheet(isPresented: $tabBar.newPostSelected) {
-            return CreatePost(presented: $tabBar.newPostSelected)
+            CreatePost(presented: $tabBar.newPostSelected)
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .environment(\.backgroundColor, backgroundColor)
@@ -100,10 +99,3 @@ struct MainAppView: View {
         }
     }
 }
-
-//struct MainAppView_Previews: PreviewProvider {
-//    static let model = AppModel()
-//    static var previews: some View {
-//        MainAppView(profileVM: ProfileVM(model: model, username: "gautam"))
-//    }
-//}

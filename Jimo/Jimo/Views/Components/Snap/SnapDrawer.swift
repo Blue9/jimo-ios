@@ -59,12 +59,12 @@ public struct SnapDrawer<StateType: SnapState, Background : View, Content: View>
                 currentResult.state.visible != nil ? Handle() : nil
                 currentResult.state.visible.map { content($0).frame(minHeight: currentResult.contentHeight) }
                 
-                Spacer()
+                Spacer().frame(maxWidth: UIScreen.main.bounds.width)
             }
         }
         .frame(height: UIScreen.main.bounds.height)
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.9), radius: 10.0)
+        .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.5), radius: 4.0)
         .offset(y: min(maxDrag + 8, max(minDrag - 8, self.currentResult.offset + self.dragState.translation.height)))
         .animation(self.dragState.isDragging ? nil : .interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0), value: self.currentResult.offset)
         .gesture(drag)

@@ -11,17 +11,20 @@ import ASCollectionView
 
 struct ProfileHeaderView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
     
+    let initialUser: User
+    
     var user: User {
-        profileVM.user
+        profileVM.user ?? initialUser
     }
     
     var isCurrentUser: Bool {
         guard case let .user(currentUser) = appState.currentUser else {
             return false
         }
-        return profileVM.user.username == currentUser.username
+        return user.username == currentUser.username
     }
     
     let defaultImage: Image = Image(systemName: "person.crop.circle")
@@ -40,7 +43,6 @@ struct ProfileHeaderView: View {
                 .background(Color.white)
                 .cornerRadius(50)
                 .padding(.trailing)
-                .id(user.profilePictureUrl)
             VStack(alignment: .leading, spacing: 0) {
                 Text(name)
                     .font(Font.custom(Poppins.medium, size: 18))
@@ -67,7 +69,7 @@ struct ProfileHeaderView: View {
                 } else if profileVM.relationToUser == .following {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        profileVM.unfollowUser()
+                        profileVM.unfollowUser(username: user.username, appState: appState, viewState: viewState)
                     }) {
                         Text("Unfollow")
                             .padding(5)
@@ -83,7 +85,7 @@ struct ProfileHeaderView: View {
                 } else if profileVM.relationToUser == .blocked {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        profileVM.unblockUser()
+                        profileVM.unblockUser(username: user.username, appState: appState, viewState: viewState)
                     }) {
                         Text("Unblock")
                             .padding(5)
@@ -95,7 +97,7 @@ struct ProfileHeaderView: View {
                 } else {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        profileVM.followUser()
+                        profileVM.followUser(username: user.username, appState: appState, viewState: viewState)
                     }) {
                         Text("Follow")
                             .padding(5)
@@ -119,11 +121,14 @@ struct ProfileStatsView: View {
     @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var profileVM: ProfileVM
+    
+    let initialUser: User
+    
     @State private var showFollowers = false
     @State private var showFollowing = false
     
     var user: User {
-        profileVM.user
+        profileVM.user ?? initialUser
     }
     
     var body: some View {
@@ -152,17 +157,13 @@ struct ProfileStatsView: View {
         }
         .padding(.horizontal, 40)
         .background(
-            NavigationLink(destination: FollowFeed(followFeedVM: FollowFeedVM(user: profileVM.user,
-                                                                              type: FollowType.followers),
-                                                   navTitle: "Followers")
+            NavigationLink(destination: FollowFeed(navTitle: "Followers", type: .followers, username: user.username)
                             .environmentObject(appState)
                             .environmentObject(globalViewState)
                             .environment(\.backgroundColor, backgroundColor), isActive: $showFollowers) {}
         )
         .background(
-            NavigationLink(destination: FollowFeed(followFeedVM: FollowFeedVM(user: profileVM.user,
-                                                                              type: FollowType.following),
-                                                   navTitle: "Following")
+            NavigationLink(destination: FollowFeed(navTitle: "Following", type: .following, username: user.username)
                             .environmentObject(appState)
                             .environmentObject(globalViewState)
                             .environment(\.backgroundColor, backgroundColor), isActive: $showFollowing) {}
@@ -172,9 +173,15 @@ struct ProfileStatsView: View {
 
 struct Profile: View {
     @EnvironmentObject var appState: AppState
-    @EnvironmentObject var globalViewState: GlobalViewState
+    @EnvironmentObject var viewState: GlobalViewState
     @Environment(\.backgroundColor) var backgroundColor
-    @StateObject var profileVM: ProfileVM
+    @StateObject var profileVM = ProfileVM()
+    
+    let initialUser: User
+    
+    var username: String {
+        initialUser.username
+    }
     
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
@@ -183,16 +190,14 @@ struct Profile: View {
         ASCollectionView {
             ASCollectionViewSection(id: 0) {
                 VStack {
-                    ProfileHeaderView(profileVM: profileVM)
-                    ProfileStatsView(profileVM: profileVM)
+                    ProfileHeaderView(profileVM: profileVM, initialUser: initialUser)
+                    ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
                 }
                 .padding(.bottom, 10)
             }
             
-            ASCollectionViewSection(id: 1, data: profileVM.posts, dataID: \.self) { postId, _ in
-                FeedItem(feedItemVM: FeedItemVM(appState: appState,
-                                                viewState: globalViewState, postId: postId,
-                                                onDelete: { profileVM.removePost(postId: postId) }))
+            ASCollectionViewSection(id: 1, data: profileVM.posts) { post, _ in
+                FeedItem(post: post)
                     .frame(width: UIScreen.main.bounds.width)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -213,8 +218,8 @@ struct Profile: View {
                     } else { // notInitialized
                         ProgressView()
                             .appear {
-                                profileVM.loadRelation()
-                                profileVM.loadPosts()
+                                profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
+                                profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
                             }
                     }
                 }
@@ -229,18 +234,15 @@ struct Profile: View {
         .alwaysBounceVertical(true)
         .scrollIndicatorsEnabled(horizontal: false, vertical: false)
         .onPullToRefresh { onFinish in
-            profileVM.refresh(onFinish: onFinish)
+            profileVM.refresh(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
         }
         .onReachedBoundary { boundary in
             if boundary == .bottom {
-                profileVM.loadMorePosts()
+                profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
             }
         }
         .font(Font.custom(Poppins.medium, size: 15))
         .background(backgroundColor)
-        .appear {
-            profileVM.removeDeletedPosts()
-        }
         .ignoresSafeArea(.keyboard, edges: .all)
     }
     
@@ -248,7 +250,7 @@ struct Profile: View {
         profileBody
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    if !profileVM.isCurrentUser {
+                    if !profileVM.isCurrentUser(appState: appState, username: username) {
                         Button {
                             showUserOptions.toggle()
                         } label: {
@@ -264,7 +266,7 @@ struct Profile: View {
                     return ActionSheet(
                         title: Text("Options"),
                         buttons: [
-                            .destructive(Text("Unblock"), action: { profileVM.unblockUser() }),
+                            .destructive(Text("Unblock"), action: { profileVM.unblockUser(username: username, appState: appState, viewState: viewState) }),
                             .cancel()
                         ]
                     )
@@ -281,11 +283,28 @@ struct Profile: View {
             .alert(isPresented: $confirmBlockUser) {
                 Alert(
                     title: Text("Confirm"),
-                    message: Text("Block @\(profileVM.user.username)? They won't know you blocked them."),
-                    primaryButton: .default(Text("Block")) { profileVM.blockUser() },
+                    message: Text("Block @\(username)? They won't know you blocked them."),
+                    primaryButton: .default(Text("Block")) { profileVM.blockUser(username: username, appState: appState, viewState: viewState) },
                     secondaryButton: .cancel()
                 )
             }
+    }
+}
+
+struct ProfileScreen: View {
+    @Environment(\.backgroundColor) var backgroundColor
+    
+    let initialUser: User
+    
+    var body: some View {
+        Profile(initialUser: initialUser)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarColor(UIColor(backgroundColor))
+            .toolbar(content: {
+                ToolbarItem(placement: .principal) {
+                    NavTitle("Profile")
+                }
+            })
     }
 }
 
@@ -303,7 +322,7 @@ struct Profile_Previews: PreviewProvider {
         followingCount: 1)
     
     static var previews: some View {
-        Profile(profileVM: ProfileVM(appState: appState, globalViewState: GlobalViewState(), user: user))
+        Profile(initialUser: user)
             .environmentObject(appState)
             .environmentObject(GlobalViewState())
     }

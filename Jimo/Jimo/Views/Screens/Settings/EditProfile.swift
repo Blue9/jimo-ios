@@ -70,8 +70,8 @@ class EditProfileViewModel: ObservableObject {
                 firstName: firstName,
                 lastName: lastName))
             .sink(receiveCompletion: { [weak self] completion in
+                self?.updating = false
                 if case let .failure(error) = completion {
-                    self?.updating = false
                     print("Error when updating user", error)
                     if case let .requestError(maybeErrors) = error,
                        let errors = maybeErrors,
@@ -81,7 +81,7 @@ class EditProfileViewModel: ObservableObject {
                         viewState.setError("Could not update user")
                     }
                 }
-            }, receiveValue: { [weak self] response in
+            }, receiveValue: { response in
                 if let error = response.error {
                     if let uidError = error.uid {
                         viewState.setWarning(uidError)
@@ -99,7 +99,6 @@ class EditProfileViewModel: ObservableObject {
                 } else if response.user != nil {
                     viewState.setSuccess("Updated profile!")
                 }
-                self?.updating = false
             })
     }
 }

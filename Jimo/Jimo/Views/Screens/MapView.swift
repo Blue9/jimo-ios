@@ -250,9 +250,9 @@ struct MapKitView: UIViewRepresentable {
 
 struct MapSearch: View {
     @Environment(\.backgroundColor) var backgroundColor
-    @StateObject var mapViewModel: MapViewModel
+    @ObservedObject var mapViewModel: MapViewModel
     @StateObject var locationSearch: LocationSearch = LocationSearch()
-    @State var lastSearched: String? = nil
+    @State private var lastSearched: String? = nil
     
     func search(completion: MKLocalSearchCompletion) {
         lastSearched = completion.title
@@ -454,16 +454,19 @@ fileprivate struct ClusterToggleButton: View {
 
 
 struct MapView: View {
-    @EnvironmentObject var appState: AppState
-    @Environment(\.backgroundColor) var backgroundColor
-    
-    @ObservedObject var mapModel: MapModel
-    @ObservedObject var localSettings: LocalSettings
-    @StateObject var mapViewModel: MapViewModel
-    @State private var initialized = false
     let locationManager = CLLocationManager()
     
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.backgroundColor) var backgroundColor
+    
+    @ObservedObject var localSettings: LocalSettings
+    @StateObject var mapViewModel = MapViewModel()
+    
+    @State private var initialized = false
     @State private var region = MapViewModel.defaultRegion
+    
+    var preselectedPlace: Place?
     
     var body: some View {
         ZStack {
@@ -478,7 +481,7 @@ struct MapView: View {
                 mapViewModel.modalState = .invisible
             }
             
-            if mapViewModel.preselectedPost == nil {
+            if preselectedPlace == nil {
                 // Only show these if there is no preselected post
                 ClusterToggleButton(clusteringEnabled: $localSettings.clusteringEnabled)
                 MapSearch(mapViewModel: mapViewModel)
@@ -521,7 +524,6 @@ struct MapView: View {
                         }
                     } else if let placeAnnotation = mapViewModel.presentedPin {
                         ViewPlace(viewPlaceVM: ViewPinVM(pin: placeAnnotation.pin))
-                            .id(placeAnnotation.self)
                             .frame(maxHeight: .infinity)
                     } else {
                         EmptyView()
@@ -536,7 +538,7 @@ struct MapView: View {
             locationManager.requestWhenInUseAuthorization()
             locationManager.startUpdatingLocation()
             if !initialized {
-                if mapViewModel.preselectedPost == nil, let location = locationManager.location {
+                if preselectedPlace == nil, let location = locationManager.location {
                     DispatchQueue.main.async {
                         self.region = MKCoordinateRegion(
                             center: location.coordinate,
@@ -544,14 +546,19 @@ struct MapView: View {
                         )
                     }
                 }
-                if let post = mapViewModel.preselectedPost {
-                    region.center = post.location
+                if let place = preselectedPlace {
+                    region.center = CLLocationCoordinate2D(latitude: place.location.latitude, longitude: place.location.longitude)
                     region.span = MKCoordinateSpan(latitudeDelta: 0.002, longitudeDelta: 0.002)
+                    mapViewModel.presentPreselectedPlace(place: place, appState: appState, globalViewState: globalViewState)
                 }
                 initialized = true
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                mapViewModel.startRefreshingMap()
+                mapViewModel.startRefreshingMap(
+                    appState: appState,
+                    globalViewState: globalViewState,
+                    preselectedPlace: preselectedPlace
+                )
             }
         }
         .disappear {
@@ -560,19 +567,3 @@ struct MapView: View {
         .accentColor(.blue)
     }
 }
-
-struct MapView_Previews: PreviewProvider {
-    static let appState = AppState(apiClient: APIClient())
-    static let viewState = GlobalViewState()
-    
-    static var previews: some View {
-        MapView(
-            mapModel: appState.mapModel,
-            localSettings: appState.localSettings,
-            mapViewModel: MapViewModel(appState: appState, viewState: viewState)
-        )
-        .environmentObject(appState)
-        .environmentObject(GlobalViewState())
-    }
-}
-

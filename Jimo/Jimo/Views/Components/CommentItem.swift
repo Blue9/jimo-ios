@@ -12,7 +12,8 @@ struct CommentItemLikeButton: View {
     @EnvironmentObject var viewState: GlobalViewState
     
     @ObservedObject var singleCommentVM: SingleCommentVM
-    @State var comment: Comment
+    
+    let comment: Comment
     
     private var likeCount: Int {
         comment.likeCount
@@ -26,11 +27,7 @@ struct CommentItemLikeButton: View {
                     singleCommentVM.unlikeComment(
                         appState: appState,
                         globalViewState: viewState,
-                        commentId: comment.id,
-                        then: { likes in
-                            comment.likeCount = likes
-                            comment.liked = false
-                        }
+                        commentId: comment.id
                     )
                 }) {
                     Image(systemName: singleCommentVM.likingComment ? "heart" : "heart.fill")
@@ -44,11 +41,7 @@ struct CommentItemLikeButton: View {
                     singleCommentVM.likeComment(
                         appState: appState,
                         globalViewState: viewState,
-                        commentId: comment.id,
-                        then: { likes in
-                            comment.likeCount = likes
-                            comment.liked = true
-                        }
+                        commentId: comment.id
                     )
                 }) {
                     Image(systemName: singleCommentVM.likingComment ? "heart.fill"  : "heart")
@@ -72,18 +65,17 @@ struct CommentItem: View {
     
     @ObservedObject var commentsViewModel: CommentsViewModel
     @StateObject var singleCommentVM = SingleCommentVM()
-    @State var comment: Comment
-    @State var confirmDelete = false
-    @State var relativeTime = ""
+    @State private var confirmDelete = false
+    @State private var relativeTime = ""
     
-    let dateTimeFormatter = RelativeDateTimeFormatter()
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    let comment: Comment
+    let isMyPost: Bool
     
     func getRelativeTime() -> String {
         if Date().timeIntervalSince(comment.createdAt) < 1 {
             return "just now"
         }
-        return dateTimeFormatter.localizedString(for: comment.createdAt, relativeTo: Date())
+        return appState.dateTimeFormatter.localizedString(for: comment.createdAt, relativeTo: Date())
     }
     
     var canDeleteComment: Bool {
@@ -91,7 +83,7 @@ struct CommentItem: View {
         guard case let .user(user) = appState.currentUser else {
             return false
         }
-        return comment.user.id == user.id || appState.allPosts.posts[comment.postId]?.user.id == user.id
+        return comment.user.id == user.id || isMyPost
     }
     
     var isHighlighted: Bool {
@@ -99,20 +91,7 @@ struct CommentItem: View {
     }
     
     var profileView: some View {
-        Profile(
-            profileVM: ProfileVM(
-                appState: appState,
-                globalViewState: viewState,
-                user: comment.user
-            )
-        )
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(backgroundColor))
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Profile")
-            }
-        })
+        ProfileScreen(initialUser: comment.user)
     }
     
     var profilePicture: some View {
@@ -154,11 +133,10 @@ struct CommentItem: View {
                 Text(relativeTime)
                     .font(.caption)
                     .foregroundColor(.gray)
-                    .onReceive(timer, perform: { _ in
-                        relativeTime = getRelativeTime()
-                    })
                     .onAppear(perform: {
-                        relativeTime = getRelativeTime()
+                        if relativeTime == "" {
+                            relativeTime = getRelativeTime()
+                        }
                     })
                 
                 Spacer().frame(height: 2)
@@ -235,7 +213,7 @@ struct CommentItem_Previews: PreviewProvider {
                 createdAt: Date(timeIntervalSinceNow: -10),
                 likeCount: 10,
                 liked: true
-            ))
+            ), isMyPost: false)
             CommentItem(commentsViewModel: commentsViewModel, comment: Comment(
                 commentId: "commentId",
                 user: otherUser,
@@ -244,7 +222,7 @@ struct CommentItem_Previews: PreviewProvider {
                 createdAt: Date(timeIntervalSinceNow: -10),
                 likeCount: 10,
                 liked: true
-            ))
+            ), isMyPost: false)
             CommentItem(commentsViewModel: commentsViewModel, comment: Comment(
                 commentId: "commentId",
                 user: user,
@@ -253,7 +231,7 @@ struct CommentItem_Previews: PreviewProvider {
                 createdAt: Date(timeIntervalSinceNow: -10),
                 likeCount: 10,
                 liked: true
-            ))
+            ), isMyPost: false)
         }
         .environmentObject(appState)
         .environmentObject(GlobalViewState())

@@ -13,7 +13,6 @@ target 'Jimo' do
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 
-  pod 'GoogleSignIn'
   pod 'SDWebImage'
   pod 'SDWebImageSwiftUI'
 
