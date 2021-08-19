@@ -103,13 +103,12 @@ struct FeedBody: View {
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
     
-    var initializedFeed: some View {
+    var collectionView: ASCollectionView<Int> {
         ASCollectionView {
             ASCollectionViewSection(id: 0, data: feedViewModel.feed) { post, _ in
                 FeedItem(post: post)
-                    .frame(width: UIScreen.main.bounds.width)
-                    .fixedSize(horizontal: false, vertical: true)
             }
+            .cacheCells()
             
             ASCollectionViewSection(id: 1) {
                 VStack {
@@ -123,21 +122,26 @@ struct FeedBody: View {
                 }
             }
         }
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .list(itemSize: .estimated(200))
-        }
-        .alwaysBounceVertical()
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                loadMore()
+    }
+    
+    var initializedFeed: some View {
+        collectionView
+            .shouldScrollToAvoidKeyboard(false)
+            .layout {
+                .list(itemSize: .estimated(200))
             }
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
-            feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
-        }
-        .ignoresSafeArea(.keyboard, edges: .all)
+            .alwaysBounceVertical()
+            .onReachedBoundary { boundary in
+                if boundary == .bottom {
+                    loadMore()
+                }
+            }
+            .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+            .onPullToRefresh { onFinish in
+                feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
+            }
+            .ignoresSafeArea(.keyboard, edges: .all)
+            .edgesIgnoringSafeArea(.all)
     }
     
     var body: some View {

@@ -45,7 +45,7 @@ struct ViewPost: View {
     
     @StateObject private var commentsViewModel = CommentsViewModel()
     @State private var initializedComments = false
-    @State private var imageLoaded = false
+    @State private var imageSize = CGSize.zero
     
     let post: Post
     var highlightedComment: Comment? = nil
@@ -63,7 +63,7 @@ struct ViewPost: View {
     }
     
     var postItem: some View {
-        TrackedImageFeedItem(post: post, fullPost: true, imageLoaded: $imageLoaded)
+        TrackedImageFeedItem(post: post, fullPost: true, imageSize: $imageSize)
             .fixedSize(horizontal: false, vertical: true)
             .onAppear {
                 postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
@@ -82,7 +82,7 @@ struct ViewPost: View {
     
     var body: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: imageLoaded ? 0 : -1) {
+            ASCollectionViewSection(id: imageSize == .zero ? 0 : -1) {
                 postItem
             }
             

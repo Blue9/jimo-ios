@@ -9,7 +9,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 fileprivate class LoadState {
-    var imageLoaded: Binding<Bool>?
+    var imageSize: Binding<CGSize>?
 }
 
 struct URLImage: View {
@@ -28,7 +28,7 @@ struct URLImage: View {
         .resizable()
         .onSuccess { image, data, cacheType in
             DispatchQueue.main.async {
-                self.loadState.imageLoaded?.wrappedValue = true
+                self.loadState.imageSize?.wrappedValue = image.size
             }
         }
         .placeholder {
@@ -43,7 +43,7 @@ struct URLImage: View {
         loading: Image = Image("grayRect"),
         failure: Image = Image("imageFail"),
         thumbnail: Bool = false,
-        imageLoaded: Binding<Bool>? = nil
+        imageSize: Binding<CGSize>? = nil
     ) {
         if let url = url {
             self.url = URL(string: url)
@@ -55,8 +55,8 @@ struct URLImage: View {
         } else {
             self.maxDim = 3000
         }
-        if let imageLoaded = imageLoaded {
-            self.loadState.imageLoaded = imageLoaded
+        if let imageSize = imageSize {
+            self.loadState.imageSize = imageSize
         }
     }
 }

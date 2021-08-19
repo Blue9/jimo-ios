@@ -73,7 +73,7 @@ struct FeedItemBody: View {
     @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var feedItemVM: FeedItemVM
-    @Binding var imageLoaded: Bool
+    @Binding var imageSize: CGSize
     
     @State private var showPostOptions = false
     @State private var showConfirmDelete = false
@@ -115,10 +115,9 @@ struct FeedItemBody: View {
                 URLImage(url: image,
                          loading: Image("grayRect").resizable(),
                          failure: Image("imageFail"),
-                         imageLoaded: $imageLoaded)
+                         imageSize: $imageSize)
                     .frame(minHeight: fullPost ? .zero : UIScreen.main.bounds.width)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : UIScreen.main.bounds.width)
-                    .contentShape(Rectangle())
                     .clipped()
                     .background(Color(post.category))
             }
@@ -312,13 +311,13 @@ struct FeedItemBody: View {
 }
 
 struct FeedItem: View {
-    @State var imageLoaded = false
+    @State var imageSize = CGSize.zero
     
     let post: Post
     var fullPost: Bool = false
     
     var body: some View {
-        TrackedImageFeedItem(post: post, fullPost: fullPost, imageLoaded: $imageLoaded)
+        TrackedImageFeedItem(post: post, fullPost: fullPost, imageSize: $imageSize)
     }
 }
 
@@ -328,10 +327,10 @@ struct TrackedImageFeedItem: View {
     let post: Post
     let fullPost: Bool
     
-    @Binding var imageLoaded: Bool
+    @Binding var imageSize: CGSize
     
     var body: some View {
-        FeedItemBody(feedItemVM: feedItemVM, imageLoaded: $imageLoaded, post: post, fullPost: fullPost)
+        FeedItemBody(feedItemVM: feedItemVM, imageSize: $imageSize, post: post, fullPost: fullPost)
     }
 }
 
