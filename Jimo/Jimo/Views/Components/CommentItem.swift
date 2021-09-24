@@ -52,7 +52,7 @@ struct CommentItemLikeButton: View {
             }
             
             Text(String(likeCount))
-                .font(Font.custom(Poppins.regular, size: 12))
+                .font(.system(size: 12))
                 .opacity(likeCount > 0 ? 1 : 0)
         }
     }
@@ -119,16 +119,19 @@ struct CommentItem: View {
             
             VStack(alignment: .leading) {
                 NavigationLink(destination: profileView) {
-                    Text(comment.user.username)
-                        .font(Font.custom(Poppins.medium, size: 12))
+                    Text(comment.user.username.lowercased())
+                        .font(.system(size: 12))
+                        .bold()
                         .foregroundColor(.black)
                 }
                 
                 Spacer().frame(height: 3)
                 
                 Text(comment.content)
-                    .font(Font.custom(Poppins.regular, size: 12))
+                    .font(.system(size: 12))
                     .fixedSize(horizontal: false, vertical: true)
+                
+                Spacer().frame(height: 2)
                 
                 Text(relativeTime)
                     .font(.caption)

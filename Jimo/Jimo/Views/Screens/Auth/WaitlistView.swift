@@ -59,7 +59,7 @@ struct WaitlistView: View {
                 else if let waitlistStatus = waitlistStatus {
                     if waitlistStatus.invited {
                         Text("You're invited, create your profile")
-                            .font(Font.custom(Poppins.medium, size: 20))
+                            .font(.system(size: 20))
                             .padding(.bottom, 20)
                         
                         NavigationLink(destination: CreateProfileView()) {
@@ -68,7 +68,7 @@ struct WaitlistView: View {
                         }
                     } else if waitlistStatus.waitlisted {
                         Text("You're on the waitlist! Stay tuned!")
-                            .font(Font.custom(Poppins.medium, size: 20))
+                            .font(.system(size: 20))
                             .padding(.bottom, 20)
                         
                         Button(action: self.checkInviteStatus) {
@@ -78,7 +78,7 @@ struct WaitlistView: View {
                         
                     } else {
                         Text("Tap below to join the waitlist")
-                            .font(Font.custom(Poppins.medium, size: 24))
+                            .font(.system(size: 24))
                             .padding(.bottom, 20)
                         
                         Button(action: self.joinWaitlist) {
@@ -116,7 +116,7 @@ struct WaitlistView: View {
         .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
             Toast(text: errorMessage, type: .error)
         }
-        .environment(\.font, Font.custom(Poppins.medium, size: 18))
+        .environment(\.font, .system(size: 18))
     }
 }
 

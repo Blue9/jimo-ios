@@ -13,21 +13,25 @@ class SearchViewModel: ObservableObject {
     @Published var searchBarFocused = false
     @Published var userResults: [PublicUser] = []
     
+    private var queryCancellable: Cancellable?
     private var userSearchCancellable: Cancellable?
     
     func listen(appState: AppState) {
         userSearchCancellable = $query
             .debounce(for: 0.25, scheduler: DispatchQueue.main)
-            .flatMap { query -> AnyPublisher<[PublicUser], Never> in
-                appState.searchUsers(query: query)
-                    .catch { error -> AnyPublisher<[PublicUser], Never> in
-                        print("Error when searching", error)
-                        return Empty().eraseToAnyPublisher()
-                    }
-                    .eraseToAnyPublisher()
+            .sink { [weak self] query in
+                self?.search(appState: appState, query: query)
             }
-            .sink { [weak self] users in
-                self?.userResults = users
+    }
+    
+    private func search(appState: AppState, query: String) {
+        queryCancellable = appState.searchUsers(query: query)
+            .catch { error -> AnyPublisher<[PublicUser], Never> in
+                print("Error when searching", error)
+                return Empty().eraseToAnyPublisher()
+            }
+            .sink { [weak self] results in
+                self?.userResults = results
             }
     }
 }

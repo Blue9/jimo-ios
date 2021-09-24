@@ -23,13 +23,9 @@ struct CommentInputField: View {
             }
         })
         .padding(.trailing, 25)
-        .font(Font.custom(Poppins.regular, size: 12))
+        .font(.system(size: 12))
         .padding(.horizontal, 5)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .foregroundColor(Color.white)
-        )
+        .padding(.vertical, 5)
         .overlay(
             HStack {
                 Spacer()

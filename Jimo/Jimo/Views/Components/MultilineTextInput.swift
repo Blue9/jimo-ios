@@ -19,7 +19,7 @@ fileprivate struct UITextViewWrapper: UIViewRepresentable {
         
         textField.isEditable = true
         textField.returnKeyType = .done
-        textField.font = UIFont(name: Poppins.regular, size: 14)
+        textField.font = .systemFont(ofSize: 14)
         textField.textColor = .black
         textField.isSelectable = true
         textField.isUserInteractionEnabled = true
@@ -93,7 +93,6 @@ struct MultilineTextField: View {
         Group {
             if showingPlaceholder {
                 Text(placeholder)
-                    .fontWeight(.medium)
                     .foregroundColor(.black)
                     .padding(.leading, 4)
                     .padding(.top, 8)

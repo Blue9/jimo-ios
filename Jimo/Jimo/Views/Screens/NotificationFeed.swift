@@ -129,7 +129,7 @@ struct NotificationFeedItem: View {
                             }
                         }
                 }
-                .font(Font.custom(Poppins.regular, size: 14))
+                .font(.system(size: 14))
                 
                 Spacer()
                 
@@ -165,11 +165,6 @@ struct NotificationFeed: View {
                     .padding(.horizontal, 10)
                     .hidden()
             }
-            .sectionHeader {
-                Divider()
-                    .padding(.bottom, 5)
-                    .hidden()
-            }
             .sectionFooter {
                 VStack {
                     Divider()
@@ -177,7 +172,7 @@ struct NotificationFeed: View {
                     ProgressView()
                         .opacity(notificationFeedVM.loading ? 1 : 0)
                     Text("You've reached the end!")
-                        .font(Font.custom(Poppins.medium, size: 15))
+                        .font(.system(size: 15))
                 }
             }
         }

@@ -104,10 +104,15 @@ struct Settings: View {
             }
             
             Section(header: Text("Account")) {
+                NavigationLink(destination: Feedback()) {
+                    Text("Submit feedback")
+                }
+                
                 Button(action: { settingsViewModel.signOut() }) {
                     Text("Sign out")
                         .foregroundColor(.red)
                 }
+                
                 Text("For additional support, please email help@jimoapp.com")
                     .foregroundColor(.gray)
                     .font(.caption)

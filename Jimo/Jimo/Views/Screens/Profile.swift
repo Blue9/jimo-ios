@@ -45,12 +45,13 @@ struct ProfileHeaderView: View {
                 .padding(.trailing)
             VStack(alignment: .leading, spacing: 0) {
                 Text(name)
-                    .font(Font.custom(Poppins.medium, size: 18))
+                    .font(.system(size: 18))
+                    .bold()
                     .minimumScaleFactor(0.5)
                     .frame(height: 25)
                 Text("@" + user.username)
                     .frame(height: 25)
-                    .font(Font.custom(Poppins.regular, size: 14))
+                    .font(.system(size: 14))
                     .padding(.bottom, 5)
                 
                 if isCurrentUser {
@@ -58,7 +59,7 @@ struct ProfileHeaderView: View {
                 } else if !profileVM.loadedRelation {
                     Text("Loading...")
                         .padding(5)
-                        .font(Font.custom(Poppins.regular, size: 14))
+                        .font(.system(size: 14))
                         .background(Color.white)
                         .cornerRadius(10)
                         .foregroundColor(.gray)
@@ -66,6 +67,7 @@ struct ProfileHeaderView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.gray, lineWidth: 1)
                         )
+                        .frame(height: 30)
                 } else if profileVM.relationToUser == .following {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -73,7 +75,7 @@ struct ProfileHeaderView: View {
                     }) {
                         Text("Unfollow")
                             .padding(5)
-                            .font(Font.custom(Poppins.regular, size: 14))
+                            .font(.system(size: 14))
                             .background(Color.white)
                             .cornerRadius(10)
                             .foregroundColor(.gray)
@@ -89,7 +91,7 @@ struct ProfileHeaderView: View {
                     }) {
                         Text("Unblock")
                             .padding(5)
-                            .font(Font.custom(Poppins.regular, size: 14))
+                            .font(.system(size: 14))
                             .background(Color.red)
                             .cornerRadius(10)
                             .foregroundColor(.white)
@@ -101,7 +103,7 @@ struct ProfileHeaderView: View {
                     }) {
                         Text("Follow")
                             .padding(5)
-                            .font(Font.custom(Poppins.regular, size: 14))
+                            .font(.system(size: 14))
                             .background(Color.blue)
                             .cornerRadius(10)
                             .foregroundColor(.white)
@@ -197,7 +199,7 @@ struct Profile: View {
             }
             
             ASCollectionViewSection(id: 1, data: profileVM.posts) { post, _ in
-                FeedItem(post: post)
+                FeedItemV2(post: post)
                     .frame(width: UIScreen.main.bounds.width)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -241,7 +243,7 @@ struct Profile: View {
                 profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
             }
         }
-        .font(Font.custom(Poppins.medium, size: 15))
+        .font(.system(size: 15))
         .background(backgroundColor)
         .ignoresSafeArea(.keyboard, edges: .all)
     }

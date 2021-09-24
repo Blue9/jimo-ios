@@ -106,7 +106,8 @@ struct FeedBody: View {
     var collectionView: ASCollectionView<Int> {
         ASCollectionView {
             ASCollectionViewSection(id: 0, data: feedViewModel.feed) { post, _ in
-                FeedItem(post: post)
+                FeedItemV2(post: post)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .cacheCells()
             
@@ -117,7 +118,7 @@ struct FeedBody: View {
                     ProgressView()
                         .opacity(feedViewModel.loadingMorePosts ? 1 : 0)
                     Text("You've reached the end!")
-                        .font(Font.custom(Poppins.medium, size: 15))
+                        .font(.system(size: 15))
                         .padding()
                 }
             }
@@ -197,22 +198,14 @@ struct Feed: View {
                         }
                     }
                     ToolbarItem(placement: .principal) {
-                        NavTitle("Feed")
+                        Image("logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50)
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: { self.showNotifications.toggle() }) {
                             Image(systemName: "bell")
-                        }
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { showFeedback.toggle() }) {
-                            Image(systemName: "exclamationmark.bubble")
-                        }
-                        .sheet(isPresented: $showFeedback) {
-                            Feedback(presented: $showFeedback)
-                                .environmentObject(appState)
-                                .environment(\.backgroundColor, backgroundColor)
-                                .preferredColorScheme(.light)
                         }
                     }
                 })

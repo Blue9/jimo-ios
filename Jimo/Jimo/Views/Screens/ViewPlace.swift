@@ -29,6 +29,7 @@ protocol ViewPlaceVM: ObservableObject {
 }
 
 class ViewPinVM: ViewPlaceVM {
+    let nc = NotificationCenter.default
     let pin: MapPlace
     
     @Published var loadingMutualPosts = false
@@ -45,6 +46,16 @@ class ViewPinVM: ViewPlaceVM {
     
     init(pin: MapPlace) {
         self.pin = pin
+        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+    }
+    
+    @objc private func postLiked(notification: Notification) {
+        let like = notification.object as! PostLikePayload
+        let postIndex = mutualPosts?.indices.first(where: { mutualPosts?[$0].postId == like.postId })
+        if let i = postIndex {
+            mutualPosts?[i].likeCount = like.likeCount
+            mutualPosts?[i].liked = like.liked
+        }
     }
     
     func loadMutualPosts(appState: AppState, globalViewState: GlobalViewState) {
@@ -170,7 +181,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             HStack {
                 VStack(alignment: .leading) {
                     Text(viewPlaceVM.name)
-                        .font(Font.custom(Poppins.medium, size: 18))
+                        .font(.system(size: 18))
                         .bold()
                     Text(placeParams.address ?? "Loading address...")
                 }
@@ -197,7 +208,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                     }
                 }) {
                     Text("Directions")
-                        .font(Font.custom(Poppins.regular, size: 14))
+                        .font(.system(size: 14))
                         .frame(maxHeight: 20)
                         .foregroundColor(.black)
                         .padding(10)
@@ -221,7 +232,11 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                             } else if let mutualPosts = viewPlaceVM.mutualPosts, mutualPosts.count > 0 {
                                 ForEach(mutualPosts, id: \.postId) { post in
                                     NavigationLink(destination: ViewPost(post: post)) {
-                                        URLImage(url: post.user.profilePictureUrl, failure: Image(systemName: "person.crop.circle"))
+                                        URLImage(
+                                            url: post.user.profilePictureUrl,
+                                            loading: Image(systemName: "person.crop.circle"),
+                                            failure: Image(systemName: "person.crop.circle")
+                                        )
                                             .aspectRatio(contentMode: .fill)
                                             .background(Color.white)
                                             .foregroundColor(.gray)
@@ -287,7 +302,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             }
             Spacer()
         }
-        .font(Font.custom(Poppins.regular, size: 16))
+        .font(.system(size: 16))
         .padding(.horizontal)
         .appear {
             viewPlaceVM.getMapItem(handle: { mapItem in

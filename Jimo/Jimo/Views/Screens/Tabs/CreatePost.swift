@@ -51,7 +51,7 @@ struct CategoryPicker: View {
         VStack {
             HStack {
                 Text("Select category")
-                    .font(Font.custom(Poppins.semiBold, size: 16))
+                    .font(.system(size: 16))
                 Spacer()
             }
             .padding(.horizontal)
@@ -89,10 +89,10 @@ struct FormInputButton: View {
     var body: some View {
         Group {
             if let content = content {
-                Text(name + ": ").font(Font.custom(Poppins.medium, size: 15))
-                    + Text(content).font(Font.custom(Poppins.regular, size: 15))
+                Text(name + ": ").font(.system(size: 15)).bold()
+                + Text(content).font(.system(size: 15))
             } else {
-                Text(name).font(Font.custom(Poppins.medium, size: 15))
+                Text(name).font(.system(size: 15))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -105,6 +105,7 @@ struct FormInputButton: View {
                 .foregroundColor(.gray)
                 .padding(.trailing)
         }, alignment: .trailing)
+        .multilineTextAlignment(.leading)
     }
 }
 
@@ -115,7 +116,7 @@ struct FormInputText: View {
     
     var body: some View {
         MultilineTextField(name, text: $text, height: height)
-            .font(Font.custom(Poppins.regular, size: 15))
+            .font(.system(size: 15))
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
             .padding(.bottom, 8)
@@ -231,7 +232,7 @@ struct CreatePost: View {
         NavigationView {
             ZStack {
                 ScrollView {
-                    VStack(spacing: 0) {
+                    VStack(alignment: .leading, spacing: 0) {
                         CategoryPicker(category: $category)
                             .padding(.vertical)
                         
@@ -305,7 +306,7 @@ struct CreatePost: View {
                             .padding(.vertical, 10)
                         }
                         
-                        RoundedButton(text: Text("Add Pin").font(Font.custom(Poppins.semiBold, size: 16)),
+                        RoundedButton(text: Text("Add Pin").font(.system(size: 16).bold()),
                                       action: self.createPost, backgroundColor: buttonColor)
                             .frame(height: 60, alignment: .center)
                             .padding(.horizontal)

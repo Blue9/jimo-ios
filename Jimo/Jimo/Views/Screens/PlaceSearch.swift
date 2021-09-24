@@ -70,6 +70,7 @@ struct PlaceSearch: View {
                         message: Text("Try again or select another option."))
                 }
             }
+            .listStyle(.plain)
         }
         .onAppear {
             self.setupLocationSearch()

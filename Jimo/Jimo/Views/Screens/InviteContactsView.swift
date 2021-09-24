@@ -152,7 +152,7 @@ fileprivate struct ContactView: View {
                 .cornerRadius(40)
             
             Text(contact.name)
-                .font(Font.custom(Poppins.regular, size: 12))
+                .font(.system(size: 12))
         }
         .frame(minHeight: 120)
         .onTapGesture {
@@ -218,7 +218,7 @@ struct InviteContactsView: View {
                 ZStack {
                     VStack {
                         Text("Choose wisely!")
-                            .font(Font.custom(Poppins.regular, size: 16))
+                            .font(.system(size: 16))
                         
                         TextField("Filter contacts", text: $filter)
                             .autocapitalization(.words)

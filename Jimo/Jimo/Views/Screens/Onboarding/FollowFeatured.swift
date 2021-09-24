@@ -29,7 +29,7 @@ struct FollowFeatured: View {
             .padding(.horizontal, 30)
             
             Text("Featured jimo Users")
-                .font(Font.custom(Poppins.medium, size: 24))
+                .font(.system(size: 24))
             
             Spacer()
             

@@ -30,7 +30,7 @@ struct FollowContacts: View {
             .padding(.horizontal, 30)
             
             Text("Friends Already Here")
-                .font(Font.custom(Poppins.medium, size: 24))
+                .font(.system(size: 24))
             
             Spacer()
             

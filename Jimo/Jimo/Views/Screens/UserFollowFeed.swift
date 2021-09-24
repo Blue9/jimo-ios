@@ -136,7 +136,7 @@ struct FollowFeedItemButton: View {
         }) {
             Text(text)
                 .padding(5)
-                .font(Font.custom(Poppins.regular, size: 14))
+                .font(.system(size: 14))
                 .background(background)
                 .cornerRadius(10)
                 .foregroundColor(foreground)
@@ -210,10 +210,10 @@ struct FollowFeedItemView: View {
                 
                 VStack(alignment: .leading) {
                     Text("@" + item.user.username)
-                        .font(Font.custom(Poppins.medium, size: 14))
+                        .font(.system(size: 14))
                     Text(item.user.firstName + " " + item.user.lastName)
                         .lineLimit(1)
-                        .font(Font.custom(Poppins.regular, size: 12))
+                        .font(.system(size: 12))
                 }
                 
                 Spacer()
@@ -257,7 +257,7 @@ struct FollowFeed: View {
                     ProgressView()
                         .opacity(followFeedVM.loadingMoreFollows ? 1 : 0)
                     Text("You've reached the end!")
-                        .font(Font.custom(Poppins.medium, size: 15))
+                        .font(.system(size: 15))
                 }
             }
         }

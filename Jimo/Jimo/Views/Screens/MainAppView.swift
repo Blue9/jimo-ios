@@ -53,7 +53,7 @@ struct MainAppView: View {
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),
-                    barItem: .init(title: "Home", image: UIImage(named: "feedIcon"), tag: 0)
+                    barItem: .init(title: nil, image: UIImage(named: "feedIcon"), tag: 0)
                 )
                 
                 UIKitTabView.Tab(
@@ -61,28 +61,28 @@ struct MainAppView: View {
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),
-                    barItem: .init(title: "Map", image: UIImage(named: "mapIcon"), tag: 1)
+                    barItem: .init(title: nil, image: UIImage(named: "mapIcon"), tag: 1)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(Text("")
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),
-                    barItem: .init(title: "New", image: UIImage(named: "postIcon"), tag: 2)
+                    barItem: .init(title: nil, image: UIImage(named: "postIcon"), tag: 2)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(Search()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),
-                    barItem: .init(title: "Search", image: UIImage(named: "searchIcon"), tag: 3)
+                    barItem: .init(title: nil, image: UIImage(named: "searchIcon"), tag: 3)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(ProfileTab(currentUser: currentUser)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)
                                     .environment(\.backgroundColor, backgroundColor)),
-                    barItem: .init(title: "Profile", image: UIImage(named: "profileIcon"), tag: 4)
+                    barItem: .init(title: nil, image: UIImage(named: "profileIcon"), tag: 4)
                 )
             }
         }

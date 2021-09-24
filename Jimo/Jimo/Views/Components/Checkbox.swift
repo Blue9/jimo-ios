@@ -18,14 +18,16 @@ struct Checkbox: View {
             selected.toggle()
         }) {
             HStack(alignment: .center, spacing: 10) {
-            Image(systemName: self.selected ? "checkmark.square" : "square")
-                .renderingMode(.original)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: boxSize, height: boxSize)
-            Text(label).font(Font.custom(Poppins.semiBold, size: 12))
-            Spacer()
-            }.foregroundColor(textColor)
+                Image(systemName: self.selected ? "checkmark.square" : "square")
+                    .renderingMode(.original)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: boxSize, height: boxSize)
+                Text(label)
+                    .font(.system(size: 12))
+                Spacer()
+            }
+            .foregroundColor(textColor)
         }
         .padding(.horizontal, 15)
         .padding(.vertical, 10)

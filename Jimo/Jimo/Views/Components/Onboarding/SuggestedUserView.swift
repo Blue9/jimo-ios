@@ -36,7 +36,7 @@ struct SuggestedUserView<T: SuggestedUserStore>: View {
             }
             
             Text(user.firstName + " " + user.lastName)
-                .font(Font.custom(Poppins.regular, size: 12))
+                .font(.system(size: 12))
         }
         .onTapGesture {
             userStore.toggleSelected(for: user.username)

@@ -16,6 +16,6 @@ struct NavTitle: View {
     }
     
     var body: some View {
-        Text(title).font(Font.custom(Poppins.medium, size: 18))
+        Text(title).fontWeight(.semibold).font(.system(size: 18))
     }
 }

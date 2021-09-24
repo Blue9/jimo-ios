@@ -23,7 +23,7 @@ struct LargeButton<Content: View>: View {
     
     var body: some View {
         content
-            .font(Font.custom(Poppins.medium, size: fontSize))
+            .font(.system(size: fontSize))
             .frame(minWidth: 0, maxWidth: .infinity)
             .frame(height: 60)
             .foregroundColor(Color("food"))

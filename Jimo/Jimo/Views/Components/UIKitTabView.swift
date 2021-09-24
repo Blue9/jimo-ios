@@ -17,6 +17,11 @@ public struct UIKitTabView: View {
         self.viewControllers = views().map {
             let host = UIHostingController(rootView: $0.view)
             host.tabBarItem = $0.barItem
+            if UIDevice.current.hasNotch {
+                host.tabBarItem.imageInsets = UIEdgeInsets(top: 10, left: 0, bottom: -10, right: 0)
+            } else {
+                host.tabBarItem.imageInsets = UIEdgeInsets(top: 4, left: 0, bottom: -4, right: 0)
+            }
             return host
         }
         self.selectedIndex = selectedIndex

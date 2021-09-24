@@ -61,7 +61,7 @@ struct Search: View {
                 }
                 .aspectRatio(1, contentMode: .fit)
                 .background(Color(post.category))
-                .cornerRadius(10)
+                .cornerRadius(2)
             }
         }
         .alwaysBounceVertical()
@@ -69,10 +69,10 @@ struct Search: View {
         .layout {
             .grid(
                 layoutMode: .fixedNumberOfColumns(3),
-                itemSpacing: 10,
-                lineSpacing: 10,
+                itemSpacing: 2,
+                lineSpacing: 2,
                 itemSize: .estimated(80),
-                sectionInsets: .init(top: 0, leading: 10, bottom: 0, trailing: 10)
+                sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
             )
         }
         .scrollIndicatorsEnabled(horizontal: false, vertical: false)
@@ -90,9 +90,9 @@ struct Search: View {
                     
                     VStack(alignment: .leading) {
                         Text(user.firstName + " " + user.lastName)
-                            .font(Font.custom(Poppins.medium, size: 16))
+                            .font(.system(size: 16))
                         Text("@" + user.username)
-                            .font(Font.custom(Poppins.regular, size: 14))
+                            .font(.system(size: 14))
                     }
                 }
             }
@@ -122,7 +122,7 @@ struct Search: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(backgroundColor)
-            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .edgesIgnoringSafeArea(.bottom)
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(UIColor(backgroundColor))
             .toolbar {

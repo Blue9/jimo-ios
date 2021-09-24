@@ -20,7 +20,9 @@ struct HomeMenu: View {
     var body: some View {
         VStack {
             Image("logo")
-                .aspectRatio(contentMode: .fit)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150)
                 .padding(.bottom, 40)
             
             VStack(alignment: .leading, spacing: 20) {
@@ -34,7 +36,7 @@ struct HomeMenu: View {
             
             NavigationLink(destination: EnterPhoneNumber()) {
                 Text("Join Waitlist")
-                    .font(Font.custom(Poppins.medium, size: 24))
+                    .font(.system(size: 24))
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .frame(height: 60)
                     .foregroundColor(Color("food"))
@@ -50,7 +52,7 @@ struct HomeMenu: View {
             
             NavigationLink(destination: EnterPhoneNumber()) {
                 Text("Already have an invite? Sign in")
-                    .font(Font.custom(Poppins.medium, size: 16))
+                    .font(.system(size: 16))
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .foregroundColor(.black)
             }
@@ -71,6 +73,6 @@ struct HomeMenu_Previews: PreviewProvider {
         HomeMenu()
             .environmentObject(AppState(apiClient: APIClient()))
             .environmentObject(GlobalViewState())
-            .environment(\.font, Font.custom(Poppins.medium, size: 18))
+            .environment(\.font, .system(size: 18))
     }
 }

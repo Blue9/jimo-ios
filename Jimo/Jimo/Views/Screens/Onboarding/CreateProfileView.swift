@@ -165,7 +165,7 @@ struct CreateProfileBody: View {
                                     .stroke(Color("lightgray"), lineWidth: 4)
                             )
                         Text("Add Photo")
-                            .font(Font.custom(Poppins.regular, size: 16))
+                            .font(.system(size: 16))
                             .padding(.top, 45)
                     }
                 }
@@ -201,7 +201,7 @@ struct CreateProfileBody: View {
 
                 Button(action: createProfile) {
                     Text("Create Profile")
-                        .font(Font.custom(Poppins.medium, size: 24))
+                        .font(.system(size: 24))
                         .frame(minWidth: 0, maxWidth: .infinity)
                         .frame(height: 60)
                         .foregroundColor(Color("food"))

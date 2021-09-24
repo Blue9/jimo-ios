@@ -170,7 +170,7 @@ struct FeedItemBody: View {
                         HStack {
                             NavigationLink(destination: profileView) {
                                 Text(post.user.firstName + " " + post.user.lastName)
-                                    .font(Font.custom(Poppins.medium, size: 16))
+                                    .font(.system(size: 16))
                                     .bold()
                                     .frame(height: 26)
                                     .padding(.trailing, 10)
@@ -205,7 +205,7 @@ struct FeedItemBody: View {
                             }
                             .lineLimit(1)
                             .foregroundColor(.black)
-                            .font(Font.custom(Poppins.regular, size: 14))
+                            .font(.system(size: 14))
                         }
                         .offset(y: 6)
                         .buttonStyle(NoButtonStyle())
@@ -214,7 +214,7 @@ struct FeedItemBody: View {
                 .padding(.leading)
                 
                 postContent
-                    .font(Font.custom(Poppins.regular, size: 14))
+                    .font(.system(size: 14))
                 
                 HStack(spacing: 5) {
                     
@@ -331,36 +331,5 @@ struct TrackedImageFeedItem: View {
     
     var body: some View {
         FeedItemBody(feedItemVM: feedItemVM, imageSize: $imageSize, post: post, fullPost: fullPost)
-    }
-}
-
-struct FeedItem_Previews: PreviewProvider {
-    static let api = APIClient()
-    static let appState = AppState(apiClient: api)
-    
-    static let post = Post(
-        postId: "test",
-        user: PublicUser(
-            username: "john",
-            firstName: "Johnjohnjohn",
-            lastName: "JohnjohnjohnJohnjohnjohnJohnjohnjohn",
-            profilePictureUrl: "https://i.imgur.com/ugITQw2.jpg",
-            postCount: 100,
-            followerCount: 1000000,
-            followingCount: 1),
-        place: Place(placeId: "place", name: "Kai's Hotdogs This is a very very very very long place name", location: Location(coord: .init(latitude: 0, longitude: 0))),
-        category: "food",
-        content: "Wow! I really really really like this place. This place is so so so very very good. I really really really like this place. This place is so so so very very good.",
-        imageUrl: "https://i.imgur.com/ugITQw2.jpg",
-        createdAt: Date(),
-        likeCount: 10,
-        commentCount: 10,
-        liked: false,
-        customLocation: nil)
-    
-    static var previews: some View {
-        FeedItem(post: post)
-            .environmentObject(appState)
-            .environmentObject(GlobalViewState())
     }
 }

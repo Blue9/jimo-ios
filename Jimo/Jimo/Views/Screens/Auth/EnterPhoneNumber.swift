@@ -52,7 +52,7 @@ struct EnterPhoneNumber: View {
         ZStack {
             VStack {
                 Text("Enter your phone #")
-                    .font(Font.custom(Poppins.medium, size: 32))
+                    .font(.system(size: 32))
                     .padding(.bottom, 20)
                 
                 phoneNumberField
@@ -65,7 +65,7 @@ struct EnterPhoneNumber: View {
                 Button(action: getCode) {
                     if loading {
                         ProgressView()
-                            .font(Font.custom(Poppins.medium, size: 20))
+                            .font(.system(size: 20))
                             .frame(minWidth: 0, maxWidth: .infinity)
                             .frame(height: 60)
                             .foregroundColor(.white)
@@ -73,7 +73,7 @@ struct EnterPhoneNumber: View {
                             .cornerRadius(10)
                     } else {
                         Text("Next")
-                            .font(Font.custom(Poppins.medium, size: 20))
+                            .font(.system(size: 20))
                             .frame(minWidth: 0, maxWidth: .infinity)
                             .frame(height: 60)
                             .foregroundColor(.white)

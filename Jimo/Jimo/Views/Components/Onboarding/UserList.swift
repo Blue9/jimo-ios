@@ -49,14 +49,14 @@ struct UserList<T: SuggestedUserStore>: View {
                 .padding(.bottom, 5)
                 
                 Text("Clear selection")
-                    .font(Font.custom(Poppins.regular, size: 16))
+                    .font(.system(size: 16))
                     .foregroundColor(.gray)
                     .onTapGesture {
                         userStore.clearAll()
                     }
                 
                 Text("Select all")
-                    .font(Font.custom(Poppins.regular, size: 16))
+                    .font(.system(size: 16))
                     .foregroundColor(.gray)
                     .padding(.top, 2)
                     .onTapGesture {

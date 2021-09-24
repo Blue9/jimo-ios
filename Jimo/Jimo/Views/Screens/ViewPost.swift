@@ -63,7 +63,7 @@ struct ViewPost: View {
     }
     
     var postItem: some View {
-        TrackedImageFeedItem(post: post, fullPost: true, imageSize: $imageSize)
+        TrackedImageFeedItemV2(post: post, fullPost: true, imageSize: $imageSize)
             .fixedSize(horizontal: false, vertical: true)
             .onAppear {
                 postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
@@ -86,16 +86,17 @@ struct ViewPost: View {
                 postItem
             }
             
-            ASCollectionViewSection(id: 1, data: commentsViewModel.comments) { comment, _ in
+            ASCollectionViewSection(id: 1) {
+                commentField
+            }
+            
+            ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
                 ZStack(alignment: .bottom) {
                     CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
                     Divider().padding(.horizontal, 10)
                 }
                 .background(backgroundColor)
                 .fixedSize(horizontal: false, vertical: true)
-            }
-            .sectionHeader {
-                commentField
             }
             .sectionFooter {
                 VStack {
@@ -109,7 +110,7 @@ struct ViewPost: View {
         }
         .backgroundColor(UIColor(backgroundColor))
         .shouldScrollToAvoidKeyboard(true)
-        .layout { sectionId in
+        .layout(interSectionSpacing: 0) { sectionId in
             switch sectionId {
             case 0: // post
                 return .list(itemSize: .estimated(300), spacing: 0)
@@ -145,49 +146,5 @@ struct ViewPost: View {
                 NavTitle("View Post")
             }
         })
-    }
-}
-
-
-struct ViewPost_Previews: PreviewProvider {
-    static let user = PublicUser(
-        username: "gautam",
-        firstName: "Gautam",
-        lastName: "Mekkat",
-        profilePictureUrl: nil,
-        postCount: 20,
-        followerCount: 20,
-        followingCount: 20
-    )
-    static let api = APIClient()
-    static let appState: AppState = {
-        let state = AppState(apiClient: api)
-        state.currentUser = .user(user)
-        return state
-    }()
-    static let post = Post(
-        postId: "test",
-        user: PublicUser(
-            username: "john",
-            firstName: "Johnjohnjohn",
-            lastName: "JohnjohnjohnJohnjohnjohnJohnjohnjohn",
-            profilePictureUrl: "https://i.imgur.com/ugITQw2.jpg",
-            postCount: 100,
-            followerCount: 1000000,
-            followingCount: 1),
-        place: Place(placeId: "place", name: "Kai's Hotdogs This is a very very very very long place name", location: Location(coord: .init(latitude: 0, longitude: 0))),
-        category: "food",
-        content: "Wow! I really really really like this place. This place is so so so very very good. I really really really like this place. This place is so so so very very good.",
-        imageUrl: nil, // "https://i.imgur.com/ugITQw2.jpg",
-        createdAt: Date(),
-        likeCount: 10,
-        commentCount: 10,
-        liked: false,
-        customLocation: nil)
-    
-    static var previews: some View {
-        ViewPost(post: post)
-            .environmentObject(appState)
-            .environmentObject(GlobalViewState())
     }
 }

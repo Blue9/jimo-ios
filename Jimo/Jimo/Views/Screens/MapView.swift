@@ -18,7 +18,7 @@ class LocationAnnotationView: MKAnnotationView {
     
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+        frame = CGRect(x: 0, y: 0, width: 45, height: 45)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
         collisionMode = .circle
     }
@@ -56,14 +56,14 @@ class LocationAnnotationView: MKAnnotationView {
                 context: [.imageTransformer: transformer])
             image.backgroundColor = .white
             image.contentMode = .scaleAspectFill;
-            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 7.5, dy: 4.75)
+            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 5, dy: 2.25)
             image.layer.cornerRadius = 17.5
             image.layer.masksToBounds = true
         } else {
             image = UIImageView(image: UIImage(systemName: "person.crop.circle"))
             image.tintColor = .gray
             image.backgroundColor = .white
-            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 7.5, dy: 4.75)
+            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 5, dy: 2.25)
             image.layer.cornerRadius = 17.5
             image.layer.masksToBounds = true
         }
@@ -77,7 +77,7 @@ class LocationAnnotationView: MKAnnotationView {
             badge.textColor = .white
             badge.textAlignment = .center
             badge.text = String(pin.icon.numMutualPosts)
-            badge.font = UIFont.init(name: Poppins.regular, size: 12)
+            badge.font = .systemFont(ofSize: 12)
             badge.sizeToFit()
             badge.frame = badge.frame.offsetBy(dx: self.frame.width - badge.frame.width, dy: 0)
             badge.layer.cornerRadius = min(badge.frame.height, badge.frame.width) / 2
@@ -126,7 +126,7 @@ class PinClusterAnnotationView: MKAnnotationView {
             
             let attributes: [NSAttributedString.Key : Any] = [
                 NSAttributedString.Key.foregroundColor: UIColor.black as Any,
-                NSAttributedString.Key.font: UIFont(name: Poppins.medium, size: 14) as Any,
+                NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14) as Any,
             ]
             
             let text: NSString = NSString(string: "\(count)")
@@ -318,9 +318,9 @@ fileprivate struct SearchResult: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(name)
-                    .font(Font.custom(Poppins.medium, size: 16))
+                    .font(.system(size: 16))
                 Text(ViewPlace<ViewMKMapItemVM>.getAddress(placemark: place.placemark))
-                    .font(Font.custom(Poppins.regular, size: 14))
+                    .font(.system(size: 14))
             }
             Spacer()
         }
@@ -383,26 +383,7 @@ fileprivate struct SelectedSearchResult: View {
 fileprivate struct ClusterToggleButton: View {
     @Binding var clusteringEnabled: Bool
     
-    private struct ClusterButtonPinView: View {
-        @Environment(\.backgroundColor) var backgroundColor
-        var color: Color
-        
-        var body: some View {
-            ZStack {
-                Circle()
-                    .frame(width: 22.5, height: 22.5)
-                    .foregroundColor(backgroundColor)
-                Image("pin")
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundColor(color)
-                    .frame(width: 30, height: 30)
-                    .offset(y: 1.5)
-            }
-        }
-    }
-    
-    var buttonBody: some View {
+    var body: some View {
         Button(action: {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             withAnimation {
@@ -411,47 +392,75 @@ fileprivate struct ClusterToggleButton: View {
         }) {
             ZStack {
                 Circle()
-                    .fill(
-                        AngularGradient(
-                            gradient: Gradient(colors: Colors.colors + [Colors.colors[0]]),
-                            center: .center)
-                    )
-                    .frame(width: 60, height: 60)
-                
-                Circle()
+                    .fill(Color.white)
                     .frame(width: 55, height: 55)
                     .contentShape(Circle())
-                    .foregroundColor(Color.white.opacity(0.9))
-                
-                ClusterButtonPinView(color: Color("attraction"))
-                    .rotationEffect(Angle(degrees: clusteringEnabled ? 0 : -10))
-                    .scaleEffect(0.8)
-                    .offset(x: clusteringEnabled ? 0 : -10)
-                
-                ClusterButtonPinView(color: Color("lodging"))
-                    .rotationEffect(Angle(degrees: clusteringEnabled ? 0 : 10))
-                    .scaleEffect(0.8)
-                    .offset(x: clusteringEnabled ? 0 : 10)
-                
-                ClusterButtonPinView(color: Color(clusteringEnabled ? "food" : "shopping"))
+                    .shadow(radius: 3)
+                Circle()
+                    .strokeBorder(Color.white, lineWidth: 2)
+                    .background(Circle().foregroundColor(Color("lodging")))
+                    .frame(width: 20, height: 20)
+                    .offset(x: clusteringEnabled ? -4 : -12)
+                Circle()
+                    .strokeBorder(Color.white, lineWidth: 2)
+                    .background(Circle().foregroundColor(Color("shopping")))
+                    .frame(width: 20, height: 20)
+                    .offset(x: clusteringEnabled ? 0 : 0)
+                Circle()
+                    .strokeBorder(Color.white, lineWidth: 2)
+                    .background(Circle().foregroundColor(Color("attraction")))
+                    .frame(width: 20, height: 20)
+                    .offset(x: clusteringEnabled ? 4 : 12)
             }
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.vertical, 30)
-        .padding(.horizontal, 15)
     }
+}
+
+fileprivate struct CurrentLocationButton: View {
+    var locationManager: CLLocationManager
+    @Binding var region: MKCoordinateRegion
     
     var body: some View {
-        VStack {
+        Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            withAnimation {
+                if let location = locationManager.location {
+                    region = MKCoordinateRegion(
+                        center: location.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+                    )
+                }
+            }
+        }) {
+            ZStack {
+                Image(systemName: "location.fill")
+                    .foregroundColor(Color("attraction"))
+                    .font(.system(size: 24))
+                    .frame(width: 55, height: 55)
+                    .background(Color.white)
+                    .cornerRadius(27.5)
+                    .contentShape(Circle())
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .shadow(radius: 3)
+    }
+}
+
+fileprivate struct ButtonContainer<Content>: View where Content: View {
+    @ViewBuilder var content: () -> Content
+    
+    var body: some View {
+        HStack {
             Spacer()
-            HStack {
-                buttonBody
+            VStack {
                 Spacer()
+                content()
             }
         }
     }
 }
-
 
 struct MapView: View {
     let locationManager = CLLocationManager()
@@ -483,7 +492,14 @@ struct MapView: View {
             
             if preselectedPlace == nil {
                 // Only show these if there is no preselected post
-                ClusterToggleButton(clusteringEnabled: $localSettings.clusteringEnabled)
+                ButtonContainer {
+                    VStack(spacing: 10) {
+                        CurrentLocationButton(locationManager: locationManager, region: $region)
+                        ClusterToggleButton(clusteringEnabled: $localSettings.clusteringEnabled)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 30)
+                }
                 MapSearch(mapViewModel: mapViewModel)
             }
             
