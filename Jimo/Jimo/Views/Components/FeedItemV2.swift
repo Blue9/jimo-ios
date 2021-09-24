@@ -203,11 +203,12 @@ struct FeedItemBodyV2: View {
             
             if let url = post.imageUrl {
                 URLImage(url: url, imageSize: $imageSize)
-                    .scaledToFill()
                     .frame(width: UIScreen.main.bounds.width)
                     .frame(minHeight: fullPost ? 0 : UIScreen.main.bounds.width,
                            maxHeight: fullPost ? .infinity : UIScreen.main.bounds.width)
+                    .contentShape(Rectangle())
                     .clipped()
+                    .background(Color(post.category))
             } else {
                 mapSnapshot
             }
