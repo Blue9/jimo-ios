@@ -38,7 +38,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSContactsUsageDescription</key>
-	<string>This lets you see which of your friends are on jimo.</string>
+	<string>This lets you see which of your friends are on jimo. Your contacts will be securely transmitted to our servers but will not be stored in any way.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This lets you view your location on the jimo map.</string>
 	<key>UIAppFonts</key>
