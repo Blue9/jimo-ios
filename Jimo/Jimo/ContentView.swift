@@ -79,7 +79,7 @@ struct ContentView: View {
             } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist
                 NavigationView {
-                    WaitlistView()
+                    CreateProfileView()
                         .navigationBarHidden(true)
                 }
                 .navigationViewStyle(StackNavigationViewStyle())

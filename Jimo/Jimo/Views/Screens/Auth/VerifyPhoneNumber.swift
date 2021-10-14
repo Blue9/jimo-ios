@@ -52,7 +52,7 @@ struct VerifyPhoneNumber: View {
                         .frame(minWidth: 0, maxWidth: .infinity)
                         .frame(height: 60)
                         .foregroundColor(.white)
-                        .background(Color("food"))
+                        .background(Color(red: 25 / 255, green: 140 / 255, blue: 240 / 255))
                         .cornerRadius(10)
                 }
                 .shadow(radius: 5)

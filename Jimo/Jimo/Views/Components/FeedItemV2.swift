@@ -186,7 +186,7 @@ struct FeedItemBodyV2: View {
     }
     
     @ViewBuilder var mapSnapshot: some View {
-        MapSnapshotView(post: post)
+        MapSnapshotView(post: post, width: UIScreen.main.bounds.width)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
     }
     

@@ -126,7 +126,7 @@ fileprivate struct ContactView: View {
     }
     
     private func sendMessage() {
-        let sms: String = "sms:+\(contact.phoneNumber)&body=Hey, I invited you to jimo using the number \(contact.phoneNumber) 🙂."
+        let sms: String = "sms:+\(contact.phoneNumber)&body=Check out the places I posted on jimo! 😘"
             + "\n\nhttps://apps.apple.com/app/id1541360118"
         let url: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         UIApplication.shared.open(URL.init(string: url)!, options: [:], completionHandler: nil)
@@ -157,7 +157,7 @@ fileprivate struct ContactView: View {
         .frame(minHeight: 120)
         .onTapGesture {
             hideKeyboard()
-            self.alert(.confirmInvite)
+            self.sendMessage()
         }
         .simultaneousGesture(DragGesture().onChanged { _ in
             hideKeyboard()
@@ -217,9 +217,6 @@ struct InviteContactsView: View {
             if let contacts = filteredContacts {
                 ZStack {
                     VStack {
-                        Text("Choose wisely!")
-                            .font(.system(size: 16))
-                        
                         TextField("Filter contacts", text: $filter)
                             .autocapitalization(.words)
                             .padding(12)

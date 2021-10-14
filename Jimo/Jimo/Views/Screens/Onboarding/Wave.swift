@@ -16,12 +16,12 @@ struct Wave: View {
     var body: some View {
         ZStack {
             sineWave(interval: bounds.width * 2, amplitude: 200, baseline: 100 + bounds.height / 2)
-                .foregroundColor(.init(red: 0.5, green: 0.5, blue: 0.5))
-                .opacity(0.1)
+                .foregroundColor(Color("attraction"))
+                .opacity(0.33)
                 .offset(x: offset1, y: 0)
             sineWave(interval: bounds.width * 3.5, amplitude: 300, baseline: 125 + bounds.height / 2)
-                .foregroundColor(.init(red: 0.5, green: 0.5, blue: 0.5))
-                .opacity(0.1)
+                .foregroundColor(Color("attraction"))
+                .opacity(0.33)
                 .offset(x: offset2, y: 0)
         }
         .onAppear {
@@ -33,7 +33,7 @@ struct Wave: View {
             }
         }
         .ignoresSafeArea(.all, edges: .all)
-        .background(Color(.sRGB, red: 0.95, green: 0.95, blue: 0.95, opacity: 1).edgesIgnoringSafeArea(.all))
+        .background(Color.white.edgesIgnoringSafeArea(.all))
     }
     
     func sineWave(interval: CGFloat, amplitude: CGFloat = 100, baseline: CGFloat) -> Path {

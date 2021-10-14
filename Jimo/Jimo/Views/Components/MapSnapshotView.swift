@@ -12,6 +12,8 @@ import MapKit
 struct MapSnapshotView: View {
     let post: Post
     var span: CLLocationDegrees = 0.005
+    var width: CGFloat
+    var height: CGFloat?
     
     @State private var snapshotImage: UIImage? = nil
     
@@ -46,47 +48,36 @@ struct MapSnapshotView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        ZStack {
             Group {
                 if let image = snapshotImage {
-                    ZStack {
-                        Image(uiImage: image)
-                        
-                        Image("pin")
-                            .renderingMode(.template)
-                            .resizable()
-                            .frame(width: 45, height: 45)
-                            .offset(y: -22.5)
-                            .foregroundColor(Color(post.category))
-                        
-                        URLImage(
-                            url: post.user.profilePictureUrl,
-                            loading: Image(systemName: "person.crop.circle"),
-                            failure: Image(systemName: "person.crop.circle"),
-                            thumbnail: true
-                        )
-                            .foregroundColor(.gray)
-                            .frame(width: 35, height: 35)
-                            .background(Color.white)
-                            .cornerRadius(17.5)
-                            .offset(y: -25)
-                    }
+                    Image(uiImage: image)
                 } else {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            ProgressView().progressViewStyle(CircularProgressViewStyle())
-                            Spacer()
-                        }
-                        Spacer()
-                    }
-                    .background(Color(UIColor.secondarySystemBackground))
+                    Color.init(red: 250 / 255, green: 245 / 255, blue: 241 / 255)
                 }
             }
-            .onAppear {
-                generateSnapshot(width: geometry.size.width, height: geometry.size.height)
-            }
+            
+            Image("pin")
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 45, height: 45)
+                .offset(y: -22.5)
+                .foregroundColor(Color(post.category))
+            
+            URLImage(
+                url: post.user.profilePictureUrl,
+                loading: Image(systemName: "person.crop.circle"),
+                failure: Image(systemName: "person.crop.circle"),
+                thumbnail: true
+            )
+                .foregroundColor(.gray)
+                .frame(width: 35, height: 35)
+                .background(Color.white)
+                .cornerRadius(17.5)
+                .offset(y: -25)
+        }
+        .onAppear {
+            generateSnapshot(width: width, height: height ?? width)
         }
     }
 }
