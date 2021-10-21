@@ -10,27 +10,15 @@ import SwiftUI
 struct Wave: View {
     
     var bounds = UIScreen.main.bounds
-    @State private var offset1: CGFloat = 0
-    @State private var offset2: CGFloat = 0
     
     var body: some View {
         ZStack {
             sineWave(interval: bounds.width * 2, amplitude: 200, baseline: 100 + bounds.height / 2)
                 .foregroundColor(Color("attraction"))
                 .opacity(0.33)
-                .offset(x: offset1, y: 0)
             sineWave(interval: bounds.width * 3.5, amplitude: 300, baseline: 125 + bounds.height / 2)
                 .foregroundColor(Color("attraction"))
                 .opacity(0.33)
-                .offset(x: offset2, y: 0)
-        }
-        .onAppear {
-            withAnimation(Animation.linear(duration: 4).repeatForever(autoreverses: false)) {
-                offset1 = -bounds.width * 2
-            }
-            withAnimation(Animation.linear(duration: 11).repeatForever(autoreverses: false)) {
-                offset2 = -bounds.width * 3.5
-            }
         }
         .ignoresSafeArea(.all, edges: .all)
         .background(Color.white.edgesIgnoringSafeArea(.all))
