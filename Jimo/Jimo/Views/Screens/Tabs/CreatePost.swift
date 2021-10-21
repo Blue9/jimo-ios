@@ -256,6 +256,7 @@ struct CreatePost: View {
                             CreatePostDivider()
                             
                             FormInputText(name: "Write a note (recommended)", text: $content)
+                                .zIndex(2)
                             
                             CreatePostDivider()
                             
