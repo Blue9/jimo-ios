@@ -20,13 +20,6 @@ struct ProfileHeaderView: View {
         profileVM.user ?? initialUser
     }
     
-    var isCurrentUser: Bool {
-        guard case let .user(currentUser) = appState.currentUser else {
-            return false
-        }
-        return user.username == currentUser.username
-    }
-    
     let defaultImage: Image = Image(systemName: "person.crop.circle")
     
     var name: String {
@@ -34,86 +27,39 @@ struct ProfileHeaderView: View {
     }
     
     var body: some View {
-        HStack(alignment: .top) {
-            URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 80, height: 80, alignment: .center)
-                .font(Font.title.weight(.light))
-                .foregroundColor(.gray)
-                .background(Color.white)
-                .cornerRadius(50)
-                .padding(.trailing)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(name)
-                    .font(.system(size: 18))
-                    .bold()
-                    .minimumScaleFactor(0.5)
-                    .frame(height: 25)
-                Text("@" + user.username)
-                    .frame(height: 25)
-                    .font(.system(size: 14))
-                    .padding(.bottom, 5)
-                
-                if isCurrentUser {
-                    Spacer().frame(height: 30)
-                } else if !profileVM.loadedRelation {
-                    Text("Loading...")
-                        .padding(5)
-                        .font(.system(size: 14))
-                        .background(Color.white)
-                        .cornerRadius(10)
-                        .foregroundColor(.gray)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray, lineWidth: 1)
-                        )
-                        .frame(height: 30)
-                } else if profileVM.relationToUser == .following {
-                    Button(action: {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        profileVM.unfollowUser(username: user.username, appState: appState, viewState: viewState)
-                    }) {
-                        Text("Unfollow")
-                            .padding(5)
-                            .font(.system(size: 14))
-                            .background(Color.white)
-                            .cornerRadius(10)
-                            .foregroundColor(.gray)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-                    }.frame(height: 30)
-                } else if profileVM.relationToUser == .blocked {
-                    Button(action: {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        profileVM.unblockUser(username: user.username, appState: appState, viewState: viewState)
-                    }) {
-                        Text("Unblock")
-                            .padding(5)
-                            .font(.system(size: 14))
-                            .background(Color.red)
-                            .cornerRadius(10)
-                            .foregroundColor(.white)
-                    }.frame(height: 30)
-                } else {
-                    Button(action: {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        profileVM.followUser(username: user.username, appState: appState, viewState: viewState)
-                    }) {
-                        Text("Follow")
-                            .padding(5)
-                            .font(.system(size: 14))
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .foregroundColor(.white)
-                    }.frame(height: 30)
-                }
+        VStack(alignment: .leading) {
+            HStack(spacing: 0) {
+                URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 80, height: 80, alignment: .center)
+                    .font(Font.title.weight(.light))
+                    .foregroundColor(.gray)
+                    .background(Color.white)
+                    .cornerRadius(40)
+                    .padding(.trailing)
+                ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
             }
-            Spacer()
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(name)
+                        .font(.system(size: 15))
+                        .bold()
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                    Text("@" + user.username)
+                        .font(.system(size: 15))
+                        .lineLimit(1)
+//                        .padding(.bottom, 5)
+                        .minimumScaleFactor(0.5)
+                }
+                .frame(width: 120, alignment: .topLeading)
+                .frame(minHeight: 40)
+                Spacer()
+                FollowButtonView(profileVM: profileVM, initialUser: initialUser)
+            }
         }
-        .padding(.horizontal, 30)
-        .padding(.bottom, 20)
+        .padding(.leading, 20)
+//        .padding(.bottom, 20)
     }
 }
 
@@ -136,28 +82,31 @@ struct ProfileStatsView: View {
     var body: some View {
         HStack {
             VStack {
-                Text(String(user.postCount))
+                Text(String(user.postCount)).bold()
                 Text("Posts")
             }
-            .frame(width: 80)
+            .padding(.leading, 25)
+            .padding(.trailing, 10)
             Spacer()
+            
             Button(action: { showFollowers.toggle() }) {
                 VStack {
-                    Text(String(user.followerCount))
+                    Text(String(user.followerCount)).bold()
                     Text("Followers")
                 }
             }
-            .frame(width: 80)
+            .padding(.trailing, 10)
             Spacer()
+            
             Button(action: { showFollowing.toggle()} ) {
                 VStack {
-                    Text(String(user.followingCount))
+                    Text(String(user.followingCount)).bold()
                     Text("Following")
                 }
             }
-            .frame(width: 80)
+            Spacer()
         }
-        .padding(.horizontal, 40)
+        .font(.system(size: 15))
         .background(
             NavigationLink(destination: FollowFeed(navTitle: "Followers", type: .followers, username: user.username)
                             .environmentObject(appState)
@@ -170,6 +119,90 @@ struct ProfileStatsView: View {
                             .environmentObject(globalViewState)
                             .environment(\.backgroundColor, backgroundColor), isActive: $showFollowing) {}
         )
+    }
+}
+
+struct FollowButtonView: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    @ObservedObject var profileVM: ProfileVM
+    
+    let initialUser: User
+    
+    var user: User {
+        profileVM.user ?? initialUser
+    }
+    
+    var isCurrentUser: Bool {
+        guard case let .user(currentUser) = appState.currentUser else {
+            return false
+        }
+        return user.username == currentUser.username
+    }
+    
+    var body: some View {
+        VStack {
+            if isCurrentUser {
+                Spacer().frame(height: 30)
+            } else if !profileVM.loadedRelation {
+                Text("Loading...")
+                    .padding(10)
+                    .font(.system(size: 15))
+                    .frame(maxWidth: .infinity)
+                    .background(Color.white)
+                    .cornerRadius(2)
+                    .foregroundColor(.gray)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
+                    .frame(height: 30)
+            } else if profileVM.relationToUser == .following {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    profileVM.unfollowUser(username: user.username, appState: appState, viewState: viewState)
+                }) {
+                    Text("Unfollow")
+                        .padding(10)
+                        .font(.system(size: 15))
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white)
+                        .cornerRadius(2)
+                        .foregroundColor(.gray)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 2)
+                                .stroke(Color.gray, lineWidth: 1)
+                        )
+                }.frame(height: 30)
+            } else if profileVM.relationToUser == .blocked {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    profileVM.unblockUser(username: user.username, appState: appState, viewState: viewState)
+                }) {
+                    Text("Unblock")
+                        .padding(10)
+                        .font(.system(size: 15))
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                        .cornerRadius(2)
+                        .foregroundColor(.white)
+                }.frame(height: 30)
+            } else {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    profileVM.followUser(username: user.username, appState: appState, viewState: viewState)
+                }) {
+                    Text("Follow")
+                        .padding(10)
+                        .font(.system(size: 15))
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(2)
+                        .foregroundColor(.white)
+                }.frame(height: 30)
+            }
+        }
+        .padding(.horizontal)
     }
 }
 
@@ -191,11 +224,7 @@ struct Profile: View {
     var profileGrid: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 0) {
-                VStack {
-                    ProfileHeaderView(profileVM: profileVM, initialUser: initialUser)
-                    ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
-                }
-                .padding(.bottom, 10)
+                ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
             }
             
             ASCollectionViewSection(id: 1, data: profileVM.posts) { post, _ in
@@ -262,67 +291,6 @@ struct Profile: View {
             }
         }
         .font(.system(size: 15))
-        .ignoresSafeArea(.keyboard, edges: .all)
-    }
-    
-    
-    var profileBody: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0) {
-                VStack {
-                    ProfileHeaderView(profileVM: profileVM, initialUser: initialUser)
-                    ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
-                }
-                .padding(.bottom, 10)
-            }
-            
-            ASCollectionViewSection(id: 1, data: profileVM.posts) { post, _ in
-                FeedItemV2(post: post)
-                    .frame(width: UIScreen.main.bounds.width)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            
-            ASCollectionViewSection(id: 2) {
-                Group {
-                    if profileVM.loadStatus == .success {
-                        Divider()
-                        
-                        ProgressView()
-                            .opacity(profileVM.loadingMore ? 1 : 0)
-                        
-                        Text("You've reached the end!")
-                            .padding()
-                    } else if profileVM.loadStatus == .failed {
-                        Text("Failed to load posts")
-                            .padding()
-                    } else { // notInitialized
-                        ProgressView()
-                            .appear {
-                                profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
-                                profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
-                            }
-                    }
-                }
-                .padding(.top)
-            }
-        }
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .list(itemSize: .estimated(200))
-        }
-        .animateOnDataRefresh(false)
-        .alwaysBounceVertical(true)
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
-            profileVM.refresh(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
-        }
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
-            }
-        }
-        .font(.system(size: 15))
-        .background(backgroundColor)
         .ignoresSafeArea(.keyboard, edges: .all)
     }
     

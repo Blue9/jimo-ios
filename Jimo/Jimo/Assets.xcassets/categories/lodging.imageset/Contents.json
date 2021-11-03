@@ -1,23 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "lodging.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "Lodging-1.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "Lodging-2.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "lodging.svg",
+      "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
   }
 }

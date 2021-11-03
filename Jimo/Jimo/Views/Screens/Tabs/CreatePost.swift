@@ -12,10 +12,7 @@ import Combine
 
 struct Category: View {
     var name: String
-    var spacerAfter = true
-    var key: String {
-        name.lowercased()
-    }
+    var key: String
     @Binding var selected: String?
     
     var colored: Bool {
@@ -24,20 +21,22 @@ struct Category: View {
     
     var body: some View {
         HStack {
-            VStack {
-                Image(key)
-                    .frame(width: 60, height: 60, alignment: .center)
-                    .background(colored ? Color(key) : Color("unselected"))
-                    .cornerRadius(15)
-                    .shadow(radius: colored ? 5 : 0)
-                Text(name)
-                    .font(.caption)
-            }
+            Image(key)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 35, maxHeight: 35)
             
-            if spacerAfter {
-                Spacer()
-            }
+            Spacer()
+            
+            Text(name)
+                .font(.system(size: 15))
         }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7.5)
+        .background(colored ? Color(key) : Color("unselected"))
+        .cornerRadius(2)
+        .shadow(radius: colored ? 5 : 0)
+        .frame(height: 50)
         .onTapGesture {
             self.selected = key
         }
@@ -51,34 +50,31 @@ struct CategoryPicker: View {
         VStack {
             HStack {
                 Text("Select category")
-                    .font(.system(size: 16))
+                    .font(.system(size: 15))
+                    .bold()
                 Spacer()
             }
-            .padding(.horizontal)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                Spacer()
+            VStack {
+                HStack {
+                    Category(name: "Food", key: "food", selected: $category)
+                    Category(name: "Things to do", key: "activity", selected: $category)
+                }
                 
                 HStack {
-                    Spacer()
-                    Category(name: "Food", selected: $category)
-                    Category(name: "Activity", selected: $category)
-                    Category(name: "Attraction", selected: $category)
-                    Category(name: "Lodging", selected: $category)
-                    Category(name: "Shopping", spacerAfter: false, selected: $category)
-                    Spacer()
+                    Category(name: "Nightlife", key: "nightlife", selected: $category)
+                    Category(name: "Things to see", key: "attraction", selected: $category)
                 }
-                .padding(.horizontal, 10)
-                .frame(minWidth: UIScreen.main.bounds.width)
                 
-                Spacer()
+                HStack {
+                    Category(name: "Lodging", key: "lodging", selected: $category)
+                    Category(name: "Shopping", key: "shopping", selected: $category)
+                }
             }
-            .frame(height: 82)
-            .frame(maxWidth: .infinity)
         }
+        .padding(.horizontal, 10)
     }
 }
-
 
 struct FormInputButton: View {
     var name: String
@@ -86,25 +82,32 @@ struct FormInputButton: View {
     var destination: AnyView?
     var clearAction: () -> Void
     
+    @ViewBuilder var clearInputView: some View {
+        Button(action: clearAction) {
+            Image(systemName: "xmark.circle")
+                .foregroundColor(.gray)
+                .padding(.trailing)
+        }
+    }
+    
+    @ViewBuilder var rightArrow: some View {
+        Image(systemName: "chevron.right")
+            .foregroundColor(.gray)
+            .padding(.trailing)
+    }
+    
     var body: some View {
         Group {
             if let content = content {
                 Text(name + ": ").font(.system(size: 15)).bold()
                 + Text(content).font(.system(size: 15))
             } else {
-                Text(name).font(.system(size: 15))
+                Text(name).font(.system(size: 15)).bold()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading)
-        .padding(.trailing, 40)
-        .padding(.vertical, 12)
         .foregroundColor(.black)
-        .overlay(content == nil ? nil : Button(action: clearAction) {
-            Image(systemName: "xmark.circle")
-                .foregroundColor(.gray)
-                .padding(.trailing)
-        }, alignment: .trailing)
+        .overlay(content == nil ? AnyView(rightArrow) : AnyView(clearInputView), alignment: .trailing)
         .multilineTextAlignment(.leading)
     }
 }
@@ -117,9 +120,6 @@ struct FormInputText: View {
     var body: some View {
         MultilineTextField(name, text: $text, height: height)
             .font(.system(size: 15))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
-            .padding(.bottom, 8)
     }
 }
 
@@ -131,6 +131,100 @@ struct CreatePostDivider: View {
             .padding(.horizontal, 15)
     }
 }
+
+
+struct MapPreview: View {
+    @EnvironmentObject var appState: AppState
+    
+    var category: String?
+    var place: MKMapItem
+    
+    let defaultSpan: CLLocationDegrees = 4
+    let width = UIScreen.main.bounds.width - 20
+    let height: CGFloat = 200
+    
+    @State private var snapshotImage: UIImage? = nil
+    
+    var currentUserProfilePicture: String? {
+        if case let .user(user) = appState.currentUser {
+            return user.profilePictureUrl
+        }
+        return nil
+    }
+    
+    var span: CGFloat {
+        if let region = place.placemark.region as? CLCircularRegion {
+            return min(region.radius * 10, 200000) / 111111
+        } else {
+            return defaultSpan
+        }
+    }
+    
+    func generateSnapshot(width: CGFloat, height: CGFloat) {
+        // The region the map should display.
+        let region = MKCoordinateRegion(
+            center: place.placemark.coordinate,
+            span: MKCoordinateSpan(
+                latitudeDelta: span,
+                longitudeDelta: span
+            )
+        )
+        
+        // Map options.
+        let mapOptions = MKMapSnapshotter.Options()
+        mapOptions.region = region
+        mapOptions.size = CGSize(width: width, height: height)
+        mapOptions.showsBuildings = false
+        mapOptions.traitCollection = UITraitCollection(userInterfaceStyle: .light)
+        
+        // Create the snapshotter and run it.
+        let snapshotter = MKMapSnapshotter(options: mapOptions)
+        snapshotter.start { (snapshotOrNil, errorOrNil) in
+            if let error = errorOrNil {
+                print(error)
+                return
+            }
+            if let snapshot = snapshotOrNil {
+                self.snapshotImage = snapshot.image
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            Group {
+                if let image = snapshotImage {
+                    Image(uiImage: image)
+                } else {
+                    Color.init(red: 250 / 255, green: 245 / 255, blue: 241 / 255)
+                }
+            }
+            
+            Image("pin")
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 45, height: 45)
+                .offset(y: -22.5)
+                .foregroundColor(category != nil ? Color(category!) : .gray)
+            
+            URLImage(
+                url: currentUserProfilePicture,
+                loading: Image(systemName: "person.crop.circle"),
+                failure: Image(systemName: "person.crop.circle"),
+                thumbnail: true
+            )
+                .foregroundColor(.gray)
+                .frame(width: 35, height: 35)
+                .background(Color.white)
+                .cornerRadius(17.5)
+                .offset(y: -25)
+        }
+        .onAppear {
+            generateSnapshot(width: width, height: height)
+        }
+    }
+}
+
 
 
 struct CreatePost: View {
@@ -167,7 +261,7 @@ struct CreatePost: View {
             return
         }
         guard let createPlaceRequest = createPostVM.maybeCreatePlaceRequest else {
-            errorMessage = "Name and location are required"
+            errorMessage = "Location is required"
             showError = true
             return
         }
@@ -233,87 +327,99 @@ struct CreatePost: View {
             ZStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        CategoryPicker(category: $category)
-                            .padding(.vertical)
+                        Text("Create a post")
+                            .font(.system(size: 28))
+                            .fontWeight(.bold)
+                            .padding(.horizontal, 10)
+                            .padding(.bottom, 10)
+                        
+                        Divider().padding(.leading, 10)
                         
                         Group {
                             Button(action: { createPostVM.activeSheet = .placeSearch }) {
                                 FormInputButton(
-                                    name: "Name",
+                                    name: "Enter location",
                                     content: createPostVM.name,
-                                    clearAction: createPostVM.resetName)
+                                    clearAction: createPostVM.resetPlace)
                             }
-                            
-                            CreatePostDivider()
-                            
-                            Button(action: { createPostVM.activeSheet = .locationSelection }) {
-                                FormInputButton(
-                                    name: "Location",
-                                    content: createPostVM.locationString,
-                                    clearAction: createPostVM.resetLocation)
-                            }
-                            
-                            CreatePostDivider()
-                            
-                            FormInputText(name: "Write a note (recommended)", text: $content)
-                                .zIndex(2)
-                            
-                            CreatePostDivider()
-                            
-                            FormInputButton(name: "Photo (recommended)", clearAction: {})
-                            
-                            ZStack(alignment: .topLeading) {
-                                if let image = createPostVM.image {
-                                    ZStack {
-                                        GeometryReader { geometry in
-                                            Image(uiImage: image)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(height: geometry.size.height)
-                                                .frame(maxWidth: geometry.size.width)
+                        }
+                        .frame(height: 40)
+                        .padding(.horizontal, 10)
+                        
+                        Divider().padding(.leading, 10)
+                        
+                        HStack {
+                            if let image = createPostVM.image {
+                                ZStack(alignment: .topLeading) {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .onTapGesture {
+                                            createPostVM.activeSheet = .imagePicker
                                         }
-                                        .frame(height: 200)
-                                    }
-                                    .cornerRadius(10)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        createPostVM.activeSheet = .imagePicker
-                                    }
                                     
                                     Image(systemName: "xmark.circle.fill")
                                         .resizable()
-                                        .frame(width: 30, height: 30)
+                                        .frame(width: 20, height: 20)
                                         .foregroundColor(buttonColor)
                                         .background(Color.black)
-                                        .cornerRadius(15)
-                                        .shadow(radius: 5)
+                                        .cornerRadius(10)
                                         .padding(5)
                                         .onTapGesture {
                                             createPostVM.image = nil
                                         }
-
-                                } else {
-                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                }
+                                .frame(width: 100, height: 100)
+                                .cornerRadius(2)
+                            } else {
+                                ZStack {
+                                    Rectangle()
                                         .fill(Color.gray.opacity(0.2))
                                         .onTapGesture {
                                             createPostVM.activeSheet = .imagePicker
                                         }
+                                    
+                                    Image(systemName: "photo.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 30)
+                                        .foregroundColor(Color.gray.opacity(0.5))
+                                }
+                                .frame(width: 100, height: 100)
+                                .cornerRadius(2)
+                            }
+                            
+                            FormInputText(name: "Write a note (recommended)", text: $content)
+                                .zIndex(2)
+                        }
+                        .padding(10)
+                        
+                        Divider().padding(.leading, 10)
+                        
+                        CategoryPicker(category: $category)
+                            .padding(.vertical, 10)
+                        
+                        
+                        if let place = createPostVM.selectedLocation {
+                            Group {
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text("Preview")
+                                        .font(.system(size: 15))
+                                        .bold()
+                                        .padding(10)
+                                    
+                                    MapPreview(category: category, place: place)
+                                        .frame(maxWidth: .infinity)
                                         .frame(height: 200)
-                                        .cornerRadius(10)
-                                        .contentShape(Rectangle())
+                                        .cornerRadius(2)
+                                        .padding(.horizontal, 10)
                                 }
                             }
-                            .padding(.horizontal)
-                            .padding(.vertical, 10)
+                            .id(createPostVM.selectedLocation)
                         }
                         
-                        RoundedButton(text: Text("Add Pin").font(.system(size: 16).bold()),
-                                      action: self.createPost, backgroundColor: buttonColor)
-                            .frame(height: 60, alignment: .center)
-                            .padding(.horizontal)
-                            .padding(.top, 15)
-                            .padding(.bottom, 20)
-                            .disabled(posting)
+                        Spacer()
                     }
                 }
                 .gesture(DragGesture().onChanged { _ in hideKeyboard() })
@@ -324,19 +430,35 @@ struct CreatePost: View {
             .navigationBarColor(UIColor(backgroundColor))
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
-                    NavTitle("New post")
+                    Image("logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50)
                 }
+                
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button {
                         self.presented.toggle()
+                    } label: {
+                        Image(systemName: "xmark").foregroundColor(.black)
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        self.createPost()
+                    } label: {
+                        Text("Share").bold()
                     }
                 }
             })
             .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
                 Toast(text: errorMessage, type: .error)
+                    .opacity(showError ? 1 : 0)
             }
             .popup(isPresented: $showSuccess, type: .toast, autohideIn: 2) {
                 Toast(text: successMessage, type: .success)
+                    .opacity(showSuccess ? 1 : 0)
             }
             .sheet(item: $createPostVM.activeSheet) { (activeSheet: CreatePostActiveSheet) in
                 Group {

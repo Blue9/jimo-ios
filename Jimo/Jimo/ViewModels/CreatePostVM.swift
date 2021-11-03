@@ -97,6 +97,11 @@ class CreatePostVM: ObservableObject {
         name = nil
     }
     
+    func resetPlace() {
+        resetName()
+        resetLocation()
+    }
+    
     func resetLocation() {
         if useCustomLocation {
             useCustomLocation = false
