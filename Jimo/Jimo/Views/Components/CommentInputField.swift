@@ -10,26 +10,32 @@ import SwiftUI
 struct CommentInputField: View {
     @Environment(\.backgroundColor) var backgroundColor
     @Binding var text: String
-    @State private var isActive = false
     
     var buttonColor: Color = .black
     
     var onSubmit: () -> Void
     
-    var inputBody: some View {
-        TextField("Add a comment", text: $text, onEditingChanged: { active in
-            withAnimation {
-                self.isActive = active
-            }
-        })
-        .padding(.trailing, 25)
-        .font(.system(size: 12))
-        .padding(.horizontal, 5)
-        .padding(.vertical, 5)
-        .overlay(
-            HStack {
-                Spacer()
-                if isActive && text.count > 0 {
+    @ViewBuilder var inputBody: some View {
+        TextField("Add a comment", text: $text)
+            .disableAutocorrection(true)
+            .padding(.trailing, 25)
+            .font(.system(size: 12))
+            .padding(.horizontal, 5)
+            .padding(.vertical, 5)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 6)
+            .background(backgroundColor)
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Divider()
+            HStack(spacing: 0) {
+                inputBody
+                
+                if text.count > 0 {
+                    Spacer()
+                    
                     Button(action: {
                         withAnimation {
                             self.text = ""
@@ -39,25 +45,8 @@ struct CommentInputField: View {
                             .foregroundColor(.gray)
                             .padding(.trailing, 8)
                     }
-                }
-            }
-        )
-        .padding(.horizontal, 6)
-        .padding(.vertical, 6)
-        .background(backgroundColor)
-    }
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Divider()
-            HStack {
-                inputBody
-                
-                if isActive {
+                    
                     Button(action: {
-                        withAnimation {
-                            self.isActive = false
-                        }
                         onSubmit()
                         hideKeyboard()
                     }) {
