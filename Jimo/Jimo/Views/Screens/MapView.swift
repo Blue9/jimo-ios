@@ -505,13 +505,10 @@ struct MapView: View {
             
             GeometryReader { geometry in
                 SnapDrawer(state: $mapViewModel.modalState,
-                           large: 350,
+                           large: 320,
                            tiny: 100,
                            allowInvisible: true,
-                           background: ZStack {
-                            backgroundColor.opacity(0.5)
-                            BlurView()
-                           }) { state in
+                           background: backgroundColor) { state in
                     if let results = mapViewModel.results {
                         ZStack {
                             SearchResultsView(

@@ -186,45 +186,13 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                     Text(placeParams.address ?? "Loading address...")
                 }
                 Spacer()
-                
-                Button(action: {
-                    if let mapItem = mapItem {
-                        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDefault])
-                    } else {
-                        let q = viewPlaceVM.name.split(separator: " ").joined(separator: "+")
-                        var url: String
-                        if let location = viewPlaceVM.location {
-                            let sll = "\(location.latitude),\(location.longitude)"
-                            url = "http://maps.apple.com/?q=\(q)&sll=\(sll)&z=10"
-                        } else {
-                            url = "http://maps.apple.com/?q=\(q)&z=10"
-                        }
-                        if let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
-                           let url = URL(string: encoded) {
-                            UIApplication.shared.open(url)
-                        } else {
-                            print("URL not valid", url)
-                        }
-                    }
-                }) {
-                    Text("Directions")
-                        .font(.system(size: 14))
-                        .frame(maxHeight: 20)
-                        .foregroundColor(.black)
-                        .padding(10)
-                        .background(Color.init(red: 0.6,
-                                               green: 0.6,
-                                               blue: 0.6,
-                                               opacity: 0.3))
-                        .cornerRadius(10)
-                }
             }
             Divider()
             
             HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Friends who have been here")
-                        .foregroundColor(.gray)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("See friends' posts")
+                        .foregroundColor(.black)
                     ScrollView(.horizontal) {
                         HStack {
                             if viewPlaceVM.loadingMutualPosts {
@@ -240,14 +208,18 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                             .aspectRatio(contentMode: .fill)
                                             .background(Color.white)
                                             .foregroundColor(.gray)
-                                            .frame(width: 45, height: 45, alignment: .center)
-                                            .cornerRadius(22.5)
+                                            .frame(width: 60, height: 60, alignment: .center)
+                                            .cornerRadius(30)
+                                            .shadow(radius: 4, x: 1, y: -1)
+                                            .contentShape(Rectangle())
                                     }
                                 }
                             } else {
                                 Text("-")
                             }
                         }
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 10)
                     }
                 }
                 Spacer()
@@ -257,7 +229,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading) {
                     Text("Phone")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.black)
                     
                     if loadedParams {
                         if let number = placeParams.phoneNumber {
@@ -266,7 +238,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                     UIApplication.shared.open(url)
                                 }
                             }) {
-                                Text(number)
+                                Text(number).lineLimit(1)
                             }
                         } else {
                             Text("-")
@@ -281,7 +253,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading) {
                     Text("Website")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.black)
                     if loadedParams {
                         if let website = placeParams.website {
                             Button(action: {
@@ -289,7 +261,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                     UIApplication.shared.open(url)
                                 }
                             }) {
-                                Text(website)
+                                Text(website).lineLimit(1)
                             }
                         } else {
                             Text("-")
@@ -300,6 +272,36 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                 }
                 Spacer()
             }
+            
+            Button(action: {
+                if let mapItem = mapItem {
+                    mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDefault])
+                } else {
+                    let q = viewPlaceVM.name.split(separator: " ").joined(separator: "+")
+                    var url: String
+                    if let location = viewPlaceVM.location {
+                        let sll = "\(location.latitude),\(location.longitude)"
+                        url = "http://maps.apple.com/?q=\(q)&sll=\(sll)&z=10"
+                    } else {
+                        url = "http://maps.apple.com/?q=\(q)&z=10"
+                    }
+                    if let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
+                       let url = URL(string: encoded) {
+                        UIApplication.shared.open(url)
+                    } else {
+                        print("URL not valid", url)
+                    }
+                }
+            }) {
+                Text("Directions")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, maxHeight: 10)
+                    .padding(.vertical, 15)
+                    .background(Color.blue)
+                    .cornerRadius(2)
+            }
+            
             Spacer()
         }
         .font(.system(size: 16))
