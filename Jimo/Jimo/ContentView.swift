@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         ZStack {
@@ -95,6 +96,24 @@ struct ContentView: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear(perform: appState.listen)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            setIcon()
+        }
+    }
+    
+    func setIcon() {
+        let newIcon = colorScheme == .light ? "Light" : nil
+        let currentIcon = UIApplication.shared.alternateIconName
+        if newIcon == currentIcon {
+            return
+        }
+        UIApplication.shared.setAlternateIconName(newIcon) { error in
+            if let error = error {
+                print("Error setting icon", error.localizedDescription)
+            } else {
+                print("Success setting icon")
+            }
+        }
     }
 }
 

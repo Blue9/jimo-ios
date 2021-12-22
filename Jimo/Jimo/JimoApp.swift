@@ -13,7 +13,6 @@ let gcmMessageIDKey = "gcm.message_id"
 
 @main
 struct JimoApp: App {
-    @Environment(\.colorScheme) var colorScheme
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     var body: some Scene {
@@ -30,7 +29,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
-        UITabBar.appearance().backgroundColor = .white
         
         Analytics.setAnalyticsCollectionEnabled(true)
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
