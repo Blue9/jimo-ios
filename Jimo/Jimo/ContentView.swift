@@ -12,10 +12,18 @@ struct ContentView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.colorScheme) var colorScheme
     
+    @AppStorage("shouldSetIcon") var shouldSetIcon = false // Don't set the icon on the first launch
+    
+    @State private var shouldSetIconOnThisLaunch = true
+    
     var body: some View {
         ZStack {
             if case .loading = appState.firebaseSession {
-                Image("logo")
+                Image("icon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 120)
+                    .offset(y: -5)
             } else if case .doesNotExist = appState.firebaseSession {
                 AuthView()
                     .transition(.slide)
@@ -102,6 +110,14 @@ struct ContentView: View {
     }
     
     func setIcon() {
+        if !shouldSetIcon {
+            shouldSetIconOnThisLaunch = false
+            shouldSetIcon = true
+            return
+        }
+        if !shouldSetIconOnThisLaunch {
+            return
+        }
         let newIcon = colorScheme == .light ? "Light" : nil
         let currentIcon = UIApplication.shared.alternateIconName
         if newIcon == currentIcon {
