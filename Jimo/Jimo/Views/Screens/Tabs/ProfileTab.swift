@@ -10,7 +10,6 @@ import SwiftUI
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     let currentUser: PublicUser
     
@@ -19,12 +18,13 @@ struct ProfileTab: View {
     var body: some View {
         NavigationView {
             Profile(initialUser: currentUser)
+                .background(Color("background"))
                 .background(
                     NavigationLink(destination: Settings()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState), isActive: $showSettings) {})
                 .navigationBarTitleDisplayMode(.inline)
-                .navigationBarColor(UIColor(backgroundColor))
+                .navigationBarColor(UIColor(Color("background")))
                 .toolbar(content: {
                     ToolbarItem(placement: .principal) {
                         NavTitle("Profile")

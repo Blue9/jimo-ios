@@ -105,7 +105,8 @@ struct EnterPhoneNumber: View {
             }
             .padding(.horizontal, 30)
             .frame(maxHeight: .infinity)
-            .background(Color(.sRGB, red: 0.95, green: 0.95, blue: 0.95, opacity: 1).edgesIgnoringSafeArea(.all))
+            .background(Color("background").edgesIgnoringSafeArea(.all))
+            .background(Color.black.opacity(0.05).edgesIgnoringSafeArea(.all))
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(.clear)

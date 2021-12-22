@@ -80,6 +80,7 @@ class SettingsViewModel: ObservableObject {
 struct Settings: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    
     @StateObject private var settingsViewModel = SettingsViewModel()
     
     var body: some View {
@@ -129,7 +130,7 @@ struct Settings: View {
                   secondaryButton: .cancel())
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(.white)
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle("Settings")

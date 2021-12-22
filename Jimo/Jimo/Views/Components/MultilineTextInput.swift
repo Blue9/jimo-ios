@@ -20,7 +20,6 @@ fileprivate struct UITextViewWrapper: UIViewRepresentable {
         textField.isEditable = true
         textField.returnKeyType = .done
         textField.font = .systemFont(ofSize: 14)
-        textField.textColor = .black
         textField.isSelectable = true
         textField.isUserInteractionEnabled = true
         textField.isScrollEnabled = true
@@ -64,6 +63,8 @@ fileprivate struct UITextViewWrapper: UIViewRepresentable {
 }
 
 struct MultilineTextField: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     private var placeholder: String
     private var height: CGFloat = 80
     @Binding private var text: String
@@ -93,7 +94,6 @@ struct MultilineTextField: View {
         Group {
             if showingPlaceholder {
                 Text(placeholder)
-                    .foregroundColor(.black)
                     .padding(.leading, 4)
                     .padding(.top, 8)
             }

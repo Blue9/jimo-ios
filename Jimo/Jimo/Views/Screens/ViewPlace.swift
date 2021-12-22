@@ -130,7 +130,6 @@ class ViewMKMapItemVM: ViewPlaceVM {
 struct ViewPlace<T>: View where T: ViewPlaceVM {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @StateObject var viewPlaceVM: T
     
@@ -192,7 +191,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("See friends' posts")
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("foreground"))
                     ScrollView(.horizontal) {
                         HStack {
                             if viewPlaceVM.loadingMutualPosts {
@@ -202,8 +201,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                     NavigationLink(destination: ViewPost(post: post)) {
                                         URLImage(
                                             url: post.user.profilePictureUrl,
-                                            loading: Image(systemName: "person.crop.circle"),
-                                            failure: Image(systemName: "person.crop.circle")
+                                            loading: Image(systemName: "person.crop.circle")
                                         )
                                             .aspectRatio(contentMode: .fill)
                                             .background(Color.white)
@@ -229,7 +227,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading) {
                     Text("Phone")
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("foreground"))
                     
                     if loadedParams {
                         if let number = placeParams.phoneNumber {
@@ -238,7 +236,9 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                     UIApplication.shared.open(url)
                                 }
                             }) {
-                                Text(number).lineLimit(1)
+                                Text(number)
+                                    .foregroundColor(.blue)
+                                    .lineLimit(1)
                             }
                         } else {
                             Text("-")
@@ -253,7 +253,7 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading) {
                     Text("Website")
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("foreground"))
                     if loadedParams {
                         if let website = placeParams.website {
                             Button(action: {
@@ -261,7 +261,9 @@ struct ViewPlace<T>: View where T: ViewPlaceVM {
                                     UIApplication.shared.open(url)
                                 }
                             }) {
-                                Text(website).lineLimit(1)
+                                Text(website)
+                                    .foregroundColor(.blue)
+                                    .lineLimit(1)
                             }
                         } else {
                             Text("-")

@@ -32,7 +32,6 @@ private let loadingPlaceholders = [
 ]
 
 struct RefreshableScrollView<Content: View>: View {
-    @Environment(\.backgroundColor) var backgroundColor
     @State private var previousOffset: CGFloat = 0
     @State private var offset: CGFloat = 0
     @State private var refreshing = false

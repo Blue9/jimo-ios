@@ -10,10 +10,9 @@ import SwiftUI
 
 struct FollowContacts: View {
     @EnvironmentObject var appState: AppState
+    
     @ObservedObject var onboardingModel: OnboardingModel
     @StateObject private var contactStore = ExistingContactStore()
-    
-    @Environment(\.backgroundColor) var backgroundColor
     
     var viewBody: some View {
         VStack {
@@ -68,7 +67,7 @@ struct FollowContacts: View {
             } else {
                 VStack {
                     Text("No contacts found on jimo. Tap next to continue.")
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("foreground"))
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 15)
                     
@@ -87,7 +86,8 @@ struct FollowContacts: View {
         .onAppear {
             contactStore.getExistingUsers(appState: appState)
         }
-        .background(backgroundColor.edgesIgnoringSafeArea(.all))
+        .foregroundColor(Color("foreground"))
+        .background(Color("background").edgesIgnoringSafeArea(.all))
     }
     
     var body: some View {

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LargeButton<Content: View>: View {
+    
     let content: Content
     let fontSize: CGFloat
     
@@ -26,10 +27,9 @@ struct LargeButton<Content: View>: View {
             .font(.system(size: fontSize))
             .frame(minWidth: 0, maxWidth: .infinity)
             .frame(height: 60)
-            .foregroundColor(Color("food"))
             .background(RoundedRectangle(cornerRadius: 10)
                             .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 4))
-                            .background(Color.white))
+                            .background(Color("background")))
             .cornerRadius(10)
             .shadow(radius: 5)
     }

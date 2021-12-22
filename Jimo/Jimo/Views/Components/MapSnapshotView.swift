@@ -10,6 +10,8 @@ import MapKit
 
 // From https://codakuma.com/swiftui-static-maps/
 struct MapSnapshotView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let post: Post
     var span: CLLocationDegrees = 0.005
     var width: CGFloat
@@ -32,7 +34,6 @@ struct MapSnapshotView: View {
         mapOptions.region = region
         mapOptions.size = CGSize(width: width, height: height)
         mapOptions.showsBuildings = false
-        mapOptions.traitCollection = UITraitCollection(userInterfaceStyle: .light)
         
         // Create the snapshotter and run it.
         let snapshotter = MKMapSnapshotter(options: mapOptions)
@@ -53,7 +54,7 @@ struct MapSnapshotView: View {
                 if let image = snapshotImage {
                     Image(uiImage: image)
                 } else {
-                    Color.init(red: 250 / 255, green: 245 / 255, blue: 241 / 255)
+                    Color("secondary")
                 }
             }
             
@@ -67,7 +68,6 @@ struct MapSnapshotView: View {
             URLImage(
                 url: post.user.profilePictureUrl,
                 loading: Image(systemName: "person.crop.circle"),
-                failure: Image(systemName: "person.crop.circle"),
                 thumbnail: true
             )
                 .foregroundColor(.gray)
@@ -77,6 +77,10 @@ struct MapSnapshotView: View {
                 .offset(y: -25)
         }
         .onAppear {
+            generateSnapshot(width: width, height: height ?? width)
+        }
+        .onChange(of: colorScheme) { colorScheme in
+            self.snapshotImage = nil
             generateSnapshot(width: width, height: height ?? width)
         }
     }

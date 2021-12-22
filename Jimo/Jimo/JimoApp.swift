@@ -13,7 +13,7 @@ let gcmMessageIDKey = "gcm.message_id"
 
 @main
 struct JimoApp: App {
-    
+    @Environment(\.colorScheme) var colorScheme
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     var body: some Scene {
@@ -21,8 +21,6 @@ struct JimoApp: App {
             ContentView()
                 .environmentObject(AppState(apiClient: APIClient()))
                 .environmentObject(GlobalViewState())
-                .environment(\.backgroundColor, Color("background"))
-                .preferredColorScheme(.light)
         }
     }
 }

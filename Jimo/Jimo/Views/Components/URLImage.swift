@@ -16,8 +16,7 @@ struct URLImage: View {
     private var loadState = LoadState()
     
     private var url: URL?
-    private var loading: Image
-    private var failure: Image
+    private var loading: Image?
     private var maxDim: CGFloat
     
     var body: some View {
@@ -32,7 +31,11 @@ struct URLImage: View {
             }
         }
         .placeholder {
-            loading.resizable()
+            if let view = loading {
+                AnyView(view.resizable())
+            } else {
+                AnyView(Color("secondary"))
+            }
         }
         .transition(.fade(duration: 0.5))
         .scaledToFill()
@@ -40,8 +43,7 @@ struct URLImage: View {
 
     init(
         url: String?,
-        loading: Image = Image("grayRect"),
-        failure: Image = Image("imageFail"),
+        loading: Image? = nil,
         thumbnail: Bool = false,
         imageSize: Binding<CGSize>? = nil
     ) {
@@ -49,7 +51,6 @@ struct URLImage: View {
             self.url = URL(string: url)
         }
         self.loading = loading
-        self.failure = failure
         if thumbnail {
             self.maxDim = 500
         } else {
@@ -58,15 +59,5 @@ struct URLImage: View {
         if let imageSize = imageSize {
             self.loadState.imageSize = imageSize
         }
-    }
-}
-
-struct URLImage_Previews: PreviewProvider {
-    static let defaultImage: Image = Image(systemName: "person.crop.circle")
-
-    static var previews: some View {
-        URLImage(url: nil, loading: defaultImage)
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 100, height: 100, alignment: .center)
     }
 }

@@ -40,7 +40,6 @@ struct ViewPost: View {
     
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     @Environment(\.presentationMode) var presentationMode
     
     @StateObject private var commentsViewModel = CommentsViewModel()
@@ -93,9 +92,11 @@ struct ViewPost: View {
             ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
                 ZStack(alignment: .bottom) {
                     CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
-                    Divider().padding(.horizontal, 10)
+                    Divider()
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 10)
                 }
-                .background(backgroundColor)
+                .background(Color("background"))
                 .fixedSize(horizontal: false, vertical: true)
             }
             .sectionFooter {
@@ -108,7 +109,7 @@ struct ViewPost: View {
                 .padding(.top, 20)
             }
         }
-        .backgroundColor(UIColor(backgroundColor))
+        .backgroundColor(UIColor(Color("background")))
         .shouldScrollToAvoidKeyboard(true)
         .layout(interSectionSpacing: 0) { sectionId in
             switch sectionId {
@@ -140,7 +141,7 @@ struct ViewPost: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(backgroundColor))
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle("View Post")

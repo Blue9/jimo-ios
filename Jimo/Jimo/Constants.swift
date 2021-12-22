@@ -10,9 +10,10 @@ import SwiftUI
 struct Colors {
     static let colors = [
         Color("food"),
+        Color("lodging"),
         Color("activity"),
         Color("attraction"),
-        Color("lodging"),
+        Color("nightlife"),
         Color("shopping")
     ]
     

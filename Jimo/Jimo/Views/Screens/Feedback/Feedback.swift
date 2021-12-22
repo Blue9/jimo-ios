@@ -11,7 +11,6 @@ import Combine
 struct Feedback: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @State private var content: String = ""
     @State private var followUp: Bool = false
@@ -68,9 +67,9 @@ struct Feedback: View {
                 }
             }
         }
-        .background(backgroundColor.edgesIgnoringSafeArea(.all))
+        .background(Color("background").edgesIgnoringSafeArea(.all))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(backgroundColor))
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle("Submit Feedback")

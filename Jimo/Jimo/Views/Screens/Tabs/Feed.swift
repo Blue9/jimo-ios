@@ -93,7 +93,6 @@ class FeedViewModel: ObservableObject {
 struct FeedBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var feedViewModel = FeedViewModel()
     
     private func loadMore() {
@@ -119,6 +118,7 @@ struct FeedBody: View {
                         .opacity(feedViewModel.loadingMorePosts ? 1 : 0)
                     Text("You've reached the end!")
                         .font(.system(size: 15))
+                        .foregroundColor(Color("foreground"))
                         .padding()
                 }
             }
@@ -157,14 +157,13 @@ struct FeedBody: View {
                 initializedFeed
             }
         }
-        .background(backgroundColor)
+        .background(Color("background"))
     }
 }
 
 struct Feed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @State private var showFeedback = false
     @State private var showInvite = false
@@ -178,34 +177,35 @@ struct Feed: View {
                 .background(
                     NavigationLink(destination: NotificationFeed()
                                     .environmentObject(appState)
-                                    .environmentObject(globalViewState)
-                                    .environment(\.backgroundColor, backgroundColor), isActive: $showNotifications) {}
+                                    .environmentObject(globalViewState), isActive: $showNotifications) {}
                 )
                 .navigationBarTitleDisplayMode(.inline)
-                .navigationBarColor(UIColor(backgroundColor))
+                .navigationBarColor(UIColor(Color("background")))
                 .toolbar(content: {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: { showInvite.toggle() }) {
                             Image(systemName: "person.crop.circle.badge.plus")
+                                .foregroundColor(Color("foreground"))
                         }
                         .sheet(isPresented: $showInvite) {
                             NavigationView {
                                 InviteContactsView()
                             }
                             .environmentObject(appState)
-                            .environment(\.backgroundColor, backgroundColor)
-                            .preferredColorScheme(.light)
                         }
                     }
                     ToolbarItem(placement: .principal) {
                         Image("logo")
+                            .renderingMode(.template)
                             .resizable()
+                            .foregroundColor(Color("foreground"))
                             .scaledToFit()
                             .frame(width: 50)
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: { self.showNotifications.toggle() }) {
                             Image(systemName: "bell")
+                                .foregroundColor(Color("foreground"))
                         }
                     }
                 })

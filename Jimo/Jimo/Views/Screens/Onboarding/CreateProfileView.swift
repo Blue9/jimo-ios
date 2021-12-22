@@ -60,7 +60,6 @@ struct Field: View {
 
 struct CreateProfileBody: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.backgroundColor) var backgroundColor
 
     static let usernameReq = "Usernames should be 3-20 characters"
     static let nameReq = "Required field"
@@ -159,7 +158,7 @@ struct CreateProfileBody: View {
                         .padding(.bottom, 60)
                     } else {
                         Circle()
-                            .foregroundColor(backgroundColor)
+                            .foregroundColor(Color("background"))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 60)
                                     .stroke(Color("lightgray"), lineWidth: 4)
@@ -198,7 +197,7 @@ struct CreateProfileBody: View {
                       isValid: self.validName)
 
                 Spacer()
-
+                
                 Button(action: createProfile) {
                     Text("Create Profile")
                         .font(.system(size: 24))
@@ -208,7 +207,7 @@ struct CreateProfileBody: View {
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 4))
-                                .background(Color.white)
+                                .background(Color("background"))
                         )
                         .cornerRadius(10)
                 }
@@ -218,11 +217,10 @@ struct CreateProfileBody: View {
             }
             .gesture(DragGesture(minimumDistance: 10).onChanged { _ in hideKeyboard() })
             .padding(.horizontal, 24)
-            .background(backgroundColor.edgesIgnoringSafeArea(.all))
+            .background(Color("background").edgesIgnoringSafeArea(.all))
         }
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(image: $profilePicture, allowsEditing: true)
-                .preferredColorScheme(.light)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .popup(isPresented: $showServerError, type: .toast, position: .bottom, autohideIn: 2) {
@@ -232,7 +230,7 @@ struct CreateProfileBody: View {
             Toast(text: requestError, type: .warning)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(backgroundColor))
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle("Create profile")

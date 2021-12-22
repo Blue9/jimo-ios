@@ -70,7 +70,6 @@ struct FeedItemComments: View {
 struct FeedItemBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var feedItemVM: FeedItemVM
     @Binding var imageSize: CGSize
@@ -113,8 +112,6 @@ struct FeedItemBody: View {
             
             if let image = post.imageUrl {
                 URLImage(url: image,
-                         loading: Image("grayRect").resizable(),
-                         failure: Image("imageFail"),
                          imageSize: $imageSize)
                     .frame(minHeight: fullPost ? .zero : UIScreen.main.bounds.width)
                     .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: fullPost ? .infinity : UIScreen.main.bounds.width)
@@ -126,7 +123,7 @@ struct FeedItemBody: View {
         
         if !fullPost {
             NavigationLink(destination: fullPostView, isActive: $viewFullPost) {
-                content.background(backgroundColor)
+                content.background(Color("background"))
             }
             .buttonStyle(NoButtonStyle())
         } else {
@@ -152,7 +149,6 @@ struct FeedItemBody: View {
                         URLImage(
                             url: post.user.profilePictureUrl,
                             loading: Image(systemName: "person.crop.circle"),
-                            failure: Image(systemName: "person.crop.circle"),
                             thumbnail: true
                         )
                         .foregroundColor(.gray)
@@ -192,7 +188,7 @@ struct FeedItemBody: View {
                         
                         NavigationLink(destination: MapView(localSettings: appState.localSettings,
                                                             preselectedPlace: post.place)
-                                        .navigationBarColor(UIColor(backgroundColor))
+                                        .navigationBarColor(UIColor(Color("background")))
                                         .toolbar {
                                             ToolbarItem(placement: .principal) {
                                                 NavTitle("View Place")
@@ -255,7 +251,7 @@ struct FeedItemBody: View {
     
     var body: some View {
         postBody
-            .background(backgroundColor)
+            .background(Color("background"))
             .onTapGesture {
                 viewFullPost = true
             }

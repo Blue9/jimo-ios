@@ -11,8 +11,6 @@ struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     
-    @Environment(\.backgroundColor) var backgroundColor
-    
     var body: some View {
         ZStack {
             if case .loading = appState.firebaseSession {
@@ -25,10 +23,8 @@ struct ContentView: View {
                 NavigationView {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                        .background(backgroundColor.edgesIgnoringSafeArea(.all))
                         .transition(.opacity)
                         .navigationBarTitleDisplayMode(.inline)
-                        .navigationBarColor(UIColor(backgroundColor))
                         .toolbar {
                             ToolbarItem(placement: .principal) {
                                 NavTitle("Loading profile")
@@ -52,10 +48,8 @@ struct ContentView: View {
                         Spacer()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(backgroundColor.edgesIgnoringSafeArea(.all))
                     .transition(.opacity)
                     .navigationBarTitleDisplayMode(.inline)
-                    .navigationBarColor(UIColor(backgroundColor))
                     .toolbar {
                         ToolbarItem(placement: .principal) {
                             NavTitle("Loading profile")
@@ -87,7 +81,6 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(backgroundColor.edgesIgnoringSafeArea(.all))
         .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
             Toast(text: globalViewState.errorMessage, type: .error)
                 .padding(.bottom, 50)

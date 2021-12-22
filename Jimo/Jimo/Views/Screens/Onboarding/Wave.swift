@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct Wave: View {
-    
     var bounds = UIScreen.main.bounds
     
     var body: some View {
@@ -21,7 +20,7 @@ struct Wave: View {
                 .opacity(0.33)
         }
         .ignoresSafeArea(.all, edges: .all)
-        .background(Color.white.edgesIgnoringSafeArea(.all))
+        .background(Color("background").edgesIgnoringSafeArea(.all))
     }
     
     func sineWave(interval: CGFloat, amplitude: CGFloat = 100, baseline: CGFloat) -> Path {

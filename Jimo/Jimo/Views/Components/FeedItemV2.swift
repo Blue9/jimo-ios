@@ -42,7 +42,7 @@ struct FeedItemLikesV2: View {
                     Image(systemName: "heart")
                         .font(.system(size: 20))
                 }
-                .foregroundColor(.black)
+                .foregroundColor(Color("foreground"))
             }
         }
         .offset(y: 0.5)
@@ -50,12 +50,13 @@ struct FeedItemLikesV2: View {
 }
 
 struct FeedItemCommentsV2: View {
+    
     var post: Post
     
     var body: some View {
         Image(systemName: "bubble.right")
             .font(.system(size: 20))
-            .foregroundColor(.black)
+            .foregroundColor(Color("foreground"))
             .offset(y: 1.5)
     }
 }
@@ -63,7 +64,6 @@ struct FeedItemCommentsV2: View {
 struct FeedItemBodyV2: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var feedItemVM: FeedItemVM
     @Binding var imageSize: CGSize
@@ -105,7 +105,6 @@ struct FeedItemBodyV2: View {
             URLImage(
                 url: post.user.profilePictureUrl,
                 loading: Image(systemName: "person.crop.circle"),
-                failure: Image(systemName: "person.crop.circle"),
                 thumbnail: true
             )
                 .foregroundColor(.gray)
@@ -139,12 +138,14 @@ struct FeedItemBodyV2: View {
                     Text(post.user.username.lowercased())
                         .font(.system(size: 16))
                         .bold()
+                        .foregroundColor(Color("foreground"))
                 }.buttonStyle(NoButtonStyle())
                 
                 NavigationLink(destination: pinView) {
                     Text(placeName)
                         .font(.system(size: 12))
                         .lineLimit(1)
+                        .foregroundColor(Color("foreground"))
                 }.buttonStyle(NoButtonStyle())
             }
             
@@ -195,6 +196,7 @@ struct FeedItemBodyV2: View {
             if post.content.count > 0 {
                 Text(post.content)
                     .font(.system(size: 13))
+                    .foregroundColor(Color("foreground"))
                     .padding(.horizontal)
                     .lineLimit(fullPost ? nil : 3)
                     .frame(maxWidth: .infinity, minHeight: 10, alignment: .leading)
@@ -231,7 +233,7 @@ struct FeedItemBodyV2: View {
                 .padding(.horizontal)
         }
         .padding(.bottom, 10)
-        .background(backgroundColor)
+        .background(Color("background"))
     }
     
     var body: some View {

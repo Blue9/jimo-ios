@@ -187,7 +187,6 @@ fileprivate struct ContactView: View {
 
 struct InviteContactsView: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @StateObject private var contactStore: ContactStore = ContactStore()
     @GestureState private var scrollState = DragState.inactive
@@ -240,7 +239,7 @@ struct InviteContactsView: View {
                     if self.loading {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(backgroundColor.opacity(0.5))
+                            .background(Color("background").opacity(0.5))
                             
                     }
                 }
@@ -268,9 +267,10 @@ struct InviteContactsView: View {
         .onAppear {
             contactStore.loadContacts(appState: appState)
         }
-        .background(backgroundColor.edgesIgnoringSafeArea(.all))
+        .foregroundColor(Color("foreground"))
+        .background(Color("background").edgesIgnoringSafeArea(.all))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(backgroundColor))
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle("Invite your friends to jimo")

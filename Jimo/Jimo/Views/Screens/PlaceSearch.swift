@@ -69,9 +69,12 @@ struct PlaceSearch: View {
                         title: Text("Something went wrong."),
                         message: Text("Try again or select another option."))
                 }
+                .listRowBackground(Color("background"))
             }
             .listStyle(.plain)
         }
+        .foregroundColor(Color("foreground"))
+        .background(Color("background").edgesIgnoringSafeArea(.all))
         .onAppear {
             self.setupLocationSearch()
         }

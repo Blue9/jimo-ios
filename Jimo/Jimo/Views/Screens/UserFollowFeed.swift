@@ -124,6 +124,7 @@ class FollowFeedItemVM: ObservableObject {
 }
 
 struct FollowFeedItemButton: View {
+    @Environment(\.colorScheme) var colorScheme
     let action: () -> ()
     let text: String
     let background: Color
@@ -138,11 +139,11 @@ struct FollowFeedItemButton: View {
                 .padding(5)
                 .font(.system(size: 14))
                 .background(background)
-                .cornerRadius(10)
+                .cornerRadius(2)
                 .foregroundColor(foreground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray, lineWidth: 1)
+                    colorScheme == .light ? RoundedRectangle(cornerRadius: 2)
+                        .stroke(Color.gray, lineWidth: 1) : nil
                 )
         }.frame(height: 30)
     }
@@ -151,7 +152,6 @@ struct FollowFeedItemButton: View {
 struct FollowFeedItemView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @StateObject var followFeedItemVM = FollowFeedItemVM()
     
@@ -166,7 +166,7 @@ struct FollowFeedItemView: View {
     }
     
     func profilePicture(user: User) -> some View {
-        URLImage(url: user.profilePictureUrl, loading: defaultProfileImage, failure: defaultProfileImage)
+        URLImage(url: user.profilePictureUrl, loading: defaultProfileImage)
             .frame(width: 40, height: 40, alignment: .center)
             .font(Font.title.weight(.ultraLight))
             .foregroundColor(.gray)
@@ -231,7 +231,6 @@ struct FollowFeedItemView: View {
 struct FollowFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @StateObject var followFeedVM = FollowFeedVM()
     @State private var initialized = false
@@ -246,7 +245,6 @@ struct FollowFeed: View {
                 FollowFeedItemView(item: item)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
-                    .environment(\.backgroundColor, backgroundColor)
                     .padding(.horizontal, 10)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -286,7 +284,6 @@ struct FollowFeed: View {
             }
         }
         .ignoresSafeArea(.keyboard, edges: .all)
-        .background(backgroundColor.edgesIgnoringSafeArea(.all))
         .onAppear {
             if !initialized {
                 followFeedVM.refreshFollows(type: type, for: username, appState: appState, viewState: globalViewState)
@@ -294,7 +291,6 @@ struct FollowFeed: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(backgroundColor))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle(self.navTitle)

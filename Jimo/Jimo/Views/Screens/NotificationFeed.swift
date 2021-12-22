@@ -56,7 +56,6 @@ class NotificationFeedVM: ObservableObject {
 struct NotificationFeedItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @State private var relativeTime: String = ""
     
@@ -72,7 +71,7 @@ struct NotificationFeedItem: View {
     }
     
     func profilePicture(user: User) -> some View {
-        URLImage(url: user.profilePictureUrl, loading: defaultProfileImage, failure: defaultProfileImage)
+        URLImage(url: user.profilePictureUrl, loading: defaultProfileImage)
             .frame(width: 40, height: 40, alignment: .center)
             .font(Font.title.weight(.ultraLight))
             .foregroundColor(.gray)
@@ -82,7 +81,7 @@ struct NotificationFeedItem: View {
     }
     
     func postPreview(post: Post) -> some View {
-        URLImage(url: post.imageUrl, loading: defaultPostImage, failure: defaultPostImage)
+        URLImage(url: post.imageUrl, loading: defaultPostImage)
             .scaledToFill()
             .frame(width: 50, height: 50, alignment: .center)
             .clipped()
@@ -146,7 +145,6 @@ struct NotificationFeedItem: View {
 struct NotificationFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @StateObject private var notificationFeedVM = NotificationFeedVM()
     
@@ -158,7 +156,6 @@ struct NotificationFeed: View {
                 NotificationFeedItem(item: item)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
-                    .environment(\.backgroundColor, backgroundColor)
                     .padding(.horizontal, 10)
                     .fixedSize(horizontal: false, vertical: true)
                 Divider()
@@ -190,7 +187,8 @@ struct NotificationFeed: View {
             }
         }
         .ignoresSafeArea(.keyboard, edges: .all)
-        .background(backgroundColor.edgesIgnoringSafeArea(.all))
+        .foregroundColor(Color("foreground"))
+        .background(Color("background").edgesIgnoringSafeArea(.all))
         .onAppear {
             if !initialized {
                 notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState)
@@ -198,7 +196,7 @@ struct NotificationFeed: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(backgroundColor))
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle("Notifications")

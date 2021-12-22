@@ -53,6 +53,7 @@ struct CommentItemLikeButton: View {
             
             Text(String(likeCount))
                 .font(.system(size: 12))
+                .foregroundColor(Color("foreground"))
                 .opacity(likeCount > 0 ? 1 : 0)
         }
     }
@@ -61,7 +62,6 @@ struct CommentItemLikeButton: View {
 struct CommentItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var commentsViewModel: CommentsViewModel
     @StateObject var singleCommentVM = SingleCommentVM()
@@ -96,10 +96,9 @@ struct CommentItem: View {
     
     var profilePicture: some View {
         URLImage(url: comment.user.profilePictureUrl,
-                 loading: Image(systemName: "person.crop.circle").resizable(),
-                 failure: Image(systemName: "person.crop.circle").resizable())
+                 loading: Image(systemName: "person.crop.circle").resizable())
             .foregroundColor(.gray)
-            .background(Color.white)
+            .background(Color("background"))
             .scaledToFill()
             .frame(width: 36, height: 36)
             .cornerRadius(18)
@@ -122,13 +121,14 @@ struct CommentItem: View {
                     Text(comment.user.username.lowercased())
                         .font(.system(size: 12))
                         .bold()
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("foreground"))
                 }
                 
                 Spacer().frame(height: 3)
                 
                 Text(comment.content)
                     .font(.system(size: 12))
+                    .foregroundColor(Color("foreground"))
                     .fixedSize(horizontal: false, vertical: true)
                 
                 Spacer().frame(height: 2)

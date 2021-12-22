@@ -40,7 +40,6 @@ enum NewPostType {
 struct MainAppView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var tabBar = TabBar()
     
     let currentUser: PublicUser
@@ -51,37 +50,32 @@ struct MainAppView: View {
                 UIKitTabView.Tab(
                     view: AnyView(Feed()
                                     .environmentObject(appState)
-                                    .environmentObject(globalViewState)
-                                    .environment(\.backgroundColor, backgroundColor)),
+                                    .environmentObject(globalViewState)),
                     barItem: .init(title: nil, image: UIImage(named: "feedIcon"), tag: 0)
                 )
                 
                 UIKitTabView.Tab(
                     view: AnyView(MapTab(localSettings: appState.localSettings)
                                     .environmentObject(appState)
-                                    .environmentObject(globalViewState)
-                                    .environment(\.backgroundColor, backgroundColor)),
+                                    .environmentObject(globalViewState)),
                     barItem: .init(title: nil, image: UIImage(named: "mapIcon"), tag: 1)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(Text("")
                                     .environmentObject(appState)
-                                    .environmentObject(globalViewState)
-                                    .environment(\.backgroundColor, backgroundColor)),
+                                    .environmentObject(globalViewState)),
                     barItem: .init(title: nil, image: UIImage(named: "postIcon"), tag: 2)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(Search()
                                     .environmentObject(appState)
-                                    .environmentObject(globalViewState)
-                                    .environment(\.backgroundColor, backgroundColor)),
+                                    .environmentObject(globalViewState)),
                     barItem: .init(title: nil, image: UIImage(named: "searchIcon"), tag: 3)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(ProfileTab(currentUser: currentUser)
                                     .environmentObject(appState)
-                                    .environmentObject(globalViewState)
-                                    .environment(\.backgroundColor, backgroundColor)),
+                                    .environmentObject(globalViewState)),
                     barItem: .init(title: nil, image: UIImage(named: "profileIcon"), tag: 4)
                 )
             }
@@ -90,12 +84,13 @@ struct MainAppView: View {
             CreatePost(presented: $tabBar.newPostSelected)
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
-                .environment(\.backgroundColor, backgroundColor)
-                .preferredColorScheme(.light)
         }
-        .accentColor(.black)
+        .accentColor(Color("foreground"))
         .onAppear {
-            UITabBar.appearance().barTintColor = .white
+            UITabBar.appearance().shadowImage = UIImage()
+            UITabBar.appearance().backgroundImage = UIImage()
+            UITabBar.appearance().barTintColor = UIColor(Color("background"))
+            UITabBar.appearance().backgroundColor = UIColor(Color("background"))
         }
     }
 }

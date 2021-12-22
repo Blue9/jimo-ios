@@ -10,6 +10,7 @@ import SwiftUI
 struct EditPreferences: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    
     @ObservedObject var settingsViewModel: SettingsViewModel
     
     var notificationSection: some View {
@@ -81,7 +82,7 @@ struct EditPreferences: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(.white)
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle("Preferences")

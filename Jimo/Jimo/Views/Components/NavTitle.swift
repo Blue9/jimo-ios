@@ -16,6 +16,9 @@ struct NavTitle: View {
     }
     
     var body: some View {
-        Text(title).fontWeight(.semibold).font(.system(size: 18))
+        Text(title)
+            .fontWeight(.semibold)
+            .font(.system(size: 18))
+            .foregroundColor(Color("foreground"))
     }
 }

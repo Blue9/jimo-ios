@@ -125,8 +125,7 @@ struct EditProfile: View {
                                 .resizable()
                         } else {
                             URLImage(url: editProfileViewModel.profilePictureUrl,
-                                     loading: Image(systemName: "person.crop.circle").resizable(),
-                                     failure: Image(systemName: "person.crop.circle").resizable())
+                                     loading: Image(systemName: "person.crop.circle").resizable())
                                 .foregroundColor(.gray)
                                 .background(Color.white)
                         }
@@ -188,11 +187,10 @@ struct EditProfile: View {
         }
         .sheet(isPresented: $editProfileViewModel.showImagePicker) {
             ImagePicker(image: $editProfileViewModel.image, allowsEditing: true)
-                .preferredColorScheme(.light)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(.white)
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle("Edit profile")

@@ -17,6 +17,8 @@ struct RaisedButtonStyle: ButtonStyle {
 }
 
 struct HomeMenu: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let height = UIScreen.main.bounds.height
     
     var body: some View {
@@ -26,6 +28,8 @@ struct HomeMenu: View {
             VStack(spacing: 0) {
                 Image("logo")
                     .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(Color("foreground"))
                     .scaledToFit()
                     .frame(width: 175)
                 Text("Sign up to see recs\nfrom your friends.")
@@ -38,13 +42,7 @@ struct HomeMenu: View {
             
             VStack(spacing: 0) {
                 NavigationLink(destination: EnterPhoneNumber()) {
-                    Text("Sign Up")
-                        .font(.system(size: 24))
-                        .frame(minWidth: 0, maxWidth: .infinity)
-                        .frame(height: 60)
-                        .foregroundColor(.white)
-                        .background(Color(red: 25 / 255, green: 140 / 255, blue: 240 / 255))
-                        .cornerRadius(10)
+                    LargeButton("Sign Up")
                 }
                 .padding(.bottom, 8)
                 .buttonStyle(RaisedButtonStyle())
@@ -53,14 +51,15 @@ struct HomeMenu: View {
                     VStack {
                         Divider()
                             .frame(maxWidth: 100)
-                            .background(Color.black)
+                            .background(Color("foreground"))
                     }
                     Text("OR")
                         .font(.system(size: 16))
+                        .foregroundColor(Color("foreground"))
                     VStack {
                         Divider()
                             .frame(maxWidth: 100)
-                            .background(Color.black)
+                            .background(Color("foreground"))
                     }
                 }
                 .padding(.vertical, 5)
@@ -72,7 +71,7 @@ struct HomeMenu: View {
                     .font(.system(size: 16))
                     .minimumScaleFactor(0.8)
                     .frame(minWidth: 0, maxWidth: .infinity)
-                    .foregroundColor(.black)
+                    .foregroundColor(Color("foreground"))
                 }
             }
             .padding(.bottom, 50)
@@ -83,7 +82,7 @@ struct HomeMenu: View {
         .frame(maxHeight: .infinity)
         // This fixes a bug when moving back from EnterPhoneNumber with the keyboard open
         .edgesIgnoringSafeArea(.all)
-        .background(Wave())
+        .background(Dashes())
     }
 }
 

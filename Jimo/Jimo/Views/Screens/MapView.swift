@@ -125,7 +125,6 @@ class PinClusterAnnotationView: MKAnnotationView {
             UIBezierPath.init(ovalIn: bounds.insetBy(dx: 4, dy: 4)).fill()
             
             let attributes: [NSAttributedString.Key : Any] = [
-                NSAttributedString.Key.foregroundColor: UIColor.black as Any,
                 NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14) as Any,
             ]
             
@@ -249,7 +248,6 @@ struct MapKitView: UIViewRepresentable {
 
 
 struct MapSearch: View {
-    @Environment(\.backgroundColor) var backgroundColor
     @ObservedObject var mapViewModel: MapViewModel
     @StateObject var locationSearch: LocationSearch = LocationSearch()
     @State private var lastSearched: String? = nil
@@ -274,6 +272,7 @@ struct MapSearch: View {
                         HStack {
                             VStack(alignment: .leading) {
                                 Text(completion.title)
+                                    .foregroundColor(Color("foreground"))
                                 Text(completion.subtitle)
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
@@ -284,14 +283,14 @@ struct MapSearch: View {
                         .onTapGesture {
                             self.search(completion: completion)
                         }
+                        .listRowBackground(Color("background"))
                     }
                     .listStyle(PlainListStyle())
-                    .colorMultiply(backgroundColor)
                     .onAppear {
                         mapViewModel.modalState = .invisible
                     }
                     .padding(.top, 100)
-                    .background(backgroundColor)
+                    .background(Color("background"))
                 }
                 Spacer()
             }
@@ -330,8 +329,6 @@ fileprivate struct SearchResult: View {
 }
 
 fileprivate struct SearchResultsView: View {
-    @Environment(\.backgroundColor) var backgroundColor
-    
     @Binding var selectedSearchResult: MKMapItem?
     
     let results: [MKMapItem]
@@ -349,13 +346,10 @@ fileprivate struct SearchResultsView: View {
             }
         }
         .listStyle(PlainListStyle())
-        .colorMultiply(backgroundColor)
     }
 }
 
 fileprivate struct SelectedSearchResult: View {
-    @Environment(\.backgroundColor) var backgroundColor
-    
     @Binding var selectedSearchResult: MKMapItem?
     
     let place: MKMapItem
@@ -376,11 +370,12 @@ fileprivate struct SelectedSearchResult: View {
             ViewPlace(viewPlaceVM: ViewMKMapItemVM(mapItem: place))
         }
         .frame(maxHeight: .infinity)
-        .background(backgroundColor)
+        .background(Color("background"))
     }
 }
 
 fileprivate struct ClusterToggleButton: View {
+    
     @Binding var clusteringEnabled: Bool
     
     var body: some View {
@@ -392,22 +387,22 @@ fileprivate struct ClusterToggleButton: View {
         }) {
             ZStack {
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color("background"))
                     .frame(width: 55, height: 55)
                     .contentShape(Circle())
                     .shadow(radius: 3)
                 Circle()
-                    .strokeBorder(Color.white, lineWidth: 2)
+                    .strokeBorder(Color("background"), lineWidth: 2)
                     .background(Circle().foregroundColor(Color("lodging")))
                     .frame(width: 20, height: 20)
                     .offset(x: clusteringEnabled ? -4 : -12)
                 Circle()
-                    .strokeBorder(Color.white, lineWidth: 2)
+                    .strokeBorder(Color("background"), lineWidth: 2)
                     .background(Circle().foregroundColor(Color("shopping")))
                     .frame(width: 20, height: 20)
                     .offset(x: clusteringEnabled ? 0 : 0)
                 Circle()
-                    .strokeBorder(Color.white, lineWidth: 2)
+                    .strokeBorder(Color("background"), lineWidth: 2)
                     .background(Circle().foregroundColor(Color("attraction")))
                     .frame(width: 20, height: 20)
                     .offset(x: clusteringEnabled ? 4 : 12)
@@ -418,8 +413,9 @@ fileprivate struct ClusterToggleButton: View {
 }
 
 fileprivate struct CurrentLocationButton: View {
-    var locationManager: CLLocationManager
     @Binding var region: MKCoordinateRegion
+    
+    var locationManager: CLLocationManager
     
     var body: some View {
         Button(action: {
@@ -438,7 +434,7 @@ fileprivate struct CurrentLocationButton: View {
                     .foregroundColor(Color("attraction"))
                     .font(.system(size: 24))
                     .frame(width: 55, height: 55)
-                    .background(Color.white)
+                    .background(Color("background"))
                     .cornerRadius(27.5)
                     .contentShape(Circle())
             }
@@ -467,8 +463,7 @@ struct MapView: View {
     
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
-    
+
     @ObservedObject var localSettings: LocalSettings
     @StateObject var mapViewModel = MapViewModel()
     
@@ -494,7 +489,7 @@ struct MapView: View {
                 // Only show these if there is no preselected post
                 ButtonContainer {
                     VStack(spacing: 10) {
-                        CurrentLocationButton(locationManager: locationManager, region: $region)
+                        CurrentLocationButton(region: $region, locationManager: locationManager)
                         ClusterToggleButton(clusteringEnabled: $localSettings.clusteringEnabled)
                     }
                     .padding(.horizontal)
@@ -508,7 +503,7 @@ struct MapView: View {
                            large: 320,
                            tiny: 100,
                            allowInvisible: true,
-                           background: backgroundColor) { state in
+                           background: Color("background")) { state in
                     if let results = mapViewModel.results {
                         ZStack {
                             SearchResultsView(
@@ -542,6 +537,7 @@ struct MapView: View {
                         EmptyView()
                     }
                 }
+                .foregroundColor(Color("foreground"))
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }

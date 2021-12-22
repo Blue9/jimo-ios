@@ -12,6 +12,7 @@ import ASCollectionView
 struct ProfileHeaderView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    
     @ObservedObject var profileVM: ProfileVM
     
     let initialUser: User
@@ -29,7 +30,7 @@ struct ProfileHeaderView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
-                URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
+                URLImage(url: user.profilePictureUrl, loading: defaultImage)
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 80, height: 80, alignment: .center)
                     .font(Font.title.weight(.light))
@@ -52,6 +53,7 @@ struct ProfileHeaderView: View {
 //                        .padding(.bottom, 5)
                         .minimumScaleFactor(0.5)
                 }
+                .foregroundColor(Color("foreground"))
                 .frame(width: 120, alignment: .topLeading)
                 .frame(minHeight: 40)
                 Spacer()
@@ -59,6 +61,7 @@ struct ProfileHeaderView: View {
             }
         }
         .padding(.leading, 20)
+        .background(Color("background"))
 //        .padding(.bottom, 20)
     }
 }
@@ -66,7 +69,6 @@ struct ProfileHeaderView: View {
 struct ProfileStatsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @ObservedObject var profileVM: ProfileVM
     
@@ -107,17 +109,16 @@ struct ProfileStatsView: View {
             Spacer()
         }
         .font(.system(size: 15))
+        .foregroundColor(Color("foreground"))
         .background(
             NavigationLink(destination: FollowFeed(navTitle: "Followers", type: .followers, username: user.username)
                             .environmentObject(appState)
-                            .environmentObject(globalViewState)
-                            .environment(\.backgroundColor, backgroundColor), isActive: $showFollowers) {}
+                            .environmentObject(globalViewState), isActive: $showFollowers) {}
         )
         .background(
             NavigationLink(destination: FollowFeed(navTitle: "Following", type: .following, username: user.username)
                             .environmentObject(appState)
-                            .environmentObject(globalViewState)
-                            .environment(\.backgroundColor, backgroundColor), isActive: $showFollowing) {}
+                            .environmentObject(globalViewState), isActive: $showFollowing) {}
         )
     }
 }
@@ -209,7 +210,6 @@ struct FollowButtonView: View {
 struct Profile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var profileVM = ProfileVM()
     
     let initialUser: User
@@ -340,14 +340,13 @@ struct Profile: View {
 }
 
 struct ProfileScreen: View {
-    @Environment(\.backgroundColor) var backgroundColor
-    
     let initialUser: User
     
     var body: some View {
         Profile(initialUser: initialUser)
+            .background(Color("background"))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(backgroundColor))
+            .navigationBarColor(UIColor(Color("background")))
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Profile")

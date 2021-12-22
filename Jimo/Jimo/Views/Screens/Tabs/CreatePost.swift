@@ -30,6 +30,7 @@ struct Category: View {
             
             Text(name)
                 .font(.system(size: 15))
+                .foregroundColor(.black)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 7.5)
@@ -106,7 +107,7 @@ struct FormInputButton: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .foregroundColor(.black)
+        .foregroundColor(Color("foreground"))
         .overlay(content == nil ? AnyView(rightArrow) : AnyView(clearInputView), alignment: .trailing)
         .multilineTextAlignment(.leading)
     }
@@ -175,7 +176,6 @@ struct MapPreview: View {
         mapOptions.region = region
         mapOptions.size = CGSize(width: width, height: height)
         mapOptions.showsBuildings = false
-        mapOptions.traitCollection = UITraitCollection(userInterfaceStyle: .light)
         
         // Create the snapshotter and run it.
         let snapshotter = MKMapSnapshotter(options: mapOptions)
@@ -210,7 +210,6 @@ struct MapPreview: View {
             URLImage(
                 url: currentUserProfilePicture,
                 loading: Image(systemName: "person.crop.circle"),
-                failure: Image(systemName: "person.crop.circle"),
                 thumbnail: true
             )
                 .foregroundColor(.gray)
@@ -229,7 +228,6 @@ struct MapPreview: View {
 
 struct CreatePost: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.backgroundColor) var backgroundColor
     @StateObject var createPostVM = CreatePostVM()
     
     @Binding var presented: Bool
@@ -424,14 +422,17 @@ struct CreatePost: View {
                 }
                 .gesture(DragGesture().onChanged { _ in hideKeyboard() })
             }
+            .foregroundColor(Color("foreground"))
             .ignoresSafeArea(.keyboard, edges: .bottom)
-            .background(backgroundColor.edgesIgnoringSafeArea(.all))
+            .background(Color("background").edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(backgroundColor))
+            .navigationBarColor(UIColor(Color("background")))
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
                     Image("logo")
+                        .renderingMode(.template)
                         .resizable()
+                        .foregroundColor(Color("foreground"))
                         .scaledToFit()
                         .frame(width: 50)
                 }
@@ -440,7 +441,7 @@ struct CreatePost: View {
                     Button {
                         self.presented.toggle()
                     } label: {
-                        Image(systemName: "xmark").foregroundColor(.black)
+                        Image(systemName: "xmark").foregroundColor(Color("foreground"))
                     }
                 }
                 
@@ -472,7 +473,6 @@ struct CreatePost: View {
                     }
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
-                .preferredColorScheme(.light)
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())

@@ -17,7 +17,6 @@
 		C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7019F6725EEB10200C1165A /* InviteContactsView.swift */; };
 		C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70367052557629900F970DE /* NavigationViewModifier.swift */; };
 		C703670E255764FD00F970DE /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C703670D255764FD00F970DE /* Profile.swift */; };
-		C70544BC25DE44CD0032D216 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70544BB25DE44CD0032D216 /* Environment.swift */; };
 		C70AE46225CA37EA009920E8 /* PhoneNumberTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */; };
 		C70AE46725CA7DC4009920E8 /* WaitlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE46625CA7DC4009920E8 /* WaitlistView.swift */; };
 		C70AE47525CA8E48009920E8 /* HomeMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE47425CA8E48009920E8 /* HomeMenu.swift */; };
@@ -81,6 +80,7 @@
 		C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913D25D21E2800762803 /* OnboardingView.swift */; };
 		C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77321DB2557EF390087FAA6 /* URLImage.swift */; };
 		C773DFBD25DF90FA00E40102 /* TextAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = C773DFBC25DF90FA00E40102 /* TextAlert.swift */; };
+		C774D68A2773AE2000A7E0D3 /* Dashes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C774D6892773AE2000A7E0D3 /* Dashes.swift */; };
 		C7770C0C2612FD0F00F28B26 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7770C0B2612FD0F00F28B26 /* LaunchScreen.storyboard */; };
 		C782598D262AC76F00C82ECF /* ASCollectionView in Frameworks */ = {isa = PBXBuildFile; productRef = C782598C262AC76F00C82ECF /* ASCollectionView */; };
 		C787642326A5502500A7EF31 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = C787642226A5502500A7EF31 /* Models.swift */; };
@@ -150,7 +150,6 @@
 		C7019F6725EEB10200C1165A /* InviteContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsView.swift; sourceTree = "<group>"; };
 		C70367052557629900F970DE /* NavigationViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModifier.swift; sourceTree = "<group>"; };
 		C703670D255764FD00F970DE /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
-		C70544BB25DE44CD0032D216 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		C70AE46125CA37EA009920E8 /* PhoneNumberTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneNumberTextFieldView.swift; sourceTree = "<group>"; };
 		C70AE46625CA7DC4009920E8 /* WaitlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitlistView.swift; sourceTree = "<group>"; };
 		C70AE47425CA8E48009920E8 /* HomeMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMenu.swift; sourceTree = "<group>"; };
@@ -221,6 +220,7 @@
 		C76E913D25D21E2800762803 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		C77321DB2557EF390087FAA6 /* URLImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImage.swift; sourceTree = "<group>"; };
 		C773DFBC25DF90FA00E40102 /* TextAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAlert.swift; sourceTree = "<group>"; };
+		C774D6892773AE2000A7E0D3 /* Dashes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dashes.swift; sourceTree = "<group>"; };
 		C7770C0B2612FD0F00F28B26 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C787642226A5502500A7EF31 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		C79183472597DABF006B4056 /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
@@ -527,6 +527,7 @@
 				C751769F25FEFDEB00DCB856 /* FollowFeatured.swift */,
 				C76E913D25D21E2800762803 /* OnboardingView.swift */,
 				C7EDC3D225D39767007B3E77 /* Wave.swift */,
+				C774D6892773AE2000A7E0D3 /* Dashes.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -552,7 +553,6 @@
 				C7D2D85125CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift */,
 				C7D2D85625CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift */,
 				C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */,
-				C70544BB25DE44CD0032D216 /* Environment.swift */,
 				C73ED51C260EFDF4005CC0B4 /* View+appear.swift */,
 				C73ED521260EFE79005CC0B4 /* View+disappear.swift */,
 				C7506CDF26F2DDDD00265633 /* UIDevice+hasNotch.swift */,
@@ -872,6 +872,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C751769825FEFAE000DCB856 /* FeaturedUserStore.swift in Sources */,
+				C774D68A2773AE2000A7E0D3 /* Dashes.swift in Sources */,
 				C791835F2597EC64006B4056 /* Constants.swift in Sources */,
 				C7D2D85725CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift in Sources */,
 				C72F3CBE258726BA00DDB76C /* MainAppView.swift in Sources */,
@@ -892,7 +893,6 @@
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
 				C751768025FEFA5A00DCB856 /* SuggestedUserView.swift in Sources */,
 				C75C2EE125561309009B6ADA /* ContentView.swift in Sources */,
-				C70544BC25DE44CD0032D216 /* Environment.swift in Sources */,
 				C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */,
 				1F98464425EF38AB0075AF04 /* Notifications.swift in Sources */,
 				C787642326A5502500A7EF31 /* Models.swift in Sources */,

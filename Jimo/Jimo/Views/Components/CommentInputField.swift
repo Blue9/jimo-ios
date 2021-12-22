@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct CommentInputField: View {
-    @Environment(\.backgroundColor) var backgroundColor
     @Binding var text: String
     
     var buttonColor: Color = .black
@@ -24,7 +23,7 @@ struct CommentInputField: View {
             .padding(.vertical, 5)
             .padding(.horizontal, 6)
             .padding(.vertical, 6)
-            .background(backgroundColor)
+            .background(Color("background"))
     }
     
     var body: some View {
@@ -57,8 +56,9 @@ struct CommentInputField: View {
                     .transition(.move(edge: .trailing))
                 }
             }
-            .background(backgroundColor)
+            .background(Color("background"))
             Divider()
+                .foregroundColor(Color("foreground"))
         }
     }
 }

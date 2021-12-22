@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MapSearchBar: View {
+    @Environment(\.colorScheme) var colorScheme
     @Binding var text: String
     
     var placeholder: String = "Search"
@@ -40,9 +41,13 @@ struct MapSearchBar: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
             .background(
-                Color(.systemGray6)
+                Color("background")
                     .cornerRadius(100)
                     .shadow(radius: text.count > 0 ? 1 : 5)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 100)
+                    .stroke(Color("secondary"), lineWidth: text.count > 0 ? 1 : 0)
             )
     }
 }

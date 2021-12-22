@@ -9,10 +9,9 @@ import SwiftUI
 
 struct FollowFeatured: View {
     @EnvironmentObject var appState: AppState
+    
     @ObservedObject var onboardingModel: OnboardingModel
     @StateObject private var featuredUserStore = FeaturedUserStore()
-    
-    @Environment(\.backgroundColor) var backgroundColor
     
     var viewBody: some View {
         VStack {
@@ -55,7 +54,7 @@ struct FollowFeatured: View {
         .onAppear {
             featuredUserStore.getExistingUsers(appState: appState)
         }
-        .background(backgroundColor.edgesIgnoringSafeArea(.all))
+        .background(Color("background").edgesIgnoringSafeArea(.all))
     }
     
     var body: some View {

@@ -13,8 +13,7 @@ struct SuggestedUserView<T: SuggestedUserStore>: View {
     
     var profilePicture: URLImage {
         return URLImage(url: user.profilePictureUrl,
-                        loading: Image(systemName: "person.crop.circle").resizable(),
-                        failure: Image(systemName: "person.crop.circle").resizable())
+                        loading: Image(systemName: "person.crop.circle").resizable())
     }
     
     var body: some View {

@@ -12,7 +12,6 @@ import ASCollectionView
 struct Search: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.backgroundColor) var backgroundColor
     
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
@@ -28,7 +27,7 @@ struct Search: View {
     ]
     
     func profilePicture(user: User) -> some View {
-        URLImage(url: user.profilePictureUrl, loading: defaultImage, failure: defaultImage)
+        URLImage(url: user.profilePictureUrl, loading: defaultImage)
             .frame(width: 40, height: 40, alignment: .center)
             .font(Font.title.weight(.ultraLight))
             .foregroundColor(.gray)
@@ -94,11 +93,12 @@ struct Search: View {
                         Text("@" + user.username)
                             .font(.system(size: 14))
                     }
+                    .foregroundColor(Color("foreground"))
                 }
             }
+            .listRowBackground(Color("background"))
         }
         .gesture(DragGesture().onChanged { _ in hideKeyboard() })
-        .colorMultiply(backgroundColor)
         .listStyle(PlainListStyle())
     }
     
@@ -121,10 +121,10 @@ struct Search: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(backgroundColor)
+            .background(Color("background"))
             .edgesIgnoringSafeArea(.bottom)
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(backgroundColor))
+            .navigationBarColor(UIColor(Color("background")))
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Discover")
