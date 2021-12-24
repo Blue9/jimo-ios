@@ -71,13 +71,6 @@ struct CommentItem: View {
     let comment: Comment
     let isMyPost: Bool
     
-    func getRelativeTime() -> String {
-        if Date().timeIntervalSince(comment.createdAt) < 1 {
-            return "just now"
-        }
-        return appState.dateTimeFormatter.localizedString(for: comment.createdAt, relativeTo: Date())
-    }
-    
     var canDeleteComment: Bool {
         // True if it is the current user's comment or on the current user's post
         guard case let .user(user) = appState.currentUser else {
@@ -138,7 +131,7 @@ struct CommentItem: View {
                     .foregroundColor(.gray)
                     .onAppear(perform: {
                         if relativeTime == "" {
-                            relativeTime = getRelativeTime()
+                            relativeTime = appState.relativeTime(for: comment.createdAt)
                         }
                     })
                 

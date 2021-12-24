@@ -63,13 +63,6 @@ struct NotificationFeedItem: View {
     let defaultProfileImage: Image = Image(systemName: "person.crop.circle")
     let defaultPostImage: Image = Image(systemName: "square")
     
-    func getRelativeTime() -> String {
-        if Date().timeIntervalSince(item.createdAt) < 1 {
-            return "just now"
-        }
-        return appState.dateTimeFormatter.localizedString(for: item.createdAt, relativeTo: Date())
-    }
-    
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultProfileImage)
             .frame(width: 40, height: 40, alignment: .center)
@@ -124,7 +117,7 @@ struct NotificationFeedItem: View {
                         .foregroundColor(.gray)
                         .onAppear {
                             if relativeTime == "" {
-                                relativeTime = getRelativeTime()
+                                relativeTime = appState.relativeTime(for: item.createdAt)
                             }
                         }
                 }

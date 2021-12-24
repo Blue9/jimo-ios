@@ -24,14 +24,9 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var likeCount: Int
     var commentCount: Int
     var liked: Bool
-    var customLocation: Location?
     
     var location: CLLocationCoordinate2D {
-        if let location = customLocation {
-            return location.coordinate()
-        } else {
-            return place.location.coordinate()
-        }
+        place.location.coordinate()
     }
 }
 
@@ -47,7 +42,6 @@ struct CreatePostRequest: Codable {
     var category: String
     var content: String
     var imageId: String?
-    var customLocation: Location?
 }
 
 struct DeletePostResponse: Codable {

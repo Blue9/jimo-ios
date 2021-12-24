@@ -230,7 +230,7 @@ struct FeedItemBody: View {
                     
                     Spacer()
                     
-                    Text(appState.dateTimeFormatter.localizedString(for: post.createdAt, relativeTo: Date()))
+                    Text(appState.relativeTime(for: post.createdAt))
                         .font(.caption)
                         .foregroundColor(.gray)
                 }

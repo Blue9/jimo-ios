@@ -10,7 +10,7 @@ import Combine
 import MapKit
 
 enum CreatePostActiveSheet: String, Identifiable {
-    case placeSearch, locationSelection, imagePicker
+    case placeSearch, imagePicker
     
     var id: String {
         self.rawValue
@@ -21,8 +21,7 @@ class CreatePostVM: ObservableObject {
     var cancellable: Cancellable?
     
     var mapRegion: MKCoordinateRegion {
-        let location = useCustomLocation ? customLocation : selectedLocation?.placemark
-        if let place = location {
+        if let place = selectedLocation?.placemark {
             return MKCoordinateRegion(
                 center: place.coordinate,
                 span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))
@@ -30,14 +29,11 @@ class CreatePostVM: ObservableObject {
             return MapViewModel.defaultRegion
         }
     }
-
-    @Published var useCustomLocation = false
     
     @Published var activeSheet: CreatePostActiveSheet?
     
     /// Used for navigation links
     @Published var placeSearchActive = false
-    @Published var locationSearchActive = false
     
     /// Photo selection
     @Published var showImagePicker = false
@@ -49,11 +45,8 @@ class CreatePostVM: ObservableObject {
     /// Set when user searches and selects a location
     @Published var selectedLocation: MKMapItem?
     
-    /// Set when user selects a custom location
-    @Published var customLocation: MKPlacemark?
-    
     var locationString: String? {
-        return useCustomLocation ? "Custom location (View on map)" : selectedPlaceAddress
+        selectedPlaceAddress
     }
     
     var selectedPlaceAddress: String? {
@@ -83,33 +76,12 @@ class CreatePostVM: ObservableObject {
     }
     
     func selectPlace(placeSelection: MKMapItem) {
-        useCustomLocation = false
-        selectedLocation = placeSelection
         name = placeSelection.name
-    }
-    
-    func selectLocation(selectionRegion: MKCoordinateRegion) {
-        customLocation = MKPlacemark(coordinate: selectionRegion.center)
-        useCustomLocation = true
-    }
-    
-    func resetName() {
-        name = nil
+        selectedLocation = placeSelection
     }
     
     func resetPlace() {
-        resetName()
-        resetLocation()
-    }
-    
-    func resetLocation() {
-        if useCustomLocation {
-            useCustomLocation = false
-            customLocation = nil
-        } else {
-            // Either there is no searched location or we are already on it
-            // In that case clear the location and the search
-            selectedLocation = nil
-        }
+        name = nil
+        selectedLocation = nil
     }
 }

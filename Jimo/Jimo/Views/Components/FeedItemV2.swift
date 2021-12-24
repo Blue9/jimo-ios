@@ -155,7 +155,6 @@ struct FeedItemBodyV2: View {
                 Image(systemName: "ellipsis")
                     .font(.subheadline)
                     .frame(width: 26, height: 26)
-                    .foregroundColor(.black)
             }
         }
         .padding(.horizontal)
@@ -180,7 +179,7 @@ struct FeedItemBodyV2: View {
             
             Spacer()
             
-            Text(appState.dateTimeFormatter.localizedString(for: post.createdAt, relativeTo: Date()))
+            Text(appState.relativeTime(for: post.createdAt))
                 .font(.system(size: 11))
                 .foregroundColor(.gray)
         }

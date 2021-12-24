@@ -91,11 +91,11 @@ class OnboardingModel: ObservableObject {
 class AppState: ObservableObject {
     private var apiClient: APIClient
     private var cancelBag: Set<AnyCancellable> = .init()
+    private var dateTimeFormatter = RelativeDateTimeFormatter()
     
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
     
-    let dateTimeFormatter = RelativeDateTimeFormatter()
     let onboardingModel = OnboardingModel()
     var localSettings = LocalSettings()
     
@@ -121,6 +121,13 @@ class AppState: ObservableObject {
             selector: #selector(didReceiveTokenUpdate(_:)),
             name: Notification.Name(rawValue: "FCMToken"),
             object: nil)
+    }
+    
+    func relativeTime(for date: Date) -> String {
+        if Date().timeIntervalSince(date) < 1 {
+            return "just now"
+        }
+        return dateTimeFormatter.localizedString(for: date, relativeTo: Date())
     }
     
     // MARK: - User onboarding

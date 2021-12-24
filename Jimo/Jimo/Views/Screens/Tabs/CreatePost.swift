@@ -263,7 +263,6 @@ struct CreatePost: View {
             showError = true
             return
         }
-        let customLocation = createPostVM.customLocation.map({ location in Location(coord: location.coordinate) })
         // First upload the image
         posting = true
         var request: AnyPublisher<Void, APIError>
@@ -285,8 +284,7 @@ struct CreatePost: View {
                     appState.createPost(CreatePostRequest(place: createPlaceRequest,
                                                           category: category,
                                                           content: content,
-                                                          imageId: imageId,
-                                                          customLocation: customLocation))
+                                                          imageId: imageId))
                 })
                 .eraseToAnyPublisher()
         } else {
@@ -294,8 +292,7 @@ struct CreatePost: View {
                 place: createPlaceRequest,
                 category: category,
                 content: content,
-                imageId: nil,
-                customLocation: customLocation)
+                imageId: nil)
             request = appState.createPost(createPostRequest)
         }
         createPostVM.cancellable = request
@@ -466,8 +463,6 @@ struct CreatePost: View {
                     switch activeSheet {
                     case .placeSearch:
                         PlaceSearch(selectPlace: createPostVM.selectPlace)
-                    case .locationSelection:
-                        LocationSelection(mapRegion: createPostVM.mapRegion, afterConfirm: createPostVM.selectLocation)
                     case .imagePicker:
                         ImagePicker(image: $createPostVM.image)
                     }
