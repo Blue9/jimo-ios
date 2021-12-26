@@ -50,7 +50,6 @@ struct ProfileHeaderView: View {
                     Text("@" + user.username)
                         .font(.system(size: 15))
                         .lineLimit(1)
-//                        .padding(.bottom, 5)
                         .minimumScaleFactor(0.5)
                 }
                 .foregroundColor(Color("foreground"))
@@ -62,7 +61,6 @@ struct ProfileHeaderView: View {
         }
         .padding(.leading, 20)
         .background(Color("background"))
-//        .padding(.bottom, 20)
     }
 }
 
@@ -235,7 +233,7 @@ struct Profile: View {
                                 .frame(maxWidth: .infinity)
                                 .frame(height: geometry.size.width)
                         } else {
-                            MapSnapshotView(post: post, width: (UIScreen.main.bounds.width - 8) / 3)
+                            MapSnapshotView(post: post, width: (UIScreen.main.bounds.width - 6) / 3)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: geometry.size.width)
                         }

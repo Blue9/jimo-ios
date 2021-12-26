@@ -98,10 +98,6 @@ struct FeedItemBodyV2: View {
     
     @ViewBuilder var profilePicture: some View {
         ZStack {
-            Circle()
-                .strokeBorder(Color(post.category), lineWidth: 2)
-                .frame(width: 47, height: 47)
-            
             URLImage(
                 url: post.user.profilePictureUrl,
                 loading: Image(systemName: "person.crop.circle"),
@@ -121,9 +117,9 @@ struct FeedItemBodyV2: View {
     
     var placeName: String {
         if let regionName = post.place.regionName {
-            return "\(post.place.name) · \(regionName)"
+            return " · \(post.place.name), \(regionName)"
         } else {
-            return post.place.name
+            return " · \(post.place.name)"
         }
     }
     
@@ -142,10 +138,15 @@ struct FeedItemBodyV2: View {
                 }.buttonStyle(NoButtonStyle())
                 
                 NavigationLink(destination: pinView) {
-                    Text(placeName)
-                        .font(.system(size: 12))
-                        .lineLimit(1)
-                        .foregroundColor(Color("foreground"))
+                    HStack(spacing: 0) {
+                        Text(post.category.capitalized)
+                            .foregroundColor(Color(post.category))
+                            .bold()
+                        Text(placeName)
+                    }
+                    .font(.system(size: 12))
+                    .lineLimit(1)
+                    .foregroundColor(Color("foreground"))
                 }.buttonStyle(NoButtonStyle())
             }
             
@@ -210,6 +211,10 @@ struct FeedItemBodyV2: View {
                     .contentShape(Rectangle())
                     .clipped()
                     .background(Color(post.category))
+            } else if fullPost {
+                NavigationLink(destination: pinView) {
+                    mapSnapshot
+                }.buttonStyle(NoButtonStyle())
             } else {
                 mapSnapshot
             }
