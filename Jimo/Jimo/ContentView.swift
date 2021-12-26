@@ -32,6 +32,7 @@ struct ContentView: View {
                 NavigationView {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .padding(.bottom, 49)
                         .transition(.opacity)
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
