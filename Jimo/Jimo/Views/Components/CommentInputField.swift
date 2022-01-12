@@ -16,7 +16,6 @@ struct CommentInputField: View {
     
     @ViewBuilder var inputBody: some View {
         TextField("Add a comment", text: $text)
-            .disableAutocorrection(true)
             .padding(.trailing, 25)
             .font(.system(size: 12))
             .padding(.horizontal, 5)

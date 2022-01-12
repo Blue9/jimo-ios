@@ -13,9 +13,12 @@ struct SearchBar: View {
     
     var placeholder: String = "Search"
     
+    var onCommit: () -> ()
+    
     var body: some View {
         HStack {
-            TextField(placeholder, text: $text)
+            TextField(placeholder, text: $text, onCommit: onCommit)
+                .textContentType(.location)
                 .padding(8)
                 .padding(.horizontal, 25)
                 .background(Color(.systemGray5))
