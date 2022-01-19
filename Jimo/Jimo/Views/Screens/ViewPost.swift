@@ -73,10 +73,6 @@ struct ViewPost: View {
         CommentInputField(text: $commentsViewModel.newCommentText, buttonColor: colorTheme, onSubmit: { [weak commentsViewModel] in
             commentsViewModel?.createComment()
         })
-        .overlay(ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.gray.opacity(0.2))
-                    .opacity(commentsViewModel.creatingComment ? 1 : 0))
     }
     
     var body: some View {
@@ -85,11 +81,7 @@ struct ViewPost: View {
                 postItem
             }
             
-            ASCollectionViewSection(id: 1) {
-                commentField
-            }
-            
-            ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
+            ASCollectionViewSection(id: 1, data: commentsViewModel.comments) { comment, _ in
                 ZStack(alignment: .bottom) {
                     CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
                     Divider()
@@ -98,6 +90,18 @@ struct ViewPost: View {
                 }
                 .background(Color("background"))
                 .fixedSize(horizontal: false, vertical: true)
+            }
+            .sectionHeader {
+                ZStack {
+                    commentField
+                    
+                    if commentsViewModel.creatingComment {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.gray.opacity(0.2))
+                    }
+                }
+                
             }
             .sectionFooter {
                 VStack {

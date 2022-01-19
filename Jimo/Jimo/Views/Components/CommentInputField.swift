@@ -61,11 +61,3 @@ struct CommentInputField: View {
         }
     }
 }
-
-struct CommentInputField_Previews: PreviewProvider {
-    @State static var text = ""
-    
-    static var previews: some View {
-        CommentInputField(text: $text, onSubmit: {})
-    }
-}
