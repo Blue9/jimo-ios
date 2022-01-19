@@ -109,6 +109,7 @@ struct Search: View {
                     text: $searchViewModel.query,
                     isActive: $searchViewModel.searchBarFocused,
                     placeholder: "Search users",
+                    disableAutocorrection: true,
                     onCommit: {}
                 )
                 .padding(.bottom, 0)

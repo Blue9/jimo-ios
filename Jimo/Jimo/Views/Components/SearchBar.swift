@@ -12,12 +12,13 @@ struct SearchBar: View {
     @Binding var isActive: Bool
     
     var placeholder: String = "Search"
-    
+    var disableAutocorrection: Bool = false
     var onCommit: () -> ()
     
     var body: some View {
         HStack {
             TextField(placeholder, text: $text, onCommit: onCommit)
+                .disableAutocorrection(disableAutocorrection)
                 .textContentType(.location)
                 .padding(8)
                 .padding(.horizontal, 25)
