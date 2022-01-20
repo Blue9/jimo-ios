@@ -21,7 +21,7 @@ class ProfileVM: ObservableObject {
     
     var relationCancellable: AnyCancellable?
     
-    @Published var user: User?
+    @Published var user: PublicUser?
     @Published var loadedRelation = false
     @Published var relationToUser: UserRelation?
     @Published var posts: [Post] = []
@@ -39,7 +39,9 @@ class ProfileVM: ObservableObject {
     
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
-        posts.insert(post, at: 0)
+        if post.user.id == user?.id {
+            posts.insert(post, at: 0)
+        }
     }
     
     @objc private func postLiked(notification: Notification) {

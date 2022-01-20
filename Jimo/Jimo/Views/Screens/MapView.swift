@@ -18,8 +18,7 @@ class LocationAnnotationView: MKAnnotationView {
     
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        frame = CGRect(x: 0, y: 0, width: 45, height: 45)
-        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
+        frame = CGRect(x: 0, y: 0, width: 40, height: 40)
         collisionMode = .circle
     }
     
@@ -42,10 +41,9 @@ class LocationAnnotationView: MKAnnotationView {
         subviews.forEach({ $0.removeFromSuperview() })
         backgroundColor = .clear
         
-        let view = UIImageView(image: UIImage(named: "pin")?.withRenderingMode(.alwaysTemplate))
-        view.tintColor = UIColor(named: pin.icon.category?.lowercased() ?? "lightgray")
+        let view = UIView()
         view.frame = bounds
-        addSubview(view)
+        
         var image: UIImageView
         if let url = pin.icon.iconUrl {
             image = UIImageView()
@@ -56,34 +54,38 @@ class LocationAnnotationView: MKAnnotationView {
                 context: [.imageTransformer: transformer])
             image.backgroundColor = .white
             image.contentMode = .scaleAspectFill;
-            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 5, dy: 2.25)
-            image.layer.cornerRadius = 17.5
-            image.layer.masksToBounds = true
         } else {
             image = UIImageView(image: UIImage(systemName: "person.crop.circle"))
             image.tintColor = .gray
             image.backgroundColor = .white
-            image.frame = CGRect(x: 0, y: 0, width: 35, height: 35).offsetBy(dx: 5, dy: 2.25)
-            image.layer.cornerRadius = 17.5
-            image.layer.masksToBounds = true
         }
+        image.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+        image.layer.cornerRadius = 17.5
+        image.layer.masksToBounds = true
+        image.layer.borderColor = UIColor(named: pin.icon.category?.lowercased() ?? "lightgray")?.cgColor
+        image.layer.borderWidth = 2.5
+        
         view.addSubview(image)
         
         if pin.icon.numMutualPosts > 1 {
             let badge = UITextView()
-            badge.textContainerInset = .init(top: 0, left: 0, bottom: 0, right: 0)
+            badge.textContainerInset = UIEdgeInsets(top: 0.5, left: 3, bottom: 0, right: 3)
+            badge.textContainer.lineFragmentPadding = 0
             badge.backgroundColor = UIColor(red: 0.11, green: 0.51, blue: 0.95, alpha: 1)
             badge.layer.masksToBounds = true
             badge.textColor = .white
             badge.textAlignment = .center
             badge.text = String(pin.icon.numMutualPosts)
-            badge.font = .systemFont(ofSize: 12)
+            badge.font = .systemFont(ofSize: 12, weight: .bold)
             badge.sizeToFit()
-            badge.frame = badge.frame.offsetBy(dx: self.frame.width - badge.frame.width, dy: 0)
+            badge.frame = CGRect(x: 0, y: 0, width: badge.frame.width + 1, height: badge.frame.height + 1)
             badge.layer.cornerRadius = min(badge.frame.height, badge.frame.width) / 2
-            
+
             view.addSubview(badge)
+            badge.center = CGPoint(x: view.frame.width - badge.frame.width / 2, y: badge.frame.height / 2)
         }
+        
+        addSubview(view)
     }
 }
 

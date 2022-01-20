@@ -42,15 +42,15 @@ struct ProfileHeaderView: View {
             }
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(name)
+                    Text(user.username)
                         .font(.system(size: 15))
                         .bold()
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.8)
-                    Text("@" + user.username)
-                        .font(.system(size: 15))
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
+                    Text(name)
+                        .font(.system(size: 15))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
                 }
                 .foregroundColor(Color("foreground"))
                 .frame(width: 120, alignment: .topLeading)
@@ -358,6 +358,7 @@ struct Profile_Previews: PreviewProvider {
     static let appState = AppState(apiClient: api)
 
     static let user = PublicUser(
+        userId: "user-id",
         username: "john",
         firstName: "Johnjohnjohn",
         lastName: "JohnjohnjohnJohnjohnjohnJohnjohnjohn",

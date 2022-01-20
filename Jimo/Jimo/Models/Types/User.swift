@@ -22,8 +22,9 @@ protocol User {
 
 struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
     var id: UserId {
-        username
+        userId
     }
+    var userId: UserId
     var username: username
     var firstName: String
     var lastName: String

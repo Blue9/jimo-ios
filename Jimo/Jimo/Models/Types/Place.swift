@@ -10,7 +10,10 @@ import MapKit
 
 typealias PlaceId = String
 
-struct Place: Codable, Equatable, Hashable {
+struct Place: Identifiable, Codable, Equatable, Hashable {
+    var id: PlaceId {
+        placeId
+    }
     var placeId: PlaceId
     var name: String
     var regionName: String?
@@ -83,13 +86,22 @@ struct AdditionalPlaceDataRequest: Codable {
     }
 }
 
+struct MapResponse: Codable, Equatable {
+    var posts: [Post]
+    var postCursorsByUser: [UserId: PostId]
+}
+
 struct MapPlaceIcon: Codable, Equatable {
     var category: String?
     var iconUrl: String?
     var numMutualPosts: Int
 }
 
-struct MapPlace: Codable, Equatable {
+struct MapPlace: Identifiable, Codable, Equatable {
+    var id: String {
+        place.id
+    }
     var place: Place
     var icon: MapPlaceIcon
+    var posts: [PostId] = []
 }

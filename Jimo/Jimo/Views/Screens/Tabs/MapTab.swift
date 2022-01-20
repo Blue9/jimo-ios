@@ -8,11 +8,9 @@
 import SwiftUI
 
 struct MapTab: View {
-    let localSettings: LocalSettings
-    
     var body: some View {
         NavigationView {
-            MapView(localSettings: localSettings)
+            MapViewV2()
                 .navigationBarHidden(true)
         }
         .navigationViewStyle(StackNavigationViewStyle())

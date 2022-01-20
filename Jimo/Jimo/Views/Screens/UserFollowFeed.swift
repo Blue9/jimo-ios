@@ -209,8 +209,9 @@ struct FollowFeedItemView: View {
                 profilePicture(user: item.user)
                 
                 VStack(alignment: .leading) {
-                    Text("@" + item.user.username)
+                    Text(item.user.username)
                         .font(.system(size: 14))
+                        .bold()
                     Text(item.user.firstName + " " + item.user.lastName)
                         .lineLimit(1)
                         .font(.system(size: 12))

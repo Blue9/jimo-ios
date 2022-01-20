@@ -68,6 +68,7 @@ fileprivate struct TabBarController: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> UITabBarController {
         let tabBarController = UITabBarController()
+        tabBarController.tabBar.clipsToBounds = false
         tabBarController.viewControllers = controllers
         tabBarController.delegate = context.coordinator
         tabBarController.selectedIndex = 0

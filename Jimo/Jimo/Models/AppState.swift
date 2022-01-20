@@ -28,29 +28,7 @@ enum FirebaseSession {
 
 
 class LocalSettings: ObservableObject {
-    static let clusteringEnabledKey = "clusteringEnabled"
-    static let clusteringEnabledDefault = true
-    
-    @Published var clusteringEnabled: Bool {
-        didSet {
-            LocalSettings.setClusteringEnabled(clusteringEnabled: clusteringEnabled)
-        }
-    }
-    
-    init() {
-        let existingValue = UserDefaults.standard.object(forKey: LocalSettings.clusteringEnabledKey)
-        clusteringEnabled = existingValue == nil ? LocalSettings.clusteringEnabledDefault : LocalSettings.isClusteringEnabled()
-    }
-    
-    // MARK: - Map clustering
-    
-    static func isClusteringEnabled() -> Bool {
-        UserDefaults.standard.bool(forKey: LocalSettings.clusteringEnabledKey)
-    }
-    
-    static func setClusteringEnabled(clusteringEnabled: Bool) {
-        UserDefaults.standard.set(clusteringEnabled, forKey: LocalSettings.clusteringEnabledKey)
-    }
+    @Published var clusteringEnabled = false
 }
 
 class OnboardingModel: ObservableObject {
@@ -88,6 +66,24 @@ class OnboardingModel: ObservableObject {
     }
 }
 
+class MapCache {
+    let expirationSeconds: Double = 120
+    var map: MapResponse? {
+        didSet {
+            updatedAt = Date()
+        }
+    }
+    
+    private(set) var updatedAt: Date?
+    
+    func isExpired() -> Bool {
+        guard let updatedAt = updatedAt else {
+            return true
+        }
+        return Date().timeIntervalSince(updatedAt) > expirationSeconds
+    }
+}
+
 class AppState: ObservableObject {
     private var apiClient: APIClient
     private var cancelBag: Set<AnyCancellable> = .init()
@@ -96,6 +92,7 @@ class AppState: ObservableObject {
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
     
+    let mapCache = MapCache()
     let onboardingModel = OnboardingModel()
     var localSettings = LocalSettings()
     
@@ -352,6 +349,20 @@ class AppState: ObservableObject {
         return self.apiClient.getMap()
     }
     
+    func getMapV2() -> AnyPublisher<MapResponse, APIError> {
+        if !mapCache.isExpired(), let map = mapCache.map {
+            print("Got cached map")
+            return Just(map).setFailureType(to: APIError.self).eraseToAnyPublisher()
+        }
+        return self.apiClient.getMapV2()
+            .map { [weak self] mapResponse in
+                print("Updating map cache")
+                self?.mapCache.map = mapResponse
+                return mapResponse
+            }
+            .eraseToAnyPublisher()
+    }
+    
     func loadPlaceIcon(for place: Place) -> AnyPublisher<MapPlaceIcon, APIError> {
         return self.apiClient.getPlaceIcon(placeId: place.placeId)
     }
@@ -420,8 +431,8 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
-    func getPosts(username: String, cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
-        return self.apiClient.getPosts(username: username, cursor: cursor)
+    func getPosts(username: String, cursor: String? = nil, limit: Int? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        return self.apiClient.getPosts(username: username, cursor: cursor, limit: limit)
     }
     
     func likePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {

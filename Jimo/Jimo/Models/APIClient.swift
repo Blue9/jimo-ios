@@ -84,12 +84,16 @@ struct Endpoint {
         return Endpoint(path: path)
     }
     
-    static func posts(username: String, cursor: String? = nil) -> Endpoint {
+    static func posts(username: String, cursor: String? = nil, limit: Int? = nil) -> Endpoint {
         let path = "/users/\(username)/posts"
+        var queryItems: [URLQueryItem] = []
         if let cursor = cursor {
-            return Endpoint(path: path, queryItems: [URLQueryItem(name: "cursor", value: cursor)])
+            queryItems.append(URLQueryItem(name: "cursor", value: cursor))
         }
-        return Endpoint(path: path)
+        if let limit = limit {
+            queryItems.append(URLQueryItem(name: "limit", value: String(limit)))
+        }
+        return Endpoint(path: path, queryItems: queryItems)
     }
     
     static func followers(username: String, cursor: String? = nil) -> Endpoint {
@@ -180,6 +184,10 @@ struct Endpoint {
     
     static func getMap() -> Endpoint {
         return Endpoint(path: "/me/map")
+    }
+    
+    static func getMapV2() -> Endpoint {
+        return Endpoint(path: "/me/mapV2")
     }
     
     static func getPlaceIcon(placeId: PlaceId) -> Endpoint {
@@ -408,6 +416,13 @@ class APIClient: ObservableObject {
     }
     
     /**
+     Get the map for the given user.
+     */
+    func getMapV2() -> AnyPublisher<MapResponse, APIError> {
+        return doRequest(endpoint: Endpoint.getMapV2())
+    }
+    
+    /**
      Get the mutual posts for the given place
      */
     func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
@@ -424,8 +439,8 @@ class APIClient: ObservableObject {
     /**
      Get the posts by the given user.
      */
-    func getPosts(username: String, cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
-        doRequest(endpoint: Endpoint.posts(username: username, cursor: cursor))
+    func getPosts(username: String, cursor: String? = nil, limit: Int? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        doRequest(endpoint: Endpoint.posts(username: username, cursor: cursor, limit: limit))
     }
     
     /**

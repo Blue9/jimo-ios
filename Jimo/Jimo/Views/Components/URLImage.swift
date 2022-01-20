@@ -34,10 +34,10 @@ struct URLImage: View {
             if let view = loading {
                 AnyView(view.resizable())
             } else {
-                AnyView(Color("secondary"))
+                AnyView(Color("background").opacity(0.9))
             }
         }
-        .transition(.fade(duration: 0.5))
+        .transition(.fade(duration: 0.1))
         .scaledToFill()
     }
 

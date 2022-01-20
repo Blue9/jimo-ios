@@ -18,7 +18,7 @@ class SearchViewModel: ObservableObject {
     
     func listen(appState: AppState) {
         userSearchCancellable = $query
-            .debounce(for: 0.25, scheduler: DispatchQueue.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .sink { [weak self] query in
                 self?.search(appState: appState, query: query)
             }

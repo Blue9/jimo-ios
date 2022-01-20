@@ -23,7 +23,7 @@ struct SearchBar: View {
                 .padding(8)
                 .padding(.horizontal, 25)
                 .background(Color(.systemGray5))
-                .cornerRadius(8)
+                .cornerRadius(10)
                 .overlay(
                     HStack {
                         Image(systemName: "magnifyingglass")
@@ -44,7 +44,6 @@ struct SearchBar: View {
                         }
                     }
                 )
-                .padding(.horizontal, 10)
                 .onTapGesture {
                     withAnimation {
                         self.isActive = true

@@ -58,11 +58,9 @@ struct MapSnapshotView: View {
                 }
             }
             
-            Image("pin")
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 45, height: 45)
-                .offset(y: -22.5)
+            Circle()
+                .fill()
+                .frame(width: 40, height: 40)
                 .foregroundColor(Color(post.category))
             
             URLImage(
@@ -74,7 +72,6 @@ struct MapSnapshotView: View {
                 .frame(width: 35, height: 35)
                 .background(Color.white)
                 .cornerRadius(17.5)
-                .offset(y: -25)
         }
         .onAppear {
             generateSnapshot(width: width, height: height ?? width)

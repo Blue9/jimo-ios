@@ -10,7 +10,7 @@ import MapKit
 import Combine
 
 
-struct Category: View {
+struct CreatePostCategory: View {
     var name: String
     var key: String
     @Binding var selected: String?
@@ -37,7 +37,7 @@ struct Category: View {
         .background(colored ? Color(key) : Color("unselected"))
         .cornerRadius(2)
         .shadow(radius: colored ? 5 : 0)
-        .frame(height: 50)
+        .frame(height: 40)
         .onTapGesture {
             self.selected = key
         }
@@ -58,18 +58,18 @@ struct CategoryPicker: View {
             
             VStack {
                 HStack {
-                    Category(name: "Food", key: "food", selected: $category)
-                    Category(name: "Things to do", key: "activity", selected: $category)
+                    CreatePostCategory(name: "Food", key: "food", selected: $category)
+                    CreatePostCategory(name: "Things to do", key: "activity", selected: $category)
                 }
                 
                 HStack {
-                    Category(name: "Nightlife", key: "nightlife", selected: $category)
-                    Category(name: "Things to see", key: "attraction", selected: $category)
+                    CreatePostCategory(name: "Nightlife", key: "nightlife", selected: $category)
+                    CreatePostCategory(name: "Things to see", key: "attraction", selected: $category)
                 }
                 
                 HStack {
-                    Category(name: "Lodging", key: "lodging", selected: $category)
-                    Category(name: "Shopping", key: "shopping", selected: $category)
+                    CreatePostCategory(name: "Lodging", key: "lodging", selected: $category)
+                    CreatePostCategory(name: "Shopping", key: "shopping", selected: $category)
                 }
             }
         }
@@ -200,11 +200,9 @@ struct MapPreview: View {
                 }
             }
             
-            Image("pin")
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 45, height: 45)
-                .offset(y: -22.5)
+            Circle()
+                .fill()
+                .frame(width: 40, height: 40)
                 .foregroundColor(category != nil ? Color(category!) : .gray)
             
             URLImage(
@@ -216,7 +214,6 @@ struct MapPreview: View {
                 .frame(width: 35, height: 35)
                 .background(Color.white)
                 .cornerRadius(17.5)
-                .offset(y: -25)
         }
         .onAppear {
             generateSnapshot(width: width, height: height)
@@ -224,11 +221,18 @@ struct MapPreview: View {
     }
 }
 
-
-
 struct CreatePost: View {
-    @EnvironmentObject var appState: AppState
     @StateObject var createPostVM = CreatePostVM()
+    @Binding var presented: Bool
+    
+    var body: some View {
+        CreatePostWithModel(createPostVM: createPostVM, presented: $presented)
+    }
+}
+
+struct CreatePostWithModel: View {
+    @EnvironmentObject var appState: AppState
+    @ObservedObject var createPostVM: CreatePostVM
     
     @Binding var presented: Bool
     
@@ -471,15 +475,5 @@ struct CreatePost: View {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-    }
-}
-
-struct CreatePost_Previews: PreviewProvider {
-    static let api = APIClient()
-    
-    static var previews: some View {
-        CreatePost(presented: .constant(true))
-            .environmentObject(AppState(apiClient: api))
-            .environmentObject(GlobalViewState())
     }
 }

@@ -88,10 +88,11 @@ struct Search: View {
                     profilePicture(user: user)
                     
                     VStack(alignment: .leading) {
+                        Text(user.username)
+                            .font(.system(size: 15))
+                            .bold()
                         Text(user.firstName + " " + user.lastName)
-                            .font(.system(size: 16))
-                        Text("@" + user.username)
-                            .font(.system(size: 14))
+                            .font(.system(size: 15))
                     }
                     .foregroundColor(Color("foreground"))
                 }
@@ -112,6 +113,7 @@ struct Search: View {
                     disableAutocorrection: true,
                     onCommit: {}
                 )
+                .padding(.horizontal)
                 .padding(.bottom, 0)
                 
                 if !searchViewModel.searchBarFocused {

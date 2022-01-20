@@ -111,7 +111,7 @@ struct FeedItemBodyV2: View {
     
     @ViewBuilder var pinView: some View {
         LazyView {
-            MapView(localSettings: appState.localSettings, preselectedPlace: post.place)
+            MapViewV2(bottomSheetPosition: .hidden, preselectedPost: post)
         }
     }
     

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct Checkbox: View {
     let label: String
-    let textColor: Color
     let boxSize: CGFloat
     @Binding var selected: Bool
     
@@ -27,7 +26,7 @@ struct Checkbox: View {
                     .font(.system(size: 12))
                 Spacer()
             }
-            .foregroundColor(textColor)
+            .foregroundColor(Color("foreground"))
         }
         .padding(.horizontal, 15)
         .padding(.vertical, 10)

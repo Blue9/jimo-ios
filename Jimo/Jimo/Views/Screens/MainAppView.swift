@@ -55,7 +55,7 @@ struct MainAppView: View {
                 )
                 
                 UIKitTabView.Tab(
-                    view: AnyView(MapTab(localSettings: appState.localSettings)
+                    view: AnyView(MapTab()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
                     barItem: .init(title: nil, image: UIImage(named: "mapIcon"), tag: 1)

@@ -172,6 +172,7 @@ struct CommentItem: View {
 
 struct CommentItem_Previews: PreviewProvider {
     static var user = PublicUser(
+        userId: "user-id",
         username: "gautam",
         firstName: "Gautam",
         lastName: "Mekkat",
@@ -182,6 +183,7 @@ struct CommentItem_Previews: PreviewProvider {
     )
     
     static var otherUser = PublicUser(
+        userId: "user2-id",
         username: "someOtherUser",
         firstName: "Gautam",
         lastName: "Mekkat",

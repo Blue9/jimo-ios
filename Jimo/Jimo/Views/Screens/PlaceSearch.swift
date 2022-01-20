@@ -139,6 +139,8 @@ struct PlaceSearch: View {
                     locationSearch.search(query: locationSearch.searchQuery)
                 }
             )
+            .padding(.horizontal)
+            
             if locationSearch.searchState == .search {
                 searchResults
             } else {
