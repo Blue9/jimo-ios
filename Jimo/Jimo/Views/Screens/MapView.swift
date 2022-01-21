@@ -69,6 +69,7 @@ class LocationAnnotationView: MKAnnotationView {
         
         if pin.icon.numMutualPosts > 1 {
             let badge = UITextView()
+            badge.isEditable = false
             badge.textContainerInset = UIEdgeInsets(top: 0.5, left: 3, bottom: 0, right: 3)
             badge.textContainer.lineFragmentPadding = 0
             badge.backgroundColor = UIColor(red: 0.11, green: 0.51, blue: 0.95, alpha: 1)
