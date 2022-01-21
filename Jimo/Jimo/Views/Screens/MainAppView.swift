@@ -7,29 +7,34 @@
 
 import SwiftUI
 
+enum Tab: Int {
+    case feed = 0, map = 1, create = 2, search = 3, profile = 4
+}
+
 class TabBar: ObservableObject {
-    let newPostTag = 2
+    let newPostTag: Tab = .create
     
     @Published var newPostSelected = false
     @Published var selection: Int {
         didSet {
-            if selection == newPostTag {
-                previousSelection = oldValue
+            if selection == newPostTag.rawValue {
+                previousSelection = Tab(rawValue: oldValue)
                 selection = oldValue
                 newPostSelected = true
             }
         }
     }
     
-    var previousSelection: Int
+    var previousSelection: Tab?
     
     init() {
-        self.selection = 0
-        self.previousSelection = 0
+        self.selection = Tab.feed.rawValue
     }
     
     func reset() {
-        selection = previousSelection
+        if let previousSelection = previousSelection {
+            selection = previousSelection.rawValue
+        }
     }
 }
 
@@ -48,35 +53,35 @@ struct MainAppView: View {
         ZStack {
             UIKitTabView(selectedIndex: $tabBar.selection) {
                 UIKitTabView.Tab(
-                    view: AnyView(Feed()
+                    view: AnyView(Feed(onCreatePostTap: { tabBar.selection = Tab.create.rawValue })
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "feedIcon"), tag: 0)
+                    barItem: .init(title: nil, image: UIImage(named: "feedIcon"), tag: Tab.feed.rawValue)
                 )
                 
                 UIKitTabView.Tab(
                     view: AnyView(MapTab()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "mapIcon"), tag: 1)
+                    barItem: .init(title: nil, image: UIImage(named: "mapIcon"), tag: Tab.map.rawValue)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(Text("")
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "postIcon"), tag: 2)
+                    barItem: .init(title: nil, image: UIImage(named: "postIcon"), tag: Tab.create.rawValue)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(Search()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "searchIcon"), tag: 3)
+                    barItem: .init(title: nil, image: UIImage(named: "searchIcon"), tag: Tab.search.rawValue)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(ProfileTab(currentUser: currentUser)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "profileIcon"), tag: 4)
+                    barItem: .init(title: nil, image: UIImage(named: "profileIcon"), tag: Tab.profile.rawValue)
                 )
             }
         }

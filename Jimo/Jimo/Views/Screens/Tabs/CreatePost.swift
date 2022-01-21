@@ -37,7 +37,7 @@ struct CreatePostCategory: View {
         .background(colored ? Color(key) : Color("unselected"))
         .cornerRadius(2)
         .shadow(radius: colored ? 5 : 0)
-        .frame(height: 40)
+        .frame(height: 50)
         .onTapGesture {
             self.selected = key
         }

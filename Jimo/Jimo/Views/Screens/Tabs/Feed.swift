@@ -95,6 +95,8 @@ struct FeedBody: View {
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var feedViewModel = FeedViewModel()
     
+    var onCreatePostTap: () -> ()
+    
     private func loadMore() {
         if feedViewModel.loadingMorePosts {
             return
@@ -153,6 +155,20 @@ struct FeedBody: View {
                     .onAppear {
                         feedViewModel.refreshFeed(appState: appState, globalViewState: viewState)
                     }
+            } else if feedViewModel.feed.isEmpty {
+                Button(action: {
+                    onCreatePostTap()
+                }) {
+                    HStack {
+                        Image("postIcon")
+                            .font(.system(size: 15))
+                        Text("Create a post to get started")
+                    }
+                    .font(.system(size: 15))
+                    .padding(10)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+                }
             } else {
                 initializedFeed
             }
@@ -170,10 +186,12 @@ struct Feed: View {
     @State private var showNotifications = false
     
     @StateObject private var notificationFeedVM = NotificationFeedVM()
+    
+    var onCreatePostTap: () -> ()
 
     var body: some View {
         NavigationView {
-            FeedBody()
+            FeedBody(onCreatePostTap: onCreatePostTap)
                 .background(
                     NavigationLink(destination: NotificationFeed()
                                     .environmentObject(appState)
@@ -211,14 +229,5 @@ struct Feed: View {
                 })
         }
         .navigationViewStyle(StackNavigationViewStyle())
-    }
-}
-
-struct Feed_Previews: PreviewProvider {
-    static let api = APIClient()
-    static var previews: some View {
-        Feed()
-            .environmentObject(AppState(apiClient: api))
-            .environmentObject(GlobalViewState())
     }
 }
