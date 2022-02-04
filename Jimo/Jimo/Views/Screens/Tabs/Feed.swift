@@ -162,9 +162,10 @@ struct FeedBody: View {
                     HStack {
                         Image("postIcon")
                             .font(.system(size: 15))
-                        Text("Create a post to get started")
+                        Text("Save a place to get started")
                     }
                     .font(.system(size: 15))
+                    .foregroundColor(.white)
                     .padding(10)
                     .background(Color.blue)
                     .cornerRadius(10)

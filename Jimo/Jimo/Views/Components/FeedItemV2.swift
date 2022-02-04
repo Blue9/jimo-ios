@@ -155,10 +155,10 @@ struct FeedItemBodyV2: View {
             Button(action: { self.showPostOptions = true }) {
                 Image(systemName: "ellipsis")
                     .font(.subheadline)
-                    .frame(width: 26, height: 26)
+                    .frame(height: 26)
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 10)
     }
     
     @ViewBuilder var footer: some View {
@@ -197,7 +197,7 @@ struct FeedItemBodyV2: View {
                 Text(post.content)
                     .font(.system(size: 13))
                     .foregroundColor(Color("foreground"))
-                    .padding(.horizontal)
+                    .padding(.horizontal, 10)
                     .lineLimit(fullPost ? nil : 3)
                     .frame(maxWidth: .infinity, minHeight: 10, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -234,7 +234,7 @@ struct FeedItemBodyV2: View {
             }
             
             footer
-                .padding(.horizontal)
+                .padding(.horizontal, 10)
         }
         .padding(.bottom, 10)
         .background(Color("background"))

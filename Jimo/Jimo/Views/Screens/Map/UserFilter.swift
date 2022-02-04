@@ -60,7 +60,7 @@ struct SelectableUser: View {
     
     @ViewBuilder var loadedPostsInfo: some View {
         VStack {
-            Text("Loaded \(mapViewModel.numLoadedPostsByUser[user.id] ?? 0)/\(user.postCount) posts")
+            Text("Loaded \(mapViewModel.numLoadedPostsByUser[user.id] ?? 0)/\(user.postCount) pins")
             if !allPostsLoaded {
                 Button(action: {
                     self.loadingPosts = true

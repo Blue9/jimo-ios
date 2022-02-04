@@ -20,12 +20,6 @@ struct Search: View {
     
     let defaultImage: Image = Image(systemName: "person.crop.circle")
     
-    private var columns: [GridItem] = [
-        GridItem(.flexible(minimum: 50), spacing: 10),
-        GridItem(.flexible(minimum: 50), spacing: 10),
-        GridItem(.flexible(minimum: 50), spacing: 10)
-    ]
-    
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultImage)
             .frame(width: 40, height: 40, alignment: .center)

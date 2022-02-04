@@ -308,7 +308,7 @@ struct CreatePostWithModel: View {
                        let first = errors.first {
                         self.errorMessage = first.value
                     } else {
-                        self.errorMessage = "Could not create post"
+                        self.errorMessage = "Could not save place"
                     }
                     self.showError = true
                 }
@@ -326,7 +326,7 @@ struct CreatePostWithModel: View {
             ZStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("Create a post")
+                        Text("Save a place")
                             .font(.system(size: 28))
                             .fontWeight(.bold)
                             .padding(.horizontal, 10)
@@ -450,7 +450,7 @@ struct CreatePostWithModel: View {
                     Button {
                         self.createPost()
                     } label: {
-                        Text("Share").bold()
+                        Text("Save").bold()
                     }
                 }
             })

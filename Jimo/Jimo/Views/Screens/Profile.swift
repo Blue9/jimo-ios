@@ -83,7 +83,7 @@ struct ProfileStatsView: View {
         HStack {
             VStack {
                 Text(String(user.postCount)).bold()
-                Text("Posts")
+                Text("Places")
             }
             .padding(.leading, 25)
             .padding(.trailing, 10)
