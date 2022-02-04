@@ -85,7 +85,7 @@ struct ProfileStatsView: View {
                 Text(String(user.postCount)).bold()
                 Text("Places")
             }
-            .padding(.leading, 25)
+            .padding(.leading, 15)
             .padding(.trailing, 10)
             Spacer()
             

@@ -98,6 +98,7 @@ struct Search: View {
                     .cornerRadius(2)
                 }
             }
+            .transition(.slide)
         } onRefresh: { onFinish in
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
         }
