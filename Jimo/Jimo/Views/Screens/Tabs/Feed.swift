@@ -190,11 +190,25 @@ struct Feed: View {
     
     var onCreatePostTap: () -> ()
 
+    var notificationFeedIcon: some View {
+        ZStack(alignment: .topTrailing) {
+            Image(systemName: "bell")
+                .foregroundColor(Color("foreground"))
+            if notificationFeedVM.unreadNotifications > 0 {
+                Circle()
+                    .fill()
+                    .frame(width: 10, height: 10)
+                    .foregroundColor(.red)
+                    .offset(x: -1)
+            }
+        }
+    }
+    
     var body: some View {
         NavigationView {
             FeedBody(onCreatePostTap: onCreatePostTap)
                 .background(
-                    NavigationLink(destination: NotificationFeed()
+                    NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVM)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState), isActive: $showNotifications) {}
                 )
@@ -223,8 +237,7 @@ struct Feed: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: { self.showNotifications.toggle() }) {
-                            Image(systemName: "bell")
-                                .foregroundColor(Color("foreground"))
+                            notificationFeedIcon
                         }
                     }
                 })

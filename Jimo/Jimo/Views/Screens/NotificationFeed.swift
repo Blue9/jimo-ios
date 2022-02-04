@@ -12,9 +12,23 @@ import ASCollectionView
 class NotificationFeedVM: ObservableObject {
     @Published var feedItems: [NotificationItem] = []
     @Published var loading = false
+    
+    @Published var unreadNotifications: Int {
+        didSet {
+            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
+        }
+    }
 
     private var cancellable: Cancellable?
     private var cursor: String?
+    
+    init() {
+        unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+    }
+    
+    func readAllNotifications() {
+        unreadNotifications = 0
+    }
     
     func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
         cursor = nil
@@ -61,9 +75,12 @@ struct NotificationFeedItem: View {
     
     let item: NotificationItem
     let defaultProfileImage: Image = Image(systemName: "person.crop.circle")
-    let defaultPostImage: Image = Image(systemName: "square")
     
-    func profilePicture(user: User) -> some View {
+    var user: PublicUser {
+        item.user
+    }
+    
+    @ViewBuilder var profilePicture: some View {
         URLImage(url: user.profilePictureUrl, loading: defaultProfileImage)
             .frame(width: 40, height: 40, alignment: .center)
             .font(Font.title.weight(.ultraLight))
@@ -73,13 +90,14 @@ struct NotificationFeedItem: View {
             .padding(.trailing, 5)
     }
     
-    func postPreview(post: Post) -> some View {
-        URLImage(url: post.imageUrl, loading: defaultPostImage)
-            .scaledToFill()
-            .frame(width: 50, height: 50, alignment: .center)
-            .clipped()
-            .border(Color(post.category), width: 2)
-            .padding(.trailing)
+    @ViewBuilder var postPreview: some View {
+        if let url = item.post?.imageUrl {
+            URLImage(url: url)
+                .scaledToFill()
+                .frame(width: 50, height: 50, alignment: .center)
+                .clipped()
+                .padding(.trailing)
+        }
     }
     
     @ViewBuilder var destinationView: some View {
@@ -99,7 +117,9 @@ struct NotificationFeedItem: View {
     var body: some View {
         NavigationLink(destination: destinationView) {
             HStack {
-                profilePicture(user: item.user)
+                NavigationLink(destination: ProfileScreen(initialUser: user)) {
+                    profilePicture
+                }
                 
                 VStack(alignment: .leading) {
                     if item.type == ItemType.follow {
@@ -125,9 +145,7 @@ struct NotificationFeedItem: View {
                 
                 Spacer()
                 
-                if let post = item.post {
-                    postPreview(post: post)
-                }
+                postPreview
             }
         }
         .buttonStyle(NoButtonStyle())
@@ -139,7 +157,7 @@ struct NotificationFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     
-    @StateObject private var notificationFeedVM = NotificationFeedVM()
+    @ObservedObject var notificationFeedVM: NotificationFeedVM
     
     @State private var initialized = false
     
@@ -195,5 +213,10 @@ struct NotificationFeed: View {
                 NavTitle("Notifications")
             }
         })
+        .onChange(of: notificationFeedVM.loading) { loading in
+            if !loading {
+                notificationFeedVM.readAllNotifications()
+            }
+        }
     }
 }

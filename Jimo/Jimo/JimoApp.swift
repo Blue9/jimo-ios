@@ -11,6 +11,8 @@ import FirebaseAnalytics
 
 let gcmMessageIDKey = "gcm.message_id"
 
+let appState = AppState(apiClient: APIClient())
+
 @main
 struct JimoApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -18,7 +20,7 @@ struct JimoApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(AppState(apiClient: APIClient()))
+                .environmentObject(appState)
                 .environmentObject(GlobalViewState())
         }
     }
@@ -116,7 +118,8 @@ extension AppDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        print("Received notification 2")
+        print("Tapped on notification")
+        UIApplication.shared.applicationIconBadgeNumber = 0
         let userInfo = response.notification.request.content.userInfo
         // Print message ID.
         if let messageID = userInfo[gcmMessageIDKey] {
