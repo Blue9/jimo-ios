@@ -20,6 +20,12 @@ struct Search: View {
     
     let defaultImage: Image = Image(systemName: "person.crop.circle")
     
+    private let columns: [GridItem] = [
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2)
+    ]
+    
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultImage)
             .frame(width: 40, height: 40, alignment: .center)
@@ -42,7 +48,8 @@ struct Search: View {
         }
     }
     
-    var discoverFeedLoaded: some View {
+    /// TODO: Currently has an issue where navigation is reset when going out of the app and back in,
+    var oldDiscoverFeedLoaded: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 0, data: discoverViewModel.posts) { post, _ in
                 GeometryReader { geometry in
@@ -73,6 +80,27 @@ struct Search: View {
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
         }
         .ignoresSafeArea(.keyboard, edges: .all)
+    }
+    
+    var discoverFeedLoaded: some View {
+        RefreshableScrollView {
+            LazyVGrid(columns: columns, spacing: 2) {
+                ForEach(discoverViewModel.posts) { post in
+                    GeometryReader { geometry in
+                        NavigationLink(destination: ViewPost(post: post)) {
+                            URLImage(url: post.imageUrl, thumbnail: true)
+                                .frame(maxWidth: .infinity)
+                                .frame(width: geometry.size.width, height: geometry.size.width)
+                        }
+                    }
+                    .aspectRatio(1, contentMode: .fit)
+                    .background(Color(post.category))
+                    .cornerRadius(2)
+                }
+            }
+        } onRefresh: { onFinish in
+            discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
+        }
     }
     
     var userResults: some View {

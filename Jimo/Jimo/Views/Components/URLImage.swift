@@ -24,6 +24,7 @@ struct URLImage: View {
             url: url,
             context: [.imageThumbnailPixelSize: CGSize(width: maxDim, height: maxDim)]
         )
+        .cancelOnDisappear(true)
         .resizable()
         .onSuccess { image, data, cacheType in
             DispatchQueue.main.async {

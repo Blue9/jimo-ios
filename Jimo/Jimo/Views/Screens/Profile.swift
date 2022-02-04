@@ -212,6 +212,12 @@ struct Profile: View {
     
     let initialUser: User
     
+    private let columns: [GridItem] = [
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2)
+    ]
+    
     var username: String {
         initialUser.username
     }
@@ -219,7 +225,8 @@ struct Profile: View {
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
     
-    var profileGrid: some View {
+    /// TODO: Currently has an issue where navigation is reset when going out of the app and back in,
+    var oldProfileGrid: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 0) {
                 ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
@@ -292,8 +299,65 @@ struct Profile: View {
         .ignoresSafeArea(.keyboard, edges: .all)
     }
     
+    var profileGrid: some View {
+        RefreshableScrollView {
+            VStack {
+                ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
+                
+                LazyVGrid(columns: columns, spacing: 2) {
+                    ForEach(profileVM.posts) { post in
+                        GeometryReader { geometry in
+                            NavigationLink(destination: ViewPost(post: post)) {
+                                if let url = post.imageUrl {
+                                    URLImage(url: url, thumbnail: true)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(width: geometry.size.width, height: geometry.size.width)
+                                } else {
+                                    MapSnapshotView(
+                                        post: post,
+                                        width: geometry.size.width
+                                    )
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: geometry.size.width)
+                                }
+                            }
+                        }
+                        .aspectRatio(1, contentMode: .fit)
+                        .background(Color(post.category))
+                        .cornerRadius(2)
+                    }
+                    
+                    if !profileVM.loadingMore && profileVM.loadStatus == .success {
+                        Color.clear
+                            .appear {
+                                print("Loading more posts")
+                                profileVM.loadMorePosts(
+                                    username: username,
+                                    appState: appState,
+                                    viewState: viewState
+                                )
+                            }
+                    }
+                }
+            }
+        } onRefresh: { onFinish in
+            profileVM.refresh(
+                username: username,
+                appState: appState,
+                viewState: viewState,
+                onFinish: onFinish
+            )
+        }
+    }
+    
     var body: some View {
         profileGrid
+            .appear {
+                if profileVM.loadStatus == .notInitialized {
+                    profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
+                    profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if !profileVM.isCurrentUser(appState: appState, username: username) {

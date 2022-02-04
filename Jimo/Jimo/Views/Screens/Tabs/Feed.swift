@@ -127,7 +127,8 @@ struct FeedBody: View {
         }
     }
     
-    var initializedFeed: some View {
+    /// TODO: Currently has an issue where navigation is reset when going out of the app and back in,
+    var oldInitializedFeed: some View {
         collectionView
             .shouldScrollToAvoidKeyboard(false)
             .layout {
@@ -145,6 +146,22 @@ struct FeedBody: View {
             }
             .ignoresSafeArea(.keyboard, edges: .all)
             .edgesIgnoringSafeArea(.all)
+    }
+    
+    var initializedFeed: some View {
+        RefreshableScrollView {
+            LazyVStack {
+                ForEach(feedViewModel.feed) { post in
+                    FeedItemV2(post: post)
+                }
+                Color.clear
+                    .appear {
+                        feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
+                    }
+            }
+        } onRefresh: { onFinish in
+            feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
+        }
     }
     
     var body: some View {

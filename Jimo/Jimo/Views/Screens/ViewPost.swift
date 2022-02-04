@@ -76,22 +76,12 @@ struct ViewPost: View {
     }
     
     var body: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: imageSize == .zero ? 0 : -1) {
+        RefreshableScrollView {
+            VStack {
+                // Post contents
                 postItem
-            }
-            
-            ASCollectionViewSection(id: 1, data: commentsViewModel.comments) { comment, _ in
-                ZStack(alignment: .bottom) {
-                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
-                    Divider()
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 10)
-                }
-                .background(Color("background"))
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .sectionHeader {
+                
+                // Add comment field
                 ZStack {
                     commentField
                     
@@ -102,35 +92,24 @@ struct ViewPost: View {
                     }
                 }
                 
-            }
-            .sectionFooter {
-                VStack {
-                    if commentsViewModel.loadingComments {
-                        ProgressView()
+                // List of comments
+                LazyVStack {
+                    ForEach(commentsViewModel.comments) { comment in
+                        ZStack(alignment: .bottom) {
+                            CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
+                            Divider()
+                                .foregroundColor(.gray)
+                                .padding(.horizontal, 10)
+                        }
+                        .background(Color("background"))
                     }
-                    Spacer().frame(height: 150)
+                    Color.clear
+                        .appear {
+                            commentsViewModel.loadMore()
+                        }
                 }
-                .padding(.top, 20)
             }
-        }
-        .backgroundColor(UIColor(Color("background")))
-        .shouldScrollToAvoidKeyboard(true)
-        .layout(interSectionSpacing: 0) { sectionId in
-            switch sectionId {
-            case 0: // post
-                return .list(itemSize: .estimated(300), spacing: 0)
-            default:
-                return .list(itemSize: .estimated(50), spacing: 0)
-            }
-        }
-        .alwaysBounceVertical()
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                commentsViewModel.loadMore()
-            }
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             commentsViewModel.loadComments(onFinish: onFinish)
         }
         .onAppear {
