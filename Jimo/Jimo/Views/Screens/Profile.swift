@@ -231,7 +231,7 @@ struct Profile: View {
                         if let url = post.imageUrl {
                             URLImage(url: url, thumbnail: true)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: geometry.size.width)
+                                .frame(width: geometry.size.width, height: geometry.size.width)
                         } else {
                             MapSnapshotView(post: post, width: (UIScreen.main.bounds.width - 6) / 3)
                                 .frame(maxWidth: .infinity)

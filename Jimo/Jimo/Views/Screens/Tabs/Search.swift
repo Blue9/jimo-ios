@@ -49,7 +49,7 @@ struct Search: View {
                     NavigationLink(destination: ViewPost(post: post)) {
                         URLImage(url: post.imageUrl, thumbnail: true)
                             .frame(maxWidth: .infinity)
-                            .frame(height: geometry.size.width)
+                            .frame(width: geometry.size.width, height: geometry.size.width)
                     }
                 }
                 .aspectRatio(1, contentMode: .fit)
