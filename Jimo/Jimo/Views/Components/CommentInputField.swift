@@ -14,7 +14,7 @@ struct CommentInputField: View {
     
     var onSubmit: () -> Void
     
-    @ViewBuilder var inputBody: some View {
+    var inputBody: some View {
         TextField("Add a comment", text: $text)
             .padding(.trailing, 25)
             .font(.system(size: 12))

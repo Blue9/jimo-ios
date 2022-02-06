@@ -81,17 +81,7 @@ struct ViewPost: View {
                 postItem
             }
             
-            ASCollectionViewSection(id: 1, data: commentsViewModel.comments) { comment, _ in
-                ZStack(alignment: .bottom) {
-                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
-                    Divider()
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 10)
-                }
-                .background(Color("background"))
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .sectionHeader {
+            ASCollectionViewSection(id: 1) {
                 ZStack {
                     commentField
                     
@@ -101,7 +91,17 @@ struct ViewPost: View {
                             .background(Color.gray.opacity(0.2))
                     }
                 }
-                
+            }
+            
+            ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
+                ZStack(alignment: .bottom) {
+                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
+                    Divider()
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 10)
+                }
+                .background(Color("background"))
+                .fixedSize(horizontal: false, vertical: true)
             }
             .sectionFooter {
                 VStack {
