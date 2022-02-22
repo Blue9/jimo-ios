@@ -109,12 +109,6 @@ struct ViewPost: View {
                         }
                 }
             }
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 10, coordinateSpace: .global)
-                    .onChanged { value in
-                        hideKeyboard()
-                    }
-            )
         } onRefresh: { onFinish in
             commentsViewModel.loadComments(onFinish: onFinish)
         }
@@ -128,7 +122,6 @@ struct ViewPost: View {
                 commentsViewModel.loadComments()
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {

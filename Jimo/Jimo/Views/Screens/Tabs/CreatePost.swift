@@ -348,56 +348,19 @@ struct CreatePostWithModel: View {
                         Divider().padding(.leading, 10)
                         
                         HStack {
-                            if let image = createPostVM.image {
-                                ZStack(alignment: .topLeading) {
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 100, height: 100)
-                                        .onTapGesture {
-                                            createPostVM.activeSheet = .imagePicker
-                                        }
-                                    
-                                    Image(systemName: "xmark.circle.fill")
-                                        .resizable()
-                                        .frame(width: 20, height: 20)
-                                        .foregroundColor(buttonColor)
-                                        .background(Color.black)
-                                        .cornerRadius(10)
-                                        .padding(5)
-                                        .onTapGesture {
-                                            createPostVM.image = nil
-                                        }
-                                }
-                                .frame(width: 100, height: 100)
-                                .cornerRadius(2)
-                            } else {
-                                ZStack {
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.2))
-                                        .onTapGesture {
-                                            createPostVM.activeSheet = .imagePicker
-                                        }
-                                    
-                                    Image(systemName: "photo.fill")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 30)
-                                        .foregroundColor(Color.gray.opacity(0.5))
-                                }
-                                .frame(width: 100, height: 100)
-                                .cornerRadius(2)
-                            }
+                            ImageSelectionView(createPostVM: createPostVM, buttonColor: buttonColor)
                             
                             FormInputText(name: "Write a note (recommended)", text: $content)
                                 .zIndex(2)
                         }
                         .padding(10)
+                        .ignoresSafeArea(.keyboard, edges: .bottom)
                         
                         Divider().padding(.leading, 10)
                         
                         CategoryPicker(category: $category)
                             .padding(.vertical, 10)
+                            .ignoresSafeArea(.keyboard, edges: .bottom)
                         
                         
                         if let place = createPostVM.selectedLocation {
@@ -420,8 +383,9 @@ struct CreatePostWithModel: View {
                         
                         Spacer()
                     }
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
                 }
-                .gesture(DragGesture().onChanged { _ in hideKeyboard() })
+                .ignoresSafeArea(.keyboard, edges: .bottom)
             }
             .foregroundColor(Color("foreground"))
             .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -473,7 +437,61 @@ struct CreatePostWithModel: View {
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             }
+            .onChange(of: createPostVM.activeSheet) { activeSheet in
+                // Bug where if the keyboard is up and the sheet changes from image picker back to create post, tapping
+                // a category is offset
+                hideKeyboard()
+            }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+struct ImageSelectionView: View {
+    @ObservedObject var createPostVM: CreatePostVM
+    
+    var buttonColor: Color
+    
+    var body: some View {
+        Group {
+            if let image = createPostVM.image {
+                ZStack(alignment: .topLeading) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .onTapGesture {
+                            createPostVM.activeSheet = .imagePicker
+                        }
+                    
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(buttonColor)
+                        .background(Color.black)
+                        .cornerRadius(10)
+                        .padding(5)
+                        .onTapGesture {
+                            createPostVM.image = nil
+                        }
+                }
+            } else {
+                ZStack {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .onTapGesture {
+                            createPostVM.activeSheet = .imagePicker
+                        }
+                    
+                    Image(systemName: "photo.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30)
+                        .foregroundColor(Color.gray.opacity(0.5))
+                }
+            }
+        }
+        .frame(width: 100, height: 100)
+        .cornerRadius(2)
     }
 }
