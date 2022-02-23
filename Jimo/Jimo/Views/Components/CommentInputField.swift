@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CommentInputField: View {
     @Binding var text: String
+    var submitting: Bool
     
     var buttonColor: Color = .black
     
@@ -16,37 +17,30 @@ struct CommentInputField: View {
     
     var inputBody: some View {
         TextField("Add a comment", text: $text)
+            .disabled(submitting)
             .padding(.trailing, 25)
             .font(.system(size: 12))
             .padding(.horizontal, 5)
             .padding(.vertical, 5)
             .padding(.horizontal, 6)
             .padding(.vertical, 6)
-            .background(Color("background"))
+            .background(Color("foreground").opacity(0.2))
+            .cornerRadius(10)
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            Divider()
-            HStack(spacing: 0) {
-                inputBody
-                
+        HStack(spacing: 0) {
+            inputBody
+            
+            Group {
                 if text.count > 0 {
                     Spacer()
                     
                     Button(action: {
                         withAnimation {
-                            self.text = ""
+                            hideKeyboard()
+                            onSubmit()
                         }
-                    }) {
-                        Image(systemName: "multiply.circle.fill")
-                            .foregroundColor(.gray)
-                            .padding(.trailing, 8)
-                    }
-                    
-                    Button(action: {
-                        onSubmit()
-                        hideKeyboard()
                     }) {
                         Image(systemName: "paperplane.fill")
                             .foregroundColor(buttonColor)
@@ -55,9 +49,9 @@ struct CommentInputField: View {
                     .transition(.move(edge: .trailing))
                 }
             }
-            .background(Color("background"))
-            Divider()
-                .foregroundColor(Color("foreground"))
         }
+        .animation(.easeInOut, value: text.count)
+        .padding(8)
+        .background(Color("background"))
     }
 }
