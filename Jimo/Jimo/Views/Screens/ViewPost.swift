@@ -72,19 +72,17 @@ struct ViewPost: View {
     }
     
     var commentField: some View {
-        ZStack {
-            CommentInputField(
-                text: $commentsViewModel.newCommentText,
-                submitting: commentsViewModel.creatingComment,
-                buttonColor: colorTheme,
-                onSubmit: { [weak commentsViewModel] in
-                    commentsViewModel?.createComment()
-                    withAnimation {
-                        scrollPosition = .indexPath(IndexPath(item: 0, section: 1))
-                    }
+        CommentInputField(
+            text: $commentsViewModel.newCommentText,
+            submitting: commentsViewModel.creatingComment,
+            buttonColor: colorTheme,
+            onSubmit: { [weak commentsViewModel] in
+                commentsViewModel?.createComment()
+                withAnimation {
+                    scrollPosition = .indexPath(IndexPath(item: 0, section: 1))
                 }
-            )
-        }
+            }
+        )
     }
     
     @ViewBuilder var mainBody: some View {
@@ -153,8 +151,9 @@ struct ViewPost: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             mainBody
-            VStack {
+            VStack(spacing: 0) {
                 Spacer()
+                Divider()
                 commentField
             }
         }
