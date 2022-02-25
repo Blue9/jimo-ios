@@ -53,35 +53,36 @@ struct MainAppView: View {
         ZStack {
             UIKitTabView(selectedIndex: $tabBar.selection) {
                 UIKitTabView.Tab(
-                    view: AnyView(Feed(onCreatePostTap: { tabBar.selection = Tab.create.rawValue })
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "feedIcon"), tag: Tab.feed.rawValue)
-                )
-                
-                UIKitTabView.Tab(
                     view: AnyView(MapTab()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "mapIcon"), tag: Tab.map.rawValue)
+                    barItem: .init(title: "Map", image: UIImage(named: "mapIcon"), tag: Tab.map.rawValue)
                 )
+                
+                UIKitTabView.Tab(
+                    view: AnyView(Feed(onCreatePostTap: { tabBar.selection = Tab.create.rawValue })
+                                    .environmentObject(appState)
+                                    .environmentObject(globalViewState)),
+                    barItem: .init(title: "Feed", image: UIImage(named: "feedIcon"), tag: Tab.feed.rawValue)
+                )
+                
                 UIKitTabView.Tab(
                     view: AnyView(Text("")
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "postIcon"), tag: Tab.create.rawValue)
+                    barItem: .init(title: "Save", image: UIImage(named: "postIcon"), tag: Tab.create.rawValue)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(Search()
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "searchIcon"), tag: Tab.search.rawValue)
+                    barItem: .init(title: "Discover", image: UIImage(named: "searchIcon"), tag: Tab.search.rawValue)
                 )
                 UIKitTabView.Tab(
                     view: AnyView(ProfileTab(currentUser: currentUser)
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState)),
-                    barItem: .init(title: nil, image: UIImage(named: "profileIcon"), tag: Tab.profile.rawValue)
+                    barItem: .init(title: "Profile", image: UIImage(named: "profileIcon"), tag: Tab.profile.rawValue)
                 )
             }
         }
