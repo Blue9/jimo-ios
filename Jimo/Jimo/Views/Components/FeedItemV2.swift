@@ -166,17 +166,19 @@ struct FeedItemBodyV2: View {
             
             FeedItemLikesV2(feedItemVM: feedItemVM, post: post)
             
-            Text("\(post.likeCount) like\(post.likeCount != 1 ? "s" : "")")
-                .font(.system(size: 11))
-                .foregroundColor(.gray)
-            
             Spacer().frame(width: 2)
             
             FeedItemCommentsV2(post: post)
             
-            Text("\(post.commentCount) comment\(post.commentCount != 1 ? "s" : "")")
-                .font(.system(size: 11))
-                .foregroundColor(.gray)
+            Group {
+                if post.commentCount == 0 && !fullPost {
+                    Text("Add a comment")
+                } else {
+                    Text("\(post.commentCount) comment\(post.commentCount != 1 ? "s" : "")")
+                }
+            }
+            .font(.system(size: 11))
+            .foregroundColor(.gray)
             
             Spacer()
             
@@ -221,20 +223,26 @@ struct FeedItemBodyV2: View {
         }
     }
     
+    @ViewBuilder var postContentAndFooter: some View {
+        VStack(alignment: .leading) {
+            postContent
+            
+            footer
+                .padding(.horizontal, 10)
+        }
+    }
+    
     @ViewBuilder var feedItemBody: some View {
         VStack(alignment: .leading) {
             header
             
             if fullPost {
-                postContent
+                postContentAndFooter
             } else {
                 NavigationLink(destination: fullPostView) {
-                    postContent
+                    postContentAndFooter
                 }.buttonStyle(NoButtonStyle())
             }
-            
-            footer
-                .padding(.horizontal, 10)
         }
         .padding(.bottom, 10)
         .background(Color("background"))
