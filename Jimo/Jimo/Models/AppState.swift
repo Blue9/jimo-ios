@@ -92,6 +92,12 @@ class AppState: ObservableObject {
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
     
+    @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
+        didSet {
+            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
+        }
+    }
+    
     let mapCache = MapCache()
     let onboardingModel = OnboardingModel()
     var localSettings = LocalSettings()

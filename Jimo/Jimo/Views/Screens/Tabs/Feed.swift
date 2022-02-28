@@ -194,7 +194,7 @@ struct Feed: View {
         ZStack(alignment: .topTrailing) {
             Image(systemName: "bell")
                 .foregroundColor(Color("foreground"))
-            if notificationFeedVM.unreadNotifications > 0 {
+            if appState.unreadNotifications > 0 {
                 Circle()
                     .fill()
                     .frame(width: 10, height: 10)

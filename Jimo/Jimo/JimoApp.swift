@@ -22,6 +22,9 @@ struct JimoApp: App {
             ContentView()
                 .environmentObject(appState)
                 .environmentObject(GlobalViewState())
+                .onAppear {
+                    appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+                }
         }
     }
 }

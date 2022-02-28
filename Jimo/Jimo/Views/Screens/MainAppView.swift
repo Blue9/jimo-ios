@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum Tab: Int {
-    case feed = 0, map = 1, create = 2, search = 3, profile = 4
+    case map = 0, feed = 1, create = 2, search = 3, profile = 4
 }
 
 class TabBar: ObservableObject {
@@ -28,7 +28,7 @@ class TabBar: ObservableObject {
     var previousSelection: Tab?
     
     init() {
-        self.selection = Tab.feed.rawValue
+        self.selection = Tab.map.rawValue
     }
     
     func reset() {
@@ -50,41 +50,35 @@ struct MainAppView: View {
     let currentUser: PublicUser
     
     var body: some View {
-        ZStack {
-            UIKitTabView(selectedIndex: $tabBar.selection) {
-                UIKitTabView.Tab(
-                    view: AnyView(MapTab()
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState)),
-                    barItem: .init(title: "Map", image: UIImage(named: "mapIcon"), tag: Tab.map.rawValue)
+        UITabView(selection: $tabBar.selection) {
+            MapTab()
+                .environmentObject(appState)
+                .environmentObject(globalViewState)
+                .tabItem("Map", image: UIImage(named: "mapIcon"))
+            
+            Feed(onCreatePostTap: { tabBar.selection = Tab.create.rawValue })
+                .environmentObject(appState)
+                .environmentObject(globalViewState)
+                .tabItem(
+                    "Feed",
+                    image: UIImage(named: "feedIcon"),
+                    badgeValue: appState.unreadNotifications > 0 ? String(appState.unreadNotifications) : nil
                 )
-                
-                UIKitTabView.Tab(
-                    view: AnyView(Feed(onCreatePostTap: { tabBar.selection = Tab.create.rawValue })
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState)),
-                    barItem: .init(title: "Feed", image: UIImage(named: "feedIcon"), tag: Tab.feed.rawValue)
-                )
-                
-                UIKitTabView.Tab(
-                    view: AnyView(Text("")
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState)),
-                    barItem: .init(title: "Save", image: UIImage(named: "postIcon"), tag: Tab.create.rawValue)
-                )
-                UIKitTabView.Tab(
-                    view: AnyView(Search()
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState)),
-                    barItem: .init(title: "Discover", image: UIImage(named: "searchIcon"), tag: Tab.search.rawValue)
-                )
-                UIKitTabView.Tab(
-                    view: AnyView(ProfileTab(currentUser: currentUser)
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState)),
-                    barItem: .init(title: "Profile", image: UIImage(named: "profileIcon"), tag: Tab.profile.rawValue)
-                )
-            }
+            
+            Text("")
+                .environmentObject(appState)
+                .environmentObject(globalViewState)
+                .tabItem("Save", image: UIImage(named: "postIcon"))
+            
+            Search()
+                .environmentObject(appState)
+                .environmentObject(globalViewState)
+                .tabItem("Discover", image: UIImage(named: "searchIcon"))
+            
+            ProfileTab(currentUser: currentUser)
+                .environmentObject(appState)
+                .environmentObject(globalViewState)
+                .tabItem("Profile", image: UIImage(named: "profileIcon"))
         }
         .sheet(isPresented: $tabBar.newPostSelected) {
             CreatePost(presented: $tabBar.newPostSelected)
