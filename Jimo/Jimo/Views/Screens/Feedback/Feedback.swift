@@ -13,7 +13,7 @@ struct Feedback: View {
     @EnvironmentObject var viewState: GlobalViewState
     
     @State private var content: String = ""
-    @State private var followUp: Bool = false
+    @State private var followUp: Bool = true
     
     @State private var submitFeedbackCancellable: Cancellable? = nil
     

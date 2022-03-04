@@ -18,16 +18,17 @@ struct Checkbox: View {
         }) {
             HStack(alignment: .center, spacing: 10) {
                 Image(systemName: self.selected ? "checkmark.square" : "square")
-                    .renderingMode(.original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: boxSize, height: boxSize)
+                    .foregroundColor(Color("foreground"))
                 Text(label)
                     .font(.system(size: 12))
+                    .multilineTextAlignment(.leading)
                 Spacer()
             }
-            .foregroundColor(Color("foreground"))
         }
+        .foregroundColor(Color("foreground"))
         .padding(.horizontal, 15)
         .padding(.vertical, 10)
     }
