@@ -415,38 +415,6 @@ fileprivate struct ClusterToggleButton: View {
     }
 }
 
-fileprivate struct CurrentLocationButton: View {
-    @Binding var region: MKCoordinateRegion
-    
-    var locationManager: CLLocationManager
-    
-    var body: some View {
-        Button(action: {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            withAnimation {
-                if let location = locationManager.location {
-                    region = MKCoordinateRegion(
-                        center: location.coordinate,
-                        span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-                    )
-                }
-            }
-        }) {
-            ZStack {
-                Image(systemName: "location.fill")
-                    .foregroundColor(Color("attraction"))
-                    .font(.system(size: 24))
-                    .frame(width: 55, height: 55)
-                    .background(Color("background"))
-                    .cornerRadius(27.5)
-                    .contentShape(Circle())
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .shadow(radius: 3)
-    }
-}
-
 fileprivate struct ButtonContainer<Content>: View where Content: View {
     @ViewBuilder var content: () -> Content
     
@@ -492,7 +460,7 @@ struct MapView: View {
                 // Only show these if there is no preselected post
                 ButtonContainer {
                     VStack(spacing: 10) {
-                        CurrentLocationButton(region: $region, locationManager: locationManager)
+                        // CurrentLocationButton(region: $region, locationManager: locationManager)
                         ClusterToggleButton(clusteringEnabled: $localSettings.clusteringEnabled)
                     }
                     .padding(.horizontal)

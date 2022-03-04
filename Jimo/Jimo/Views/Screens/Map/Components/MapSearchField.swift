@@ -1,5 +1,5 @@
 //
-//  SearchField.swift
+//  MapSearchField.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 1/18/22.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SearchField: View {
+struct MapSearchField: View {
     @Binding var text: String
     @Binding var isActive: Bool
     
@@ -17,9 +17,6 @@ struct SearchField: View {
     
     private func onEditingChanged(editStatus: Bool) {
         isActive = editStatus
-        if !isActive {
-            text = ""
-        }
     }
     
     var body: some View {

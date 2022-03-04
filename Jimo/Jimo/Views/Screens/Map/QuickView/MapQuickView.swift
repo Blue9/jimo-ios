@@ -8,121 +8,78 @@
 import SwiftUI
 import MapKit
 import SwiftUIPager
+import SDWebImageSwiftUI
 
 fileprivate let quickViewWidth: CGFloat = 320
 
 struct MapQuickView: View {
-    @StateObject var quickViewModel = QuickViewModel()
+    @EnvironmentObject var appState: AppState
     
-    @ObservedObject var page: Page
+    @StateObject var page: Page = .first()
     @ObservedObject var mapViewModel: MapViewModelV2
+    @ObservedObject var quickViewModel: QuickViewModel
     
     var onPageChanged: (Int) -> ()
     
+    private func loadPosts(index: Int) {
+        if index < 0 || index >= mapViewModel.pins.count {
+            return
+        }
+        let pin = mapViewModel.pins[index]
+        quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId)
+    }
+    
+    private func selectPin(pin: MapPinV3) {
+        if let i = mapViewModel.pins.firstIndex(of: pin) {
+            page.update(.new(index: i))
+            quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId)
+        }
+    }
+    
+    func loadPostsAndPreloadNextAndPrevious(index: Int) {
+        loadPosts(index: index)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            loadPosts(index: index + 1)
+            loadPosts(index: index - 1)
+        }
+    }
+    
     @ViewBuilder var quickViewBody: some View {
-        Pager(page: page, data: mapViewModel.mapPins.pins) { pin in
-            PlaceQuickView(mapViewModel: mapViewModel, quickViewModel: quickViewModel, pin: pin)
+        Pager(page: page, data: mapViewModel.pins) { pin in
+            PinQuickViewCard(mapViewModel: mapViewModel, quickViewModel: quickViewModel, pin: pin)
         }
         .itemSpacing(20)
         .preferredItemSize(CGSize(width: quickViewWidth, height: 150))
         .delaysTouches(false)
         .pagingPriority(.simultaneous)
         .loopPages()
-        .onPageChanged(onPageChanged)
+        .onPageChanged { index in
+            print("Page changed")
+            onPageChanged(index)
+            loadPostsAndPreloadNextAndPrevious(index: index)
+        }
         .frame(width: UIScreen.main.bounds.width, height: 200)
+        .onChange(of: mapViewModel.selectedPin) { selectedPin in
+            withAnimation {
+                if let selectedPin = selectedPin {
+                    print("selecting pin")
+                    selectPin(pin: selectedPin)
+                }
+            }
+        }
     }
     
     var body: some View {
-        if mapViewModel.mapPins.pins.count > 0 {
+        if mapViewModel.pins.count > 0 {
             quickViewBody
-        }
-    }
-}
-
-fileprivate struct PlaceQuickView: View {
-    @StateObject private var page: Page = Page.withIndex(1)
-    @StateObject private var postIndex: Page = Page.withIndex(1)
-    
-    @ObservedObject var mapViewModel: MapViewModelV2
-    @ObservedObject var quickViewModel: QuickViewModel
-
-    var pin: MapPlace
-    
-    var pageIds: [String] {
-        ["placeInfo"] + pin.posts
-    }
-    
-    private func selectIndex(_ index: Int) {
-        if page.index != index {
-            withAnimation(.easeInOut(duration: 0.1)) {
-                page.update(.new(index: index))
-            }
-        }
-        if postIndex.index != index {
-            withAnimation(.easeInOut(duration: 0.1)) {
-                postIndex.update(.new(index: index))
-            }
-        }
-    }
-    
-    @ViewBuilder var pageIndicator: some View {
-        Pager(page: postIndex, data: pageIds.indices, id: \.self) { i in
-            Circle()
-                .fill()
-                .opacity(i == postIndex.index ? 0.7 : 0.4)
-                .frame(width: 6, height: 6)
-                .onTapGesture {
-                    selectIndex(i)
+                .onAppear {
+                    if let selectedPin = mapViewModel.selectedPin {
+                        selectPin(pin: selectedPin)
+                    } else {
+                        print("Unexpected case: no selected pin but quick view is visible")
+                    }
+                    loadPostsAndPreloadNextAndPrevious(index: page.index)
                 }
         }
-        .vertical()
-        .preferredItemSize(CGSize(width: 6, height: 6))
-        .itemSpacing(6)
-        .delaysTouches(false)
-        .multiplePagination()
-        .onPageChanged { index in selectIndex(index) }
-        .swipeInteractionArea(.page)
-    }
-    
-    @ViewBuilder var postPages: some View {
-        Pager(page: page, data: pageIds.indices, id: \.self) { index in
-            Group {
-                if pageIds[index] == "placeInfo" {
-                    PlaceInfoQuickView(
-                        quickViewModel: quickViewModel,
-                        locationManager: mapViewModel.locationManager,
-                        place: pin.place
-                    )
-                } else if let post = mapViewModel.allPosts[pageIds[index]] {
-                    SinglePostQuickView(post: post)
-                } else {
-                    EmptyView()
-                }
-            }
-            .contentShape(Rectangle())
-            .padding(.trailing)
-            .padding(.vertical)
-            .allowsHitTesting(index == page.index) // Fix issue where hidden pages block map gestures
-        }
-        .vertical()
-        .sensitivity(.custom(0.10))
-        .pagingPriority(.high)
-        .preferredItemSize(CGSize(width: quickViewWidth, height: 150))
-        .delaysTouches(true)
-        .onPageChanged { index in selectIndex(index) }
-        .frame(width: quickViewWidth - 15, height: 150)
-    }
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            pageIndicator
-                .frame(width: 15)
-            postPages
-        }
-        .background(Color("background"))
-        .frame(width: quickViewWidth, height: 150)
-        .clipShape(Rectangle())
-        .contentShape(Rectangle())
-        .cornerRadius(10)
     }
 }

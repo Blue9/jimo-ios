@@ -111,7 +111,7 @@ struct FeedItemBodyV2: View {
     
     @ViewBuilder var pinView: some View {
         LazyView {
-            MapViewV2(bottomSheetPosition: .hidden, preselectedPost: post)
+            LiteMapView(post: post)
         }
     }
     

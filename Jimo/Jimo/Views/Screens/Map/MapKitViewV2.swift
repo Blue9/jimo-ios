@@ -10,11 +10,11 @@ import MapKit
 
 struct MapKitViewV2: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
-    @Binding var selectedPin: MapPlace?
+    @Binding var selectedPin: MapPinV3?
     
-    var annotations: [PlaceAnnotation]
+    var annotations: [PlaceAnnotationV2]
     
-    var onLongPress: (CLLocationCoordinate2D) -> ()
+    var onLongPress: ((CLLocationCoordinate2D) -> ())?
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
@@ -22,7 +22,7 @@ struct MapKitViewV2: UIViewRepresentable {
         mapView.tintAdjustmentMode = .normal
         mapView.tintColor = .systemBlue
         mapView.showsUserLocation = true
-        mapView.register(LocationAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
+        mapView.register(LocationAnnotationViewV2.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
         mapView.delegate = context.coordinator
         let longPressRecognizer = UILongPressGestureRecognizer(
             target: context.coordinator,
@@ -38,7 +38,7 @@ struct MapKitViewV2: UIViewRepresentable {
     }
     
     func updateUIView(_ view: MKMapView, context: Context) {
-        let viewAnnotations = Set(view.annotations.compactMap { $0 as? PlaceAnnotation })
+        let viewAnnotations = Set(view.annotations.compactMap { $0 as? PlaceAnnotationV2 })
         let currentAnnotations = Set(annotations)
         if let pin = selectedPin, let annotation = viewAnnotations.first(where: { $0.pin == pin }) {
             view.selectAnnotation(annotation, animated: true)
@@ -77,7 +77,7 @@ struct MapKitViewV2: UIViewRepresentable {
             let point = sender.location(in: mapView)
             let coordinate = mapView.convert(point, toCoordinateFrom: mapView)
             // TODO: Add in future feature
-            // parent.onLongPress(coordinate)
+            // parent.onLongPress?(coordinate)
         }
         
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
@@ -86,13 +86,13 @@ struct MapKitViewV2: UIViewRepresentable {
         }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-            guard let annotation = annotation as? PlaceAnnotation else {
+            guard let annotation = annotation as? PlaceAnnotationV2 else {
                 return nil
             }
             var view = mapView.dequeueReusableAnnotationView(withIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
             
             if view == nil {
-                view = LocationAnnotationView(
+                view = LocationAnnotationViewV2(
                     annotation: annotation,
                     reuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
             }
@@ -103,22 +103,40 @@ struct MapKitViewV2: UIViewRepresentable {
         }
         
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-            if let annotation = view.annotation as? PlaceAnnotation {
+            if let annotation = view.annotation as? PlaceAnnotationV2 {
                 DispatchQueue.main.async {
                     self.parent.selectedPin = annotation.pin
                 }
-                UIView.animate(withDuration: 0.2) {
-                    view.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
-                }
+                self.highlight(view, annotation: annotation)
             }
         }
         
         func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
-            UIView.animate(withDuration: 0.2) {
-                view.transform = self.annotationScaleHelper.transform
-            }
+            self.removeHighlight(for: view)
             DispatchQueue.main.async {
                 self.parent.selectedPin = nil
+            }
+        }
+        
+        private func highlight(_ view: MKAnnotationView, annotation: PlaceAnnotationV2) {
+            UIView.animate(withDuration: 0.2) {
+                view.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
+                view.layer.shadowOffset = .zero
+                if let category = annotation.pin.icon.category, let color = UIColor(named: category) {
+                    view.layer.shadowColor = color.cgColor
+                }
+                view.layer.shadowRadius = 20
+                view.layer.shadowOpacity = 0.75
+                view.layer.shadowPath = UIBezierPath(rect: view.bounds).cgPath
+            }
+        }
+        
+        private func removeHighlight(for view: MKAnnotationView) {
+            UIView.animate(withDuration: 0.2) {
+                view.transform = self.annotationScaleHelper.transform
+                view.layer.shadowRadius = 0
+                view.layer.shadowColor = nil
+                view.layer.shadowPath = nil
             }
         }
     }
@@ -137,13 +155,13 @@ fileprivate class AnnotationScaleHelper {
             return
         }
         self.scale = newScale
-        var annotations = mapView.annotations.compactMap({ $0 as? PlaceAnnotation })
+        var annotationsToScale = mapView.annotations.compactMap({ $0 as? PlaceAnnotationV2 })
         if let selectedPinId = selectedPinId {
-            annotations = annotations.filter({ $0.place.id != selectedPinId })
+            annotationsToScale = annotationsToScale.filter({ $0.pin.placeId != selectedPinId })
         }
-        let annotationViews = annotations.map({ mapView.view(for: $0) })
+        let viewsToScale = annotationsToScale.map({ mapView.view(for: $0) })
         UIView.animate(withDuration: 0.2) {
-            for view in annotationViews {
+            for view in viewsToScale {
                 view?.transform = self.transform
             }
         }

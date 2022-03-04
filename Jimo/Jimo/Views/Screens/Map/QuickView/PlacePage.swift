@@ -1,5 +1,5 @@
 //
-//  PlaceInfoQuickView.swift
+//  PlacePage.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 1/17/22.
@@ -8,44 +8,7 @@
 import SwiftUI
 import MapKit
 
-class QuickViewModel: ObservableObject {
-    var mapItemCache: [PlaceId: MKMapItem] = [:]
-    
-    func getMapItem(place: Place, handle: @escaping (MKMapItem?) -> Void) {
-        if let mapItem = mapItemCache[place.id] {
-            handle(mapItem)
-        }
-        let geocoder = CLGeocoder()
-        let location = CLLocation(latitude: place.location.latitude, longitude: place.location.longitude)
-        geocoder.reverseGeocodeLocation(location) { response, error in
-            if let response = response, let placemark = response.first {
-                // Got the CLPlacemark, now try to get the MKMapItem to get the business details
-                let searchRequest = MKLocalSearch.Request()
-                searchRequest.region = .init(center: place.location.coordinate(), span: .init(latitudeDelta: 0, longitudeDelta: 0))
-                searchRequest.naturalLanguageQuery = place.name
-                MKLocalSearch(request: searchRequest).start { (response, error) in
-                    if let response = response {
-                        for mapItem in response.mapItems {
-                            if let placemarkLocation = placemark.location,
-                               let mapItemLocation = mapItem.placemark.location,
-                               mapItemLocation.distance(from: placemarkLocation) < 10 {
-                                self.mapItemCache[place.id] = mapItem
-                                return handle(mapItem)
-                            }
-                        }
-                    }
-                    let mapItem = MKMapItem(placemark: MKPlacemark(placemark: placemark))
-                    self.mapItemCache[place.id] = mapItem
-                    handle(mapItem)
-                }
-            } else {
-                handle(nil)
-            }
-        }
-    }
-}
-
-struct PlaceInfoQuickView: View {
+struct PlacePage: View {
     @ObservedObject var quickViewModel: QuickViewModel
     var locationManager: CLLocationManager
     var place: Place
@@ -78,6 +41,8 @@ struct PlaceInfoQuickView: View {
         let distanceMeters = location.distance(from: CLLocation(latitude: place.location.latitude, longitude: place.location.longitude))
         let distanceMiles = distanceMeters / 1609.34
         let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumSignificantDigits = 2
         formatter.decimalSeparator = "."
         formatter.groupingSeparator = ","
         formatter.usesGroupingSeparator = true

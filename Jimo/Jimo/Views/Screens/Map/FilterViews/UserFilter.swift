@@ -9,16 +9,9 @@ import SwiftUI
 
 struct CircularCheckbox: View {
     var selected: Bool
-    var userLoaded: Bool
     
     var imageName: String {
-        if !userLoaded {
-            return "arrow.down.circle"
-        } else if selected {
-            return "checkmark.circle.fill"
-        } else {
-            return "circle"
-        }
+        selected ? "checkmark.circle.fill" : "circle"
     }
     
     var body: some View {
@@ -29,55 +22,94 @@ struct CircularCheckbox: View {
 }
 
 
+struct GlobalViewSelector: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    
+    @ObservedObject var mapViewModel: MapViewModelV2
+    
+    @ViewBuilder var logoImage: some View {
+        Image("logo")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 30, height: 30)
+            .padding(5)
+            .overlay(
+                Circle()
+                    .stroke(Colors.angularGradient, style: StrokeStyle(lineWidth: 2.5))
+                    .frame(width: 37.5, height: 37.5)
+            )
+    }
+    
+    var body: some View {
+        HStack {
+            logoImage
+                .font(.system(size: 14, weight: .light))
+                .foregroundColor(Color("foreground").opacity(0.8))
+                .frame(width: 40, height: 40)
+            
+            Text("Community")
+                .bold()
+                .font(.system(size: 15))
+                .lineLimit(1)
+            
+            Spacer()
+            
+            CircularCheckbox(selected: mapViewModel.globalSelected)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            mapViewModel.toggleGlobal()
+        }
+    }
+}
+
+
+struct FollowingViewSelector: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    
+    @ObservedObject var mapViewModel: MapViewModelV2
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "person.2.circle")
+                .resizable()
+                .font(.system(size: 14, weight: .light))
+                .foregroundColor(Color("foreground").opacity(0.8))
+                .frame(width: 40, height: 40)
+            
+            HStack(spacing: 5) {
+                Text("All Friends")
+                    .bold()
+            }
+            .font(.system(size: 15))
+            .lineLimit(1)
+            
+            Spacer()
+            
+            CircularCheckbox(selected: mapViewModel.followingSelected)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            mapViewModel.toggleFollowing()
+        }
+    }
+}
+
+
 struct SelectableUser: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     
     @ObservedObject var mapViewModel: MapViewModelV2
     var user: PublicUser
-    @Binding var selectedUsers: Set<UserId>
-    
-    @State private var loadingPosts = false
-    
-    var selected: Bool {
-        selectedUsers.contains(user.id)
-    }
     
     var isCurrentUser: Bool {
         if case let .user(currentUser) = appState.currentUser {
             return currentUser.id == user.id
         }
         return false
-    }
-    
-    var userLoaded: Bool {
-        mapViewModel.allUsers.keys.contains(user.id)
-    }
-    
-    var allPostsLoaded: Bool {
-        mapViewModel.numLoadedPostsByUser[user.id] == user.postCount
-    }
-    
-    @ViewBuilder var loadedPostsInfo: some View {
-        VStack {
-            Text("Loaded \(mapViewModel.numLoadedPostsByUser[user.id] ?? 0)/\(user.postCount) pins")
-            if !allPostsLoaded {
-                Button(action: {
-                    self.loadingPosts = true
-                    mapViewModel.loadMoreAndUpdateMap(
-                        appState: appState,
-                        globalViewState: viewState,
-                        forUser: user, onComplete: {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                self.loadingPosts = false
-                            }
-                        })
-                }) {
-                    Text("Load more")
-                }
-            }
-        }
-        .font(.caption)
     }
     
     @ViewBuilder var profilePicture: some View {
@@ -120,24 +152,11 @@ struct SelectableUser: View {
             
             Spacer()
             
-            CircularCheckbox(selected: selected, userLoaded: userLoaded)
-                .overlay(self.loadingPosts ? ProgressView() : nil)
+            CircularCheckbox(selected: mapViewModel.isSelected(userId: user.id))
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            if selected {
-                selectedUsers.remove(user.id)
-            } else {
-                self.loadingPosts = true
-                mapViewModel.selectAndLoadPostsIfNotLoaded(appState: appState, globalViewState: viewState, user: user) {
-                    self.loadingPosts = false
-                }
-            }
-        }
-        .contextMenu {
-            if !loadingPosts, let num = mapViewModel.numLoadedPostsByUser[user.id], num > 0 {
-                loadedPostsInfo
-            }
+            mapViewModel.toggleUser(user: user)
         }
     }
 }
@@ -156,11 +175,11 @@ struct UserFilter: View {
     }
     
     var filteredUsers: [PublicUser] {
-        let text = mapViewModel.filterUsersQuery.lowercased()
+        let text = mapViewModel.searchUsersQuery.lowercased()
         guard case let .user(currentUser) = appState.currentUser else {
             return []
         }
-        return mapViewModel.allUsers.values
+        return mapViewModel.loadedUsers.values
             .filter { user in
                 userMatchesFilter(user: user, text: text)
             }
@@ -182,44 +201,20 @@ struct UserFilter: View {
     }
     
     var userSearchResultsWithoutExistingUsers: [PublicUser] {
-        let allUserIds = Set(mapViewModel.allUsers.keys)
+        let allUserIds = Set(mapViewModel.loadedUsers.keys)
         return mapViewModel.userSearchResults.filter({ !allUserIds.contains($0.id) })
     }
     
     var existingMapBody: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 10) {
-                Button("Refresh map") {
-                    mapViewModel.refreshMap(appState: appState, globalViewState: globalViewState)
-                }
-                .foregroundColor(.blue)
-                .disabled(mapViewModel.loadStatus == .loading)
-                
-                Spacer()
-                
-                if filteredUsers.count > 2 {
-                    Button("Select all") {
-                        mapViewModel.selectAllUsers()
-                    }
-                    .foregroundColor(mapViewModel.allUsersSelected ? .gray : .blue)
-                    .disabled(mapViewModel.allUsersSelected)
-
-                    Divider()
-
-                    Button("Clear") {
-                        mapViewModel.clearUserSelection()
-                    }
-                    .foregroundColor(mapViewModel.noUsersSelected ? .gray : .blue)
-                    .disabled(mapViewModel.noUsersSelected)
-                }
-            }
-            .padding(.bottom, 10)
-            
             VStack {
                 if filteredUsers.count > 0 {
                     VStack(spacing: 10) {
+                        GlobalViewSelector(mapViewModel: mapViewModel)
+                        FollowingViewSelector(mapViewModel: mapViewModel)
+                        
                         ForEach(filteredUsers) { user in
-                            SelectableUser(mapViewModel: mapViewModel, user: user, selectedUsers: $mapViewModel.selectedUsers)
+                            SelectableUser(mapViewModel: mapViewModel, user: user)
                                 .matchedGeometryEffect(id: user.id, in: userFilter)
                         }
                     }
@@ -227,12 +222,12 @@ struct UserFilter: View {
                 }
                 
                 if userSearchResultsWithoutExistingUsers.count > 0 {
-                    Text(mapViewModel.allUsers.isEmpty ? "Suggested" : "More users")
+                    Text(mapViewModel.loadedUsers.isEmpty ? "Suggested" : "More people")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     ForEach(userSearchResultsWithoutExistingUsers) { user in
-                        SelectableUser(mapViewModel: mapViewModel, user: user, selectedUsers: $mapViewModel.selectedUsers)
+                        SelectableUser(mapViewModel: mapViewModel, user: user)
                             .matchedGeometryEffect(id: user.id, in: userFilter)
                     }
                 }
