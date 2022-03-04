@@ -20,7 +20,7 @@ struct UITabView: View {
             let tabController = UIHostingController(rootView: next.view)
             tabController.tabBarItem = next.barItem
             if UIDevice.current.hasNotch {
-                tabController.tabBarItem.imageInsets = UIEdgeInsets(top: 2, left: 0, bottom: -2, right: 0)
+                tabController.tabBarItem.imageInsets = UIEdgeInsets(top: 3, left: 0, bottom: -1, right: 0)
             }
             result.0.append(tabController)
             result.1.append(next)

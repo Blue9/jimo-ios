@@ -103,7 +103,7 @@ struct Search: View {
                 SearchBar(
                     text: $searchViewModel.query,
                     isActive: $searchViewModel.searchBarFocused,
-                    placeholder: "Search users",
+                    placeholder: "Search people",
                     disableAutocorrection: true,
                     onCommit: {}
                 )
