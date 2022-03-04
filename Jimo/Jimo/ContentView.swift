@@ -106,6 +106,7 @@ struct ContentView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear(perform: appState.listen)
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
             setIcon()
         }
     }
