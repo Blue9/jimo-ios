@@ -19,6 +19,9 @@ struct UITabView: View {
         (viewControllers, tabBarItems) = content().reduce(into: ([], [])) { result, next in
             let tabController = UIHostingController(rootView: next.view)
             tabController.tabBarItem = next.barItem
+            if UIDevice.current.hasNotch {
+                tabController.tabBarItem.imageInsets = UIEdgeInsets(top: 2, left: 0, bottom: -2, right: 0)
+            }
             result.0.append(tabController)
             result.1.append(next)
         }
