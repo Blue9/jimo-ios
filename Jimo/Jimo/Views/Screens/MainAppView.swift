@@ -6,9 +6,25 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 enum Tab: Int {
     case feed = 0, map = 1, create = 2, search = 3, profile = 4
+    
+    var string: String {
+        switch self {
+        case .feed:
+            return "feed"
+        case .map:
+            return "map"
+        case .create:
+            return "create"
+        case .search:
+            return "search"
+        case .profile:
+            return "profile"
+        }
+    }
 }
 
 class TabBar: ObservableObject {
@@ -19,8 +35,10 @@ class TabBar: ObservableObject {
         didSet {
             if selection == newPostTag.rawValue {
                 previousSelection = Tab(rawValue: oldValue)
-                selection = oldValue
                 newPostSelected = true
+                selection = oldValue
+            } else if !newPostSelected {
+                logTabSelection(tab: Tab(rawValue: selection)!)
             }
         }
     }
@@ -29,12 +47,29 @@ class TabBar: ObservableObject {
     
     init() {
         self.selection = Tab.feed.rawValue
+        logTabSelection(tab: Tab.feed)
     }
     
     func reset() {
         if let previousSelection = previousSelection {
             selection = previousSelection.rawValue
         }
+    }
+    
+    private func logTabSelection(tab: Tab) {
+        Analytics.logEvent(
+            AnalyticsEventScreenView,
+            parameters: [AnalyticsParameterScreenName: tab.string, AnalyticsParameterScreenClass: tab.string]
+        )
+        print(">>tab", tab.string)
+    }
+    
+    private func logCreatePostTab() {
+        Analytics.logEvent(
+            AnalyticsEventScreenView,
+            parameters: [AnalyticsParameterScreenName: "create", AnalyticsParameterScreenClass: "create"]
+        )
+        print(">>tab create")
     }
 }
 

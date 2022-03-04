@@ -8,9 +8,11 @@
 import SwiftUI
 import MapKit
 import Combine
+import FirebaseAnalytics
 
 
 struct CreatePostCategory: View {
+    
     var name: String
     var key: String
     @Binding var selected: String?
@@ -88,6 +90,8 @@ struct FormInputButton: View {
             Image(systemName: "xmark.circle")
                 .foregroundColor(.gray)
                 .padding(.trailing)
+            
+            
         }
     }
     
@@ -335,7 +339,17 @@ struct CreatePostWithModel: View {
                         Divider().padding(.leading, 10)
                         
                         Group {
-                            Button(action: { createPostVM.activeSheet = .placeSearch }) {
+                            Button(action: {
+                                createPostVM.activeSheet = .placeSearch
+//                                Analytics.logEvent("post_created0", parameters: nil)
+                                Analytics.logEvent("enter_location", parameters: nil)
+                                print("*******************enter_location***********************")
+                                print("enter_location")
+                                print("********************************************************")
+                                
+                                
+                                
+                            }) {
                                 FormInputButton(
                                     name: "Enter location",
                                     content: createPostVM.name,
@@ -413,6 +427,25 @@ struct CreatePostWithModel: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         self.createPost()
+                        print("*******************create_post************************")
+                        
+                        var image_uploaded_with_post = true
+                        if createPostVM.image == nil {
+                            image_uploaded_with_post = false
+                        }
+                        
+                        var text_uploaded_with_post = true
+                        if content.isEmpty == true {
+                            text_uploaded_with_post = false
+                        }
+                        
+                        Analytics.logEvent("create_post", parameters: [
+                            "category_chosen": category,
+                            "text_uploaded_with_post": text_uploaded_with_post,
+                            "image_uploaded_with_post": image_uploaded_with_post
+                        
+                        ])
+                        print("******************************************************")
                     } label: {
                         Text("Save").bold()
                     }
@@ -449,6 +482,7 @@ struct CreatePostWithModel: View {
 
 struct ImageSelectionView: View {
     @ObservedObject var createPostVM: CreatePostVM
+    
     
     var buttonColor: Color
     

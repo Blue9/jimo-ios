@@ -20,6 +20,9 @@ struct PhoneNumberTextFieldView: UIViewRepresentable {
     }
     
     func getPhoneNumber() -> PhoneNumber? {
+        print("****************************************")
+        print(textField.phoneNumber!.nationalNumber)
+        print("****************************************")
         return textField.phoneNumber
     }
     

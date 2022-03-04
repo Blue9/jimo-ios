@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import ASCollectionView
+import FirebaseAnalytics
 
 struct Search: View {
     @EnvironmentObject var appState: AppState
@@ -106,6 +107,7 @@ struct Search: View {
                     placeholder: "Search users",
                     disableAutocorrection: true,
                     onCommit: {}
+                    
                 )
                 .padding(.horizontal)
                 .padding(.bottom, 0)
@@ -114,10 +116,17 @@ struct Search: View {
                     discoverFeed
                 } else {
                     userResults
+                        .appear {
+                            print("***************User performed search******************")
+                            Analytics.logEvent("user_performed_search", parameters: nil)
+                            print("*****************************************************")
+                        }
                 }
                 
                 Spacer()
             }
+            
+            
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color("background"))
             .edgesIgnoringSafeArea(.bottom)
@@ -133,6 +142,7 @@ struct Search: View {
                     initialLoadCompleted = true
                     searchViewModel.listen(appState: appState)
                     discoverViewModel.loadDiscoverPage(appState: appState)
+
                 }
             }
         }
@@ -144,5 +154,7 @@ struct Search_Previews: PreviewProvider {
     
     static var previews: some View {
         Search()
+ 
+        
     }
 }

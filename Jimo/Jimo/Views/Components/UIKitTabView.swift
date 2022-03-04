@@ -6,6 +6,7 @@
 //  From https://gist.github.com/Amzd/2eb5b941865e8c5cccf149e6e07c8810
 
 import SwiftUI
+import FirebaseAnalytics
 
 /// This allows us to pop to root and scroll to the top when tapping a tab twice
 public struct UIKitTabView: View {
@@ -77,6 +78,15 @@ fileprivate struct TabBarController: UIViewControllerRepresentable {
     
     func updateUIViewController(_ tabBarController: UITabBarController, context: Context) {
         tabBarController.selectedIndex = selectedIndex
+//        Analytics.logEvent(AnalyticsEventScreenView,
+//                           parameters: [AnalyticsParameterScreenName: selectedIndex,
+//                                        AnalyticsParameterScreenClass: selectedIndex])
+//        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+////        print(tabBarController.selectedIndex)
+//        print("--")
+//        print("--")
+//        print(selectedIndex)
+//        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     }
     
     func makeCoordinator() -> Coordinator {

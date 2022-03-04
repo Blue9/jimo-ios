@@ -10,6 +10,8 @@ import Foundation
 import Combine
 import MapKit
 import Firebase
+import CoreLocation
+import FirebaseAnalytics
 
 
 struct Endpoint {
@@ -259,6 +261,31 @@ class APIClient: ObservableObject {
      */
     func setAuthHandler(handle: @escaping (Firebase.Auth, Firebase.User?) -> Void) {
         self.authClient.handle = Auth.auth().addStateDidChangeListener(handle)
+    }
+    
+    func logLocationServicesSetting(){
+        //check if location services are enabled at all
+        let locationManager = CLLocationManager()
+        var location_sharing_enabled = "False"
+        print("*******************location_setting************************")
+        if CLLocationManager.locationServicesEnabled() {
+            switch locationManager.authorizationStatus {
+                case .notDetermined, .restricted, .denied:
+                    print("No access")
+                case .authorizedAlways, .authorizedWhenInUse:
+                    location_sharing_enabled = "True"
+                    print("Access")
+                @unknown default:
+                    break
+            }
+        } else {
+            print("Location services are not enabled")
+        }
+        
+        Analytics.logEvent("location_sharing_enabled", parameters: [
+            "location_sharing_enabled": location_sharing_enabled])
+        print("**location", location_sharing_enabled)
+        
     }
     
     // MARK: - Invite + waitlist endpoints

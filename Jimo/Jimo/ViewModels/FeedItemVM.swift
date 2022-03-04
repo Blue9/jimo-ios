@@ -7,6 +7,8 @@
 
 import SwiftUI
 import Combine
+import FirebaseAnalytics
+
 
 class FeedItemVM: ObservableObject {
     @Published var liking = false
@@ -30,6 +32,10 @@ class FeedItemVM: ObservableObject {
                 }
             }, receiveValue: { response in
                 print("Liked post")
+                print("*******************liked_post************************")
+                print("liked_post")
+                Analytics.logEvent("liked_post", parameters: nil)
+                print("*****************************************************")
             })
     }
     
@@ -44,6 +50,10 @@ class FeedItemVM: ObservableObject {
                 }
             }, receiveValue: { response in
                 print("Unliked post")
+                print("*******************unliked_post**********************")
+                print("unliked_post")
+                Analytics.logEvent("unliked_post", parameters: nil)
+                print("*****************************************************")
             })
     }
     
@@ -56,7 +66,13 @@ class FeedItemVM: ObservableObject {
                     print("Error when deleting", error)
                     viewState.setError("Failed to delete post")
                 }
-            }, receiveValue: {})
+            }, receiveValue: { response in
+                    print("deleted post")
+                    print("*******************deleted_post************************")
+                    print("deleted_post")
+                    Analytics.logEvent("deleted_post", parameters: nil)
+                    print("*******************************************************")
+            })
     }
     
     func reportPost(postId: PostId, details: String, appState: AppState, viewState: GlobalViewState) {
@@ -69,6 +85,7 @@ class FeedItemVM: ObservableObject {
             }, receiveValue: { response in
                 if response.success {
                     viewState.setSuccess("Reported post! Thank you for keeping jimo a safe community.")
+                    Analytics.logEvent("reported_post", parameters: nil)
                 } else {
                     viewState.setWarning("You already reported this post.")
                 }

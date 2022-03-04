@@ -12,6 +12,7 @@ import Firebase
 import SDWebImage
 
 
+
 enum CurrentUser {
     case user(PublicUser)
     case doesNotExist
@@ -37,12 +38,13 @@ class OnboardingModel: ObservableObject {
     
     init() {
         // Uncomment to enable onboarding view
-        // completedContactsOnboarding = false
-        // completedFeaturedUsersOnboarding = false
+//         completedContactsOnboarding = false
+//         completedFeaturedUsersOnboarding = false
     }
     
     var isUserOnboarded: Bool {
         completedContactsOnboarding && completedFeaturedUsersOnboarding
+        
     }
     
     static func contactsOnboarded() -> Bool {
@@ -62,6 +64,7 @@ class OnboardingModel: ObservableObject {
     
     func setFeaturedUsersOnboarded() {
         UserDefaults.standard.set(true, forKey: "featuredUsersOnboarded")
+  
         completedFeaturedUsersOnboarding = true
     }
 }
@@ -158,6 +161,7 @@ class AppState: ObservableObject {
     
     func listen() {
         self.apiClient.setAuthHandler(handle: self.authHandler)
+        self.apiClient.logLocationServicesSetting()
     }
     
     func signUp(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
@@ -441,6 +445,9 @@ class AppState: ObservableObject {
                 self.postPublisher.postLiked(postId: postId, likeCount: like.likes)
                 return like
             }
+//            .print("*******************like_post***********************")
+//            .print("like_post")
+//            .print("***************************************************")
             .eraseToAnyPublisher()
     }
     

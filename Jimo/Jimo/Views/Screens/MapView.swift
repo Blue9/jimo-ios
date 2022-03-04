@@ -12,6 +12,7 @@ import SDWebImage
 import CoreLocation
 
 
+
 class LocationAnnotationView: MKAnnotationView {
     
     // MARK: Initialization
