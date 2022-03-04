@@ -174,7 +174,7 @@ struct EditProfile: View {
                     if editProfileViewModel.updating {
                         ProgressView()
                     } else {
-                        Text("Update profile")
+                        Text("Save changes")
                             .foregroundColor(buttonDisabled ? .gray : .blue)
                     }
                 }
