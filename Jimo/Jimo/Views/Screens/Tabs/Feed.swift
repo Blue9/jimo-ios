@@ -198,7 +198,7 @@ struct Feed: View {
                 Circle()
                     .fill()
                     .frame(width: 10, height: 10)
-                    .foregroundColor(.red)
+                    .foregroundColor(Color(UIColor.systemRed))
                     .offset(x: -1)
             }
         }
