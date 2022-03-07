@@ -116,11 +116,18 @@ struct Search: View {
                     discoverFeed
                 } else {
                     userResults
+<<<<<<< Updated upstream
                         .appear {
                             print("***************User performed search******************")
                             Analytics.logEvent("user_performed_search", parameters: nil)
                             print("*****************************************************")
                         }
+=======
+                    .appear {
+                        print(">>>User performed search")
+                        Analytics.logEvent("user_performed_search", parameters: nil)
+                             }
+>>>>>>> Stashed changes
                 }
                 
                 Spacer()

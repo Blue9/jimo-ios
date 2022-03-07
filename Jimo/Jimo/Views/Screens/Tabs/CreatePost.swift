@@ -9,7 +9,10 @@ import SwiftUI
 import MapKit
 import Combine
 import FirebaseAnalytics
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 struct CreatePostCategory: View {
     
@@ -341,12 +344,17 @@ struct CreatePostWithModel: View {
                         Group {
                             Button(action: {
                                 createPostVM.activeSheet = .placeSearch
+<<<<<<< Updated upstream
 //                                Analytics.logEvent("post_created0", parameters: nil)
                                 Analytics.logEvent("enter_location", parameters: nil)
                                 print("*******************enter_location***********************")
                                 print("enter_location")
                                 print("********************************************************")
                                 
+=======
+                                print(">>>enter_location")
+                                Analytics.logEvent("enter_location", parameters: nil)
+>>>>>>> Stashed changes
                                 
                                 
                             }) {
@@ -427,7 +435,11 @@ struct CreatePostWithModel: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         self.createPost()
+<<<<<<< Updated upstream
                         print("*******************create_post************************")
+=======
+                        print(">>>create_post")
+>>>>>>> Stashed changes
                         
                         var image_uploaded_with_post = true
                         if createPostVM.image == nil {
@@ -445,7 +457,11 @@ struct CreatePostWithModel: View {
                             "image_uploaded_with_post": image_uploaded_with_post
                         
                         ])
+<<<<<<< Updated upstream
                         print("******************************************************")
+=======
+                              
+>>>>>>> Stashed changes
                     } label: {
                         Text("Save").bold()
                     }

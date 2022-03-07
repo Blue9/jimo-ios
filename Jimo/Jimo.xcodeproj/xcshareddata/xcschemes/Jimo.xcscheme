@@ -72,11 +72,19 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+<<<<<<< Updated upstream
             argument = "-FIRDebugEnabled"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-FIRAnalyticsDebugEnabled"
+=======
+            argument = "-FIRAnalyticsDebugEnabled"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-FIRDebugEnabled"
+>>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

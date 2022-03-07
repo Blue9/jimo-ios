@@ -9,7 +9,11 @@ import SwiftUI
 import FirebaseAnalytics
 
 enum Tab: Int {
+<<<<<<< Updated upstream
     case feed = 0, map = 1, create = 2, search = 3, profile = 4
+=======
+    case map = 0, feed = 1, create = 2, search = 3, profile = 4
+>>>>>>> Stashed changes
     
     var string: String {
         switch self {
@@ -27,27 +31,50 @@ enum Tab: Int {
     }
 }
 
+
 class TabBar: ObservableObject {
     let newPostTag: Tab = .create
-    
+
     @Published var newPostSelected = false
     @Published var selection: Int {
         didSet {
+//            print(">>>*******************************")
+//            print(">>> \(selection)")
+//            print(">>> \(newPostTag.rawValue)")
+//            print(">>> \(newPostSelected)")
+//            print(">>>*******************************")
+
             if selection == newPostTag.rawValue {
                 previousSelection = Tab(rawValue: oldValue)
                 newPostSelected = true
+<<<<<<< Updated upstream
                 selection = oldValue
             } else if !newPostSelected {
                 logTabSelection(tab: Tab(rawValue: selection)!)
+=======
+//                logCreatePostTab()
+            } else if !newPostSelected {
+                print(newPostSelected)
+                logTabSelection(tab: Tab(rawValue: selection)!)
+                
+
+>>>>>>> Stashed changes
             }
         }
     }
     
     var previousSelection: Tab?
     
+    
     init() {
+<<<<<<< Updated upstream
         self.selection = Tab.feed.rawValue
         logTabSelection(tab: Tab.feed)
+=======
+        self.selection = Tab.map.rawValue
+        logTabSelection(tab: Tab.map)
+
+>>>>>>> Stashed changes
     }
     
     func reset() {
@@ -61,7 +88,11 @@ class TabBar: ObservableObject {
             AnalyticsEventScreenView,
             parameters: [AnalyticsParameterScreenName: tab.string, AnalyticsParameterScreenClass: tab.string]
         )
+<<<<<<< Updated upstream
         print(">>tab", tab.string)
+=======
+        print(">>>tab", tab.string)
+>>>>>>> Stashed changes
     }
     
     private func logCreatePostTab() {
@@ -69,7 +100,11 @@ class TabBar: ObservableObject {
             AnalyticsEventScreenView,
             parameters: [AnalyticsParameterScreenName: "create", AnalyticsParameterScreenClass: "create"]
         )
+<<<<<<< Updated upstream
         print(">>tab create")
+=======
+        print(">>>tab1 create")
+>>>>>>> Stashed changes
     }
 }
 

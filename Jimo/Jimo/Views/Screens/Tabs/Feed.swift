@@ -9,7 +9,10 @@ import SwiftUI
 import Combine
 import ASCollectionView
 import FirebaseAnalytics
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 class FeedViewModel: ObservableObject {
     
@@ -241,6 +244,7 @@ struct Feed: View {
                             .frame(width: 50)
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
+<<<<<<< Updated upstream
                         Button(action: {
                             self.showNotifications.toggle()
                             Analytics.logEvent("notification_tap", parameters: nil)
@@ -249,6 +253,12 @@ struct Feed: View {
                             print("noticiations_tap")
                             print("********************************************************")
                             
+=======
+                        Button(action: { self.showNotifications.toggle()
+                            print(">>>noticiations_tap")
+                            Analytics.logEvent("notification_tap", parameters: nil)
+
+>>>>>>> Stashed changes
                             
                         }) {
                             notificationFeedIcon

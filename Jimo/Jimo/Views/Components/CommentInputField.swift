@@ -7,7 +7,10 @@
 
 import SwiftUI
 import FirebaseAnalytics
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 struct CommentInputField: View {
     @Binding var text: String
@@ -38,7 +41,14 @@ struct CommentInputField: View {
                     
                     Button(action: {
                         withAnimation {
+<<<<<<< Updated upstream
                             self.text = ""
+=======
+                            hideKeyboard()
+                            onSubmit()
+                            print(">>>comment_submitted")
+                            Analytics.logEvent("comment_submitted", parameters: nil)
+>>>>>>> Stashed changes
                         }
                     }) {
                         Image(systemName: "multiply.circle.fill")
