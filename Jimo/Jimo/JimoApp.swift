@@ -22,6 +22,9 @@ struct JimoApp: App {
             ContentView()
                 .environmentObject(appState)
                 .environmentObject(GlobalViewState())
+                .onAppear {
+                    appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+                }
         }
     }
 }
@@ -119,7 +122,7 @@ extension AppDelegate {
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         print("Tapped on notification")
-        UIApplication.shared.applicationIconBadgeNumber = 0
+        // UIApplication.shared.applicationIconBadgeNumber = 0
         let userInfo = response.notification.request.content.userInfo
         // Print message ID.
         if let messageID = userInfo[gcmMessageIDKey] {

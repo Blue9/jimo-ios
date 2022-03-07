@@ -119,7 +119,7 @@ class MapViewModel: ObservableObject {
     }
 }
 
-
+@available(*, deprecated, message: "Use PlaceAnnotationV2")
 class PlaceAnnotation: NSObject, MKAnnotation {
     let pin: MapPlace
     let zIndex: Int

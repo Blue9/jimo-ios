@@ -12,6 +12,7 @@ import PhoneNumberKit
 import FirebaseAnalytics
 
 
+
 fileprivate struct Contact: Identifiable {
     var id = UUID()
     var name: String
@@ -267,7 +268,7 @@ struct InviteContactsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             contactStore.loadContacts(appState: appState)
-            print(">>>invite_friends")
+            print(">>> invite_friends")
             Analytics.logEvent("invite_friends", parameters: nil)
         }
         .foregroundColor(Color("foreground"))

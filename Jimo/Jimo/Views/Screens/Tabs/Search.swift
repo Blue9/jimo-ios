@@ -104,10 +104,9 @@ struct Search: View {
                 SearchBar(
                     text: $searchViewModel.query,
                     isActive: $searchViewModel.searchBarFocused,
-                    placeholder: "Search users",
+                    placeholder: "Search people",
                     disableAutocorrection: true,
                     onCommit: {}
-                    
                 )
                 .padding(.horizontal)
                 .padding(.bottom, 0)
@@ -116,24 +115,15 @@ struct Search: View {
                     discoverFeed
                 } else {
                     userResults
-<<<<<<< Updated upstream
-                        .appear {
-                            print("***************User performed search******************")
-                            Analytics.logEvent("user_performed_search", parameters: nil)
-                            print("*****************************************************")
-                        }
-=======
                     .appear {
-                        print(">>>User performed search")
+                        print(">>> User performed search")
                         Analytics.logEvent("user_performed_search", parameters: nil)
-                             }
->>>>>>> Stashed changes
+                    }
+
                 }
                 
                 Spacer()
             }
-            
-            
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color("background"))
             .edgesIgnoringSafeArea(.bottom)
@@ -149,7 +139,6 @@ struct Search: View {
                     initialLoadCompleted = true
                     searchViewModel.listen(appState: appState)
                     discoverViewModel.loadDiscoverPage(appState: appState)
-
                 }
             }
         }
@@ -161,7 +150,5 @@ struct Search_Previews: PreviewProvider {
     
     static var previews: some View {
         Search()
- 
-        
     }
 }

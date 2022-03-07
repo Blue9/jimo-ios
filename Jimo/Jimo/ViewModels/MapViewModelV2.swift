@@ -14,37 +14,49 @@ enum MapLoadStatus {
     case loading, failed, success
 }
 
-struct MapPins: Equatable {
-    var loaded = false
-    var pins: [MapPlace] = []
+enum MapLoadStrategy {
+    case everyone, following, custom, none
 }
 
+struct CurrentMapRequest {
+    var requestId: UUID
+    var mapLoadStrategy: MapLoadStrategy
+    var region: Region
+    var categories: [String]
+    var users: [String]
+}
 
-class MapViewModelV2: ObservableObject {
+protocol MapActions {
+    func initialize(appState: AppState, viewState: GlobalViewState, regionWrapper: RegionWrapper)
+    
+    func toggleGlobal()
+    func toggleFollowing()
+    func toggleUser(user: PublicUser)
+    
+    var globalSelected: Bool { get }
+    var followingSelected: Bool { get }
+    func isSelected(userId: UserId) -> Bool
+    
+    func selectPin(index: Int)
+    func deselectPin()
+}
+
+class MapViewModelV2: MapActions, ObservableObject {
     let locationManager = CLLocationManager()
-    let nc = NotificationCenter.default
+    var appState: AppState!
+    var viewState: GlobalViewState!
+    var regionWrapper: RegionWrapper!
     
     private var cancelBag: Set<AnyCancellable> = .init()
     
+    private var latestMapRequestId: UUID?
+    
     // Used when loading the map from the server
-    @Published var loadStatus: MapLoadStatus = .loading
+    @Published private(set) var mapLoadStatus: MapLoadStatus = .loading
     
-    // Used when the filters change
-    @Published var filterLoading = false
-    
-    /// Unfiltered data
-    @Published var allPosts: [PostId: Post] = [:] {
-        didSet {
-            updatePostCountsByUser()
-        }
-    }
-    @Published var allUsers: [UserId: PublicUser] = [:]
-    @Published var numLoadedPostsByUser: [UserId: Int] = [:]
-    @Published var postCursorsByUser: [UserId: PostId?] = [:]
-    @Published var userSearchResults: [PublicUser] = []
-    
-    /// Filters
-    @Published var filterUsersQuery: String = ""
+    // Request parameters
+    @Published private(set) var mapLoadStrategy: MapLoadStrategy = .following
+    @Published var regionToLoad: Region?
     @Published var selectedCategories: Set<String> = [
         "food",
         "activity",
@@ -52,83 +64,260 @@ class MapViewModelV2: ObservableObject {
         "attraction",
         "lodging",
         "shopping"
-    ] {
-        didSet {
-            if selectedCategories != oldValue {
-                self.updateSelectedPosts()
-            }
+    ]
+    @Published private(set) var selectedUsers: Set<UserId> = .init()
+    
+    // If this is non-nil, the quick view is visible
+    @Published var selectedPin: MapPinV3?
+    
+    @Published private(set) var pins: [MapPinV3] = []
+    @Published private(set) var userSearchResults: [PublicUser] = []
+    
+    @Published private(set) var loadedUsers: [UserId: PublicUser] = [:]
+    @Published var searchUsersQuery: String = ""
+    
+    // MARK: - Map actions
+    
+    var globalSelected: Bool {
+        mapLoadStrategy == .everyone
+    }
+    
+    var followingSelected: Bool {
+        mapLoadStrategy == .following
+    }
+    
+    func initialize(appState: AppState, viewState: GlobalViewState, regionWrapper: RegionWrapper) {
+        guard case let .user(user) = appState.currentUser else {
+            return
         }
-    }
-    
-    @Published var selectedUsers: Set<UserId> = .init() {
-        didSet {
-            if selectedUsers != oldValue {
-                self.updateSelectedPosts()
+        self.loadedUsers[user.id] = user
+        self.appState = appState
+        self.viewState = viewState
+        self.regionWrapper = regionWrapper
+        self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.startUpdatingLocation()
+        self.listenToSearchQuery()
+        self.loadFollowing()
+        if let location = self.locationManager.location {
+            self.regionWrapper.region.wrappedValue = MKCoordinateRegion(
+                center: location.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
+            self.regionWrapper.trigger.toggle()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.listenToRegionChanges()
             }
+        } else {
+            self.listenToRegionChanges()
         }
-    }
-    
-    @Published var selectedPosts: Set<PostId> = .init() {
-        didSet {
-            if selectedPosts != oldValue {
-                DispatchQueue.global(qos: .userInteractive).async {
-                    self.updateMapPins(selectedPosts: self.selectedPosts)
-                }
-            }
-        }
-    }
-    
-    /// Helpful properties
-    var allUsersSelected: Bool {
-        selectedUsers.count == allUsers.count
-    }
-    
-    var noUsersSelected: Bool {
-        selectedUsers.isEmpty
-    }
-    
-    /// Computed pins after filtering
-    @Published var mapPins: MapPins = MapPins()
-    
-    init() {
-        nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
-        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
-        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
-    }
-    
-    func listenToSearchQuery(appState: AppState, globalViewState: GlobalViewState) {
-        $filterUsersQuery
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            .sink { [weak self] query in
-                self?.search(appState: appState, globalViewState: globalViewState, query: query)
-            }
-            .store(in: &cancelBag)
-    }
-    
-    /// API calls
-    
-    func refreshMap(appState: AppState, globalViewState: GlobalViewState) {
-        loadStatus = .loading
-        appState.getMapV2()
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    self?.loadStatus = .failed
-                    print("Error loading map", error)
-                    globalViewState.setError("Could not load map")
-                }
-            } receiveValue: { [weak self] map in
-                self?.loadStatus = .success
-                self?.postCursorsByUser = map.postCursorsByUser
-                guard !map.posts.isEmpty else {
-                    self?.mapPins.loaded = true
+        Publishers.CombineLatest4($mapLoadStrategy, $regionToLoad, $selectedCategories, $selectedUsers)
+            .throttle(for: 1, scheduler: RunLoop.main, latest: true)
+            .sink { [weak self] mapLoadStrategy, region, categories, users in
+                guard let self = self, let region = region, self.selectedPin == nil else {
                     return
                 }
-                self?.allPosts = map.posts.reduce(into: [PostId: Post]()) { (result, post) in
-                    result[post.id] = post
-                }
-                self?.updateAllUsers()
+                let request = CurrentMapRequest(
+                    requestId: UUID(),
+                    mapLoadStrategy: mapLoadStrategy,
+                    region: region,
+                    categories: Array(categories),
+                    users: Array(users)
+                )
+                print("Created request with ID", request.requestId)
+                self.loadMap(request: request)
             }
             .store(in: &cancelBag)
+        
+    }
+    
+    func toggleGlobal() {
+        if mapLoadStrategy != .everyone {
+            mapLoadStrategy = .everyone
+            selectedUsers.removeAll()
+        } else {
+            mapLoadStrategy = .none
+            pins.removeAll()
+        }
+    }
+    
+    func toggleFollowing() {
+        if mapLoadStrategy != .following {
+            mapLoadStrategy = .following
+            selectedUsers.removeAll()
+        } else {
+            mapLoadStrategy = .none
+            pins.removeAll()
+        }
+    }
+    
+    func toggleUser(user: PublicUser) {
+        self.loadedUsers[user.id] = user
+        if mapLoadStrategy != .custom {
+            mapLoadStrategy = .custom
+            selectedUsers.insert(user.id)
+        } else if selectedUsers.contains(user.id) {
+            selectedUsers.remove(user.id)
+        } else {
+            selectedUsers.insert(user.id)
+        }
+        if selectedUsers.isEmpty {
+            pins.removeAll()
+        }
+    }
+    
+    func isSelected(userId: UserId) -> Bool {
+        return selectedUsers.contains(userId)
+    }
+    
+    func selectPin(index: Int) {
+        if index < pins.count {
+            selectedPin = pins[index]
+        }
+    }
+    
+    func deselectPin() {
+        selectedPin = nil
+    }
+    
+    func listenToRegionChanges() {
+        guard let regionWrapper = regionWrapper else {
+            return
+        }
+        var previouslyLoadedRegion: MKCoordinateRegion?
+        var previousRegion: MKCoordinateRegion?
+        Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else {
+                    return
+                }
+                let currentRegion = regionWrapper._region
+                if currentRegion == previousRegion && currentRegion != previouslyLoadedRegion {
+                    print("Region changed, updating regionToLoad")
+                    let region = regionWrapper._region
+                    self.regionToLoad = Region(
+                        coord: region.center,
+                        radius: region.span.longitudeDelta * 111111
+                    )
+                    previouslyLoadedRegion = currentRegion
+                }
+                previousRegion = currentRegion
+            }
+            .store(in: &cancelBag)
+    }
+    
+    func listenToSearchQuery() {
+        guard let appState = appState, let viewState = viewState else {
+            return
+        }
+        $searchUsersQuery
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .sink { [weak self] query in
+                self?.search(appState: appState, globalViewState: viewState, query: query)
+            }
+            .store(in: &cancelBag)
+    }
+    
+    func loadMap(request: CurrentMapRequest) {
+        guard let appState = appState, let viewState = viewState else {
+            return
+        }
+        self.latestMapRequestId = request.requestId
+        switch mapLoadStrategy {
+        case .everyone:
+            self.loadGlobalMap(appState: appState, globalViewState: viewState, request: request)
+        case .following:
+            self.loadFollowingMap(appState: appState, globalViewState: viewState, request: request)
+        case .custom:
+            self.loadCustomMap(appState: appState, globalViewState: viewState, request: request)
+        case .none:
+            return
+        }
+    }
+    
+    func loadFollowing() {
+        guard let appState = appState, case let .user(user) = appState.currentUser else {
+            return
+        }
+        appState.getFollowing(username: user.username)
+            .sink { completion in
+                if case let .failure(error) = completion {
+                    print("Could not load users", error)
+                }
+            } receiveValue: { [weak self] response in
+                guard let self = self else {
+                    return
+                }
+                let users = response.users.map { $0.user }
+                for user in users {
+                    self.loadedUsers[user.id] = user
+                }
+            }.store(in: &cancelBag)
+    }
+    
+    private func loadGlobalMap(appState: AppState, globalViewState: GlobalViewState, request: CurrentMapRequest) {
+        mapLoadStatus = .loading
+        appState.getGlobalMap(region: request.region, categories: request.categories)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                if case let .failure(error) = completion {
+                    self.mapLoadStatus = .failed
+                    print("Error loading map", error)
+                    globalViewState.setError("Could not load map")
+                } else {
+                    self.mapLoadStatus = .success
+                }
+            } receiveValue: { [weak self] mapResponseV3 in
+                guard let self = self else {
+                    return
+                }
+                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+            }.store(in: &cancelBag)
+    }
+    
+    private func loadFollowingMap(appState: AppState, globalViewState: GlobalViewState, request: CurrentMapRequest) {
+        mapLoadStatus = .loading
+        appState.getFollowingMap(region: request.region, categories: request.categories)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                if case let .failure(error) = completion {
+                    self.mapLoadStatus = .failed
+                    print("Error loading map", error)
+                    globalViewState.setError("Could not load map")
+                } else {
+                    self.mapLoadStatus = .success
+                }
+            } receiveValue: { [weak self] mapResponseV3 in
+                guard let self = self else {
+                    return
+                }
+                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+            }.store(in: &cancelBag)
+    }
+    
+    private func loadCustomMap(appState: AppState, globalViewState: GlobalViewState, request: CurrentMapRequest) {
+        mapLoadStatus = .loading
+        appState.getCustomMap(region: request.region, userIds: request.users, categories: request.categories)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                if case let .failure(error) = completion {
+                    self.mapLoadStatus = .failed
+                    print("Error loading map", error)
+                    globalViewState.setError("Could not load map")
+                } else {
+                    self.mapLoadStatus = .success
+                }
+            } receiveValue: { [weak self] mapResponseV3 in
+                guard let self = self else {
+                    return
+                }
+                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+            }.store(in: &cancelBag)
     }
     
     private func search(appState: AppState, globalViewState: GlobalViewState, query: String) {
@@ -146,203 +335,33 @@ class MapViewModelV2: ObservableObject {
             .store(in: &cancelBag)
     }
     
-    private func loadMorePosts(
-        appState: AppState,
-        globalViewState: GlobalViewState,
-        forUser user: PublicUser,
-        onLoad: @escaping (_ success: Bool) -> ()
-    ) {
-        appState.getPosts(username: user.username, cursor: postCursorsByUser[user.id] ?? nil, limit: 100)
-            .sink { completion in
-                if case .failure = completion {
-                    globalViewState.setError("Could not load posts")
-                    onLoad(false)
-                }
-            } receiveValue: { [weak self] response in
-                self?.postCursorsByUser[user.id] = response.cursor
-                if let post = response.posts.first {
-                    self?.allUsers[post.user.id] = post.user // In case the post count of the user has updated
-                }
-                for post in response.posts {
-                    self?.allPosts[post.id] = post
-                }
-                onLoad(true)
-            }
-            .store(in: &cancelBag)
-    }
-    
-    /// Helper functions called by views
-    
-    func preselectPost(post: Post) {
-        let newPin = MapPlace(
-            place: post.place,
-            icon: MapPlaceIcon(
-                category: post.category,
-                iconUrl: post.user.profilePictureUrl,
-                numMutualPosts: 1
-            ),
-            posts: [post.id]
-        )
-        allPosts[post.id] = post
-        mapPins.pins.append(newPin)
-    }
-    
-    func selectAllUsers() {
-        selectedUsers = Set(allUsers.keys)
-    }
-    
-    func selectAndLoadPostsIfNotLoaded(
-        appState: AppState,
-        globalViewState: GlobalViewState,
-        user: PublicUser,
-        onComplete: @escaping () -> ()
-    ) {
-        guard allUsers[user.id] == nil else {
-            self.selectedUsers.insert(user.id)
-            onComplete()
-            return
-        }
-        self.loadMorePosts(appState: appState, globalViewState: globalViewState, forUser: user) { success in
-            self.allUsers[user.id] = user
-            self.selectedUsers.insert(user.id) // Will automatically update selected posts
-            onComplete()
-        }
-    }
-    
-    func clearUserSelection() {
-        selectedUsers.removeAll()
-    }
-    
-    func isSelected(userId: UserId) -> Bool {
-        selectedUsers.contains(userId)
-    }
-    
-    func loadMoreAndUpdateMap(
-        appState: AppState,
-        globalViewState: GlobalViewState,
-        forUser user: PublicUser,
-        onComplete: @escaping () -> ()
-    ) {
-        self.loadMorePosts(appState: appState, globalViewState: globalViewState, forUser: user) { success in
-            if success {
-                self.updateSelectedPosts()
-                onComplete()
-            }
-        }
-    }
-    
     ///
     
     func sortUsersHelper(_ user1: PublicUser, _ user2: PublicUser) -> Bool {
         user1.username.caseInsensitiveCompare(user2.username) == .orderedAscending
     }
     
-    @objc private func postCreated(notification: Notification) {
-        let post = notification.object as! Post
-        allPosts[post.id] = post
-    }
-    
-    @objc private func postLiked(notification: Notification) {
-        let like = notification.object as! PostLikePayload
-        allPosts[like.postId]?.liked = like.liked
-        allPosts[like.postId]?.likeCount = like.likeCount
-    }
-    
-    @objc private func postDeleted(notification: Notification) {
-        let postId = notification.object as! PostId
-        allPosts.removeValue(forKey: postId)
-        selectedPosts.remove(postId)
-        for i in mapPins.pins.indices {
-            mapPins.pins[i].posts.removeAll(where: { $0 == postId })
-        }
-    }
-    
     /// Handle data updates
     
-    private func updatePostCountsByUser() {
-        self.numLoadedPostsByUser = allPosts.values.reduce(into: [UserId: Int]()) { (result, post) in
-            let current = result[post.user.id] ?? 0
-            result[post.user.id] = current + 1
-        }
-    }
-    
-    private func updateAllUsers() {
-        let allUsers = allPosts.values.reduce(into: [UserId: PublicUser]()) { (result, post) in
-            result[post.user.id] = post.user
-        }
-        let allUserIds = Set(allUsers.keys)
-        let newSelectedUsers = self.selectedUsers.isEmpty ? allUserIds : allUserIds.filter({ self.selectedUsers.contains($0) })
-        DispatchQueue.main.async {
-            self.allUsers = allUsers
-            self.selectedUsers = newSelectedUsers
-        }
-    }
-    
-    private func updateSelectedPosts() {
-        let selected = allPosts
-            .filter { (postId, post) in
-                selectedUsers.contains(post.user.id) && selectedCategories.contains(post.category)
-            }
-        let selectedPosts = Set(selected.keys)
-        DispatchQueue.main.async {
-            self.selectedPosts = selectedPosts
-        }
-    }
-    
-    private func updateMapPins(selectedPosts: Set<PostId>) {
-        // TODO clean up
-        let postsByPlace = selectedPosts.reduce(into: [PlaceId: [PostId]]()) { (result, postId) in
-            guard let post = allPosts[postId] else {
-                return
-            }
-            let placeId = post.place.placeId
-            if result[placeId] != nil {
-                result[placeId]?.append(postId)
-            } else {
-                result[placeId] = [postId]
-            }
-        }
-        let places = selectedPosts.reduce(into: [PlaceId: Place]()) { (result, postId) in
-            if let post = allPosts[postId], result[post.place.placeId] == nil {
-                result[post.place.placeId] = post.place
-            }
-        }
-        let placeImages = selectedPosts.reduce(into: [PlaceId: String]()) { (result, postId) in
-            if let post = allPosts[postId], result[post.place.placeId] == nil {
-                result[post.place.placeId] = post.user.profilePictureUrl
-            }
-        }
-        let placeMutualPosts = selectedPosts.reduce(into: [PlaceId: Int]()) { (result, postId) in
-            guard let post = allPosts[postId] else {
-                return
-            }
-            if let count = result[post.place.placeId] {
-                result[post.place.placeId] = count + 1
-            } else {
-                result[post.place.placeId] = 1
-            }
-        }
-        let placeCategories = selectedPosts.reduce(into: [PlaceId: String]()) { (result, postId) in
-            if let post = allPosts[postId], result[post.place.placeId] == nil {
-                result[post.place.placeId] = post.category
-            }
-        }
-        let mapPins = places.reduce(into: [MapPlace]()) { (result, item) in
-            result.append(MapPlace(place: item.value, icon: MapPlaceIcon(
-                category: placeCategories[item.key],
-                iconUrl: placeImages[item.key],
-                numMutualPosts: placeMutualPosts[item.key] ?? 1
-            ), posts: postsByPlace[item.key]?.sorted(by: { $0.compare($1) == .orderedDescending }) ?? []))
-        }
-        let result = greedyTravelingSalesman(pins: mapPins)
-        DispatchQueue.main.async {
-            if self.selectedPosts == selectedPosts {
-                self.mapPins = MapPins(loaded: true, pins: result)
+    private func updateMapPinsAsync(_ pins: [MapPinV3], requestId: UUID) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let pins = self.greedyTravelingSalesman(pins: pins)
+            DispatchQueue.main.async {
+                guard self.selectedPin == nil else {
+                    print("Quick view is shown, not updating pins")
+                    return
+                }
+                if self.latestMapRequestId == requestId {
+                    self.pins = pins
+                    self.latestMapRequestId = nil
+                } else {
+                    print("Request changed, not setting pins")
+                }
             }
         }
     }
     
-    private func greedyTravelingSalesman(pins: [MapPlace]) -> [MapPlace] {
+    private func greedyTravelingSalesman(pins: [MapPinV3]) -> [MapPinV3] {
         // Return the list of pins in a somewhat reasonable order
         guard pins.count > 0 else {
             return []
@@ -351,8 +370,8 @@ class MapViewModelV2: ObservableObject {
         var distances: [[Double]] = [[Double]](repeating: [Double](repeating: -1, count: pins.count), count: pins.count)
         for i in 0..<pins.count-1 {
             for j in i+1..<pins.count {
-                let iLocation = MKMapPoint(pins[i].place.location.coordinate())
-                let jLocation = MKMapPoint(pins[j].place.location.coordinate())
+                let iLocation = MKMapPoint(pins[i].location.coordinate())
+                let jLocation = MKMapPoint(pins[j].location.coordinate())
                 let distance = iLocation.distance(to: jLocation).magnitude
                 distances[i][j] = distance
                 distances[j][i] = distance

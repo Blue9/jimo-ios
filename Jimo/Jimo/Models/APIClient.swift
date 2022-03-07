@@ -10,8 +10,6 @@ import Foundation
 import Combine
 import MapKit
 import Firebase
-import CoreLocation
-import FirebaseAnalytics
 
 
 struct Endpoint {
@@ -184,12 +182,26 @@ struct Endpoint {
     
     // MARK: - Map endpoints
     
+    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
     static func getMap() -> Endpoint {
         return Endpoint(path: "/me/map")
     }
     
+    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
     static func getMapV2() -> Endpoint {
         return Endpoint(path: "/me/mapV2")
+    }
+    
+    static func getGlobalMap() -> Endpoint {
+        return Endpoint(path: "/map/global")
+    }
+    
+    static func getFollowingMap() -> Endpoint {
+        return Endpoint(path: "/map/following")
+    }
+    
+    static func getCustomMap() -> Endpoint {
+        return Endpoint(path: "/map/custom")
     }
     
     static func getPlaceIcon(placeId: PlaceId) -> Endpoint {
@@ -198,6 +210,18 @@ struct Endpoint {
     
     static func getMutualPosts(placeId: PlaceId) -> Endpoint {
         return Endpoint(path: "/places/\(placeId)/mutualPosts")
+    }
+    
+    static func getGlobalMutualPostsV3(placeId: PlaceId) -> Endpoint {
+        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/global")
+    }
+    
+    static func getFollowingMutualPostsV3(placeId: PlaceId) -> Endpoint {
+        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/following")
+    }
+    
+    static func getCustomMutualPostsV3(placeId: PlaceId) -> Endpoint {
+        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/custom")
     }
     
     // MARK: Feedback endpoint
@@ -230,6 +254,7 @@ enum APIError: Error, Equatable {
     case decodeError
     case authError
     case notFound
+    case rateLimitError
     case serverError
     case unknownError
     
@@ -261,31 +286,6 @@ class APIClient: ObservableObject {
      */
     func setAuthHandler(handle: @escaping (Firebase.Auth, Firebase.User?) -> Void) {
         self.authClient.handle = Auth.auth().addStateDidChangeListener(handle)
-    }
-    
-    func logLocationServicesSetting(){
-        //check if location services are enabled at all
-        let locationManager = CLLocationManager()
-        var location_sharing_enabled = "False"
-        print("*******************location_setting************************")
-        if CLLocationManager.locationServicesEnabled() {
-            switch locationManager.authorizationStatus {
-                case .notDetermined, .restricted, .denied:
-                    print("No access")
-                case .authorizedAlways, .authorizedWhenInUse:
-                    location_sharing_enabled = "True"
-                    print("Access")
-                @unknown default:
-                    break
-            }
-        } else {
-            print("Location services are not enabled")
-        }
-        
-        Analytics.logEvent("location_sharing_enabled", parameters: [
-            "location_sharing_enabled": location_sharing_enabled])
-        print("**location", location_sharing_enabled)
-        
     }
     
     // MARK: - Invite + waitlist endpoints
@@ -438,6 +438,7 @@ class APIClient: ObservableObject {
     /**
      Get the map for the given user.
      */
+    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
     func getMap() -> AnyPublisher<[MapPlace], APIError> {
         return doRequest(endpoint: Endpoint.getMap())
     }
@@ -445,15 +446,85 @@ class APIClient: ObservableObject {
     /**
      Get the map for the given user.
      */
+    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
     func getMapV2() -> AnyPublisher<MapResponse, APIError> {
         return doRequest(endpoint: Endpoint.getMapV2())
     }
     
     /**
+     Get the global map.
+     */
+    func getGlobalMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        return doRequest(
+            endpoint: Endpoint.getGlobalMap(),
+            httpMethod: "POST",
+            body: GetMapRequest(region: region, categories: categories)
+        )
+    }
+    
+    /**
+     Get the map of the current user's following list.
+     */
+    func getFollowingMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        return doRequest(
+            endpoint: Endpoint.getFollowingMap(),
+            httpMethod: "POST",
+            body: GetMapRequest(region: region, categories: categories)
+        )
+    }
+    
+    /**
+     Get the map of the given users.
+     */
+    func getCustomMap(region: Region, userIds: [String], categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        return doRequest(
+            endpoint: Endpoint.getCustomMap(),
+            httpMethod: "POST",
+            body: CustomMapRequest(region: region, categories: categories, users: userIds)
+        )
+    }
+    
+    // MARK: - Get mutual posts
+    
+    /**
      Get the mutual posts for the given place
      */
+    @available(*, deprecated, message: "Use V3 endpoint")
     func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
         return doRequest(endpoint: Endpoint.getMutualPosts(placeId: placeId))
+    }
+    
+    /**
+     Get all posts for the given place
+     */
+    func getGlobalMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return doRequest(
+            endpoint: Endpoint.getGlobalMutualPostsV3(placeId: placeId),
+            httpMethod: "POST",
+            body: PlaceLoadRequest(categories: categories)
+        )
+    }
+    
+    /**
+     Get friends' posts for the given place
+     */
+    func getFollowingMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return doRequest(
+            endpoint: Endpoint.getFollowingMutualPostsV3(placeId: placeId),
+            httpMethod: "POST",
+            body: PlaceLoadRequest(categories: categories)
+        )
+    }
+    
+    /**
+     Get the posts for the given place and list of users
+     */
+    func getCustomMutualPostsV3(for placeId: PlaceId, categories: [String], users: [UserId]) -> AnyPublisher<[Post], APIError> {
+        return doRequest(
+            endpoint: Endpoint.getCustomMutualPostsV3(placeId: placeId),
+            httpMethod: "POST",
+            body: CustomPlaceLoadRequest(categories: categories, users: users)
+        )
     }
     
     /**
@@ -700,6 +771,8 @@ class APIClient: ObservableObject {
                 throw APIError.authError
             case 404:
                 throw APIError.notFound
+            case 429:
+                throw APIError.rateLimitError
             case 500...:
                 throw APIError.serverError
             default:

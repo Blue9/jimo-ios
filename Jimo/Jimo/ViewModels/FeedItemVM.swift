@@ -8,10 +8,6 @@
 import SwiftUI
 import Combine
 import FirebaseAnalytics
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 class FeedItemVM: ObservableObject {
     @Published var liking = false
@@ -35,15 +31,8 @@ class FeedItemVM: ObservableObject {
                 }
             }, receiveValue: { response in
                 print("Liked post")
-<<<<<<< Updated upstream
-                print("*******************liked_post************************")
-                print("liked_post")
+                print(">>> liked_post")
                 Analytics.logEvent("liked_post", parameters: nil)
-                print("*****************************************************")
-=======
-                print(">>>liked_post")
-                Analytics.logEvent("liked_post", parameters: nil)
->>>>>>> Stashed changes
             })
     }
     
@@ -58,15 +47,8 @@ class FeedItemVM: ObservableObject {
                 }
             }, receiveValue: { response in
                 print("Unliked post")
-<<<<<<< Updated upstream
-                print("*******************unliked_post**********************")
-                print("unliked_post")
+                print(">>> unliked_post")
                 Analytics.logEvent("unliked_post", parameters: nil)
-                print("*****************************************************")
-=======
-                print(">>>unliked_post")
-                Analytics.logEvent("unliked_post", parameters: nil)
->>>>>>> Stashed changes
             })
     }
     
@@ -79,18 +61,9 @@ class FeedItemVM: ObservableObject {
                     print("Error when deleting", error)
                     viewState.setError("Failed to delete post")
                 }
-<<<<<<< Updated upstream
-            }, receiveValue: { response in
-                    print("deleted post")
-                    print("*******************deleted_post************************")
-                    print("deleted_post")
-                    Analytics.logEvent("deleted_post", parameters: nil)
-                    print("*******************************************************")
-=======
             }, receiveValue: {
-                print(">>>deleted_post")
+                print(">>> deleted_post")
                 Analytics.logEvent("deleted_post", parameters: nil)
->>>>>>> Stashed changes
             })
     }
     
@@ -104,10 +77,7 @@ class FeedItemVM: ObservableObject {
             }, receiveValue: { response in
                 if response.success {
                     viewState.setSuccess("Reported post! Thank you for keeping jimo a safe community.")
-<<<<<<< Updated upstream
-=======
-                    print(">>>reported_post")
->>>>>>> Stashed changes
+                    print(">>> reported_post")
                     Analytics.logEvent("reported_post", parameters: nil)
                 } else {
                     viewState.setWarning("You already reported this post.")

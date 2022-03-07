@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import FirebaseAnalytics
 
 class SingleCommentVM: ObservableObject {
     @Published var likingComment = false
@@ -153,6 +154,8 @@ class CommentsViewModel: ObservableObject {
                     viewState.setError("Could not delete comment")
                 } else {
                     viewState.setSuccess("Deleted comment")
+                    print(">>> comment_deleted")
+                    Analytics.logEvent("comment_deleted", parameters: nil)
                 }
             }
     }

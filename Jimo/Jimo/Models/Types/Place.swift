@@ -97,6 +97,12 @@ struct MapPlaceIcon: Codable, Equatable {
     var numMutualPosts: Int
 }
 
+struct MapPlaceIconV3: Codable, Equatable {
+    var category: String?
+    var iconUrl: String?
+    var numPosts: Int
+}
+
 struct MapPlace: Identifiable, Codable, Equatable {
     var id: String {
         place.id

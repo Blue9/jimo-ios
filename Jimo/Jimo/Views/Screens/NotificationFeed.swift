@@ -9,27 +9,12 @@ import SwiftUI
 import Combine
 import ASCollectionView
 
-
 class NotificationFeedVM: ObservableObject {
     @Published var feedItems: [NotificationItem] = []
     @Published var loading = false
-    
-    @Published var unreadNotifications: Int {
-        didSet {
-            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
-        }
-    }
 
     private var cancellable: Cancellable?
     private var cursor: String?
-    
-    init() {
-        unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
-    }
-    
-    func readAllNotifications() {
-        unreadNotifications = 0
-    }
     
     func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
         cursor = nil
@@ -216,7 +201,7 @@ struct NotificationFeed: View {
         })
         .onChange(of: notificationFeedVM.loading) { loading in
             if !loading {
-                notificationFeedVM.readAllNotifications()
+                appState.unreadNotifications = 0
             }
         }
     }

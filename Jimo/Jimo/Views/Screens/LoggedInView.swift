@@ -21,6 +21,4 @@ struct LoggedInView: View {
             OnboardingView(onboardingModel: appState.onboardingModel)
         }
     }
-
 }
-

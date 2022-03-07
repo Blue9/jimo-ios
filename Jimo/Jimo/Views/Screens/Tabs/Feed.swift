@@ -9,15 +9,9 @@ import SwiftUI
 import Combine
 import ASCollectionView
 import FirebaseAnalytics
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 
 class FeedViewModel: ObservableObject {
-    
-
-    
     let nc = NotificationCenter.default
     
     @Published var feed: [Post] = []
@@ -202,11 +196,11 @@ struct Feed: View {
         ZStack(alignment: .topTrailing) {
             Image(systemName: "bell")
                 .foregroundColor(Color("foreground"))
-            if notificationFeedVM.unreadNotifications > 0 {
+            if appState.unreadNotifications > 0 {
                 Circle()
                     .fill()
                     .frame(width: 10, height: 10)
-                    .foregroundColor(.red)
+                    .foregroundColor(Color(UIColor.systemRed))
                     .offset(x: -1)
             }
         }
@@ -244,22 +238,9 @@ struct Feed: View {
                             .frame(width: 50)
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
-<<<<<<< Updated upstream
-                        Button(action: {
-                            self.showNotifications.toggle()
-                            Analytics.logEvent("notification_tap", parameters: nil)
-//                            let event_name = "Chris"
-                            print("*******************notifications************************")
-                            print("noticiations_tap")
-                            print("********************************************************")
-                            
-=======
                         Button(action: { self.showNotifications.toggle()
-                            print(">>>noticiations_tap")
-                            Analytics.logEvent("notification_tap", parameters: nil)
-
->>>>>>> Stashed changes
-                            
+                        print(">>> noticiations_tap")
+                        Analytics.logEvent("notification_tap", parameters: nil)
                         }) {
                             notificationFeedIcon
                         }

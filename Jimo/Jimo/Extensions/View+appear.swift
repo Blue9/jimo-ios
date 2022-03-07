@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FirebaseAnalytics
 
 // onAppear and onDisappear are buggy, this is a more stable way of handling onAppear and onDisappear events.
 struct UIKitAppear: UIViewControllerRepresentable {
@@ -15,7 +14,6 @@ struct UIKitAppear: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIAppearViewController {
        let vc = UIAppearViewController()
         vc.action = action
-
         return vc
     }
     
@@ -31,7 +29,6 @@ class UIAppearViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-
         action?()
     }
 }

@@ -46,6 +46,8 @@ struct ViewPost: View {
     @State private var initializedComments = false
     @State private var imageSize = CGSize.zero
     
+    @State private var scrollPosition: ASCollectionViewScrollPosition?
+    
     let post: Post
     var highlightedComment: Comment? = nil
     
@@ -70,30 +72,26 @@ struct ViewPost: View {
     }
     
     var commentField: some View {
-        CommentInputField(text: $commentsViewModel.newCommentText, buttonColor: colorTheme, onSubmit: { [weak commentsViewModel] in
-            commentsViewModel?.createComment()
-        })
+        CommentInputField(
+            text: $commentsViewModel.newCommentText,
+            submitting: commentsViewModel.creatingComment,
+            buttonColor: colorTheme,
+            onSubmit: { [weak commentsViewModel] in
+                commentsViewModel?.createComment()
+                withAnimation {
+                    scrollPosition = .indexPath(IndexPath(item: 0, section: 1))
+                }
+            }
+        )
     }
     
-    var body: some View {
+    @ViewBuilder var mainBody: some View {
         ASCollectionView {
             ASCollectionViewSection(id: imageSize == .zero ? 0 : -1) {
                 postItem
             }
             
-            ASCollectionViewSection(id: 1) {
-                ZStack {
-                    commentField
-                    
-                    if commentsViewModel.creatingComment {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.gray.opacity(0.2))
-                    }
-                }
-            }
-            
-            ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
+            ASCollectionViewSection(id: 1, data: commentsViewModel.comments) { comment, _ in
                 ZStack(alignment: .bottom) {
                     CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
                     Divider()
@@ -129,6 +127,10 @@ struct ViewPost: View {
                 commentsViewModel.loadMore()
             }
         }
+        .onScroll { (point, size) in
+            hideKeyboard()
+        }
+        .scrollPositionSetter($scrollPosition)
         .scrollIndicatorsEnabled(horizontal: false, vertical: false)
         .onPullToRefresh { onFinish in
             commentsViewModel.loadComments(onFinish: onFinish)
@@ -144,6 +146,17 @@ struct ViewPost: View {
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            mainBody
+            VStack(spacing: 0) {
+                Spacer()
+                Divider()
+                commentField
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {

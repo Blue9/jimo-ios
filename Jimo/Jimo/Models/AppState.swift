@@ -12,7 +12,6 @@ import Firebase
 import SDWebImage
 
 
-
 enum CurrentUser {
     case user(PublicUser)
     case doesNotExist
@@ -38,13 +37,12 @@ class OnboardingModel: ObservableObject {
     
     init() {
         // Uncomment to enable onboarding view
-//         completedContactsOnboarding = false
-//         completedFeaturedUsersOnboarding = false
+        // completedContactsOnboarding = false
+        // completedFeaturedUsersOnboarding = false
     }
     
     var isUserOnboarded: Bool {
         completedContactsOnboarding && completedFeaturedUsersOnboarding
-        
     }
     
     static func contactsOnboarded() -> Bool {
@@ -64,7 +62,6 @@ class OnboardingModel: ObservableObject {
     
     func setFeaturedUsersOnboarded() {
         UserDefaults.standard.set(true, forKey: "featuredUsersOnboarded")
-  
         completedFeaturedUsersOnboarding = true
     }
 }
@@ -94,6 +91,12 @@ class AppState: ObservableObject {
     
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
+    
+    @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
+        didSet {
+            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
+        }
+    }
     
     let mapCache = MapCache()
     let onboardingModel = OnboardingModel()
@@ -161,7 +164,6 @@ class AppState: ObservableObject {
     
     func listen() {
         self.apiClient.setAuthHandler(handle: self.authHandler)
-        self.apiClient.logLocationServicesSetting()
     }
     
     func signUp(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
@@ -367,12 +369,37 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func getGlobalMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        self.apiClient.getGlobalMap(region: region, categories: categories)
+    }
+    
+    func getFollowingMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        self.apiClient.getFollowingMap(region: region, categories: categories)
+    }
+    
+    func getCustomMap(region: Region, userIds: [String], categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        self.apiClient.getCustomMap(region: region, userIds: userIds, categories: categories)
+    }
+    
     func loadPlaceIcon(for place: Place) -> AnyPublisher<MapPlaceIcon, APIError> {
         return self.apiClient.getPlaceIcon(placeId: place.placeId)
     }
     
+    @available(*, deprecated, message: "Use V3 endpoints")
     func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
         return self.apiClient.getMutualPosts(for: placeId)
+    }
+    
+    func getGlobalMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return self.apiClient.getGlobalMutualPostsV3(for: placeId, categories: categories)
+    }
+    
+    func getFollowingMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return self.apiClient.getFollowingMutualPostsV3(for: placeId, categories: categories)
+    }
+    
+    func getCustomMutualPostsV3(for placeId: PlaceId, categories: [String], users: [UserId]) -> AnyPublisher<[Post], APIError> {
+        return self.apiClient.getCustomMutualPostsV3(for: placeId, categories: categories, users: users)
     }
     
     // MARK: - Relation endpoints
@@ -445,9 +472,6 @@ class AppState: ObservableObject {
                 self.postPublisher.postLiked(postId: postId, likeCount: like.likes)
                 return like
             }
-//            .print("*******************like_post***********************")
-//            .print("like_post")
-//            .print("***************************************************")
             .eraseToAnyPublisher()
     }
     

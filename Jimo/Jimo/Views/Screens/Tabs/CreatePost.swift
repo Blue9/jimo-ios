@@ -9,13 +9,9 @@ import SwiftUI
 import MapKit
 import Combine
 import FirebaseAnalytics
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 
 struct CreatePostCategory: View {
-    
     var name: String
     var key: String
     @Binding var selected: String?
@@ -93,8 +89,6 @@ struct FormInputButton: View {
             Image(systemName: "xmark.circle")
                 .foregroundColor(.gray)
                 .padding(.trailing)
-            
-            
         }
     }
     
@@ -342,21 +336,9 @@ struct CreatePostWithModel: View {
                         Divider().padding(.leading, 10)
                         
                         Group {
-                            Button(action: {
-                                createPostVM.activeSheet = .placeSearch
-<<<<<<< Updated upstream
-//                                Analytics.logEvent("post_created0", parameters: nil)
-                                Analytics.logEvent("enter_location", parameters: nil)
-                                print("*******************enter_location***********************")
-                                print("enter_location")
-                                print("********************************************************")
-                                
-=======
-                                print(">>>enter_location")
-                                Analytics.logEvent("enter_location", parameters: nil)
->>>>>>> Stashed changes
-                                
-                                
+                            Button(action: { createPostVM.activeSheet = .placeSearch
+                            print(">>> enter_location")
+                            Analytics.logEvent("enter_location", parameters: nil)
                             }) {
                                 FormInputButton(
                                     name: "Enter location",
@@ -435,12 +417,6 @@ struct CreatePostWithModel: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         self.createPost()
-<<<<<<< Updated upstream
-                        print("*******************create_post************************")
-=======
-                        print(">>>create_post")
->>>>>>> Stashed changes
-                        
                         var image_uploaded_with_post = true
                         if createPostVM.image == nil {
                             image_uploaded_with_post = false
@@ -450,18 +426,13 @@ struct CreatePostWithModel: View {
                         if content.isEmpty == true {
                             text_uploaded_with_post = false
                         }
-                        
+                        print(">>> create_post")
                         Analytics.logEvent("create_post", parameters: [
                             "category_chosen": category,
                             "text_uploaded_with_post": text_uploaded_with_post,
                             "image_uploaded_with_post": image_uploaded_with_post
                         
                         ])
-<<<<<<< Updated upstream
-                        print("******************************************************")
-=======
-                              
->>>>>>> Stashed changes
                     } label: {
                         Text("Save").bold()
                     }
@@ -498,7 +469,6 @@ struct CreatePostWithModel: View {
 
 struct ImageSelectionView: View {
     @ObservedObject var createPostVM: CreatePostVM
-    
     
     var buttonColor: Color
     

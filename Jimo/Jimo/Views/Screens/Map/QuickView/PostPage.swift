@@ -1,5 +1,5 @@
 //
-//  SinglePostQuickView.swift
+//  PostPage.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 1/17/22.
@@ -7,40 +7,7 @@
 
 import SwiftUI
 
-fileprivate struct PostLikeButton: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var viewState: GlobalViewState
-    
-    @StateObject private var postViewModel = FeedItemVM()
-    
-    var post: Post
-    
-    private var showFilledHeart: Bool {
-        (post.liked || postViewModel.liking) && !postViewModel.unliking
-    }
-    
-    var body: some View {
-        if showFilledHeart {
-            Button(action: {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                postViewModel.unlikePost(postId: post.id, appState: appState, viewState: viewState)
-            }) {
-                Image(systemName: "heart.fill")
-            }
-            .foregroundColor(.red)
-        } else {
-            Button(action: {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                postViewModel.likePost(postId: post.id, appState: appState, viewState: viewState)
-            }) {
-                Image(systemName: "heart")
-            }
-            .foregroundColor(Color("foreground"))
-        }
-    }
-}
-
-struct SinglePostQuickView: View {
+struct PostPage: View {
     var post: Post
     
     @State private var showFullPost = false
@@ -89,9 +56,6 @@ struct SinglePostQuickView: View {
                 
                 HStack(spacing: 5) {
                     PostLikeButton(post: post).font(.system(size: 15))
-                    Text(String(post.likeCount)).font(.caption)
-                    
-                    Spacer().frame(width: 5)
                     
                     Image(systemName: "bubble.right")
                         .font(.system(size: 15))
@@ -110,5 +74,38 @@ struct SinglePostQuickView: View {
                 showFullPost.toggle()
             }
             .background(NavigationLink(destination: fullPostView, isActive: $showFullPost) {})
+    }
+}
+
+fileprivate struct PostLikeButton: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    
+    @StateObject private var postViewModel = FeedItemVM()
+    
+    var post: Post
+    
+    private var showFilledHeart: Bool {
+        (post.liked || postViewModel.liking) && !postViewModel.unliking
+    }
+    
+    var body: some View {
+        if showFilledHeart {
+            Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                postViewModel.unlikePost(postId: post.id, appState: appState, viewState: viewState)
+            }) {
+                Image(systemName: "heart.fill")
+            }
+            .foregroundColor(.red)
+        } else {
+            Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                postViewModel.likePost(postId: post.id, appState: appState, viewState: viewState)
+            }) {
+                Image(systemName: "heart")
+            }
+            .foregroundColor(Color("foreground"))
+        }
     }
 }
