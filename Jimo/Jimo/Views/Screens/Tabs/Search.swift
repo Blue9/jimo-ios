@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import ASCollectionView
+import FirebaseAnalytics
 
 struct Search: View {
     @EnvironmentObject var appState: AppState
@@ -114,6 +115,11 @@ struct Search: View {
                     discoverFeed
                 } else {
                     userResults
+                    .appear {
+                        print(">>> User performed search")
+                        Analytics.logEvent("user_performed_search", parameters: nil)
+                    }
+
                 }
                 
                 Spacer()

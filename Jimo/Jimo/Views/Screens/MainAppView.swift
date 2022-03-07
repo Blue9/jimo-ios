@@ -6,9 +6,24 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 enum Tab: Int {
     case map = 0, feed = 1, create = 2, search = 3, profile = 4
+    var string: String {
+        switch self {
+            case .feed:
+                return "feed"
+            case .map:
+                return "map"
+            case .create:
+                return "create"
+            case .search:
+                return "search"
+            case .profile:
+                return "profile"
+        }
+    }
 }
 
 class TabBar: ObservableObject {
@@ -17,11 +32,17 @@ class TabBar: ObservableObject {
     @Published var newPostSelected = false
     @Published var selection: Int {
         didSet {
+            previousSelection = Tab(rawValue: oldValue)
             if selection == newPostTag.rawValue {
                 previousSelection = Tab(rawValue: oldValue)
                 selection = oldValue
                 newPostSelected = true
+            } else if String(oldValue) == "2"{
+                ()
+            } else if String(oldValue) != "2" {
+                logTabSelection(tab: Tab(rawValue: selection)!)
             }
+
         }
     }
     
@@ -29,12 +50,29 @@ class TabBar: ObservableObject {
     
     init() {
         self.selection = Tab.map.rawValue
+        logTabSelection(tab: Tab.map)
     }
     
     func reset() {
         if let previousSelection = previousSelection {
             selection = previousSelection.rawValue
         }
+    }
+    
+    private func logTabSelection(tab: Tab) {
+        Analytics.logEvent(
+            AnalyticsEventScreenView,
+            parameters: [AnalyticsParameterScreenName: tab.string, AnalyticsParameterScreenClass: tab.string]
+            )
+        print(">>> current tab", tab.string)
+    }
+    
+    private func logCreatePostTab() {
+        Analytics.logEvent(
+            AnalyticsEventScreenView,
+            parameters: [AnalyticsParameterScreenName: "create", AnalyticsParameterScreenClass: "create"]
+            )
+        print(">>> current tab create")
     }
 }
 
@@ -64,6 +102,7 @@ struct MainAppView: View {
                     image: UIImage(named: "feedIcon"),
                     badgeValue: appState.unreadNotifications > 0 ? String(appState.unreadNotifications) : nil
                 )
+                
             
             Text("")
                 .environmentObject(appState)

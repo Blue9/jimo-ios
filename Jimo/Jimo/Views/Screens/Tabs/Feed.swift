@@ -8,6 +8,8 @@
 import SwiftUI
 import Combine
 import ASCollectionView
+import FirebaseAnalytics
+
 
 class FeedViewModel: ObservableObject {
     let nc = NotificationCenter.default
@@ -236,7 +238,10 @@ struct Feed: View {
                             .frame(width: 50)
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { self.showNotifications.toggle() }) {
+                        Button(action: { self.showNotifications.toggle()
+                        print(">>> noticiations_tap")
+                        Analytics.logEvent("notification_tap", parameters: nil)
+                        }) {
                             notificationFeedIcon
                         }
                     }

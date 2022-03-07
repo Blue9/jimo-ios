@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-
+import FirebaseAnalytics
 
 class SettingsViewModel: ObservableObject {
     @Published var postLikedNotifications: Bool = false
@@ -61,6 +61,16 @@ class SettingsViewModel: ObservableObject {
                 self.setPreferences(preferences)
                 self.loading = false
             })
+        print(">>> update_preferences")
+        Analytics.logEvent("update_preferences", parameters: [
+            "followers": followNotifications,
+            "post_likes": postLikedNotifications,
+            "comments": commentNotifications,
+            "coment_likes": commentLikedNotifications,
+            "search_by_phone": searchableByPhoneNumber
+        
+        ])
+
     }
     
     private func setPreferences(_ preferences: UserPreferences) {

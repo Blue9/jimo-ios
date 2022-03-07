@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 struct CommentInputField: View {
     @Binding var text: String
@@ -40,6 +41,8 @@ struct CommentInputField: View {
                         withAnimation {
                             hideKeyboard()
                             onSubmit()
+                            print(">>> comment_submitted")
+                            Analytics.logEvent("comment_submitted", parameters: nil)
                         }
                     }) {
                         Image(systemName: "paperplane.fill")

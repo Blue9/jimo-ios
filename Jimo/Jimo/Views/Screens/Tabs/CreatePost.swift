@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import Combine
+import FirebaseAnalytics
 
 
 struct CreatePostCategory: View {
@@ -335,7 +336,10 @@ struct CreatePostWithModel: View {
                         Divider().padding(.leading, 10)
                         
                         Group {
-                            Button(action: { createPostVM.activeSheet = .placeSearch }) {
+                            Button(action: { createPostVM.activeSheet = .placeSearch
+                            print(">>> enter_location")
+                            Analytics.logEvent("enter_location", parameters: nil)
+                            }) {
                                 FormInputButton(
                                     name: "Enter location",
                                     content: createPostVM.name,
@@ -413,6 +417,22 @@ struct CreatePostWithModel: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         self.createPost()
+                        var image_uploaded_with_post = true
+                        if createPostVM.image == nil {
+                            image_uploaded_with_post = false
+                        }
+                        
+                        var text_uploaded_with_post = true
+                        if content.isEmpty == true {
+                            text_uploaded_with_post = false
+                        }
+                        print(">>> create_post")
+                        Analytics.logEvent("create_post", parameters: [
+                            "category_chosen": category,
+                            "text_uploaded_with_post": text_uploaded_with_post,
+                            "image_uploaded_with_post": image_uploaded_with_post
+                        
+                        ])
                     } label: {
                         Text("Save").bold()
                     }
