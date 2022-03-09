@@ -98,53 +98,37 @@ extension UITabView {
         }
         
         func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-            guard parent.selectedIndex == tabBarController.selectedIndex else {
-                parent.selectedIndex = tabBarController.selectedIndex
-                return
+            if parent.selectedIndex == tabBarController.selectedIndex {
+                if let navigationController = navigationController(in: viewController) {
+                    let numPopped = navigationController.popToRootViewController(animated: true)?.count ?? 0
+                    let didPop = numPopped > 0
+                    if !didPop {
+                        scrollToTop(in: viewController)
+                    }
+                }
             }
-            
-            guard let navigationController = navigationController(in: viewController)  else {
-                scrollToTop(in: viewController)
-                return
-            }
-            
-            guard navigationController.visibleViewController == navigationController.viewControllers.first else {
-                navigationController.popToRootViewController(animated: true)
-                return
-            }
-            
-            scrollToTop(in: navigationController, selectedIndex: tabBarController.selectedIndex)
+            parent.selectedIndex = tabBarController.selectedIndex
         }
         
-        func scrollToTop(in navigationController: UINavigationController, selectedIndex: Int) {
-            let views = navigationController.viewControllers
-                .map(\.view.subviews)
-                .reduce([], +) // swiftlint:disable:this reduce_into
-            
-            guard let scrollView = scrollView(in: views) else { return }
+        func scrollToTop(in viewController: UIViewController, selectedIndex: Int) {
+            guard let scrollView = scrollView(in: viewController.view) else { return }
             scrollView.scrollRectToVisible(Self.inlineTitleRect, animated: true)
         }
         
         func scrollToTop(in viewController: UIViewController) {
-            let views = viewController.view.subviews
-            
-            guard let scrollView = scrollView(in: views) else { return }
+            guard let scrollView = scrollView(in: viewController.view) else { return }
             scrollView.scrollRectToVisible(Self.inlineTitleRect, animated: true)
         }
         
-        func scrollView(in views: [UIView]) -> UIScrollView? {
-            var view: UIScrollView?
-            
-            views.forEach {
-                guard let scrollView = $0 as? UIScrollView else {
-                    view = scrollView(in: $0.subviews)
-                    return
+        func scrollView(in view: UIView) -> UIScrollView? {
+            for subview in view.subviews {
+                if let scrollView = view as? UIScrollView {
+                    return scrollView
+                } else if let scrollView = scrollView(in: subview) {
+                    return scrollView
                 }
-                
-                view = scrollView
             }
-            
-            return view
+            return nil
         }
         
         func navigationController(in viewController: UIViewController) -> UINavigationController? {
