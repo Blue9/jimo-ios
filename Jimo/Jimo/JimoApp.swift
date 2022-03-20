@@ -29,7 +29,13 @@ struct JimoApp: App {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onOpenURL { url in
-                    // TODO handle url
+                    let entity = url.entityType
+                    switch entity {
+                    case .post(let entityId), .profile(let entityId):
+                        break
+                    case .none:
+                        return
+                    }
                 }
         }
     }
@@ -48,6 +54,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         application.registerForRemoteNotifications()
         return true
     }
+
+    func applicationopenurl
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         // Pass device token to auth
