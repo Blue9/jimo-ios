@@ -25,6 +25,9 @@ struct JimoApp: App {
                 .onAppear {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
+                .onOpenURL { url in
+                    // TODO handle url
+                }
         }
     }
 }
