@@ -351,24 +351,6 @@ class AppState: ObservableObject {
     
     // MARK: - Map endpoints
     
-    func refreshMap() -> AnyPublisher<[MapPlace], APIError> {
-        return self.apiClient.getMap()
-    }
-    
-    func getMapV2() -> AnyPublisher<MapResponse, APIError> {
-        if !mapCache.isExpired(), let map = mapCache.map {
-            print("Got cached map")
-            return Just(map).setFailureType(to: APIError.self).eraseToAnyPublisher()
-        }
-        return self.apiClient.getMapV2()
-            .map { [weak self] mapResponse in
-                print("Updating map cache")
-                self?.mapCache.map = mapResponse
-                return mapResponse
-            }
-            .eraseToAnyPublisher()
-    }
-    
     func getGlobalMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
         self.apiClient.getGlobalMap(region: region, categories: categories)
     }

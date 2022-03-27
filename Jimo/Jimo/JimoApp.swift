@@ -25,6 +25,9 @@ struct JimoApp: App {
                 .onAppear {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+                }
                 .onOpenURL { url in
                     // TODO handle url
                 }
