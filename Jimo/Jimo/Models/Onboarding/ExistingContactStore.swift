@@ -5,7 +5,7 @@
 //  Created by Gautam Mekkat on 3/14/21.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 import Contacts
 import PhoneNumberKit
@@ -17,7 +17,7 @@ class ExistingContactStore: SuggestedUserStore {
     @Published var allUsers: [PublicUser] = []
     @Published var selectedUsernames: Set<String> = []
     
-    @Published var loadingExistingUsers = false
+    @Published var loadingExistingUsers = true
     @Published var loadingExistingUsersError: Error?
     
     @Published var followingLoading = false
@@ -27,13 +27,17 @@ class ExistingContactStore: SuggestedUserStore {
     private var followUsersCancellable: Cancellable?
     
     func getExistingUsers(appState: AppState) {
-        self.loadingExistingUsers = true
+        withAnimation {
+            self.loadingExistingUsers = true
+        }
         DispatchQueue.global(qos: .userInitiated).async {
             self.getUsersCancellable = self.fetchContacts()
                 .catch({ [weak self] error -> AnyPublisher<[String], APIError> in
                     DispatchQueue.main.async {
-                        self?.loadingExistingUsersError = error
-                        self?.loadingExistingUsers = false
+                        withAnimation {
+                            self?.loadingExistingUsersError = error
+                            self?.loadingExistingUsers = false
+                        }
                     }
                     return Empty().eraseToAnyPublisher()
                 })
@@ -44,14 +48,18 @@ class ExistingContactStore: SuggestedUserStore {
                 .sink(receiveCompletion: { [weak self] completion in
                     if case let .failure(error) = completion {
                         print("Error when getting matching users", error)
-                        self?.loadingExistingUsersError = error
-                        self?.loadingExistingUsers = false
+                        withAnimation {
+                            self?.loadingExistingUsersError = error
+                            self?.loadingExistingUsers = false
+                        }
                     }
                 }, receiveValue: { [weak self] users in
-                    self?.allUsers = users
-                    self?.selectAll()
-                    self?.loadingExistingUsersError = nil
-                    self?.loadingExistingUsers = false
+                    withAnimation {
+                        self?.allUsers = users
+                        self?.selectAll()
+                        self?.loadingExistingUsersError = nil
+                        self?.loadingExistingUsers = false
+                    }
                 })
         }
     }
@@ -69,8 +77,7 @@ class ExistingContactStore: SuggestedUserStore {
     }
     
     private static func fetchContactsCallback(_ handler: @escaping ([String]?, Error?) -> Void) {
-        let store = CNContactStore()
-        store.requestAccess(for: .contacts) { (granted, error) in
+        PermissionManager.shared.requestContacts { (granted, error) in
             if let error = error {
                 handler(nil, error)
                 return
@@ -81,7 +88,7 @@ class ExistingContactStore: SuggestedUserStore {
                 request.sortOrder = .givenName
                 do {
                     var formattedArray: [String] = []
-                    try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                    try PermissionManager.shared.contactStore.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
                         if let number = contact.phoneNumbers.first?.value.stringValue,
                            let parsed = try? ExistingContactStore.phoneNumberKit.parse(number) {
                             formattedArray.append(ExistingContactStore.phoneNumberKit.format(parsed, toType: .e164))
@@ -109,7 +116,7 @@ class ExistingContactStore: SuggestedUserStore {
                 }
             } receiveValue: { [weak self] response in
                 if response.success {
-                    appState.onboardingModel.setContactsOnboarded()
+                    appState.onboardingModel.step()
                 } else {
                     self?.followManyFailed = true
                 }

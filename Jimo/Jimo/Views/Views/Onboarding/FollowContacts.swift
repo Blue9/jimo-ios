@@ -22,7 +22,7 @@ struct FollowContacts: View {
                 Text("Skip")
                     .foregroundColor(.gray)
                     .onTapGesture {
-                        onboardingModel.setContactsOnboarded()
+                        onboardingModel.step()
                     }
             }
             .padding(.vertical, 10)
@@ -51,7 +51,7 @@ struct FollowContacts: View {
                         Button(action: {
                             UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
                         }) {
-                            Text("Enable access to your contacts to find friends already on jimo.")
+                            Text("Enable access to your contacts to find friends already on Jimo.")
                                 .multilineTextAlignment(.center)
                         }
                         Text("We value and respect your privacy. We do not store your contacts on our servers or share them with anyone else.")
@@ -66,13 +66,13 @@ struct FollowContacts: View {
                 UserList(userStore: contactStore)
             } else {
                 VStack {
-                    Text("No contacts found on jimo. Tap next to continue.")
+                    Text("No contacts found on Jimo. Tap next to continue.")
                         .foregroundColor(Color("foreground"))
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 15)
                     
                     Button(action: {
-                        onboardingModel.setContactsOnboarded()
+                        onboardingModel.step()
                     }) {
                         LargeButton("Next")
                     }

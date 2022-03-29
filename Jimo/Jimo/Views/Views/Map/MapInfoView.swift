@@ -34,7 +34,7 @@ struct MapInfoView: View {
             
             HStack {
                 Spacer()
-                Text("Love you, the jimo team")
+                Text("Love you, the Jimo team")
             }
             
             Button(action: { presented.toggle() }) {

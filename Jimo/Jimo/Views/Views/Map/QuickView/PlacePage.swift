@@ -10,7 +10,6 @@ import MapKit
 
 struct PlacePage: View {
     @ObservedObject var quickViewModel: QuickViewModel
-    var locationManager: CLLocationManager
     var place: Place
     
     @State private var initialized = false
@@ -35,7 +34,7 @@ struct PlacePage: View {
     }
     
     var distanceMiles: String? {
-        guard let location = locationManager.location else {
+        guard let location = PermissionManager.shared.getLocation() else {
             return nil
         }
         let distanceMeters = location.distance(from: CLLocation(latitude: place.location.latitude, longitude: place.location.longitude))

@@ -42,7 +42,6 @@ protocol MapActions {
 }
 
 class MapViewModelV2: MapActions, ObservableObject {
-    let locationManager = CLLocationManager()
     var appState: AppState!
     var viewState: GlobalViewState!
     var regionWrapper: RegionWrapper!
@@ -94,11 +93,9 @@ class MapViewModelV2: MapActions, ObservableObject {
         self.appState = appState
         self.viewState = viewState
         self.regionWrapper = regionWrapper
-        self.locationManager.requestWhenInUseAuthorization()
-        self.locationManager.startUpdatingLocation()
         self.listenToSearchQuery()
         self.loadFollowing()
-        if let location = self.locationManager.location {
+        if let location = PermissionManager.shared.getLocation() {
             self.regionWrapper.region.wrappedValue = MKCoordinateRegion(
                 center: location.coordinate,
                 span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)

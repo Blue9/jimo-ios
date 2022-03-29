@@ -115,7 +115,7 @@ extension EnterPhoneNumber {
                     }
                     if case let .failure(error) = completion {
                         print("Error", error)
-                        self.setError("Invalid phone number. Try again.")
+                        self.setError("Could not verify phone number. Try again.")
                     }
                     self.loading = false
                 }, receiveValue: { [weak self] _ in

@@ -68,7 +68,7 @@ class FeedItemVM: ObservableObject {
                 }
             }, receiveValue: { response in
                 if response.success {
-                    viewState.setSuccess("Reported post! Thank you for keeping jimo a safe community.")
+                    viewState.setSuccess("Reported post! Thank you for keeping Jimo a safe community.")
                 } else {
                     viewState.setWarning("You already reported this post.")
                 }

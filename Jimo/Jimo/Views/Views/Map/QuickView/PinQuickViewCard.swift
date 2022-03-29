@@ -73,7 +73,6 @@ struct PinQuickViewCard: View {
                 if pageIds[index] == "placeInfo" {
                     PlacePage(
                         quickViewModel: quickViewModel,
-                        locationManager: mapViewModel.locationManager,
                         place: place!
                     )
                 } else if let post = posts[index - 1] { /// -1 because index 0 is placeInfo

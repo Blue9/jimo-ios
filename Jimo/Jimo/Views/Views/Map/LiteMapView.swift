@@ -49,7 +49,6 @@ struct LiteMapView: View {
                 if index == 0 {
                     PlacePage(
                         quickViewModel: quickViewModel,
-                        locationManager: locationManager,
                         place: post.place
                     )
                 } else {

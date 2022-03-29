@@ -5,7 +5,7 @@
 //  Created by Gautam Mekkat on 1/13/21.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 import MapKit
 import Firebase
@@ -31,38 +31,37 @@ class LocalSettings: ObservableObject {
     @Published var clusteringEnabled = false
 }
 
+enum OnboardingStep: Int {
+    case completed = -1,
+    requestLocation = 1,
+    requestContacts = 2,
+    followContacts = 3,
+    followFeatured = 4,
+    requestNotifications = 5
+}
+
 class OnboardingModel: ObservableObject {
-    @Published var completedContactsOnboarding: Bool = OnboardingModel.contactsOnboarded()
-    @Published var completedFeaturedUsersOnboarding: Bool = OnboardingModel.featuredUsersOnboarded()
+    @AppStorage("onboardingStep") var onboardingStep: OnboardingStep = .requestLocation
     
     init() {
-        // Uncomment to enable onboarding view
-        // completedContactsOnboarding = false
-        // completedFeaturedUsersOnboarding = false
+        // Uncomment to reset onboarding view
+         onboardingStep = .requestLocation
     }
     
     var isUserOnboarded: Bool {
-        completedContactsOnboarding && completedFeaturedUsersOnboarding
+        onboardingStep == .completed
     }
     
-    static func contactsOnboarded() -> Bool {
-        // Returns false if the key hasn't been set
-        UserDefaults.standard.bool(forKey: "contactsOnboarded")
-    }
-    
-    func setContactsOnboarded() {
-        UserDefaults.standard.set(true, forKey: "contactsOnboarded")
-        completedContactsOnboarding = true
-    }
-    
-    static func featuredUsersOnboarded() -> Bool {
-        // Returns false if the key hasn't been set
-        UserDefaults.standard.bool(forKey: "featuredUsersOnboarded")
-    }
-    
-    func setFeaturedUsersOnboarded() {
-        UserDefaults.standard.set(true, forKey: "featuredUsersOnboarded")
-        completedFeaturedUsersOnboarding = true
+    func step() {
+        withAnimation {
+            if self.onboardingStep == .requestContacts && PermissionManager.shared.contactsAuthStatus() != .authorized {
+                // Didn't receive contacts permission, skip followContacts
+                self.onboardingStep = .followFeatured
+            } else {
+                // Go to next step
+                self.onboardingStep = .init(rawValue: self.onboardingStep.rawValue + 1) ?? .completed
+            }
+        }
     }
 }
 

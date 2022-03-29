@@ -24,6 +24,7 @@ struct LargeButton<Content: View>: View {
     
     var body: some View {
         content
+            .foregroundColor(Color("foreground"))
             .font(.system(size: fontSize))
             .frame(minWidth: 0, maxWidth: .infinity)
             .frame(height: 60)

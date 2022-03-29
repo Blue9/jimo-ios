@@ -46,8 +46,7 @@ fileprivate class ContactStore: ObservableObject {
     }
     
     private func fetchContactsCallback(_ handler: @escaping ([Contact]?, Error?) -> Void) {
-        let store = CNContactStore()
-        store.requestAccess(for: .contacts) { (granted, error) in
+        PermissionManager.shared.requestContacts { (granted, error) in
             if let error = error {
                 handler(nil, error)
                 return
@@ -62,7 +61,7 @@ fileprivate class ContactStore: ObservableObject {
                     var formattedArray: [Contact] = []
                     let formatter = CNContactFormatter()
                     formatter.style = .fullName
-                    try store.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                    try PermissionManager.shared.contactStore.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
                         if let number = contact.phoneNumbers.first?.value.stringValue,
                            let name = formatter.string(from: contact),
                            let parsed = try? ContactStore.phoneNumberKit.parse(number) {
@@ -166,7 +165,7 @@ fileprivate struct ContactView: View {
             switch alertType {
             case .confirmInvite:
                 return Alert(title: Text("Confirm invite"),
-                             message: Text("Invite \(contact.name) (\(contact.formattedNumber)) to jimo?"),
+                             message: Text("Invite \(contact.name) (\(contact.formattedNumber)) to Jimo?"),
                              primaryButton: .default(Text("Invite")) { self.invite() },
                              secondaryButton: .cancel())
             case .confirmSendMessage:
@@ -250,7 +249,7 @@ struct InviteContactsView: View {
                     Button(action: {
                         UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
                     }) {
-                        Text("Enable access to your contacts to invite friends to jimo.")
+                        Text("Enable access to your contacts to invite friends to Jimo.")
                             .multilineTextAlignment(.center)
                     }
                     Text("We value and respect your privacy. We do not store your contacts on our servers or share them with anyone else.")
@@ -272,7 +271,7 @@ struct InviteContactsView: View {
         .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
-                NavTitle("Invite your friends to jimo")
+                NavTitle("Invite your friends to Jimo")
             }
         })
     }

@@ -33,6 +33,8 @@
 		C70AE47F25CA8EC5009920E8 /* VerifyPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */; };
 		C70AE48425CA8FA9009920E8 /* LargeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE48325CA8FA9009920E8 /* LargeButton.swift */; };
 		C70E61C726EAE56F00340EEC /* FeedItemV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70E61C626EAE56E00340EEC /* FeedItemV2.swift */; };
+		C70F53BE27F2A42600A15EE2 /* ContactsPermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70F53BD27F2A42600A15EE2 /* ContactsPermissions.swift */; };
+		C70F53C227F2ABEF00A15EE2 /* RequestLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70F53C127F2ABEF00A15EE2 /* RequestLocation.swift */; };
 		C7106AF5256084E200C10EFF /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106AF4256084E200C10EFF /* Place.swift */; };
 		C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */; };
 		C712B6E9262E497900DAEB1D /* UITabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C712B6E8262E497900DAEB1D /* UITabView.swift */; };
@@ -65,6 +67,11 @@
 		C75176A025FEFDEB00DCB856 /* FollowFeatured.swift in Sources */ = {isa = PBXBuildFile; fileRef = C751769F25FEFDEB00DCB856 /* FollowFeatured.swift */; };
 		C75176A825FF025200DCB856 /* LoggedInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75176A725FF025200DCB856 /* LoggedInView.swift */; };
 		C753CF7527C327C000B1EEA3 /* MapV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = C753CF7427C327C000B1EEA3 /* MapV3.swift */; };
+		C757F86C27F10C3700364EDB /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757F86B27F10C3700364EDB /* PermissionManager.swift */; };
+		C757F86F27F150DD00364EDB /* NotificationPermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757F86E27F150DD00364EDB /* NotificationPermissions.swift */; };
+		C757F87127F150F700364EDB /* LocationPermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757F87027F150F700364EDB /* LocationPermissions.swift */; };
+		C757F87327F1579500364EDB /* RequestPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757F87227F1579500364EDB /* RequestPermission.swift */; };
+		C757F87727F15BE400364EDB /* InvertBindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757F87627F15BE400364EDB /* InvertBindings.swift */; };
 		C758BAAE26FC0033007DFE30 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C758BAAD26FC0033007DFE30 /* LazyView.swift */; };
 		C758BAB026FC148A007DFE30 /* MapSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C758BAAF26FC148A007DFE30 /* MapSnapshotView.swift */; };
 		C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2EDE25561309009B6ADA /* JimoApp.swift */; };
@@ -174,6 +181,8 @@
 		C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyPhoneNumber.swift; sourceTree = "<group>"; };
 		C70AE48325CA8FA9009920E8 /* LargeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeButton.swift; sourceTree = "<group>"; };
 		C70E61C626EAE56E00340EEC /* FeedItemV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemV2.swift; sourceTree = "<group>"; };
+		C70F53BD27F2A42600A15EE2 /* ContactsPermissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsPermissions.swift; sourceTree = "<group>"; };
+		C70F53C127F2ABEF00A15EE2 /* RequestLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestLocation.swift; sourceTree = "<group>"; };
 		C7106AF4256084E200C10EFF /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
 		C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		C712B6E8262E497900DAEB1D /* UITabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITabView.swift; sourceTree = "<group>"; };
@@ -207,6 +216,11 @@
 		C751769F25FEFDEB00DCB856 /* FollowFeatured.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowFeatured.swift; sourceTree = "<group>"; };
 		C75176A725FF025200DCB856 /* LoggedInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInView.swift; sourceTree = "<group>"; };
 		C753CF7427C327C000B1EEA3 /* MapV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapV3.swift; sourceTree = "<group>"; };
+		C757F86B27F10C3700364EDB /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		C757F86E27F150DD00364EDB /* NotificationPermissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissions.swift; sourceTree = "<group>"; };
+		C757F87027F150F700364EDB /* LocationPermissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPermissions.swift; sourceTree = "<group>"; };
+		C757F87227F1579500364EDB /* RequestPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestPermission.swift; sourceTree = "<group>"; };
+		C757F87627F15BE400364EDB /* InvertBindings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertBindings.swift; sourceTree = "<group>"; };
 		C758BAAD26FC0033007DFE30 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		C758BAAF26FC148A007DFE30 /* MapSnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSnapshotView.swift; sourceTree = "<group>"; };
 		C75C2EDB25561309009B6ADA /* Jimo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Jimo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -494,6 +508,17 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		C757F86D27F150A500364EDB /* Permissions */ = {
+			isa = PBXGroup;
+			children = (
+				C757F86B27F10C3700364EDB /* PermissionManager.swift */,
+				C757F86E27F150DD00364EDB /* NotificationPermissions.swift */,
+				C757F87027F150F700364EDB /* LocationPermissions.swift */,
+				C70F53BD27F2A42600A15EE2 /* ContactsPermissions.swift */,
+			);
+			path = Permissions;
+			sourceTree = "<group>";
+		};
 		C75C2ED225561308009B6ADA = {
 			isa = PBXGroup;
 			children = (
@@ -564,6 +589,7 @@
 		C75C2F0C2556131B009B6ADA /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C757F86D27F150A500364EDB /* Permissions */,
 				C79EA00025AFD51300A38DB8 /* Types */,
 				C751768E25FEFAAD00DCB856 /* Onboarding */,
 				C74D020526A667CC00381C1B /* Publishers */,
@@ -631,6 +657,8 @@
 				C76E913D25D21E2800762803 /* OnboardingView.swift */,
 				C76E913725D20F6E00762803 /* FollowContacts.swift */,
 				C751769F25FEFDEB00DCB856 /* FollowFeatured.swift */,
+				C757F87227F1579500364EDB /* RequestPermission.swift */,
+				C70F53C127F2ABEF00A15EE2 /* RequestLocation.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -689,6 +717,7 @@
 				C73ED521260EFE79005CC0B4 /* View+disappear.swift */,
 				C7506CDF26F2DDDD00265633 /* UIDevice+hasNotch.swift */,
 				C707E02127EE565C0077B8DA /* NoButtonStyle.swift */,
+				C757F87627F15BE400364EDB /* InvertBindings.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1007,6 +1036,8 @@
 				C78049142788CDF700A9A2AF /* CategoryFilter.swift in Sources */,
 				C751769325FEFACB00DCB856 /* SuggestedUserStore.swift in Sources */,
 				C751768525FEFA7700DCB856 /* UserList.swift in Sources */,
+				C757F86C27F10C3700364EDB /* PermissionManager.swift in Sources */,
+				C70F53BE27F2A42600A15EE2 /* ContactsPermissions.swift in Sources */,
 				C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */,
 				C7A9497827C979AE002D89FE /* LiteMapView.swift in Sources */,
 				C75C2F202556166D009B6ADA /* User.swift in Sources */,
@@ -1016,6 +1047,7 @@
 				C758BAAE26FC0033007DFE30 /* LazyView.swift in Sources */,
 				C751768A25FEFAA300DCB856 /* ExistingContactStore.swift in Sources */,
 				C7416D0A26471DBE00FA58EE /* CommentItem.swift in Sources */,
+				C70F53C227F2ABEF00A15EE2 /* RequestLocation.swift in Sources */,
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
 				C751768025FEFA5A00DCB856 /* SuggestedUserView.swift in Sources */,
 				C75C2EE125561309009B6ADA /* ContentView.swift in Sources */,
@@ -1064,6 +1096,7 @@
 				C7D2D85C25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift in Sources */,
 				C75176A025FEFDEB00DCB856 /* FollowFeatured.swift in Sources */,
 				C707E02227EE565C0077B8DA /* NoButtonStyle.swift in Sources */,
+				C757F87327F1579500364EDB /* RequestPermission.swift in Sources */,
 				C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
 				C78049162788E10E00A9A2AF /* UserFilter.swift in Sources */,
@@ -1071,6 +1104,7 @@
 				C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */,
 				C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */,
 				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
+				C757F87727F15BE400364EDB /* InvertBindings.swift in Sources */,
 				C7031A7027C5A7DF00A90D24 /* QuickViewModel.swift in Sources */,
 				C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */,
 				C7416D0E264793B200FA58EE /* Comment.swift in Sources */,
@@ -1088,6 +1122,8 @@
 				C7C3FC252790DC89000AA023 /* MapKitViewV2.swift in Sources */,
 				C7E2732D25EC62DA00C787DB /* Checkbox.swift in Sources */,
 				C7FEBFA125DF42C400A0A685 /* MapTab.swift in Sources */,
+				C757F86F27F150DD00364EDB /* NotificationPermissions.swift in Sources */,
+				C757F87127F150F700364EDB /* LocationPermissions.swift in Sources */,
 				C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */,
 				C76DEA33255E559C008A9E1B /* Search.swift in Sources */,
 				C758BAB026FC148A007DFE30 /* MapSnapshotView.swift in Sources */,

@@ -21,13 +21,13 @@ struct FollowFeatured: View {
                 Text("Skip")
                     .foregroundColor(.gray)
                     .onTapGesture {
-                        onboardingModel.setFeaturedUsersOnboarded()
+                        onboardingModel.step()
                     }
             }
             .padding(.vertical, 10)
             .padding(.horizontal, 30)
             
-            Text("Featured jimo Users")
+            Text("Featured Jimo Users")
                 .font(.system(size: 24))
             
             Spacer()
@@ -58,11 +58,13 @@ struct FollowFeatured: View {
     }
     
     var body: some View {
-        ZStack {
-            viewBody
-        }
-        .popup(isPresented: $featuredUserStore.followManyFailed, type: .toast, autohideIn: 2) {
-            Toast(text: "Failed to follow users", type: .error)
+        VStack {
+            ZStack {
+                viewBody
+            }
+            .popup(isPresented: $featuredUserStore.followManyFailed, type: .toast, autohideIn: 2) {
+                Toast(text: "Failed to follow users", type: .error)
+            }
         }
     }
 }

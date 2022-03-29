@@ -5,13 +5,13 @@
 //  Created by Gautam Mekkat on 3/14/21.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 
 class FeaturedUserStore: SuggestedUserStore {
     @Published var allUsers: [PublicUser] = []
     @Published var selectedUsernames: Set<String> = []
-    @Published var loadingSuggestedUsers = false
+    @Published var loadingSuggestedUsers = true
     @Published var loadingSuggestedUsersError: Error?
     
     @Published var followingLoading = false
@@ -21,37 +21,49 @@ class FeaturedUserStore: SuggestedUserStore {
     private var followUsersCancellable: Cancellable?
     
     func getExistingUsers(appState: AppState) {
-        loadingSuggestedUsers = true
+        withAnimation {
+            loadingSuggestedUsers = true
+        }
         getUsersCancellable = appState.getSuggestedUsers()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error when getting featured users")
-                    self?.loadingSuggestedUsersError = error
-                    self?.loadingSuggestedUsers = false
+                    withAnimation {
+                        self?.loadingSuggestedUsersError = error
+                        self?.loadingSuggestedUsers = false
+                    }
                 }
             } receiveValue: { [weak self] users in
-                self?.allUsers = users
-                self?.selectAll()
-                self?.loadingSuggestedUsersError = nil
-                self?.loadingSuggestedUsers = false
+                withAnimation {
+                    self?.allUsers = users
+                    self?.selectAll()
+                    self?.loadingSuggestedUsersError = nil
+                    self?.loadingSuggestedUsers = false
+                }
             }
     }
     
     func follow(appState: AppState) {
-        followingLoading = true
+        withAnimation {
+            followingLoading = true
+        }
         followUsersCancellable = appState.followMany(usernames: Array(selectedUsernames))
             .sink { [weak self] completion in
-                self?.followingLoading = false
-                if case let .failure(error) = completion {
-                    print("Error when following many", error)
-                    self?.followManyFailed = true
+                withAnimation {
+                    self?.followingLoading = false
+                    if case let .failure(error) = completion {
+                        print("Error when following many", error)
+                        self?.followManyFailed = true
+                    }
                 }
             } receiveValue: { [weak self] response in
-                if response.success {
-                    appState.onboardingModel.setFeaturedUsersOnboarded()
-                    print("Set featured users onboarded")
-                } else {
-                    self?.followManyFailed = true
+                withAnimation {
+                    if response.success {
+                        appState.onboardingModel.step()
+                        print("Set featured users onboarded")
+                    } else {
+                        self?.followManyFailed = true
+                    }
                 }
             }
     }

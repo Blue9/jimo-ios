@@ -43,7 +43,7 @@ struct MapViewV2: View {
             }
             HStack {
                 Spacer()
-                CurrentLocationButton(regionWrapper: regionWrapper, locationManager: mapViewModel.locationManager)
+                CurrentLocationButton(regionWrapper: regionWrapper)
                     .padding(.horizontal)
             }
             Spacer()

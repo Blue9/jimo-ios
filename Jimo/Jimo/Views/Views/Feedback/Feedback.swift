@@ -21,7 +21,7 @@ struct Feedback: View {
             VStack(spacing: 0) {
                 Group {
                     FormInputText(
-                        name: "Submit your questions, comments, feedback, bugs, or anything else you would like to share with the jimo team.",
+                        name: "Submit your questions, comments, feedback, bugs, or anything else you would like to share with the Jimo team.",
                         height: 300,
                         text: $viewModel.content
                     )
