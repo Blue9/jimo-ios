@@ -8,10 +8,18 @@
 import SwiftUI
 import Firebase
 
-let gcmMessageIDKey = "gcm.message_id"
+
+class DeepLinkManager: ObservableObject {
+    @Published var showProfile: String?
+}
+
+fileprivate let gcmMessageIDKey = "gcm.message_id"
 
 fileprivate let appState = AppState(apiClient: APIClient())
-fileprivate let globalViewState = GlobalViewState()
+fileprivate globalViewState = GlobalViewState()
+fileprivate let deepLinkManager = DeepLinkManager()
+
+
 
 @main
 struct JimoApp: App {
@@ -22,6 +30,7 @@ struct JimoApp: App {
             ContentView()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
+                .environmentObject(deepLinkManager)
                 .onAppear {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
@@ -29,6 +38,7 @@ struct JimoApp: App {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onOpenURL { url in
+                    deepLinkManager.showProfile = "username"
                     let entity = url.entityType
                     switch entity {
                     case .post(let entityId), .profile(let entityId):
