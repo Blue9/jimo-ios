@@ -77,7 +77,7 @@ struct EnterPhoneNumber: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(.clear)
-        .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 2) {
+        .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 4) {
             Toast(text: viewModel.error, type: .error)
         }
     }
@@ -96,16 +96,29 @@ extension EnterPhoneNumber {
         @Published private(set) var loading = false
         
         func setError(_ error: String) {
-            self.error = error
-            showError = true
+            withAnimation {
+                self.error = error
+                self.showError = true
+            }
         }
         
         func getCode(appState: AppState) {
             hideKeyboard()
-            loading = true
+            withAnimation {
+                loading = true
+            }
+            guard phoneNumber.starts(with: "+") else {
+                setError("Phone number should begin with country code (including the '+').")
+                withAnimation {
+                    loading = false
+                }
+                return
+            }
             guard let number = try? phoneNumberKit.parse(phoneNumber) else {
-                setError("Invalid phone number. Try again.")
-                loading = false
+                setError("Invalid phone number.")
+                withAnimation {
+                    loading = false
+                }
                 return
             }
             appState.verifyPhoneNumber(phoneNumber: phoneNumberKit.format(number, toType: .e164))
@@ -113,17 +126,21 @@ extension EnterPhoneNumber {
                     guard let self = self else {
                         return
                     }
+                    withAnimation {
+                        self.loading = false
+                    }
                     if case let .failure(error) = completion {
                         print("Error", error)
-                        self.setError("Could not verify phone number. Try again.")
+                        self.setError(error.localizedDescription)
                     }
-                    self.loading = false
                 }, receiveValue: { [weak self] _ in
                     guard let self = self else {
                         return
                     }
-                    self.error = ""
-                    self.nextStep = true
+                    withAnimation {
+                        self.error = ""
+                        self.nextStep = true
+                    }
                 })
                 .store(in: &cancelBag)
         }
