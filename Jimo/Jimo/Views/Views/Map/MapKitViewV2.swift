@@ -11,6 +11,7 @@ import MapKit
 struct MapKitViewV2: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     @Binding var selectedPin: MapPinV3?
+    @State var selectedAnnotation: PlaceAnnotationV2? = nil
     
     var annotations: [PlaceAnnotationV2]
     
@@ -40,6 +41,11 @@ struct MapKitViewV2: UIViewRepresentable {
     func updateUIView(_ view: MKMapView, context: Context) {
         let viewAnnotations = Set(view.annotations.compactMap { $0 as? PlaceAnnotationV2 })
         let currentAnnotations = Set(annotations)
+        // Check if pin was deselected
+        if selectedPin == nil, let annotation = selectedAnnotation {
+            view.deselectAnnotation(annotation, animated: true)
+        }
+        // Check if pin was selected
         if let pin = selectedPin, let annotation = viewAnnotations.first(where: { $0.pin == pin }) {
             view.selectAnnotation(annotation, animated: true)
         }
@@ -105,6 +111,7 @@ struct MapKitViewV2: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             if let annotation = view.annotation as? PlaceAnnotationV2 {
                 DispatchQueue.main.async {
+                    self.parent.selectedAnnotation = annotation
                     self.parent.selectedPin = annotation.pin
                 }
                 self.highlight(view, annotation: annotation)
@@ -115,6 +122,7 @@ struct MapKitViewV2: UIViewRepresentable {
             self.removeHighlight(for: view)
             DispatchQueue.main.async {
                 self.parent.selectedPin = nil
+                self.parent.selectedAnnotation = nil
             }
         }
         

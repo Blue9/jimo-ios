@@ -61,8 +61,24 @@ struct MapViewV2: View {
     }
     
     @ViewBuilder var quickViewOverlay: some View {
-        VStack {
+        VStack(spacing: 5) {
             Spacer()
+            HStack {
+                Spacer()
+                Button(action: {
+                    mapViewModel.selectedPin = nil
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 20))
+                        .frame(width: 40, height: 40)
+                        .background(Color("background"))
+                        .cornerRadius(10)
+                        .contentShape(Rectangle())
+                }
+            }
+            .padding(.horizontal, (UIScreen.main.bounds.width - 320) / 2)
+            
             MapQuickView(
                 mapViewModel: mapViewModel,
                 quickViewModel: quickViewModel

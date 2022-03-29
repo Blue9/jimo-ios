@@ -58,7 +58,8 @@ struct MapQuickView: View {
             onPageChanged(index)
             loadPostsAndPreloadNextAndPrevious(index: index)
         }
-        .frame(width: UIScreen.main.bounds.width, height: 200)
+        .frame(width: UIScreen.main.bounds.width, height: 150)
+        .padding(.bottom, 25)
         .onChange(of: mapViewModel.selectedPin) { selectedPin in
             withAnimation {
                 if let selectedPin = selectedPin {

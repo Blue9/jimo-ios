@@ -45,7 +45,7 @@ class OnboardingModel: ObservableObject {
     
     init() {
         // Uncomment to reset onboarding view
-         onboardingStep = .requestLocation
+        // onboardingStep = .requestLocation
     }
     
     var isUserOnboarded: Bool {
