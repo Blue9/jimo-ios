@@ -81,5 +81,6 @@ struct HomeMenu: View {
         .padding(.horizontal, 50)
         .frame(maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
+        .trackScreen(.landing)
     }
 }

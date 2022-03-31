@@ -50,6 +50,7 @@ struct OnboardingView: View {
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
                 }
             }
+            .trackScreen(.onboarding)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

@@ -164,5 +164,6 @@ struct ViewPost: View {
                 NavTitle("View Post")
             }
         })
+        .trackScreen(.postView)
     }
 }

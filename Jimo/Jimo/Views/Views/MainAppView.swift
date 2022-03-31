@@ -11,10 +11,6 @@ enum Tab: Int {
     case map = 0, feed = 1, create = 2, search = 3, profile = 4
 }
 
-enum NewPostType {
-    case text, full
-}
-
 struct MainAppView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
@@ -23,13 +19,13 @@ struct MainAppView: View {
     let currentUser: PublicUser
     
     var body: some View {
-        UITabView(selection: $viewModel.selection) {
+        UITabView(selection: viewModel.selectionIndex) {
             MapTab()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .tabItem("Map", image: UIImage(named: "mapIcon"))
             
-            Feed(onCreatePostTap: { viewModel.selection = Tab.create.rawValue })
+            Feed(onCreatePostTap: { viewModel.selection = .create })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .tabItem(
@@ -52,6 +48,7 @@ struct MainAppView: View {
         }
         .sheet(isPresented: $viewModel.newPostSelected) {
             CreatePost(presented: $viewModel.newPostSelected)
+                .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
         }
@@ -70,26 +67,39 @@ extension MainAppView {
         let newPostTag: Tab = .create
         
         @Published var newPostSelected = false
-        @Published var selection: Int {
+        @Published var selection: Tab {
             didSet {
-                if selection == newPostTag.rawValue {
-                    previousSelection = Tab(rawValue: oldValue)
+                if selection == newPostTag {
                     selection = oldValue
                     newPostSelected = true
                 }
             }
         }
         
-        var previousSelection: Tab?
-        
-        init() {
-            self.selection = Tab.map.rawValue
+        var selectionIndex: Binding<Int> {
+            Binding<Int>(
+                get: { self.selection.rawValue },
+                set: { self.selection = Tab(rawValue: $0)! }
+            )
         }
         
-        func reset() {
-            if let previousSelection = previousSelection {
-                selection = previousSelection.rawValue
+        var currentTab: Screen {
+            switch selection {
+            case .map:
+                return .mapTab
+            case .feed:
+                return .feedTab
+            case .create: /// Should never actually be here since create is a sheet and not a tab
+                return .createPostSheet
+            case .search:
+                return .searchTab
+            case .profile:
+                return .profileTab
             }
+        }
+        
+        init() {
+            self.selection = Tab.map
         }
     }
 }

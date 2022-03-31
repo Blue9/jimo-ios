@@ -11,6 +11,7 @@ import Contacts
 import PhoneNumberKit
 
 
+
 fileprivate struct Contact: Identifiable {
     var id = UUID()
     var name: String
@@ -125,9 +126,10 @@ fileprivate struct ContactView: View {
     }
     
     private func sendMessage() {
-        let sms: String = "sms:+\(contact.phoneNumber)&body=Check out the places I posted on jimo! 😘"
+        let sms: String = "sms:+\(contact.phoneNumber)&body=Check out the places I posted on Jimo! 😘"
             + "\n\nhttps://apps.apple.com/app/id1541360118"
         let url: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        Analytics.shared.logInviteContact()
         UIApplication.shared.open(URL.init(string: url)!, options: [:], completionHandler: nil)
     }
     

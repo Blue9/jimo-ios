@@ -350,6 +350,7 @@ struct ProfileScreen: View {
                     NavTitle("Profile")
                 }
             })
+            .trackScreen(.profileView)
     }
 }
 

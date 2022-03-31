@@ -7,11 +7,11 @@
 
 import SwiftUI
 import Firebase
-import FirebaseAnalytics
 
 let gcmMessageIDKey = "gcm.message_id"
 
-let appState = AppState(apiClient: APIClient())
+fileprivate let appState = AppState(apiClient: APIClient())
+fileprivate let globalViewState = GlobalViewState()
 
 @main
 struct JimoApp: App {
@@ -21,7 +21,7 @@ struct JimoApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(appState)
-                .environmentObject(GlobalViewState())
+                .environmentObject(globalViewState)
                 .onAppear {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
@@ -40,10 +40,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
-        
-        Analytics.setAnalyticsCollectionEnabled(true)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
-        
+        Analytics.shared.initialize()
         Messaging.messaging().delegate = self
         
         // For iOS 10 display notification (sent via APNS)

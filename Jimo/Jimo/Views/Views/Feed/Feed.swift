@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import ASCollectionView
 
+
 class FeedViewModel: ObservableObject {
     let nc = NotificationCenter.default
     
@@ -188,13 +189,17 @@ struct Feed: View {
     
     @StateObject private var notificationFeedVM = NotificationFeedVM()
     
+    var notificationBellBadgePresent: Bool {
+        appState.unreadNotifications > 0
+    }
+    
     var onCreatePostTap: () -> ()
 
     var notificationFeedIcon: some View {
         ZStack(alignment: .topTrailing) {
             Image(systemName: "bell")
                 .foregroundColor(Color("foreground"))
-            if appState.unreadNotifications > 0 {
+            if notificationBellBadgePresent {
                 Circle()
                     .fill()
                     .frame(width: 10, height: 10)
@@ -223,6 +228,7 @@ struct Feed: View {
                         .sheet(isPresented: $showInvite) {
                             NavigationView {
                                 InviteContactsView()
+                                    .trackSheet(.inviteContacts, screenAfterDismiss: { .feedTab })
                             }
                             .environmentObject(appState)
                         }
@@ -236,11 +242,15 @@ struct Feed: View {
                             .frame(width: 50)
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { self.showNotifications.toggle() }) {
+                        Button(action: {
+                            Analytics.shared.logNotificationBellTap(badgePresent: notificationBellBadgePresent)
+                            self.showNotifications.toggle()
+                        }) {
                             notificationFeedIcon
                         }
                     }
                 })
+                .trackScreen(.feedTab)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

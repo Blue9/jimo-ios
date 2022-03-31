@@ -8,7 +8,6 @@
 import SwiftUI
 import Combine
 
-
 class SettingsViewModel: ObservableObject {
     @Published var postLikedNotifications: Bool = false
     @Published var followNotifications: Bool = false
@@ -130,6 +129,7 @@ struct Settings: View {
                 NavTitle("Settings")
             }
         }
+        .trackScreen(.settings)
     }
 }
 

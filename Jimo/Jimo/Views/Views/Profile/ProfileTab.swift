@@ -35,6 +35,7 @@ struct ProfileTab: View {
                         }
                     })
                 })
+                .trackScreen(.profileTab)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

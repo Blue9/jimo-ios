@@ -80,6 +80,7 @@ struct EnterPhoneNumber: View {
         .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 4) {
             Toast(text: viewModel.error, type: .error)
         }
+        .trackScreen(.enterPhoneNumber)
     }
 }
 
