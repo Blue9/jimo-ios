@@ -41,7 +41,11 @@ enum OnboardingStep: Int {
 }
 
 class OnboardingModel: ObservableObject {
-    @AppStorage("onboardingStep") var onboardingStep: OnboardingStep = .requestLocation
+    @AppStorage("onboardingStep") var onboardingStep: OnboardingStep = .requestLocation {
+        willSet {
+            objectWillChange.send() // Required for iOS 14.4 and lower
+        }
+    }
     
     init() {
         // Uncomment to reset onboarding view
