@@ -135,6 +135,7 @@ struct Search: View {
                     discoverViewModel.loadDiscoverPage(appState: appState)
                 }
             }
+            .trackScreen(.searchTab)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

@@ -43,6 +43,7 @@ struct VerifyPhoneNumber: View {
         .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 2) {
             Toast(text: viewModel.error, type: .error)
         }
+        .trackScreen(.enterVerificationCode)
     }
 }
 

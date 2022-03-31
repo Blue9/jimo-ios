@@ -12,6 +12,7 @@ struct MapTab: View {
         NavigationView {
             MapViewV2()
                 .navigationBarHidden(true)
+                .trackScreen(.mapTab)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

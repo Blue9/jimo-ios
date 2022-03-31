@@ -200,6 +200,7 @@ struct CreateProfileView: View {
                 }
             }
         }
+        .trackScreen(.createProfile)
     }
 }
 

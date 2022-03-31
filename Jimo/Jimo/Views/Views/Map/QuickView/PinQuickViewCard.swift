@@ -11,6 +11,8 @@ import SwiftUIPager
 fileprivate let quickViewWidth: CGFloat = 320
 
 struct PinQuickViewCard: View {
+    @EnvironmentObject var appState: AppState
+    
     @StateObject private var page: Page = Page.withIndex(1)
     @StateObject private var postIndex: Page = Page.withIndex(1)
     

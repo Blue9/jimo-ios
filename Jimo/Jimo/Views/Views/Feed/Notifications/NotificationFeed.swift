@@ -204,5 +204,6 @@ struct NotificationFeed: View {
                 appState.unreadNotifications = 0
             }
         }
+        .trackScreen(.notificationFeed)
     }
 }

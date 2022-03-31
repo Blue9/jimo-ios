@@ -431,6 +431,7 @@ struct CreatePostWithModel: View {
                     switch activeSheet {
                     case .placeSearch:
                         PlaceSearch(selectPlace: createPostVM.selectPlace)
+                            .trackSheet(.enterLocationView, screenAfterDismiss: { .createPostSheet })
                     case .imagePicker:
                         ImagePicker(image: $createPostVM.image)
                     }
