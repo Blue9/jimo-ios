@@ -77,7 +77,7 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .popup(isPresented: !$networkMonitor.connected, type: .toast, position: .bottom, autohideIn: nil, closeOnTap: true) {
-            Toast(text: "You are not connected to the internet", type: .error)
+            Toast(text: "No internet connection", type: .error)
         }
         .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
             Toast(text: globalViewState.errorMessage, type: .error)
