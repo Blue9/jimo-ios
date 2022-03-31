@@ -71,6 +71,8 @@
 	<true/>
 	<key>FirebaseCrashlyticsCollectionEnabled</key>
 	<true/>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>comgooglemaps</string>
