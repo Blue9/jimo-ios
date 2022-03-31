@@ -67,7 +67,7 @@ struct RequestPermission: View {
                             .font(.system(size: 20))
                             .frame(minWidth: 0, maxWidth: .infinity)
                             .frame(height: 60)
-                            .foregroundColor(Color("foreground"))
+                            .foregroundColor(.white)
                             .background(Color("next-button"))
                             .cornerRadius(10)
                             .shadow(radius: 5)
