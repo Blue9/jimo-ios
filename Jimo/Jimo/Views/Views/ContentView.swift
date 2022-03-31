@@ -12,6 +12,8 @@ struct ContentView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.colorScheme) var colorScheme
     
+    @StateObject var networkMonitor = NetworkConnectionMonitor()
+    
     var body: some View {
         ZStack {
             if case .loading = appState.firebaseSession {
@@ -37,7 +39,7 @@ struct ContentView: View {
                 NavigationView {
                     VStack {
                         Spacer()
-                        Button("Unable to connect to server. Tap here to try again.") {
+                        Button("Could not connect. Tap to try again.") {
                             appState.refreshCurrentUser()
                         }
                         Spacer()
@@ -74,6 +76,9 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .popup(isPresented: !$networkMonitor.connected, type: .toast, position: .bottom, autohideIn: nil, closeOnTap: true) {
+            Toast(text: "You are not connected to the internet", type: .error)
+        }
         .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
             Toast(text: globalViewState.errorMessage, type: .error)
                 .padding(.bottom, 50)
@@ -87,6 +92,9 @@ struct ContentView: View {
                 .padding(.bottom, 50)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .onAppear(perform: appState.listen)
+        .onAppear {
+            appState.listen()
+            networkMonitor.listen()
+        }
     }
 }

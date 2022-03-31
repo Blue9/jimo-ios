@@ -69,24 +69,6 @@ class OnboardingModel: ObservableObject {
     }
 }
 
-class MapCache {
-    let expirationSeconds: Double = 120
-    var map: MapResponse? {
-        didSet {
-            updatedAt = Date()
-        }
-    }
-    
-    private(set) var updatedAt: Date?
-    
-    func isExpired() -> Bool {
-        guard let updatedAt = updatedAt else {
-            return true
-        }
-        return Date().timeIntervalSince(updatedAt) > expirationSeconds
-    }
-}
-
 class AppState: ObservableObject {
     private var apiClient: APIClient
     private var cancelBag: Set<AnyCancellable> = .init()
@@ -101,11 +83,8 @@ class AppState: ObservableObject {
         }
     }
     
-    let mapCache = MapCache()
     let onboardingModel = OnboardingModel()
     var localSettings = LocalSettings()
-    
-    let storage = Storage.storage()
     
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()

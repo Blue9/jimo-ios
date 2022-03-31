@@ -14,6 +14,7 @@
 		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
 		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
+		C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */; };
 		C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7019F6725EEB10200C1165A /* InviteContactsView.swift */; };
 		C7031A6B27C5A61400A90D24 /* RegionWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7031A6A27C5A61400A90D24 /* RegionWrapper.swift */; };
 		C7031A6E27C5A6F400A90D24 /* PinQuickViewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7031A6D27C5A6F400A90D24 /* PinQuickViewCard.swift */; };
@@ -164,6 +165,7 @@
 		9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.debug.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.release.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.release.xcconfig"; sourceTree = "<group>"; };
 		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionMonitor.swift; sourceTree = "<group>"; };
 		C7019F6725EEB10200C1165A /* InviteContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsView.swift; sourceTree = "<group>"; };
 		C7031A6A27C5A61400A90D24 /* RegionWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionWrapper.swift; sourceTree = "<group>"; };
 		C7031A6D27C5A6F400A90D24 /* PinQuickViewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinQuickViewCard.swift; sourceTree = "<group>"; };
@@ -603,6 +605,7 @@
 				C79EA00125AFD56F00A38DB8 /* AppState.swift */,
 				C74183DF25D6E3A2007F13C1 /* GlobalViewState.swift */,
 				C7317F3E25E5C5840070E938 /* ImageUploadService.swift */,
+				C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */,
 				C78653E727D8476000A0D1A0 /* Analytics.swift */,
 				C7E7F68327F3C09800F9D598 /* Screens.swift */,
 			);
@@ -1104,6 +1107,7 @@
 				C7D2D85C25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift in Sources */,
 				C75176A025FEFDEB00DCB856 /* FollowFeatured.swift in Sources */,
 				C707E02227EE565C0077B8DA /* NoButtonStyle.swift in Sources */,
+				C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */,
 				C757F87327F1579500364EDB /* RequestPermission.swift in Sources */,
 				C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
