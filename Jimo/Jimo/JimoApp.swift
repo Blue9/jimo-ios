@@ -7,11 +7,11 @@
 
 import SwiftUI
 import Firebase
-import FirebaseAnalytics
 
 let gcmMessageIDKey = "gcm.message_id"
 
-let appState = AppState(apiClient: APIClient())
+fileprivate let appState = AppState(apiClient: APIClient())
+fileprivate let globalViewState = GlobalViewState()
 
 @main
 struct JimoApp: App {
@@ -21,7 +21,16 @@ struct JimoApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(appState)
-                .environmentObject(GlobalViewState())
+                .environmentObject(globalViewState)
+                .onAppear {
+                    appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+                }
+                .onOpenURL { url in
+                    // TODO handle url
+                }
         }
     }
 }
@@ -31,26 +40,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
-        
-        Analytics.setAnalyticsCollectionEnabled(true)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
-        
+        Analytics.shared.initialize()
         Messaging.messaging().delegate = self
         
-        if #available(iOS 10.0, *) {
-            // For iOS 10 display notification (sent via APNS)
-            UNUserNotificationCenter.current().delegate = self
-            
-            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-            UNUserNotificationCenter.current().requestAuthorization(
-                options: authOptions,
-                completionHandler: {_, _ in })
-        } else {
-            let settings: UIUserNotificationSettings =
-                UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
-            application.registerUserNotificationSettings(settings)
-        }
-        
+        // For iOS 10 display notification (sent via APNS)
+        UNUserNotificationCenter.current().delegate = self
         application.registerForRemoteNotifications()
         return true
     }
@@ -119,7 +113,7 @@ extension AppDelegate {
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         print("Tapped on notification")
-        UIApplication.shared.applicationIconBadgeNumber = 0
+        // UIApplication.shared.applicationIconBadgeNumber = 0
         let userInfo = response.notification.request.content.userInfo
         // Print message ID.
         if let messageID = userInfo[gcmMessageIDKey] {

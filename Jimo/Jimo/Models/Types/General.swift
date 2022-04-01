@@ -7,6 +7,9 @@
 
 import Foundation
 
+typealias OnFinish = () -> Void
+typealias OnRefresh = (@escaping OnFinish) -> Void
+
 struct FirebaseUser {
     var uid: String
     var phoneNumber: String?

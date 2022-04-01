@@ -5,7 +5,7 @@
 //  Created by Gautam Mekkat on 1/13/21.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 import MapKit
 import Firebase
@@ -31,56 +31,41 @@ class LocalSettings: ObservableObject {
     @Published var clusteringEnabled = false
 }
 
+enum OnboardingStep: Int {
+    case completed = -1,
+    requestLocation = 1,
+    requestContacts = 2,
+    followContacts = 3,
+    followFeatured = 4,
+    requestNotifications = 5
+}
+
 class OnboardingModel: ObservableObject {
-    @Published var completedContactsOnboarding: Bool = OnboardingModel.contactsOnboarded()
-    @Published var completedFeaturedUsersOnboarding: Bool = OnboardingModel.featuredUsersOnboarded()
+    @AppStorage("onboardingStep") var onboardingStep: OnboardingStep = .requestLocation {
+        willSet {
+            objectWillChange.send() // Required for iOS 14.4 and lower
+        }
+    }
     
     init() {
-        // Uncomment to enable onboarding view
-        // completedContactsOnboarding = false
-        // completedFeaturedUsersOnboarding = false
+        // Uncomment to reset onboarding view
+        // onboardingStep = .requestLocation
     }
     
     var isUserOnboarded: Bool {
-        completedContactsOnboarding && completedFeaturedUsersOnboarding
+        onboardingStep == .completed
     }
     
-    static func contactsOnboarded() -> Bool {
-        // Returns false if the key hasn't been set
-        UserDefaults.standard.bool(forKey: "contactsOnboarded")
-    }
-    
-    func setContactsOnboarded() {
-        UserDefaults.standard.set(true, forKey: "contactsOnboarded")
-        completedContactsOnboarding = true
-    }
-    
-    static func featuredUsersOnboarded() -> Bool {
-        // Returns false if the key hasn't been set
-        UserDefaults.standard.bool(forKey: "featuredUsersOnboarded")
-    }
-    
-    func setFeaturedUsersOnboarded() {
-        UserDefaults.standard.set(true, forKey: "featuredUsersOnboarded")
-        completedFeaturedUsersOnboarding = true
-    }
-}
-
-class MapCache {
-    let expirationSeconds: Double = 120
-    var map: MapResponse? {
-        didSet {
-            updatedAt = Date()
+    func step() {
+        withAnimation {
+            if self.onboardingStep == .requestContacts && PermissionManager.shared.contactsAuthStatus() != .authorized {
+                // Didn't receive contacts permission, skip followContacts
+                self.onboardingStep = .followFeatured
+            } else {
+                // Go to next step
+                self.onboardingStep = .init(rawValue: self.onboardingStep.rawValue + 1) ?? .completed
+            }
         }
-    }
-    
-    private(set) var updatedAt: Date?
-    
-    func isExpired() -> Bool {
-        guard let updatedAt = updatedAt else {
-            return true
-        }
-        return Date().timeIntervalSince(updatedAt) > expirationSeconds
     }
 }
 
@@ -92,11 +77,14 @@ class AppState: ObservableObject {
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
     
-    let mapCache = MapCache()
+    @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
+        didSet {
+            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
+        }
+    }
+    
     let onboardingModel = OnboardingModel()
     var localSettings = LocalSettings()
-    
-    let storage = Storage.storage()
     
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()
@@ -345,30 +333,37 @@ class AppState: ObservableObject {
     
     // MARK: - Map endpoints
     
-    func refreshMap() -> AnyPublisher<[MapPlace], APIError> {
-        return self.apiClient.getMap()
+    func getGlobalMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        self.apiClient.getGlobalMap(region: region, categories: categories)
     }
     
-    func getMapV2() -> AnyPublisher<MapResponse, APIError> {
-        if !mapCache.isExpired(), let map = mapCache.map {
-            print("Got cached map")
-            return Just(map).setFailureType(to: APIError.self).eraseToAnyPublisher()
-        }
-        return self.apiClient.getMapV2()
-            .map { [weak self] mapResponse in
-                print("Updating map cache")
-                self?.mapCache.map = mapResponse
-                return mapResponse
-            }
-            .eraseToAnyPublisher()
+    func getFollowingMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        self.apiClient.getFollowingMap(region: region, categories: categories)
+    }
+    
+    func getCustomMap(region: Region, userIds: [String], categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        self.apiClient.getCustomMap(region: region, userIds: userIds, categories: categories)
     }
     
     func loadPlaceIcon(for place: Place) -> AnyPublisher<MapPlaceIcon, APIError> {
         return self.apiClient.getPlaceIcon(placeId: place.placeId)
     }
     
+    @available(*, deprecated, message: "Use V3 endpoints")
     func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
         return self.apiClient.getMutualPosts(for: placeId)
+    }
+    
+    func getGlobalMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return self.apiClient.getGlobalMutualPostsV3(for: placeId, categories: categories)
+    }
+    
+    func getFollowingMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return self.apiClient.getFollowingMutualPostsV3(for: placeId, categories: categories)
+    }
+    
+    func getCustomMutualPostsV3(for placeId: PlaceId, categories: [String], users: [UserId]) -> AnyPublisher<[Post], APIError> {
+        return self.apiClient.getCustomMutualPostsV3(for: placeId, categories: categories, users: users)
     }
     
     // MARK: - Relation endpoints
