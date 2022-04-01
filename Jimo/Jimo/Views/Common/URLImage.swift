@@ -40,6 +40,7 @@ struct URLImage: View {
         }
         .transition(.fade(duration: 0.1))
         .scaledToFill()
+        .id(url)
     }
 
     init(

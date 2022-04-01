@@ -154,6 +154,7 @@ struct FeedBody: View {
             LazyVStack {
                 ForEach(feedViewModel.feed) { post in
                     FeedItemV2(post: post)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Color.clear
                     .appear {
