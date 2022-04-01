@@ -84,23 +84,25 @@ struct RefreshableScrollView<Content: View>: View {
     
     func onFinish() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        withAnimation {
-            self.refreshing = false
-            self.frozen = false
-        }
+        self.refreshing = false
+        self.frozen = false
     }
     
     private func onOffsetChange(offset: CGFloat) {
         self.offset = offset
         if !refreshing && previousOffset <= threshold && offset > threshold {
             if let onRefresh = onRefresh {
-                refreshing = true
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                onRefresh(onFinish)
+                withAnimation {
+                    refreshing = true
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    onRefresh(onFinish)
+                }
             }
         }
         if refreshing && previousOffset > threshold && offset <= threshold {
-            self.frozen = true
+            withAnimation {
+                self.frozen = true
+            }
         }
         previousOffset = offset
     }

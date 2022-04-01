@@ -85,25 +85,14 @@ struct ViewPost: View {
         )
     }
     
-    var body: some View {
+    @ViewBuilder var mainBody: some View {
         RefreshableScrollView {
             VStack {
                 // Post contents
                 postItem
                 
-                // Add comment field
-                ZStack {
-                    commentField
-                    
-                    if commentsViewModel.creatingComment {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.gray.opacity(0.2))
-                    }
-                }
-                
                 // List of comments
-                LazyVStack {
+                LazyVStack(spacing: 0) {
                     ForEach(commentsViewModel.comments) { comment in
                         ZStack(alignment: .bottom) {
                             CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
@@ -130,6 +119,17 @@ struct ViewPost: View {
                 commentsViewModel.appState = appState
                 commentsViewModel.viewState = globalViewState
                 commentsViewModel.loadComments()
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            mainBody
+            VStack(spacing: 0) {
+                Spacer()
+                Divider()
+                commentField
             }
         }
         .navigationBarTitleDisplayMode(.inline)
