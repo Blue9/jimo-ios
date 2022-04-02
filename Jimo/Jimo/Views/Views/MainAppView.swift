@@ -17,7 +17,7 @@ struct MainAppView: View {
     @EnvironmentObject var deepLinkManager: DeepLinkManager
     @StateObject var viewModel = ViewModel()
     
-    @State var showProfileView = false
+    @State var shouldPresentDeepLink = false
     
     let currentUser: PublicUser
     
@@ -54,8 +54,20 @@ struct MainAppView: View {
                 .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
-        .sheet(isPresented: $showProfileView) {
-            Text("You're viewing this profiel")
+        .sheet(isPresented: $shouldPresentDeepLink) {
+            switch deepLinkManager.presentableEntity {
+            case .profile(let id):
+                NavigationView {
+                    Profile(initialUser: currentUser)
+                }
+                ProfileScreen(initialUser: currentUser)
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+            case .post(let id):
+                Text("") // TODO
+            case .none:
+                Text("")
+            }
         }
         .accentColor(Color("foreground"))
         .onAppear {
@@ -63,9 +75,10 @@ struct MainAppView: View {
             UITabBar.appearance().backgroundImage = UIImage()
             UITabBar.appearance().barTintColor = UIColor(Color("background"))
             UITabBar.appearance().backgroundColor = UIColor(Color("background"))
-            if let username = deepLinkManager.showProfile {
-                showProfileView = true
-                deepLinkManager.showProfile = nil
+
+            switch deepLinkManager.presentableEntity {
+            case .none: shouldPresentDeepLink = false
+            default: shouldPresentDeepLink = true
             }
         }
     }

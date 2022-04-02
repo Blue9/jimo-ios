@@ -15,11 +15,9 @@ extension URL {
     /// Decodes the entity type and entity Id from the deeplink
     /// e.g. `jimoapp://profile/1`
     var entityType: DeepLinkEntity {
-        guard
-            isDeepLink,
-            let entityId = Int(path.dropFirst(1))
-        else { return .none }
+        guard isDeepLink else { return .none }
 
+        let entityId = String(path.dropFirst(1))
         switch host {
         case "profile": return .profile(entityId)
         case "post": return .post(entityId)
@@ -30,7 +28,7 @@ extension URL {
 
 /// What type of detail page we want to open based on the deeplink URL
 enum DeepLinkEntity {
-    case profile(Int), post(Int), none
+    case profile(String), post(String), none
 }
 
 protocol DeepLinkOpenable: View {

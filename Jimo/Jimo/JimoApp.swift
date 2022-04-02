@@ -10,7 +10,7 @@ import Firebase
 
 
 class DeepLinkManager: ObservableObject {
-    @Published var showProfile: String?
+    @Published var presentableEntity: DeepLinkEntity = .none
 }
 
 fileprivate let gcmMessageIDKey = "gcm.message_id"
@@ -18,8 +18,6 @@ fileprivate let gcmMessageIDKey = "gcm.message_id"
 fileprivate let appState = AppState(apiClient: APIClient())
 fileprivate globalViewState = GlobalViewState()
 fileprivate let deepLinkManager = DeepLinkManager()
-
-
 
 @main
 struct JimoApp: App {
@@ -38,14 +36,7 @@ struct JimoApp: App {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onOpenURL { url in
-                    deepLinkManager.showProfile = "username"
-                    let entity = url.entityType
-                    switch entity {
-                    case .post(let entityId), .profile(let entityId):
-                        break
-                    case .none:
-                        return
-                    }
+                    deepLinkManager.presentableEntity = url.entityType
                 }
         }
     }
@@ -65,8 +56,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         return true
     }
 
-    func applicationopenurl
-    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         // Pass device token to auth
         Auth.auth().setAPNSToken(deviceToken, type: .prod)
