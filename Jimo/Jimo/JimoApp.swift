@@ -16,7 +16,7 @@ class DeepLinkManager: ObservableObject {
 fileprivate let gcmMessageIDKey = "gcm.message_id"
 
 fileprivate let appState = AppState(apiClient: APIClient())
-fileprivate globalViewState = GlobalViewState()
+fileprivate let globalViewState = GlobalViewState()
 fileprivate let deepLinkManager = DeepLinkManager()
 
 @main
