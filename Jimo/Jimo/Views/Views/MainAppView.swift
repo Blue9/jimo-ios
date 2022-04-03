@@ -58,6 +58,7 @@ struct MainAppView: View {
             switch deepLinkManager.presentableEntity {
             case .profile(let username):
                 ProfileLoadingScreen(username: username)
+                    .environmentObject(appState)
             case .post(let id):
                 Text("") // TODO
             case .none:
