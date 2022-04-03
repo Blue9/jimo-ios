@@ -54,6 +54,7 @@ struct MainAppView: View {
                 .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
+        }
         .sheet(isPresented: $shouldPresentDeepLink) {
             switch deepLinkManager.presentableEntity {
             case .profile(let username):
