@@ -147,8 +147,36 @@ struct Profile: View {
     }
 }
 
+/// This wrapper view loads the user, if we have not done so yet
+struct ProfileLoadingScreen: View {
+    @EnvironmentObject var appState: AppState
+    @StateObject var viewModel = ViewModel()
+    var username: String
+
+    var body: some View {
+        if let user = viewModel.initialUser {
+            ProfileScreen(initialUser: user)
+        } else {
+            ProgressView().onAppear(perform: { viewModel.loadProfile(with: appState, username: username) })
+        }
+    }
+
+    class ViewModel: ObservableObject {
+        @Published var initialUser: User?
+
+        func loadProfile(with appState: AppState, username: String) {
+            _ = appState.getUser(username: username)
+                .sink(receiveCompletion: {
+                    if case let .failure(error) = $0 {
+                        print("Error when loading user", error)
+                    }
+                }, receiveValue: { [weak self] in self?.initialUser = $0 })
+        }
+    }
+}
+
 struct ProfileScreen: View {
-    let initialUser: User
+    var initialUser: User
     
     var body: some View {
         Profile(initialUser: initialUser)

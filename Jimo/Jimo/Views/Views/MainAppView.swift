@@ -56,13 +56,8 @@ struct MainAppView: View {
                 .environmentObject(globalViewState)
         .sheet(isPresented: $shouldPresentDeepLink) {
             switch deepLinkManager.presentableEntity {
-            case .profile(let id):
-                NavigationView {
-                    Profile(initialUser: currentUser)
-                }
-                ProfileScreen(initialUser: currentUser)
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
+            case .profile(let username):
+                ProfileLoadingScreen(username: username)
             case .post(let id):
                 Text("") // TODO
             case .none:
