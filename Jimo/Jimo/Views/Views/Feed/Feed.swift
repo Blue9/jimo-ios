@@ -114,7 +114,7 @@ struct FeedBody: View {
     
     var initializedFeed: some View {
         RefreshableScrollView {
-            LazyVStack {
+            LazyVStack(spacing: 10) {
                 ForEach(feedViewModel.feed) { post in
                     FeedItem(post: post)
                         .frame(width: UIScreen.main.bounds.width)
