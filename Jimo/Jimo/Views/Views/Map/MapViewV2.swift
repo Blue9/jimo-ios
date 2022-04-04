@@ -118,7 +118,7 @@ struct MapViewV2: View {
             bottomSheetPosition: $bottomSheetPosition,
             options: [
                 .animation(Animation.interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0)),
-                .background(AnyView(Color("background")))
+                .background({ AnyView(Color("background")) })
             ],
             headerContent: {
                 MapBottomSheetHeader(
