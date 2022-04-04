@@ -98,7 +98,6 @@
 		C77B0EDA2796500900743351 /* PostPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77B0ED92796500900743351 /* PostPage.swift */; };
 		C78049142788CDF700A9A2AF /* CategoryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78049132788CDF700A9A2AF /* CategoryFilter.swift */; };
 		C78049162788E10E00A9A2AF /* UserFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78049152788E10E00A9A2AF /* UserFilter.swift */; };
-		C782598D262AC76F00C82ECF /* ASCollectionView in Frameworks */ = {isa = PBXBuildFile; productRef = C782598C262AC76F00C82ECF /* ASCollectionView */; };
 		C78653E827D8476000A0D1A0 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78653E727D8476000A0D1A0 /* Analytics.swift */; };
 		C79183482597DABF006B4056 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79183472597DABF006B4056 /* PopupView.swift */; };
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
@@ -302,7 +301,6 @@
 				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
 				C79E1E9D2788BDE500267A86 /* BottomSheet in Frameworks */,
 				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */,
-				C782598D262AC76F00C82ECF /* ASCollectionView in Frameworks */,
 				C7F74BBD27FAAFBF006EA7EF /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -785,7 +783,6 @@
 			);
 			name = Jimo;
 			packageProductDependencies = (
-				C782598C262AC76F00C82ECF /* ASCollectionView */,
 				C79E1E9C2788BDE500267A86 /* BottomSheet */,
 				C7FC69DF2790160100C41ED3 /* SwiftUIPager */,
 				C7F74BBC27FAAFBF006EA7EF /* Kingfisher */,
@@ -865,7 +862,6 @@
 			);
 			mainGroup = C75C2ED225561308009B6ADA;
 			packageReferences = (
-				C782598B262AC76F00C82ECF /* XCRemoteSwiftPackageReference "ASCollectionView" */,
 				C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */,
 				C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 				C7F74BBB27FAAFBF006EA7EF /* XCRemoteSwiftPackageReference "Kingfisher" */,
@@ -1485,14 +1481,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C782598B262AC76F00C82ECF /* XCRemoteSwiftPackageReference "ASCollectionView" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apptekstudios/ASCollectionView";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/LucasMucGH/BottomSheet";
@@ -1520,11 +1508,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C782598C262AC76F00C82ECF /* ASCollectionView */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C782598B262AC76F00C82ECF /* XCRemoteSwiftPackageReference "ASCollectionView" */;
-			productName = ASCollectionView;
-		};
 		C79E1E9C2788BDE500267A86 /* BottomSheet */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */;

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import MapKit
-import ASCollectionView
 
 struct Search: View {
     @EnvironmentObject var appState: AppState
@@ -46,40 +45,6 @@ struct Search: View {
         } else {
             discoverFeedLoaded
         }
-    }
-    
-    /// TODO: Currently has an issue where navigation is reset when going out of the app and back in,
-    var oldDiscoverFeedLoaded: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0, data: discoverViewModel.posts) { post, _ in
-                GeometryReader { geometry in
-                    NavigationLink(destination: ViewPost(post: post)) {
-                        URLImage(url: post.imageUrl, thumbnail: true)
-                            .frame(maxWidth: .infinity)
-                            .frame(width: geometry.size.width, height: geometry.size.width)
-                    }
-                }
-                .aspectRatio(1, contentMode: .fit)
-                .background(Color(post.category))
-                .cornerRadius(2)
-            }
-        }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .grid(
-                layoutMode: .fixedNumberOfColumns(3),
-                itemSpacing: 2,
-                lineSpacing: 2,
-                itemSize: .estimated(80),
-                sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
-            )
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
-            discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
-        }
-        .ignoresSafeArea(.keyboard, edges: .all)
     }
     
     var discoverFeedLoaded: some View {

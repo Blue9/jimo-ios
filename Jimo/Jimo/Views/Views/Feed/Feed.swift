@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import ASCollectionView
 
 
 class FeedViewModel: ObservableObject {
@@ -105,49 +104,6 @@ struct FeedBody: View {
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
     
-    var collectionView: ASCollectionView<Int> {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0, data: feedViewModel.feed) { post, _ in
-                FeedItemV2(post: post)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .cacheCells()
-            
-            ASCollectionViewSection(id: 1) {
-                VStack {
-                    Divider()
-                    
-                    ProgressView()
-                        .opacity(feedViewModel.loadingMorePosts ? 1 : 0)
-                    Text("You've reached the end!")
-                        .font(.system(size: 15))
-                        .foregroundColor(Color("foreground"))
-                        .padding()
-                }
-            }
-        }
-    }
-    
-    /// TODO: Currently has an issue where navigation is reset when going out of the app and back in,
-    var oldInitializedFeed: some View {
-        collectionView
-            .shouldScrollToAvoidKeyboard(false)
-            .layout {
-                .list(itemSize: .estimated(200))
-            }
-            .alwaysBounceVertical()
-            .onReachedBoundary { boundary in
-                if boundary == .bottom {
-                    loadMore()
-                }
-            }
-            .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-            .onPullToRefresh { onFinish in
-                feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
-            }
-            .ignoresSafeArea(.keyboard, edges: .all)
-            .edgesIgnoringSafeArea(.all)
-    }
     
     var initializedFeed: some View {
         RefreshableScrollView {

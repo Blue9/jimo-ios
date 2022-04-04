@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ASCollectionView
 
 class PostDeletionListener: ObservableObject {
     let nc = NotificationCenter.default
@@ -46,8 +45,6 @@ struct ViewPost: View {
     @State private var initializedComments = false
     @State private var imageSize = CGSize.zero
     
-    @State private var scrollPosition: ASCollectionViewScrollPosition?
-    
     let post: Post
     var highlightedComment: Comment? = nil
     
@@ -78,9 +75,7 @@ struct ViewPost: View {
             buttonColor: colorTheme,
             onSubmit: { [weak commentsViewModel] in
                 commentsViewModel?.createComment()
-                withAnimation {
-                    scrollPosition = .indexPath(IndexPath(item: 0, section: 1))
-                }
+                // TODO: Scroll to comment position
             }
         )
     }
