@@ -25,7 +25,6 @@ struct URLImage: View {
             .cacheOriginalImage()
             .setProcessors(processors)
             .scaleFactor(UIScreen.main.scale)
-            .cancelOnDisappear(true)
             .placeholder {
                 if let view = loading {
                     view.resizable()
