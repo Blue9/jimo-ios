@@ -112,9 +112,14 @@ struct FeedBody: View {
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
     
+    private let columns: [GridItem] = [
+        GridItem(.fixed(UIScreen.main.bounds.width), spacing: 0)
+    ]
+    
     var initializedFeed: some View {
         RefreshableScrollView {
-            LazyVStack(spacing: 10) {
+            /// For some reason LazyVGrid's performance is way better than LazyVStack (less choppy)
+            LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(feedViewModel.feed) { post in
                     FeedItem(post: post)
                         .frame(width: UIScreen.main.bounds.width)

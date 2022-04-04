@@ -44,7 +44,6 @@ struct ViewPost: View {
     @StateObject private var postVM = PostVM()
     @StateObject private var commentsViewModel = CommentsViewModel()
     @State private var initializedComments = false
-    @State private var imageSize = CGSize.zero
     
     let post: Post
     var highlightedComment: Comment? = nil

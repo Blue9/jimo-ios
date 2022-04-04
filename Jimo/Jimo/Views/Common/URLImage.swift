@@ -8,12 +8,7 @@
 import SwiftUI
 import Kingfisher
 
-fileprivate class LoadState {
-    var imageSize: Binding<CGSize>?
-}
-
 struct URLImage: View {
-    private var loadState = LoadState()
     private var url: URL?
     private var loading: Image?
     private var thumbnail: Bool
@@ -31,13 +26,6 @@ struct URLImage: View {
             .setProcessors(processors)
             .scaleFactor(UIScreen.main.scale)
             .cancelOnDisappear(true)
-            .onSuccess { result in
-                if self.loadState.imageSize != nil && self.loadState.imageSize?.wrappedValue == nil {
-                    DispatchQueue.main.async {
-                        self.loadState.imageSize?.wrappedValue = result.image.size
-                    }
-                }
-            }
             .placeholder {
                 if let view = loading {
                     view.resizable()
@@ -53,16 +41,12 @@ struct URLImage: View {
     init(
         url: String?,
         loading: Image? = nil,
-        thumbnail: Bool = false,
-        imageSize: Binding<CGSize>? = nil
+        thumbnail: Bool = false
     ) {
         if let url = url {
             self.url = URL(string: url)
         }
         self.loading = loading
         self.thumbnail = thumbnail
-        if let imageSize = imageSize {
-            self.loadState.imageSize = imageSize
-        }
     }
 }
