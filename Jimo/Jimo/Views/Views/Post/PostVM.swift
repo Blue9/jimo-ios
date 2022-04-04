@@ -9,8 +9,6 @@ import SwiftUI
 import Combine
 
 class PostVM: ObservableObject {
-    @Published var navigation: PostDestination?
-    
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false

@@ -15,7 +15,6 @@ class FeedViewModel: ObservableObject {
     @Published var feed: [Post] = []
     @Published var initialized = false
     @Published var loadingMorePosts = false
-    @Published var navigation: PostDestination?
     
     var cursor: String?
     

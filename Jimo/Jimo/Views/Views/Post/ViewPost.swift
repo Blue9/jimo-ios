@@ -49,20 +49,6 @@ struct ViewPost: View {
     let post: Post
     var highlightedComment: Comment? = nil
     
-    @ViewBuilder
-    private func destination(_ dest: PostDestination?) -> some View {
-        switch dest {
-        case .post:
-            ViewPost(post: post) /// Should never happen since ViewPost
-        case .profile(let user):
-            ProfileScreen(initialUser: user)
-        case .map:
-            LiteMapView(post: post)
-        case .none:
-            EmptyView()
-        }
-    }
-    
     var colorTheme: Color {
         return Color(post.category)
     }
