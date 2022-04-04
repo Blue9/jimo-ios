@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import ASCollectionView
 
 
 class FeedViewModel: ObservableObject {
@@ -105,47 +104,23 @@ struct FeedBody: View {
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
     
-    var collectionView: ASCollectionView<Int> {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0, data: feedViewModel.feed) { post, _ in
-                FeedItemV2(post: post)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .cacheCells()
-            
-            ASCollectionViewSection(id: 1) {
-                VStack {
-                    Divider()
-                    
-                    ProgressView()
-                        .opacity(feedViewModel.loadingMorePosts ? 1 : 0)
-                    Text("You've reached the end!")
-                        .font(.system(size: 15))
-                        .foregroundColor(Color("foreground"))
-                        .padding()
-                }
-            }
-        }
-    }
     
     var initializedFeed: some View {
-        collectionView
-            .shouldScrollToAvoidKeyboard(false)
-            .layout {
-                .list(itemSize: .estimated(200))
-            }
-            .alwaysBounceVertical()
-            .onReachedBoundary { boundary in
-                if boundary == .bottom {
-                    loadMore()
+        RefreshableScrollView {
+            LazyVStack {
+                ForEach(feedViewModel.feed) { post in
+                    FeedItem(post: post)
+                        .frame(width: UIScreen.main.bounds.width)
+                        .fixedSize(horizontal: true, vertical: true)
                 }
+                Color.clear
+                    .appear {
+                        feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
+                    }
             }
-            .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-            .onPullToRefresh { onFinish in
-                feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
-            }
-            .ignoresSafeArea(.keyboard, edges: .all)
-            .edgesIgnoringSafeArea(.all)
+        } onRefresh: { onFinish in
+            feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
+        }
     }
     
     var body: some View {

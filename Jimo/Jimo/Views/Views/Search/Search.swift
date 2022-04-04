@@ -7,7 +7,6 @@
 
 import SwiftUI
 import MapKit
-import ASCollectionView
 
 struct Search: View {
     @EnvironmentObject var appState: AppState
@@ -19,6 +18,12 @@ struct Search: View {
     @State private var initialLoadCompleted = false
     
     let defaultImage: Image = Image(systemName: "person.crop.circle")
+    
+    private let columns: [GridItem] = [
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2)
+    ]
     
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultImage)
@@ -43,36 +48,25 @@ struct Search: View {
     }
     
     var discoverFeedLoaded: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0, data: discoverViewModel.posts) { post, _ in
-                GeometryReader { geometry in
-                    NavigationLink(destination: ViewPost(post: post)) {
-                        URLImage(url: post.imageUrl, thumbnail: true)
-                            .frame(maxWidth: .infinity)
-                            .frame(width: geometry.size.width, height: geometry.size.width)
+        RefreshableScrollView {
+            LazyVGrid(columns: columns, spacing: 2) {
+                ForEach(discoverViewModel.posts) { post in
+                    GeometryReader { geometry in
+                        NavigationLink(destination: ViewPost(post: post)) {
+                            URLImage(url: post.imageUrl, thumbnail: true)
+                                .frame(maxWidth: .infinity)
+                                .frame(width: geometry.size.width, height: geometry.size.width)
+                        }
                     }
+                    .aspectRatio(1, contentMode: .fit)
+                    .background(Color(post.category))
+                    .cornerRadius(2)
                 }
-                .aspectRatio(1, contentMode: .fit)
-                .background(Color(post.category))
-                .cornerRadius(2)
             }
-        }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .grid(
-                layoutMode: .fixedNumberOfColumns(3),
-                itemSpacing: 2,
-                lineSpacing: 2,
-                itemSize: .estimated(80),
-                sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
-            )
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+            .transition(.slide)
+        } onRefresh: { onFinish in
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
         }
-        .ignoresSafeArea(.keyboard, edges: .all)
     }
     
     var userResults: some View {

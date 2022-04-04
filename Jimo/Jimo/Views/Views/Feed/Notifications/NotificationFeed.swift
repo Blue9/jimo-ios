@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import ASCollectionView
 
 class NotificationFeedVM: ObservableObject {
     @Published var feedItems: [NotificationItem] = []
@@ -35,6 +34,9 @@ class NotificationFeedVM: ObservableObject {
     
     func loadMoreNotifications(appState: AppState, viewState: GlobalViewState) {
         guard cursor != nil else {
+            return
+        }
+        guard !loading else {
             return
         }
         loading = true
@@ -148,40 +150,25 @@ struct NotificationFeed: View {
     @State private var initialized = false
     
     var body: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0, data: notificationFeedVM.feedItems) { item, _ in
-                NotificationFeedItem(item: item)
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-                    .padding(.horizontal, 10)
-                    .fixedSize(horizontal: false, vertical: true)
-                Divider()
-                    .padding(.horizontal, 10)
-                    .hidden()
-            }
-            .sectionFooter {
-                VStack {
-                    Divider()
-                    
-                    ProgressView()
-                        .opacity(notificationFeedVM.loading ? 1 : 0)
-                    Text("You've reached the end!")
-                        .font(.system(size: 15))
+        RefreshableScrollView {
+            LazyVStack(spacing: 10) {
+                // Feed items
+                ForEach(notificationFeedVM.feedItems) { item in
+                    NotificationFeedItem(item: item)
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                        .padding(.horizontal, 10)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                
+                // Bottom
+                Color.clear
+                    .appear {
+                        notificationFeedVM.loadMoreNotifications(appState: appState, viewState: globalViewState)
+                    }
             }
-        }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .list(itemSize: .absolute(50))
-        }
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState, onFinish: onFinish)
-        }
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                notificationFeedVM.loadMoreNotifications(appState: appState, viewState: globalViewState)
-            }
         }
         .ignoresSafeArea(.keyboard, edges: .all)
         .foregroundColor(Color("foreground"))

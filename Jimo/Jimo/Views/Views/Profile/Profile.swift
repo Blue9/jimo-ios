@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ASCollectionView
 
 
 struct ProfileHeaderView: View {
@@ -212,6 +211,12 @@ struct Profile: View {
     
     let initialUser: User
     
+    private let columns: [GridItem] = [
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2)
+    ]
+    
     var username: String {
         initialUser.username
     }
@@ -220,80 +225,64 @@ struct Profile: View {
     @State private var confirmBlockUser = false
     
     var profileGrid: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0) {
+        RefreshableScrollView {
+            VStack {
                 ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
-            }
-            
-            ASCollectionViewSection(id: 1, data: profileVM.posts) { post, _ in
-                GeometryReader { geometry in
-                    NavigationLink(destination: ViewPost(post: post)) {
-                        if let url = post.imageUrl {
-                            URLImage(url: url, thumbnail: true)
-                                .frame(maxWidth: .infinity)
-                                .frame(width: geometry.size.width, height: geometry.size.width)
-                        } else {
-                            MapSnapshotView(post: post, width: (UIScreen.main.bounds.width - 6) / 3)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: geometry.size.width)
+                
+                LazyVGrid(columns: columns, spacing: 2) {
+                    ForEach(profileVM.posts) { post in
+                        GeometryReader { geometry in
+                            NavigationLink(destination: ViewPost(post: post)) {
+                                if let url = post.imageUrl {
+                                    URLImage(url: url, thumbnail: true)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(width: geometry.size.width, height: geometry.size.width)
+                                } else {
+                                    MapSnapshotView(
+                                        post: post,
+                                        width: geometry.size.width
+                                    )
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: geometry.size.width)
+                                }
+                            }
                         }
+                        .aspectRatio(1, contentMode: .fit)
+                        .background(Color(post.category))
+                        .cornerRadius(2)
                     }
-                }
-                .aspectRatio(1, contentMode: .fit)
-                .background(Color(post.category))
-                .cornerRadius(2)
-            }
-            
-            ASCollectionViewSection(id: 2) {
-                Group {
-                    if profileVM.loadStatus == .success {
-                        ProgressView()
-                            .opacity(profileVM.loadingMore ? 1 : 0)
-                    } else if profileVM.loadStatus == .failed {
-                        Text("Failed to load posts")
-                            .padding()
-                    } else { // notInitialized
-                        ProgressView()
+                    
+                    if !profileVM.loadingMore && profileVM.loadStatus == .success {
+                        Color.clear
                             .appear {
-                                profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
-                                profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
+                                print("Loading more posts")
+                                profileVM.loadMorePosts(
+                                    username: username,
+                                    appState: appState,
+                                    viewState: viewState
+                                )
                             }
                     }
                 }
-                .padding(.top)
             }
+        } onRefresh: { onFinish in
+            profileVM.refresh(
+                username: username,
+                appState: appState,
+                viewState: viewState,
+                onFinish: onFinish
+            )
         }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout { sectionID in
-            switch sectionID {
-            case 1:
-                return .grid(
-                    layoutMode: .fixedNumberOfColumns(3),
-                    itemSpacing: 2,
-                    lineSpacing: 2,
-                    itemSize: .absolute((UIScreen.main.bounds.width - 8) / 3),
-                    sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
-                )
-            default:
-                return .list(itemSize: .estimated(200))
-            }
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
-            profileVM.refresh(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
-        }
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
-            }
-        }
-        .font(.system(size: 15))
-        .ignoresSafeArea(.keyboard, edges: .all)
     }
     
     var body: some View {
         profileGrid
+            .appear {
+                if profileVM.loadStatus == .notInitialized {
+                    profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
+                    profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if !profileVM.isCurrentUser(appState: appState, username: username) {

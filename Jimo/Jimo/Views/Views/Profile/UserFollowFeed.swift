@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import ASCollectionView
 
 enum FollowType {
     case followers
@@ -241,31 +240,27 @@ struct FollowFeed: View {
     let username: String
     
     var body: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 1, data: followFeedVM.feedItems) { item, _ in
-                FollowFeedItemView(item: item)
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-                    .padding(.horizontal, 10)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .sectionFooter {
-                VStack {
-                    Divider()
-                    
-                    ProgressView()
-                        .opacity(followFeedVM.loadingMoreFollows ? 1 : 0)
-                    Text("You've reached the end!")
-                        .font(.system(size: 15))
+        RefreshableScrollView {
+            LazyVStack(spacing: 10) {
+                ForEach(followFeedVM.feedItems) { item in
+                    FollowFeedItemView(item: item)
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                        .padding(.horizontal, 10)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                
+                Color.clear
+                    .appear {
+                        followFeedVM.loadMoreFollows(
+                            type: type,
+                            for: username,
+                            appState: appState,
+                            viewState: globalViewState
+                        )
+                    }
             }
-        }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .list(itemSize: .absolute(50))
-        }
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             followFeedVM.refreshFollows(
                 type: type,
                 for: username,
@@ -273,16 +268,6 @@ struct FollowFeed: View {
                 viewState: globalViewState,
                 onFinish: onFinish
             )
-        }
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                followFeedVM.loadMoreFollows(
-                    type: type,
-                    for: username,
-                    appState: appState,
-                    viewState: globalViewState
-                )
-            }
         }
         .ignoresSafeArea(.keyboard, edges: .all)
         .onAppear {
@@ -292,6 +277,7 @@ struct FollowFeed: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarColor(UIColor(Color("background")))
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
                 NavTitle(self.navTitle)

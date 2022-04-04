@@ -1,5 +1,5 @@
 //
-//  FeedItemVM.swift
+//  PostVM.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 1/10/21.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-class FeedItemVM: ObservableObject {
+class PostVM: ObservableObject {
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ASCollectionView
 
 class PostDeletionListener: ObservableObject {
     let nc = NotificationCenter.default
@@ -42,11 +41,10 @@ struct ViewPost: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.presentationMode) var presentationMode
     
+    @StateObject private var postVM = PostVM()
     @StateObject private var commentsViewModel = CommentsViewModel()
     @State private var initializedComments = false
     @State private var imageSize = CGSize.zero
-    
-    @State private var scrollPosition: ASCollectionViewScrollPosition?
     
     let post: Post
     var highlightedComment: Comment? = nil
@@ -64,11 +62,16 @@ struct ViewPost: View {
     }
     
     var postItem: some View {
-        TrackedImageFeedItemV2(post: post, fullPost: true, imageSize: $imageSize)
-            .fixedSize(horizontal: false, vertical: true)
-            .onAppear {
-                postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
-            }
+        VStack {
+            PostHeader(postVM: postVM, post: post)
+            PostCaption(post: post)
+            PostImage(post: post)
+                .frame(width: UIScreen.main.bounds.width)
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false)
+        }
+        .onAppear {
+            postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
+        }
     }
     
     var commentField: some View {
@@ -78,61 +81,35 @@ struct ViewPost: View {
             buttonColor: colorTheme,
             onSubmit: { [weak commentsViewModel] in
                 commentsViewModel?.createComment()
-                withAnimation {
-                    scrollPosition = .indexPath(IndexPath(item: 0, section: 1))
-                }
+                // TODO: Scroll to comment position
             }
         )
     }
     
     @ViewBuilder var mainBody: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: imageSize == .zero ? 0 : -1) {
+        RefreshableScrollView {
+            VStack {
+                // Post contents
                 postItem
-            }
-            
-            ASCollectionViewSection(id: 1, data: commentsViewModel.comments) { comment, _ in
-                ZStack(alignment: .bottom) {
-                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
-                    Divider()
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 10)
-                }
-                .background(Color("background"))
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .sectionFooter {
-                VStack {
-                    if commentsViewModel.loadingComments {
-                        ProgressView()
+                
+                // List of comments
+                LazyVStack(spacing: 0) {
+                    ForEach(commentsViewModel.comments) { comment in
+                        ZStack(alignment: .bottom) {
+                            CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
+                            Divider()
+                                .foregroundColor(.gray)
+                                .padding(.horizontal, 10)
+                        }
+                        .background(Color("background"))
                     }
-                    Spacer().frame(height: 150)
+                    Color.clear
+                        .appear {
+                            commentsViewModel.loadMore()
+                        }
                 }
-                .padding(.top, 20)
             }
-        }
-        .backgroundColor(UIColor(Color("background")))
-        .shouldScrollToAvoidKeyboard(true)
-        .layout(interSectionSpacing: 0) { sectionId in
-            switch sectionId {
-            case 0: // post
-                return .list(itemSize: .estimated(300), spacing: 0)
-            default:
-                return .list(itemSize: .estimated(50), spacing: 0)
-            }
-        }
-        .alwaysBounceVertical()
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                commentsViewModel.loadMore()
-            }
-        }
-        .onScroll { (point, size) in
-            hideKeyboard()
-        }
-        .scrollPositionSetter($scrollPosition)
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             commentsViewModel.loadComments(onFinish: onFinish)
         }
         .onAppear {
@@ -145,11 +122,10 @@ struct ViewPost: View {
                 commentsViewModel.loadComments()
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
     
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             mainBody
             VStack(spacing: 0) {
                 Spacer()
