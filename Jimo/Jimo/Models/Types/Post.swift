@@ -19,6 +19,7 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var place: Place
     var category: String
     var content: String
+    var imageId: ImageId?
     var imageUrl: String?
     var createdAt: Date
     var likeCount: Int
@@ -38,7 +39,9 @@ struct FeedResponse: Codable {
 
 
 struct CreatePostRequest: Codable {
-    var place: MaybeCreatePlaceRequest
+    /// One of placeId and place must be specified
+    var placeId: PlaceId?
+    var place: MaybeCreatePlaceRequest?
     var category: String
     var content: String
     var imageId: String?

@@ -254,6 +254,7 @@ enum APIError: Error, Equatable {
     case decodeError
     case authError
     case notFound
+    case methodNotAllowed
     case rateLimitError
     case serverError
     case unknownError
@@ -596,6 +597,13 @@ class APIClient: ObservableObject {
     }
     
     /**
+     Edit a post.
+     */
+    func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
+        return doRequest(endpoint: Endpoint.post(postId: postId), httpMethod: "PUT", body: request)
+    }
+    
+    /**
      Delete a post.
      */
     func deletePost(postId: PostId) -> AnyPublisher<DeletePostResponse, APIError> {
@@ -771,6 +779,8 @@ class APIClient: ObservableObject {
                 throw APIError.authError
             case 404:
                 throw APIError.notFound
+            case 405:
+                throw APIError.methodNotAllowed
             case 429:
                 throw APIError.rateLimitError
             case 500...:

@@ -101,7 +101,7 @@ struct MapViewV2: View {
             geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
                 if let placemark = placemarks?.first {
                     let mapItem = MKMapItem(placemark: MKPlacemark(placemark: placemark))
-                    createPostVM.selectPlace(placeSelection: mapItem)
+                    createPostVM.selectPlace(place: mapItem)
                     showCreatePost.toggle()
                 }
             }

@@ -15,6 +15,7 @@ class FeedViewModel: ObservableObject {
     @Published var feed: [Post] = []
     @Published var initialized = false
     @Published var loadingMorePosts = false
+    @Published var navigation: PostDestination?
     
     var cursor: String?
     
@@ -23,6 +24,7 @@ class FeedViewModel: ObservableObject {
     
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
@@ -30,6 +32,13 @@ class FeedViewModel: ObservableObject {
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
         feed.insert(post, at: 0)
+    }
+    
+    @objc private func postUpdated(notification: Notification) {
+        let post = notification.object as! Post
+        if let i = feed.indices.first(where: { feed[$0].postId == post.postId }) {
+            feed[i] = post
+        }
     }
     
     @objc private func postLiked(notification: Notification) {
@@ -103,7 +112,6 @@ struct FeedBody: View {
         }
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
-    
     
     var initializedFeed: some View {
         RefreshableScrollView {

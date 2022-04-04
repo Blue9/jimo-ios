@@ -41,6 +41,7 @@
 		C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */; };
 		C712B6E9262E497900DAEB1D /* UITabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C712B6E8262E497900DAEB1D /* UITabView.swift */; };
 		C71B1B152599B7FE004BF1CD /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71B1B142599B7FE004BF1CD /* Toast.swift */; };
+		C71BBBBD27F4290D00D830B8 /* MKCoordinateRegion+Hashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71BBBBC27F4290D00D830B8 /* MKCoordinateRegion+Hashable.swift */; };
 		C725F87427F680F800370896 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C725F87327F680F800370896 /* RefreshableScrollView.swift */; };
 		C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7260C582585D27C0002A335 /* CreateProfileView.swift */; };
 		C72F3CB92587264A00DDB76C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CB82587264A00DDB76C /* Feed.swift */; };
@@ -108,6 +109,8 @@
 		C79E1EA12788BF9100267A86 /* MapViewModelV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79E1EA02788BF9100267A86 /* MapViewModelV2.swift */; };
 		C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79EA00125AFD56F00A38DB8 /* AppState.swift */; };
 		C7A9497827C979AE002D89FE /* LiteMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A9497727C979AE002D89FE /* LiteMapView.swift */; };
+		C7AA620C27F7B8AC00054815 /* View+navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AA620B27F7B8AC00054815 /* View+navigation.swift */; };
+		C7AA620F27F7B93300054815 /* PostDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AA620E27F7B93300054815 /* PostDestination.swift */; };
 		C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */; };
 		C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACFC25D8720E00EDEB7D /* Settings.swift */; };
 		C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */; };
@@ -194,6 +197,7 @@
 		C7106B0B2560C9F800C10EFF /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		C712B6E8262E497900DAEB1D /* UITabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITabView.swift; sourceTree = "<group>"; };
 		C71B1B142599B7FE004BF1CD /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
+		C71BBBBC27F4290D00D830B8 /* MKCoordinateRegion+Hashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKCoordinateRegion+Hashable.swift"; sourceTree = "<group>"; };
 		C725F87327F680F800370896 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		C7260C582585D27C0002A335 /* CreateProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfileView.swift; sourceTree = "<group>"; };
 		C72E1D1125CA1ADD0091C894 /* Jimo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Jimo.entitlements; sourceTree = "<group>"; };
@@ -267,6 +271,8 @@
 		C79E1EA02788BF9100267A86 /* MapViewModelV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModelV2.swift; sourceTree = "<group>"; };
 		C79EA00125AFD56F00A38DB8 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C7A9497727C979AE002D89FE /* LiteMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiteMapView.swift; sourceTree = "<group>"; };
+		C7AA620B27F7B8AC00054815 /* View+navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+navigation.swift"; sourceTree = "<group>"; };
+		C7AA620E27F7B93300054815 /* PostDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDestination.swift; sourceTree = "<group>"; };
 		C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfile.swift; sourceTree = "<group>"; };
 		C7AEACFC25D8720E00EDEB7D /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearch.swift; sourceTree = "<group>"; };
@@ -600,6 +606,7 @@
 		C75C2F0C2556131B009B6ADA /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C7AA620D27F7B92800054815 /* Navigation */,
 				C757F86D27F150A500364EDB /* Permissions */,
 				C79EA00025AFD51300A38DB8 /* Types */,
 				C751768E25FEFAAD00DCB856 /* Onboarding */,
@@ -730,11 +737,21 @@
 				C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */,
 				C73ED51C260EFDF4005CC0B4 /* View+appear.swift */,
 				C73ED521260EFE79005CC0B4 /* View+disappear.swift */,
+				C7AA620B27F7B8AC00054815 /* View+navigation.swift */,
 				C7506CDF26F2DDDD00265633 /* UIDevice+hasNotch.swift */,
 				C707E02127EE565C0077B8DA /* NoButtonStyle.swift */,
 				C757F87627F15BE400364EDB /* InvertBindings.swift */,
+				C71BBBBC27F4290D00D830B8 /* MKCoordinateRegion+Hashable.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		C7AA620D27F7B92800054815 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				C7AA620E27F7B93300054815 /* PostDestination.swift */,
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 		C7AEACF825D8719B00EDEB7D /* Settings */ = {
@@ -1056,6 +1073,7 @@
 				C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */,
 				C7A9497827C979AE002D89FE /* LiteMapView.swift in Sources */,
 				C75C2F202556166D009B6ADA /* User.swift in Sources */,
+				C7AA620F27F7B93300054815 /* PostDestination.swift in Sources */,
 				C7031A6E27C5A6F400A90D24 /* PinQuickViewCard.swift in Sources */,
 				C7EAD4D425ABBDCC004A9F53 /* PostVM.swift in Sources */,
 				C706477A2797289800B9CCD2 /* MapSearchField.swift in Sources */,
@@ -1096,6 +1114,7 @@
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
+				C71BBBBD27F4290D00D830B8 /* MKCoordinateRegion+Hashable.swift in Sources */,
 				C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */,
 				1FC816C625E34249009B803F /* Feedback.swift in Sources */,
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
@@ -1121,6 +1140,7 @@
 				C78049162788E10E00A9A2AF /* UserFilter.swift in Sources */,
 				C72F3CB92587264A00DDB76C /* Feed.swift in Sources */,
 				C7D1190D25A186CC00A222E3 /* NavTitle.swift in Sources */,
+				C7AA620C27F7B8AC00054815 /* View+navigation.swift in Sources */,
 				C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */,
 				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
 				C757F87727F15BE400364EDB /* InvertBindings.swift in Sources */,

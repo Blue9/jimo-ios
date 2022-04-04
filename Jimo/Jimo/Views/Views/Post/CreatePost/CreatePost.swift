@@ -98,17 +98,24 @@ struct FormInputButton: View {
     }
     
     var body: some View {
-        Group {
-            if let content = content {
-                Text(name + ": ").font(.system(size: 15)).bold()
-                + Text(content).font(.system(size: 15))
+        HStack {
+            Group {
+                if let content = content {
+                    Text(name + ": ").font(.system(size: 15)).bold()
+                    + Text(content).font(.system(size: 15))
+                } else {
+                    Text(name).font(.system(size: 15)).bold()
+                }
+            }.frame(maxWidth: .infinity, alignment: .leading)
+            
+            if content == nil {
+                rightArrow
             } else {
-                Text(name).font(.system(size: 15)).bold()
+                clearInputView
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundColor(Color("foreground"))
-        .overlay(content == nil ? AnyView(rightArrow) : AnyView(clearInputView), alignment: .trailing)
         .multilineTextAlignment(.leading)
     }
 }
@@ -138,9 +145,8 @@ struct MapPreview: View {
     @EnvironmentObject var appState: AppState
     
     var category: String?
-    var place: MKMapItem
+    var region: MKCoordinateRegion
     
-    let defaultSpan: CLLocationDegrees = 4
     let width = UIScreen.main.bounds.width - 20
     let height: CGFloat = 200
     
@@ -153,24 +159,7 @@ struct MapPreview: View {
         return nil
     }
     
-    var span: CGFloat {
-        if let region = place.placemark.region as? CLCircularRegion {
-            return min(region.radius * 10, 200000) / 111111
-        } else {
-            return defaultSpan
-        }
-    }
-    
     func generateSnapshot(width: CGFloat, height: CGFloat) {
-        // The region the map should display.
-        let region = MKCoordinateRegion(
-            center: place.placemark.coordinate,
-            span: MKCoordinateSpan(
-                latitudeDelta: span,
-                longitudeDelta: span
-            )
-        )
-        
         // Map options.
         let mapOptions = MKMapSnapshotter.Options()
         mapOptions.region = region
@@ -232,23 +221,13 @@ struct CreatePost: View {
 
 struct CreatePostWithModel: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
     @ObservedObject var createPostVM: CreatePostVM
     
     @Binding var presented: Bool
     
-    @State private var category: String? = nil
-    @State private var content: String = ""
-    
-    @State private var posting = false
-    
-    @State private var showError = false
-    @State private var errorMessage = ""
-    
-    @State private var showSuccess = false
-    @State private var successMessage = "Success!"
-    
     var buttonColor: Color {
-        if let category = category {
+        if let category = createPostVM.category {
             return Color(category)
         } else {
             return Color(#colorLiteral(red: 0.9529411765, green: 0.9529411765, blue: 0.9529411765, alpha: 0.9921568627))
@@ -257,68 +236,7 @@ struct CreatePostWithModel: View {
     
     func createPost() {
         hideKeyboard()
-        guard let category = category else {
-            errorMessage = "Category is required"
-            showError = true
-            return
-        }
-        guard let createPlaceRequest = createPostVM.maybeCreatePlaceRequest else {
-            errorMessage = "Location is required"
-            showError = true
-            return
-        }
-        // First upload the image
-        posting = true
-        var request: AnyPublisher<Void, APIError>
-        if let image = createPostVM.image {
-            request = appState.uploadImageAndGetId(image: image)
-                .catch({ error -> AnyPublisher<ImageId, APIError> in
-                    print("Error when uploading image", error)
-                    if case let .requestError(error) = error,
-                       let first = error?.first {
-                        self.errorMessage = first.value
-                        self.showError = true
-                    } else {
-                        self.errorMessage = "Could not upload image."
-                        self.showError = true
-                    }
-                    return Empty().eraseToAnyPublisher()
-                })
-                .flatMap({ imageId -> AnyPublisher<Void, APIError> in
-                    appState.createPost(CreatePostRequest(place: createPlaceRequest,
-                                                          category: category,
-                                                          content: content,
-                                                          imageId: imageId))
-                })
-                .eraseToAnyPublisher()
-        } else {
-            let createPostRequest = CreatePostRequest(
-                place: createPlaceRequest,
-                category: category,
-                content: content,
-                imageId: nil)
-            request = appState.createPost(createPostRequest)
-        }
-        createPostVM.cancellable = request
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print("Error when creating post", error)
-                    if case let .requestError(maybeErrors) = error,
-                       let errors = maybeErrors,
-                       let first = errors.first {
-                        self.errorMessage = first.value
-                    } else {
-                        self.errorMessage = "Could not save place"
-                    }
-                    self.showError = true
-                }
-                self.posting = false
-            }, receiveValue: {
-                self.showSuccess = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.presented = false
-                }
-            })
+        createPostVM.createPost(appState: appState)
     }
     
     var body: some View {
@@ -326,7 +244,7 @@ struct CreatePostWithModel: View {
             ZStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("Save a place")
+                        Text(createPostVM.createOrEdit.title)
                             .font(.system(size: 28))
                             .fontWeight(.bold)
                             .padding(.horizontal, 10)
@@ -350,20 +268,19 @@ struct CreatePostWithModel: View {
                         HStack {
                             ImageSelectionView(createPostVM: createPostVM, buttonColor: buttonColor)
                             
-                            FormInputText(name: "Write a note (recommended)", text: $content)
-                                .zIndex(2)
+                            FormInputText(name: "Write a note (recommended)", text: $createPostVM.content)
                         }
                         .padding(10)
                         .ignoresSafeArea(.keyboard, edges: .bottom)
                         
                         Divider().padding(.leading, 10)
                         
-                        CategoryPicker(category: $category)
+                        CategoryPicker(category: $createPostVM.category)
                             .padding(.vertical, 10)
                             .ignoresSafeArea(.keyboard, edges: .bottom)
                         
                         
-                        if let place = createPostVM.selectedLocation {
+                        if let region = createPostVM.previewRegion {
                             Group {
                                 VStack(alignment: .leading, spacing: 0) {
                                     Text("Preview")
@@ -371,14 +288,14 @@ struct CreatePostWithModel: View {
                                         .bold()
                                         .padding(10)
                                     
-                                    MapPreview(category: category, place: place)
+                                    MapPreview(category: createPostVM.category, region: region)
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 200)
                                         .cornerRadius(2)
                                         .padding(.horizontal, 10)
                                 }
                             }
-                            .id(createPostVM.selectedLocation)
+                            .id(createPostVM.previewRegion)
                         }
                         
                         Spacer()
@@ -404,7 +321,7 @@ struct CreatePostWithModel: View {
                 
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
-                        self.presented.toggle()
+                        self.presented = false
                     } label: {
                         Image(systemName: "xmark").foregroundColor(Color("foreground"))
                     }
@@ -414,17 +331,17 @@ struct CreatePostWithModel: View {
                     Button {
                         self.createPost()
                     } label: {
-                        Text("Save").bold()
-                    }
+                        if createPostVM.postingStatus == .loading {
+                            ProgressView()
+                        } else {
+                            Text("Save").bold()
+                        }
+                    }.disabled(createPostVM.postingStatus == .loading)
                 }
             })
-            .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
-                Toast(text: errorMessage, type: .error)
-                    .opacity(showError ? 1 : 0)
-            }
-            .popup(isPresented: $showSuccess, type: .toast, autohideIn: 2) {
-                Toast(text: successMessage, type: .success)
-                    .opacity(showSuccess ? 1 : 0)
+            .popup(isPresented: $createPostVM.showError, type: .toast, autohideIn: 2) {
+                Toast(text: createPostVM.errorMessage, type: .error)
+                    .opacity(createPostVM.showError ? 1 : 0)
             }
             .sheet(item: $createPostVM.activeSheet) { (activeSheet: CreatePostActiveSheet) in
                 Group {
@@ -433,7 +350,7 @@ struct CreatePostWithModel: View {
                         PlaceSearch(selectPlace: createPostVM.selectPlace)
                             .trackSheet(.enterLocationView, screenAfterDismiss: { .createPostSheet })
                     case .imagePicker:
-                        ImagePicker(image: $createPostVM.image)
+                        ImagePicker(image: createPostVM.uiImageBinding)
                     }
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -442,6 +359,14 @@ struct CreatePostWithModel: View {
                 // Bug where if the keyboard is up and the sheet changes from image picker back to create post, tapping
                 // a category is offset
                 hideKeyboard()
+            }
+            .onChange(of: createPostVM.postingStatus) { status in
+                if status == .success {
+                    self.presented = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        globalViewState.setSuccess("Success!")
+                    }
+                }
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
@@ -453,17 +378,33 @@ struct ImageSelectionView: View {
     
     var buttonColor: Color
     
+    func imageView(image: CreatePostImage) -> some View {
+        Group {
+            switch image {
+            case .uiImage(let image):
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 100, height: 100)
+                    .onTapGesture {
+                        createPostVM.activeSheet = .imagePicker
+                    }
+            case .webImage(_, let url):
+                URLImage(url: url)
+                    .scaledToFill()
+                    .frame(width: 100, height: 100)
+                    .onTapGesture {
+                        createPostVM.activeSheet = .imagePicker
+                    }
+            }
+        }
+    }
+    
     var body: some View {
         Group {
             if let image = createPostVM.image {
                 ZStack(alignment: .topLeading) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .onTapGesture {
-                            createPostVM.activeSheet = .imagePicker
-                        }
+                    imageView(image: image)
                     
                     Image(systemName: "xmark.circle.fill")
                         .resizable()

@@ -33,6 +33,7 @@ class ProfileVM: ObservableObject {
     
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
@@ -41,6 +42,13 @@ class ProfileVM: ObservableObject {
         let post = notification.object as! Post
         if post.user.id == user?.id {
             posts.insert(post, at: 0)
+        }
+    }
+    
+    @objc private func postUpdated(notification: Notification) {
+        let post = notification.object as! Post
+        if let i = posts.indices.first(where: { posts[$0].postId == post.postId }) {
+            posts[i] = post
         }
     }
     
