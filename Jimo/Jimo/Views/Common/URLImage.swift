@@ -14,7 +14,6 @@ fileprivate class LoadState {
 
 struct URLImage: View {
     private var loadState = LoadState()
-    
     private var url: URL?
     private var loading: Image?
     private var thumbnail: Bool
@@ -28,9 +27,9 @@ struct URLImage: View {
     
     var body: some View {
         KFImage(url)
+            .cacheOriginalImage()
             .setProcessors(processors)
             .scaleFactor(UIScreen.main.scale)
-            .cacheOriginalImage()
             .cancelOnDisappear(true)
             .onSuccess { result in
                 if self.loadState.imageSize != nil && self.loadState.imageSize?.wrappedValue == nil {

@@ -109,8 +109,9 @@ struct FeedBody: View {
         RefreshableScrollView {
             LazyVStack {
                 ForEach(feedViewModel.feed) { post in
-                    FeedItemV2(post: post)
-                        .fixedSize(horizontal: false, vertical: true)
+                    FeedItem(post: post)
+                        .frame(width: UIScreen.main.bounds.width)
+                        .fixedSize(horizontal: true, vertical: true)
                 }
                 Color.clear
                     .appear {

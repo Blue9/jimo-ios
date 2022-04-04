@@ -41,6 +41,7 @@ struct ViewPost: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.presentationMode) var presentationMode
     
+    @StateObject private var postVM = PostVM()
     @StateObject private var commentsViewModel = CommentsViewModel()
     @State private var initializedComments = false
     @State private var imageSize = CGSize.zero
@@ -61,11 +62,16 @@ struct ViewPost: View {
     }
     
     var postItem: some View {
-        TrackedImageFeedItemV2(post: post, fullPost: true, imageSize: $imageSize)
-            .fixedSize(horizontal: false, vertical: true)
-            .onAppear {
-                postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
-            }
+        VStack {
+            PostHeader(postVM: postVM, post: post)
+            PostCaption(post: post)
+            PostImage(post: post)
+                .frame(width: UIScreen.main.bounds.width)
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false)
+        }
+        .onAppear {
+            postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
+        }
     }
     
     var commentField: some View {

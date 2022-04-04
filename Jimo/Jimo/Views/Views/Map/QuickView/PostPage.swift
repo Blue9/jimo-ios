@@ -55,7 +55,7 @@ struct PostPage: View {
                 Spacer()
                 
                 HStack(spacing: 5) {
-                    PostLikeButton(post: post).font(.system(size: 15))
+                    MiniPostLikeButton(post: post).font(.system(size: 15))
                     
                     Image(systemName: "bubble.right")
                         .font(.system(size: 15))
@@ -77,11 +77,11 @@ struct PostPage: View {
     }
 }
 
-fileprivate struct PostLikeButton: View {
+fileprivate struct MiniPostLikeButton: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     
-    @StateObject private var postViewModel = FeedItemVM()
+    @StateObject private var postViewModel = PostVM()
     
     var post: Post
     
