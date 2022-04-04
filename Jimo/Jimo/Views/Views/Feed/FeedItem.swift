@@ -23,6 +23,7 @@ struct FeedItem: View {
             NavigationLink(destination: fullPostView) {
                 PostImage(post: post)
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
+                    .contentShape(Rectangle())
                     .clipped()
             }.buttonStyle(NoButtonStyle())
             
