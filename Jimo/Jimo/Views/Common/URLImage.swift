@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SDWebImageSwiftUI
+import Kingfisher
 
 fileprivate class LoadState {
     var imageSize: Binding<CGSize>?
@@ -17,30 +17,40 @@ struct URLImage: View {
     
     private var url: URL?
     private var loading: Image?
-    private var maxDim: CGFloat
+    private var thumbnail: Bool
+    
+    var processors: [ImageProcessor] {
+        if thumbnail {
+            return [DownsamplingImageProcessor(size: CGSize(width: 150, height: 150))]
+        }
+        return []
+    }
     
     var body: some View {
-        WebImage(
-            url: url,
-            context: [.imageThumbnailPixelSize: CGSize(width: maxDim, height: maxDim)]
-        )
-        .resizable()
-        .onSuccess { image, data, cacheType in
-            DispatchQueue.main.async {
-                self.loadState.imageSize?.wrappedValue = image.size
+        KFImage(url)
+            .setProcessors(processors)
+            .scaleFactor(UIScreen.main.scale)
+            .cacheOriginalImage()
+            .cancelOnDisappear(true)
+            .onSuccess { result in
+                if self.loadState.imageSize != nil && self.loadState.imageSize?.wrappedValue == nil {
+                    DispatchQueue.main.async {
+                        self.loadState.imageSize?.wrappedValue = result.image.size
+                    }
+                }
             }
-        }
-        .placeholder {
-            if let view = loading {
-                AnyView(view.resizable())
-            } else {
-                AnyView(Color("background").opacity(0.9))
+            .placeholder {
+                if let view = loading {
+                    view.resizable()
+                } else {
+                    Color("background").opacity(0.9)
+                }
             }
-        }
-        .transition(.fade(duration: 0.1))
-        .scaledToFill()
+            .resizable()
+            .fade(duration: 0.1)
+            .scaledToFill()
     }
-
+    
     init(
         url: String?,
         loading: Image? = nil,
@@ -51,11 +61,7 @@ struct URLImage: View {
             self.url = URL(string: url)
         }
         self.loading = loading
-        if thumbnail {
-            self.maxDim = 500
-        } else {
-            self.maxDim = 3000
-        }
+        self.thumbnail = thumbnail
         if let imageSize = imageSize {
             self.loadState.imageSize = imageSize
         }

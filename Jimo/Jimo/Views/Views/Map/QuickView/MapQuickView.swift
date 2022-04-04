@@ -8,7 +8,6 @@
 import SwiftUI
 import MapKit
 import SwiftUIPager
-import SDWebImageSwiftUI
 
 fileprivate let quickViewWidth: CGFloat = 320
 
