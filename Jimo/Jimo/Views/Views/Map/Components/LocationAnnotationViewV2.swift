@@ -7,7 +7,7 @@
 
 import UIKit
 import MapKit
-import SDWebImage
+import Kingfisher
 
 class LocationAnnotationViewV2: MKAnnotationView {
     
@@ -44,11 +44,15 @@ class LocationAnnotationViewV2: MKAnnotationView {
         var image: UIImageView
         if let url = pin.icon.iconUrl {
             image = UIImageView()
-            let transformer = SDImageResizingTransformer(size: CGSize(width: 100, height: 100), scaleMode: .fill)
-            image.sd_setImage(
+            image.kf.setImage(
                 with: URL(string: url),
-                placeholderImage: UIImage(systemName: "person.crop.circle"),
-                context: [.imageTransformer: transformer])
+                placeholder: UIImage(systemName: "person.crop.circle"),
+                options: [
+                    .processor(ResizingImageProcessor(
+                        referenceSize: CGSize(width: 30, height: 30), mode: .aspectFill)),
+                    .scaleFactor(UIScreen.main.scale),
+                    .cacheOriginalImage
+                ])
             image.tintColor = UIColor(named: pin.icon.category?.lowercased() ?? "lightgray")
             image.backgroundColor = .white
             image.contentMode = .scaleAspectFill;

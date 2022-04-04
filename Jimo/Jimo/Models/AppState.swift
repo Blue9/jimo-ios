@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 import MapKit
 import Firebase
-import SDWebImage
+import Kingfisher
 
 
 enum CurrentUser {
@@ -95,9 +95,8 @@ class AppState: ObservableObject {
     var registeringToken = false
     
     init(apiClient: APIClient) {
-        // Uncomment the two lines below to clear the image cache
-        // SDImageCache.shared.clearMemory()
-        // SDImageCache.shared.clearDisk()
+        // Uncomment the line below to clear the image cache
+        // ImageCache.default.clearCache()
         
         self.apiClient = apiClient
         updateTokenOnUserChange()
