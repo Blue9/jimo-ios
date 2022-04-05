@@ -88,6 +88,7 @@
 		C75C2F3F255617CA009B6ADA /* CreatePost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75C2F3E255617CA009B6ADA /* CreatePost.swift */; };
 		C764145025D0FD4100CBDE3F /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C764144F25D0FD4100CBDE3F /* SearchViewModel.swift */; };
 		C764145525D0FD6000CBDE3F /* DiscoverViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C764145425D0FD6000CBDE3F /* DiscoverViewModel.swift */; };
+		C7654E5C27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */; };
 		C76A8AFF2596DDD700623DA2 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */; };
 		C76DEA33255E559C008A9E1B /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76DEA32255E559C008A9E1B /* Search.swift */; };
 		C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913725D20F6E00762803 /* FollowContacts.swift */; };
@@ -248,6 +249,7 @@
 		C75C2F3E255617CA009B6ADA /* CreatePost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePost.swift; sourceTree = "<group>"; };
 		C764144F25D0FD4100CBDE3F /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		C764145425D0FD6000CBDE3F /* DiscoverViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverViewModel.swift; sourceTree = "<group>"; };
+		C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKCoordinateRegion+Hashable.swift"; sourceTree = "<group>"; };
 		C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		C76DEA32255E559C008A9E1B /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
 		C76E913725D20F6E00762803 /* FollowContacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowContacts.swift; sourceTree = "<group>"; };
@@ -733,6 +735,7 @@
 				C7506CDF26F2DDDD00265633 /* UIDevice+hasNotch.swift */,
 				C707E02127EE565C0077B8DA /* NoButtonStyle.swift */,
 				C757F87627F15BE400364EDB /* InvertBindings.swift */,
+				C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1141,6 +1144,7 @@
 				C7C3FC252790DC89000AA023 /* MapKitViewV2.swift in Sources */,
 				C725F87427F680F800370896 /* RefreshableScrollView.swift in Sources */,
 				C7E2732D25EC62DA00C787DB /* Checkbox.swift in Sources */,
+				C7654E5C27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift in Sources */,
 				C7FEBFA125DF42C400A0A685 /* MapTab.swift in Sources */,
 				C757F86F27F150DD00364EDB /* NotificationPermissions.swift in Sources */,
 				C757F87127F150F700364EDB /* LocationPermissions.swift in Sources */,

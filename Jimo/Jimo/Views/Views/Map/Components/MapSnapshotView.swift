@@ -20,6 +20,9 @@ struct MapSnapshotView: View {
     @State private var snapshotImage: UIImage? = nil
     
     func generateSnapshot(width: CGFloat, height: CGFloat) {
+        guard snapshotImage == nil else {
+            return
+        }
         // The region the map should display.
         let region = MKCoordinateRegion(
             center: self.post.place.location.coordinate(),

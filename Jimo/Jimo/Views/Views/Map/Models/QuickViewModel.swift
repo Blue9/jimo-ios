@@ -35,6 +35,7 @@ class QuickViewModel: ObservableObject {
     
     init() {
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
     
@@ -42,6 +43,11 @@ class QuickViewModel: ObservableObject {
         let like = notification.object as! PostLikePayload
         allPosts[like.postId]?.likeCount = like.likeCount
         allPosts[like.postId]?.liked = like.liked
+    }
+
+    @objc private func postUpdated(notification: Notification) {
+        let post = notification.object as! Post
+        allPosts[post.postId] = post
     }
     
     @objc private func postDeleted(notification: Notification) {

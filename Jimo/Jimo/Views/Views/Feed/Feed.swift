@@ -23,6 +23,7 @@ class FeedViewModel: ObservableObject {
     
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
@@ -30,6 +31,13 @@ class FeedViewModel: ObservableObject {
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
         feed.insert(post, at: 0)
+    }
+    
+    @objc private func postUpdated(notification: Notification) {
+        let post = notification.object as! Post
+        if let i = feed.indices.first(where: { feed[$0].postId == post.postId }) {
+            feed[i] = post
+        }
     }
     
     @objc private func postLiked(notification: Notification) {
@@ -104,20 +112,27 @@ struct FeedBody: View {
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
     
+    private let columns: [GridItem] = [
+        GridItem(.fixed(UIScreen.main.bounds.width), spacing: 0)
+    ]
     
     var initializedFeed: some View {
         RefreshableScrollView {
-            LazyVStack {
+            /// For some reason LazyVGrid's performance is way better than LazyVStack (less choppy)
+            LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(feedViewModel.feed) { post in
                     FeedItem(post: post)
                         .frame(width: UIScreen.main.bounds.width)
                         .fixedSize(horizontal: true, vertical: true)
                 }
                 Color.clear
+                    .frame(width: UIScreen.main.bounds.width, height: 50)
                     .appear {
                         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
                     }
+                    .fixedSize(horizontal: true, vertical: true)
             }
+            .padding(.top, 1)
         } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
         }

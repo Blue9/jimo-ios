@@ -61,12 +61,14 @@ struct PostCommentsIcon: View {
 struct PostHeader: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+    @StateObject var editorVM = CreatePostVM()
     @ObservedObject var postVM: PostVM
     
     var post: Post
     
     @State private var showPostOptions = false
+    
+    @State private var showEditSheet = false
     @State private var showConfirmDelete = false
     @State private var showConfirmReport = false
     
@@ -110,7 +112,7 @@ struct PostHeader: View {
                     .font(.system(size: 12))
                     .lineLimit(1)
                     .foregroundColor(Color("foreground"))
-                }.buttonStyle(NoButtonStyle())
+                }
             }
             
             Spacer()
@@ -119,13 +121,23 @@ struct PostHeader: View {
                 Image(systemName: "ellipsis")
                     .font(.subheadline)
                     .frame(height: 26)
+                    .contentShape(Rectangle())
             }
         }
         .padding(.horizontal, 10)
+        .sheet(isPresented: $showEditSheet) {
+            CreatePostWithModel(createPostVM: editorVM, presented: $showEditSheet)
+                .onAppear {
+                    editorVM.initAsEditor(post)
+                }
+        }
         .actionSheet(isPresented: $showPostOptions) {
             ActionSheet(
                 title: Text("Post options"),
                 buttons: isMyPost ? [
+                    .default(Text("Edit"), action: {
+                        showEditSheet = true
+                    }),
                     .destructive(Text("Delete"), action: {
                         showConfirmDelete = true
                     }),
@@ -240,5 +252,4 @@ struct PostFooter: View {
         }
         .padding(.horizontal, 10)
     }
-    
 }
