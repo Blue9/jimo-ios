@@ -126,10 +126,13 @@ struct FeedBody: View {
                         .fixedSize(horizontal: true, vertical: true)
                 }
                 Color.clear
+                    .frame(width: UIScreen.main.bounds.width, height: 50)
                     .appear {
                         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
                     }
+                    .fixedSize(horizontal: true, vertical: true)
             }
+            .padding(.top, 1)
         } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
         }
