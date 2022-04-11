@@ -6,6 +6,163 @@
 //
 
 import SwiftUI
+import ASCollectionView
+
+
+struct Profile: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    @StateObject var profileVM = ProfileVM()
+    
+    let initialUser: User
+    
+    var username: String {
+        initialUser.username
+    }
+    
+    @State private var showUserOptions = false
+    @State private var confirmBlockUser = false
+    
+    var profileGrid: some View {
+        ASCollectionView {
+            ASCollectionViewSection(id: 0) {
+                ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
+            }
+            
+            ASCollectionViewSection(id: 1, data: profileVM.posts, dataID: \.self) { post, _ in
+                GeometryReader { geometry in
+                    NavigationLink(destination: ViewPost(initialPost: post)) {
+                        if let url = post.imageUrl {
+                            URLImage(url: url, thumbnail: true)
+                                .frame(maxWidth: .infinity)
+                                .frame(width: geometry.size.width, height: geometry.size.width)
+                        } else {
+                            MapSnapshotView(post: post, width: (UIScreen.main.bounds.width - 6) / 3)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: geometry.size.width)
+                        }
+                    }
+                }
+                .aspectRatio(1, contentMode: .fit)
+                .background(Color(post.category))
+                .cornerRadius(2)
+            }
+            
+            ASCollectionViewSection(id: 2) {
+                Group {
+                    if profileVM.loadStatus == .success {
+                        ProgressView()
+                            .opacity(profileVM.loadingMore ? 1 : 0)
+                    } else if profileVM.loadStatus == .failed {
+                        Text("Failed to load posts")
+                            .padding()
+                    } else { // notInitialized
+                        ProgressView()
+                            .appear {
+                                profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
+                                profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
+                            }
+                    }
+                }
+                .padding(.top)
+            }
+        }
+        .alwaysBounceVertical()
+        .shouldScrollToAvoidKeyboard(false)
+        .layout { sectionID in
+            switch sectionID {
+            case 1:
+                return .grid(
+                    layoutMode: .fixedNumberOfColumns(3),
+                    itemSpacing: 2,
+                    lineSpacing: 2,
+                    itemSize: .absolute((UIScreen.main.bounds.width - 8) / 3),
+                    sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
+                )
+            default:
+                return .list(itemSize: .estimated(200))
+            }
+        }
+        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+        .onPullToRefresh { onFinish in
+            profileVM.refresh(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
+        }
+        .onReachedBoundary { boundary in
+            if boundary == .bottom {
+                profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
+            }
+        }
+        .font(.system(size: 15))
+        .ignoresSafeArea(.keyboard, edges: .all)
+    }
+    
+    var body: some View {
+        profileGrid
+            .appear {
+                if profileVM.loadStatus == .notInitialized {
+                    profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
+                    profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if !profileVM.isCurrentUser(appState: appState, username: username) {
+                        Button {
+                            showUserOptions.toggle()
+                        } label: {
+                            Image(systemName: "ellipsis")
+                        }
+                    } else {
+                        EmptyView()
+                    }
+                }
+            }
+            .actionSheet(isPresented: $showUserOptions) {
+                if profileVM.relationToUser == .blocked {
+                    return ActionSheet(
+                        title: Text("Options"),
+                        buttons: [
+                            .destructive(Text("Unblock"), action: { profileVM.unblockUser(username: username, appState: appState, viewState: viewState) }),
+                            .cancel()
+                        ]
+                    )
+                } else {
+                    return ActionSheet(
+                        title: Text("Options"),
+                        buttons: [
+                            .destructive(Text("Block"), action: { confirmBlockUser = true }),
+                            .cancel()
+                        ]
+                    )
+                }
+            }
+            .alert(isPresented: $confirmBlockUser) {
+                Alert(
+                    title: Text("Confirm"),
+                    message: Text("Block @\(username)? They won't know you blocked them."),
+                    primaryButton: .default(Text("Block")) { profileVM.blockUser(username: username, appState: appState, viewState: viewState) },
+                    secondaryButton: .cancel()
+                )
+            }
+    }
+}
+
+struct ProfileScreen: View {
+    let initialUser: User
+    
+    var body: some View {
+        Profile(initialUser: initialUser)
+            .background(Color("background"))
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarColor(UIColor(Color("background")))
+            .toolbar(content: {
+                ToolbarItem(placement: .principal) {
+                    NavTitle("Profile")
+                }
+            })
+            .trackScreen(.profileView)
+    }
+}
 
 
 struct ProfileHeaderView: View {
@@ -109,13 +266,13 @@ struct ProfileStatsView: View {
         .foregroundColor(Color("foreground"))
         .background(
             NavigationLink(destination: FollowFeed(navTitle: "Followers", type: .followers, username: user.username)
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState), isActive: $showFollowers) {}
+                .environmentObject(appState)
+                .environmentObject(globalViewState), isActive: $showFollowers) {}
         )
         .background(
             NavigationLink(destination: FollowFeed(navTitle: "Following", type: .following, username: user.username)
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState), isActive: $showFollowing) {}
+                .environmentObject(appState)
+                .environmentObject(globalViewState), isActive: $showFollowing) {}
         )
     }
 }
@@ -201,165 +358,5 @@ struct FollowButtonView: View {
             }
         }
         .padding(.horizontal)
-    }
-}
-
-struct Profile: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var viewState: GlobalViewState
-    @StateObject var profileVM = ProfileVM()
-    
-    let initialUser: User
-    
-    private let columns: [GridItem] = [
-        GridItem(.flexible(minimum: 50), spacing: 2),
-        GridItem(.flexible(minimum: 50), spacing: 2),
-        GridItem(.flexible(minimum: 50), spacing: 2)
-    ]
-    
-    var username: String {
-        initialUser.username
-    }
-    
-    @State private var showUserOptions = false
-    @State private var confirmBlockUser = false
-    
-    var profileGrid: some View {
-        RefreshableScrollView {
-            VStack {
-                ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
-                
-                LazyVGrid(columns: columns, spacing: 2) {
-                    ForEach(profileVM.posts) { post in
-                        GeometryReader { geometry in
-                            NavigationLink(destination: ViewPost(post: post)) {
-                                if let url = post.imageUrl {
-                                    URLImage(url: url, thumbnail: true)
-                                        .frame(maxWidth: .infinity)
-                                        .frame(width: geometry.size.width, height: geometry.size.width)
-                                } else {
-                                    MapSnapshotView(
-                                        post: post,
-                                        width: geometry.size.width
-                                    )
-                                        .frame(maxWidth: .infinity)
-                                        .frame(height: geometry.size.width)
-                                }
-                            }
-                        }
-                        .aspectRatio(1, contentMode: .fit)
-                        .background(Color(post.category))
-                        .cornerRadius(2)
-                    }
-                    
-                    if !profileVM.loadingMore && profileVM.loadStatus == .success {
-                        Color.clear
-                            .appear {
-                                print("Loading more posts")
-                                profileVM.loadMorePosts(
-                                    username: username,
-                                    appState: appState,
-                                    viewState: viewState
-                                )
-                            }
-                    }
-                }
-            }
-        } onRefresh: { onFinish in
-            profileVM.refresh(
-                username: username,
-                appState: appState,
-                viewState: viewState,
-                onFinish: onFinish
-            )
-        }
-    }
-    
-    var body: some View {
-        profileGrid
-            .appear {
-                if profileVM.loadStatus == .notInitialized {
-                    profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
-                    profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    if !profileVM.isCurrentUser(appState: appState, username: username) {
-                        Button {
-                            showUserOptions.toggle()
-                        } label: {
-                            Image(systemName: "ellipsis")
-                        }
-                    } else {
-                        EmptyView()
-                    }
-                }
-            }
-            .actionSheet(isPresented: $showUserOptions) {
-                if profileVM.relationToUser == .blocked {
-                    return ActionSheet(
-                        title: Text("Options"),
-                        buttons: [
-                            .destructive(Text("Unblock"), action: { profileVM.unblockUser(username: username, appState: appState, viewState: viewState) }),
-                            .cancel()
-                        ]
-                    )
-                } else {
-                    return ActionSheet(
-                        title: Text("Options"),
-                        buttons: [
-                            .destructive(Text("Block"), action: { confirmBlockUser = true }),
-                            .cancel()
-                        ]
-                    )
-                }
-            }
-            .alert(isPresented: $confirmBlockUser) {
-                Alert(
-                    title: Text("Confirm"),
-                    message: Text("Block @\(username)? They won't know you blocked them."),
-                    primaryButton: .default(Text("Block")) { profileVM.blockUser(username: username, appState: appState, viewState: viewState) },
-                    secondaryButton: .cancel()
-                )
-            }
-    }
-}
-
-struct ProfileScreen: View {
-    let initialUser: User
-    
-    var body: some View {
-        Profile(initialUser: initialUser)
-            .background(Color("background"))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(Color("background")))
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-            })
-            .trackScreen(.profileView)
-    }
-}
-
-struct Profile_Previews: PreviewProvider {
-    static let api = APIClient()
-    static let appState = AppState(apiClient: api)
-
-    static let user = PublicUser(
-        userId: "user-id",
-        username: "john",
-        firstName: "Johnjohnjohn",
-        lastName: "JohnjohnjohnJohnjohnjohnJohnjohnjohn",
-        profilePictureUrl: "https://i.imgur.com/ugITQw2.jpg",
-        postCount: 100,
-        followerCount: 1000000,
-        followingCount: 1)
-    
-    static var previews: some View {
-        Profile(initialUser: user)
-            .environmentObject(appState)
-            .environmentObject(GlobalViewState())
     }
 }

@@ -12,7 +12,9 @@ struct FeedItem: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     
     @StateObject var postVM = PostVM()
+    
     var post: Post
+    @Binding var showFullPost: PostId?
     
     var body: some View {
         VStack {
@@ -20,20 +22,15 @@ struct FeedItem: View {
             PostCaption(post: post)
                 .lineLimit(3)
             
-            NavigationLink(destination: fullPostView) {
-                PostImage(post: post)
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
-                    .contentShape(Rectangle())
-                    .clipped()
-            }.buttonStyle(NoButtonStyle())
+            PostImage(post: post)
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
+                .contentShape(Rectangle())
+                .clipped()
+                .onTapGesture {
+                    showFullPost = post.id
+                }
             
-            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true)
-        }
-    }
-    
-    @ViewBuilder var fullPostView: some View {
-        LazyView {
-            ViewPost(post: post)
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false)
         }
     }
 }

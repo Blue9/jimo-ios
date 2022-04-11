@@ -43,6 +43,10 @@
 		C71B1B152599B7FE004BF1CD /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71B1B142599B7FE004BF1CD /* Toast.swift */; };
 		C725F87427F680F800370896 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C725F87327F680F800370896 /* RefreshableScrollView.swift */; };
 		C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7260C582585D27C0002A335 /* CreateProfileView.swift */; };
+		C72BB2AE28038C09001997C1 /* ASCollectionView in Frameworks */ = {isa = PBXBuildFile; productRef = C72BB2AD28038C09001997C1 /* ASCollectionView */; };
+		C72BB2B128038DEA001997C1 /* PostDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72BB2B028038DEA001997C1 /* PostDestination.swift */; };
+		C72BB2B328038F6D001997C1 /* View+navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72BB2B228038F6D001997C1 /* View+navigation.swift */; };
+		C72BB2B5280396C2001997C1 /* String+Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72BB2B4280396C2001997C1 /* String+Identifiable.swift */; };
 		C72F3CB92587264A00DDB76C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CB82587264A00DDB76C /* Feed.swift */; };
 		C72F3CBE258726BA00DDB76C /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72F3CBD258726BA00DDB76C /* MainAppView.swift */; };
 		C7315BC1266AD7D50086BD52 /* EditPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7315BC0266AD7D50086BD52 /* EditPreferences.swift */; };
@@ -197,6 +201,9 @@
 		C71B1B142599B7FE004BF1CD /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		C725F87327F680F800370896 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		C7260C582585D27C0002A335 /* CreateProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfileView.swift; sourceTree = "<group>"; };
+		C72BB2B028038DEA001997C1 /* PostDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDestination.swift; sourceTree = "<group>"; };
+		C72BB2B228038F6D001997C1 /* View+navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+navigation.swift"; sourceTree = "<group>"; };
+		C72BB2B4280396C2001997C1 /* String+Identifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Identifiable.swift"; sourceTree = "<group>"; };
 		C72E1D1125CA1ADD0091C894 /* Jimo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Jimo.entitlements; sourceTree = "<group>"; };
 		C72F3CB82587264A00DDB76C /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
 		C72F3CBD258726BA00DDB76C /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
@@ -302,6 +309,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C72BB2AE28038C09001997C1 /* ASCollectionView in Frameworks */,
 				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
 				C79E1E9D2788BDE500267A86 /* BottomSheet in Frameworks */,
 				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */,
@@ -491,6 +499,14 @@
 			path = NewUser;
 			sourceTree = "<group>";
 		};
+		C72BB2AF28038DD9001997C1 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				C72BB2B028038DEA001997C1 /* PostDestination.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
 		C74D020526A667CC00381C1B /* Publishers */ = {
 			isa = PBXGroup;
 			children = (
@@ -602,6 +618,7 @@
 		C75C2F0C2556131B009B6ADA /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C72BB2AF28038DD9001997C1 /* Navigation */,
 				C757F86D27F150A500364EDB /* Permissions */,
 				C79EA00025AFD51300A38DB8 /* Types */,
 				C751768E25FEFAAD00DCB856 /* Onboarding */,
@@ -736,6 +753,8 @@
 				C707E02127EE565C0077B8DA /* NoButtonStyle.swift */,
 				C757F87627F15BE400364EDB /* InvertBindings.swift */,
 				C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */,
+				C72BB2B228038F6D001997C1 /* View+navigation.swift */,
+				C72BB2B4280396C2001997C1 /* String+Identifiable.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -792,6 +811,7 @@
 				C79E1E9C2788BDE500267A86 /* BottomSheet */,
 				C7FC69DF2790160100C41ED3 /* SwiftUIPager */,
 				C7F74BBC27FAAFBF006EA7EF /* Kingfisher */,
+				C72BB2AD28038C09001997C1 /* ASCollectionView */,
 			);
 			productName = GoodplacesApp;
 			productReference = C75C2EDB25561309009B6ADA /* Jimo.app */;
@@ -871,6 +891,7 @@
 				C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */,
 				C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 				C7F74BBB27FAAFBF006EA7EF /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				C72BB2AC28038C09001997C1 /* XCRemoteSwiftPackageReference "ASCollectionView" */,
 			);
 			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
 			projectDirPath = "";
@@ -1096,6 +1117,7 @@
 				C7260C592585D27C0002A335 /* CreateProfileView.swift in Sources */,
 				C74D020726A667E000381C1B /* PostPublisher.swift in Sources */,
 				C70AE47F25CA8EC5009920E8 /* VerifyPhoneNumber.swift in Sources */,
+				C72BB2B5280396C2001997C1 /* String+Identifiable.swift in Sources */,
 				C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */,
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
@@ -1103,6 +1125,7 @@
 				1FC816C625E34249009B803F /* Feedback.swift in Sources */,
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
 				C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */,
+				C72BB2B328038F6D001997C1 /* View+navigation.swift in Sources */,
 				C73ED51D260EFDF4005CC0B4 /* View+appear.swift in Sources */,
 				C70AE47A25CA8E76009920E8 /* EnterPhoneNumber.swift in Sources */,
 				C74183E025D6E3A2007F13C1 /* GlobalViewState.swift in Sources */,
@@ -1120,6 +1143,7 @@
 				C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */,
 				C757F87327F1579500364EDB /* RequestPermission.swift in Sources */,
 				C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */,
+				C72BB2B128038DEA001997C1 /* PostDestination.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
 				C78049162788E10E00A9A2AF /* UserFilter.swift in Sources */,
 				C72F3CB92587264A00DDB76C /* Feed.swift in Sources */,
@@ -1489,6 +1513,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C72BB2AC28038C09001997C1 /* XCRemoteSwiftPackageReference "ASCollectionView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apptekstudios/ASCollectionView";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/LucasMucGH/BottomSheet";
@@ -1516,6 +1548,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C72BB2AD28038C09001997C1 /* ASCollectionView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C72BB2AC28038C09001997C1 /* XCRemoteSwiftPackageReference "ASCollectionView" */;
+			productName = ASCollectionView;
+		};
 		C79E1E9C2788BDE500267A86 /* BottomSheet */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */;

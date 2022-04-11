@@ -9,9 +9,18 @@ import SwiftUI
 import Kingfisher
 
 struct URLImage: View {
-    private var url: URL?
-    private var loading: Image?
-    private var thumbnail: Bool
+    var url: String?
+    var loading: Image?
+    var thumbnail: Bool
+    
+    @Binding var imageSize: CGSize?
+    
+    var realUrl: URL? {
+        if let url = url {
+            return URL(string: url)
+        }
+        return nil
+    }
     
     var processors: [ImageProcessor] {
         if thumbnail {
@@ -21,7 +30,10 @@ struct URLImage: View {
     }
     
     var body: some View {
-        KFImage(url)
+        KFImage(realUrl)
+            .onSuccess { result in
+                self.imageSize = result.image.size
+            }
             .cacheOriginalImage()
             .setProcessors(processors)
             .scaleFactor(UIScreen.main.scale)
@@ -40,12 +52,16 @@ struct URLImage: View {
     init(
         url: String?,
         loading: Image? = nil,
-        thumbnail: Bool = false
+        thumbnail: Bool = false,
+        imageSize: Binding<CGSize?>? = nil
     ) {
-        if let url = url {
-            self.url = URL(string: url)
-        }
+        self.url = url
         self.loading = loading
         self.thumbnail = thumbnail
+        if let imageSize = imageSize {
+            self._imageSize = imageSize
+        } else {
+            self._imageSize = Binding.constant(nil)
+        }
     }
 }

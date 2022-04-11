@@ -9,6 +9,9 @@ import SwiftUI
 import Combine
 
 class PostVM: ObservableObject {
+    let nc = NotificationCenter.default
+    
+    @Published var post: Post?
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false
@@ -18,6 +21,45 @@ class PostVM: ObservableObject {
     var unlikeCancellable: Cancellable? = nil
     var deleteCancellable: Cancellable? = nil
     var reportCancellable: Cancellable? = nil
+    
+    var onDelete: (() -> ())?
+    
+    /// Listen for post updates and update the current post (optional to call this, only necessary if you want to listen to updates)
+    func listen(post: Post, onDelete: @escaping () -> ()) {
+        guard self.post == nil else {
+            return
+        }
+        self.post = post
+        self.onDelete = onDelete
+        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
+        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
+    }
+    
+    @objc func postLiked(notification: Notification) {
+        guard let postId = post?.id else {
+            return
+        }
+        let like = notification.object as! PostLikePayload
+        if postId == like.postId {
+            self.post?.liked = like.liked
+            self.post?.likeCount = like.likeCount
+        }
+    }
+    
+    @objc func postUpdated(notification: Notification) {
+        self.post = notification.object as? Post
+    }
+    
+    @objc func postDeleted(notification: Notification) {
+        guard let post = post, let onDelete = onDelete else {
+            return
+        }
+        let deletedPostId = notification.object as! PostId
+        if post.id == deletedPostId {
+            onDelete()
+        }
+    }
     
     func likePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         liking = true

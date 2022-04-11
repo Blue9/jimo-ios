@@ -13,7 +13,7 @@ struct PostLikeButton: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     
     @ObservedObject var postVM: PostVM
-    let post: Post
+    var post: Post
     
     private var showFilledHeart: Bool {
         (post.liked || postVM.liking) && !postVM.unliking
@@ -199,7 +199,6 @@ struct PostCaption: View {
                 .foregroundColor(Color("foreground"))
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, minHeight: 10, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -207,10 +206,22 @@ struct PostCaption: View {
 struct PostImage: View {
     var post: Post
     
+    @State private var imageSize: CGSize?
+    
+    var body: some View {
+        PostImageTrackedSize(post: post, imageSize: $imageSize)
+    }
+}
+
+struct PostImageTrackedSize: View {
+    var post: Post
+    
+    @Binding var imageSize: CGSize?
+    
     var body: some View {
         ZStack {
             if let url = post.imageUrl {
-                URLImage(url: url)
+                URLImage(url: url, imageSize: $imageSize)
             } else {
                 mapSnapshot
             }
@@ -235,7 +246,7 @@ struct PostFooter: View {
             Spacer().frame(width: 2)
             PostCommentsIcon()
             Group {
-                if post.commentCount == 0 && showZeroCommentCount {
+                if post.commentCount == 0 && !showZeroCommentCount {
                     Text("Add a comment")
                 } else {
                     Text("\(post.commentCount) comment\(post.commentCount != 1 ? "s" : "")")

@@ -6,37 +6,9 @@
 //
 
 import SwiftUI
-
-class PostDeletionListener: ObservableObject {
-    let nc = NotificationCenter.default
-    
-    var postId: PostId?
-    var onDelete: (() -> ())?
-    
-    func onPostDelete(postId: PostId, onDelete: @escaping () -> ()) {
-        if self.postId != nil {
-            // already observing
-            return
-        }
-        self.postId = postId
-        self.onDelete = onDelete
-        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
-    }
-    
-    @objc func postDeleted(notification: Notification) {
-        guard let postId = postId, let onDelete = onDelete else {
-            return
-        }
-        let deletedPostId = notification.object as! PostId
-        if postId == deletedPostId {
-            onDelete()
-        }
-    }
-}
+import ASCollectionView
 
 struct ViewPost: View {
-    let postDeletionListener = PostDeletionListener()
-    
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.presentationMode) var presentationMode
@@ -45,8 +17,15 @@ struct ViewPost: View {
     @StateObject private var commentsViewModel = CommentsViewModel()
     @State private var initializedComments = false
     
-    let post: Post
+    @State private var imageSize: CGSize?
+    @State private var scrollPosition: ASCollectionViewScrollPosition?
+    
+    let initialPost: Post
     var highlightedComment: Comment? = nil
+    
+    var post: Post {
+        postVM.post ?? initialPost
+    }
     
     var colorTheme: Color {
         return Color(post.category)
@@ -60,16 +39,18 @@ struct ViewPost: View {
         return false
     }
     
-    var postItem: some View {
+    @ViewBuilder
+    private func postItem(post: Post) -> some View {
         VStack {
             PostHeader(postVM: postVM, post: post)
             PostCaption(post: post)
-            PostImage(post: post)
+            PostImageTrackedSize(post: post, imageSize: $imageSize)
                 .frame(width: UIScreen.main.bounds.width)
-            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false)
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true)
+                .padding(.bottom, 10)
         }
         .onAppear {
-            postDeletionListener.onPostDelete(postId: post.id, onDelete: { presentationMode.wrappedValue.dismiss() })
+            postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })
         }
     }
     
@@ -80,38 +61,64 @@ struct ViewPost: View {
             buttonColor: colorTheme,
             onSubmit: { [weak commentsViewModel] in
                 commentsViewModel?.createComment()
-                // TODO: Scroll to comment position
+                // TODO: scroll to new comment
             }
         )
     }
     
     @ViewBuilder var mainBody: some View {
-        RefreshableScrollView {
-            VStack {
-                // Post contents
-                postItem
-                
-                // List of comments
-                LazyVStack(spacing: 0) {
-                    ForEach(commentsViewModel.comments) { comment in
-                        ZStack(alignment: .bottom) {
-                            CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
-                            Divider()
-                                .foregroundColor(.gray)
-                                .padding(.horizontal, 10)
-                        }
-                        .background(Color("background"))
-                    }
-                    Color.clear
-                        .appear {
-                            commentsViewModel.loadMore()
-                        }
-                }
+        ASCollectionView {
+            ASCollectionViewSection(id: imageSize == nil ? 0 : 1, data: [post], dataID: \.self) { post, _ in
+                postItem(post: post)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .fixedSize()
             }
-        } onRefresh: { onFinish in
+            
+            ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
+                ZStack(alignment: .bottom) {
+                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
+                    Divider()
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 10)
+                }
+                .frame(width: UIScreen.main.bounds.width)
+                .fixedSize()
+                .background(Color("background"))
+            }.sectionFooter {
+                VStack {
+                    if commentsViewModel.loadingComments {
+                        ProgressView()
+                    }
+                    Spacer().frame(height: 150)
+                }
+                .padding(.top, 20)
+            }
+        }
+        .shouldScrollToAvoidKeyboard(false)
+        .alwaysBounceVertical()
+        .onReachedBoundary { boundary in
+            if boundary == .bottom {
+                commentsViewModel.loadMore()
+            }
+        }
+        .layout(interSectionSpacing: 0) { sectionID in
+            switch sectionID {
+            case 2: // Comments
+                return .list(itemSize: .estimated(50), spacing: 0)
+            default:
+                return .list(itemSize: .estimated(50))
+            }
+        }
+        .onScroll { (point, size) in
+            hideKeyboard()
+        }
+        .scrollPositionSetter($scrollPosition)
+        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+        .onPullToRefresh { onFinish in
             commentsViewModel.loadComments(onFinish: onFinish)
         }
         .onAppear {
+            postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })
             if !initializedComments {
                 initializedComments = true
                 commentsViewModel.highlightedComment = highlightedComment
