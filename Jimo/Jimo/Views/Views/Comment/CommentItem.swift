@@ -122,7 +122,6 @@ struct CommentItem: View {
                 Text(comment.content)
                     .font(.system(size: 12))
                     .foregroundColor(Color("foreground"))
-                    .fixedSize(horizontal: false, vertical: true)
                 
                 Spacer().frame(height: 2)
                 

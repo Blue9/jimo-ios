@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-
+import ASCollectionView
 
 class FeedViewModel: ObservableObject {
     let nc = NotificationCenter.default
@@ -103,7 +103,13 @@ struct FeedBody: View {
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var feedViewModel = FeedViewModel()
     
+    @State private var showFullPost: PostId?
+    
     var onCreatePostTap: () -> ()
+    
+    private let columns: [GridItem] = [
+        GridItem(.fixed(UIScreen.main.bounds.width), spacing: 0)
+    ]
     
     private func loadMore() {
         if feedViewModel.loadingMorePosts {
@@ -112,29 +118,12 @@ struct FeedBody: View {
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
     
-    private let columns: [GridItem] = [
-        GridItem(.fixed(UIScreen.main.bounds.width), spacing: 0)
-    ]
-    
-    var initializedFeed: some View {
-        RefreshableScrollView {
-            /// For some reason LazyVGrid's performance is way better than LazyVStack (less choppy)
-            LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(feedViewModel.feed) { post in
-                    FeedItem(post: post)
-                        .frame(width: UIScreen.main.bounds.width)
-                        .fixedSize(horizontal: true, vertical: true)
-                }
-                Color.clear
-                    .frame(width: UIScreen.main.bounds.width, height: 50)
-                    .appear {
-                        feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
-                    }
-                    .fixedSize(horizontal: true, vertical: true)
-            }
-            .padding(.top, 1)
-        } onRefresh: { onFinish in
-            feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
+    @ViewBuilder
+    private func postView(for postId: PostId?) -> some View {
+        if let post = feedViewModel.feed.first(where: { $0.id == postId }) {
+            ViewPost(initialPost: post)
+        } else {
+            EmptyView().onAppear { showFullPost = nil }
         }
     }
     
@@ -166,6 +155,30 @@ struct FeedBody: View {
             }
         }
         .background(Color("background"))
+    }
+    
+    var initializedFeed: some View {
+        ASCollectionView(data: feedViewModel.feed, dataID: \.self) { post, _ in
+            FeedItem(post: post, showFullPost: $showFullPost)
+                .frame(width: UIScreen.main.bounds.width)
+                .fixedSize()
+        }
+        .shouldScrollToAvoidKeyboard(false)
+        .layout {
+            .list(itemSize: .estimated(200), spacing: 10)
+        }
+        .alwaysBounceVertical()
+        .onReachedBoundary { boundary in
+            if boundary == .bottom {
+                loadMore()
+            }
+        }
+        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
+        .onPullToRefresh { onFinish in
+            feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
+        }
+        .edgesIgnoringSafeArea(.all)
+        .navigation(item: $showFullPost, destination: postView)
     }
 }
 

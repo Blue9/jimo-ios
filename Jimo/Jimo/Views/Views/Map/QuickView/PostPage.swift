@@ -14,7 +14,7 @@ struct PostPage: View {
     
     @ViewBuilder var fullPostView: some View {
         LazyView {
-            ViewPost(post: post)
+            ViewPost(initialPost: post)
         }
     }
     
