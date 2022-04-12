@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Kingfisher
+import SDWebImageSwiftUI
 
 struct URLImage: View {
     var url: String?
@@ -22,33 +22,32 @@ struct URLImage: View {
         return nil
     }
     
-    var processors: [ImageProcessor] {
-        if thumbnail {
-            return [DownsamplingImageProcessor(size: CGSize(width: 150, height: 150))]
-        }
-        return []
+    var maxDim: CGFloat {
+        thumbnail ? 500 : 3000
     }
     
     var body: some View {
-        KFImage(realUrl)
-            .onSuccess { result in
-                self.imageSize = result.image.size
+        WebImage(
+            url: realUrl,
+            context: [.imageThumbnailPixelSize: CGSize(width: maxDim, height: maxDim)]
+        )
+        .resizable()
+        .onSuccess { image, data, cacheType in
+            DispatchQueue.main.async {
+                self.imageSize = image.size
             }
-            .cacheOriginalImage()
-            .setProcessors(processors)
-            .scaleFactor(UIScreen.main.scale)
-            .placeholder {
-                if let view = loading {
-                    view.resizable()
-                } else {
-                    Color("background").opacity(0.9)
-                }
+        }
+        .placeholder {
+            if let view = loading {
+                AnyView(view.resizable())
+            } else {
+                AnyView(Color("background").opacity(0.9))
             }
-            .resizable()
-            .fade(duration: 0.1)
-            .scaledToFill()
+        }
+        .transition(.fade(duration: 0.1))
+        .scaledToFill()
     }
-    
+
     init(
         url: String?,
         loading: Image? = nil,
