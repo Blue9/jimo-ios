@@ -126,8 +126,23 @@ struct FormInputText: View {
     @Binding var text: String
     
     var body: some View {
-        MultilineTextField(name, text: $text, height: height)
-            .font(.system(size: 15))
+        if #available(iOS 15.0, *) {
+            MultilineTextField(name, text: $text, height: height)
+                .font(.system(size: 15))
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        
+                        Button("Done") {
+                            hideKeyboard()
+                        }
+                        .foregroundColor(.blue)
+                    }
+                }
+        } else {
+            MultilineTextField(name, text: $text, height: height)
+                .font(.system(size: 15))
+        }
     }
 }
 
@@ -309,7 +324,7 @@ struct CreatePostWithModel: View {
             .background(Color("background").edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(UIColor(Color("background")))
-            .toolbar(content: {
+            .toolbar {
                 ToolbarItem(placement: .principal) {
                     Image("logo")
                         .renderingMode(.template)
@@ -338,7 +353,7 @@ struct CreatePostWithModel: View {
                         }
                     }.disabled(createPostVM.postingStatus == .loading)
                 }
-            })
+            }
             .popup(isPresented: $createPostVM.showError, type: .toast, autohideIn: 2) {
                 Toast(text: createPostVM.errorMessage, type: .error)
                     .opacity(createPostVM.showError ? 1 : 0)
