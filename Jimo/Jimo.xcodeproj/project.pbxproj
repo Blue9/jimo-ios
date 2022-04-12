@@ -311,7 +311,7 @@
 				C72BB2AE28038C09001997C1 /* ASCollectionView in Frameworks */,
 				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
 				C79E1E9D2788BDE500267A86 /* BottomSheet in Frameworks */,
-				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */
+				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

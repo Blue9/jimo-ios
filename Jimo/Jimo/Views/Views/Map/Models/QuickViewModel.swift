@@ -36,7 +36,6 @@ class QuickViewModel: ObservableObject {
     init() {
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
-        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
     
     @objc private func postLiked(notification: Notification) {
@@ -48,11 +47,6 @@ class QuickViewModel: ObservableObject {
     @objc private func postUpdated(notification: Notification) {
         let post = notification.object as! Post
         allPosts[post.postId] = post
-    }
-    
-    @objc private func postDeleted(notification: Notification) {
-        let postId = notification.object as! PostId
-        allPosts.removeValue(forKey: postId)
     }
     
     private func cacheKey(for placeId: PlaceId, mapViewModel: MapViewModelV2) -> PlaceCacheKey {

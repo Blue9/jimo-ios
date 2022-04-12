@@ -69,10 +69,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
 	<true/>
-	<key>FirebaseCrashlyticsCollectionEnabled</key>
-	<true/>
 	<key>FirebaseAutomaticScreenReportingEnabled</key>
 	<false/>
+	<key>FirebaseCrashlyticsCollectionEnabled</key>
+	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>comgooglemaps</string>
