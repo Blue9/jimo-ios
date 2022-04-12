@@ -27,7 +27,7 @@ struct VerifyPhoneNumber: View {
                 Button(action: {
                     viewModel.verifyPhoneNumber(appState: appState)
                 }) {
-                    Text("Sign in")
+                    Text("Submit")
                         .frame(minWidth: 0, maxWidth: .infinity)
                         .frame(height: 60)
                         .foregroundColor(.white)

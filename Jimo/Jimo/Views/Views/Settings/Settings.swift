@@ -107,7 +107,7 @@ struct Settings: View {
                         .foregroundColor(.red)
                 }
                 
-                Text("For additional support, please email help@jimoapp.com")
+                Text("For additional support, please email support@jimoapp.com")
                     .foregroundColor(.gray)
                     .font(.caption)
             }
