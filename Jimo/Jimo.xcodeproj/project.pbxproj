@@ -134,7 +134,6 @@
 		C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D825AC1D49004A9F53 /* APIClient.swift */; };
 		C7EAD4DE25AC1DD0004A9F53 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
-		C7F74BBD27FAAFBF006EA7EF /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C7F74BBC27FAAFBF006EA7EF /* Kingfisher */; };
 		C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = C7FC69DF2790160100C41ED3 /* SwiftUIPager */; };
 		C7FD677027C44F0800B8B2B8 /* LocationAnnotationViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FD676F27C44F0800B8B2B8 /* LocationAnnotationViewV2.swift */; };
 		C7FEBFA125DF42C400A0A685 /* MapTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FEBFA025DF42C400A0A685 /* MapTab.swift */; };
@@ -312,8 +311,7 @@
 				C72BB2AE28038C09001997C1 /* ASCollectionView in Frameworks */,
 				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
 				C79E1E9D2788BDE500267A86 /* BottomSheet in Frameworks */,
-				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */,
-				C7F74BBD27FAAFBF006EA7EF /* Kingfisher in Frameworks */,
+				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -810,7 +808,6 @@
 			packageProductDependencies = (
 				C79E1E9C2788BDE500267A86 /* BottomSheet */,
 				C7FC69DF2790160100C41ED3 /* SwiftUIPager */,
-				C7F74BBC27FAAFBF006EA7EF /* Kingfisher */,
 				C72BB2AD28038C09001997C1 /* ASCollectionView */,
 			);
 			productName = GoodplacesApp;
@@ -890,7 +887,6 @@
 			packageReferences = (
 				C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */,
 				C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
-				C7F74BBB27FAAFBF006EA7EF /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				C72BB2AC28038C09001997C1 /* XCRemoteSwiftPackageReference "ASCollectionView" */,
 			);
 			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
@@ -1529,14 +1525,6 @@
 				kind = branch;
 			};
 		};
-		C7F74BBB27FAAFBF006EA7EF /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
-			};
-		};
 		C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/fermoya/SwiftUIPager.git";
@@ -1557,11 +1545,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */;
 			productName = BottomSheet;
-		};
-		C7F74BBC27FAAFBF006EA7EF /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C7F74BBB27FAAFBF006EA7EF /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
 		};
 		C7FC69DF2790160100C41ED3 /* SwiftUIPager */ = {
 			isa = XCSwiftPackageProductDependency;

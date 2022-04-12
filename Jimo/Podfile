@@ -13,6 +13,9 @@ target 'Jimo' do
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 
+  pod 'SDWebImage'
+  pod 'SDWebImageSwiftUI'
+
   pod 'PhoneNumberKit', '~> 3.3'
 
   target 'JimoTests' do
