@@ -421,16 +421,17 @@ struct ImageSelectionView: View {
                 ZStack(alignment: .topLeading) {
                     imageView(image: image)
                     
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(buttonColor)
-                        .background(Color.black)
-                        .cornerRadius(10)
-                        .padding(5)
-                        .onTapGesture {
-                            createPostVM.image = nil
-                        }
+                    Button {
+                        createPostVM.image = nil
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .foregroundColor(buttonColor)
+                            .background(Color.black)
+                            .cornerRadius(10)
+                            .padding(5)
+                    }
                 }
             } else {
                 ZStack {

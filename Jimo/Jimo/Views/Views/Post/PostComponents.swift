@@ -121,10 +121,11 @@ struct PostHeader: View {
                 Image(systemName: "ellipsis")
                     .font(.subheadline)
                     .frame(height: 26)
+                    .padding(.horizontal, 10)
                     .contentShape(Rectangle())
             }
         }
-        .padding(.horizontal, 10)
+        .padding(.leading, 10)
         .sheet(isPresented: $showEditSheet) {
             CreatePostWithModel(createPostVM: editorVM, presented: $showEditSheet)
                 .onAppear {
