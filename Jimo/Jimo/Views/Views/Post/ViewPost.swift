@@ -43,9 +43,12 @@ struct ViewPost: View {
     private func postItem(post: Post) -> some View {
         VStack {
             PostHeader(postVM: postVM, post: post)
-            PostCaption(post: post)
             PostImageTrackedSize(post: post, imageSize: $imageSize)
                 .frame(width: UIScreen.main.bounds.width)
+            VStack(spacing: 5) {
+                PostPlaceName(post: post)
+                PostCaption(post: post)
+            }
             PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true)
                 .padding(.bottom, 10)
         }

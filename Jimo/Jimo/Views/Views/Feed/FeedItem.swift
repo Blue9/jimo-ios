@@ -19,8 +19,6 @@ struct FeedItem: View {
     var body: some View {
         VStack {
             PostHeader(postVM: postVM, post: post)
-            PostCaption(post: post)
-                .lineLimit(3)
             
             PostImage(post: post)
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
@@ -30,6 +28,14 @@ struct FeedItem: View {
                     showFullPost = post.id
                 }
             
+            VStack(spacing: 5) {
+                PostPlaceName(post: post)
+                PostCaption(post: post)
+                    .lineLimit(3)
+                    .onTapGesture {
+                        showFullPost = post.id
+                    }
+            }
             PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false)
         }
     }
