@@ -165,7 +165,7 @@ struct FeedBody: View {
         }
         .shouldScrollToAvoidKeyboard(false)
         .layout {
-            .list(itemSize: .estimated(200), spacing: 10)
+            .list(itemSize: .estimated(200), spacing: 20)
         }
         .alwaysBounceVertical()
         .onReachedBoundary { boundary in

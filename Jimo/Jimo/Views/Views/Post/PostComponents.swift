@@ -80,14 +80,6 @@ struct PostHeader: View {
         return false
     }
     
-    var placeName: String {
-        if let regionName = post.place.regionName {
-            return " · \(post.place.name), \(regionName)"
-        } else {
-            return " · \(post.place.name)"
-        }
-    }
-    
     var body: some View {
         HStack {
             NavigationLink(destination: profileView) {
@@ -102,17 +94,17 @@ struct PostHeader: View {
                         .foregroundColor(Color("foreground"))
                 }.buttonStyle(NoButtonStyle())
                 
-                NavigationLink(destination: pinView) {
-                    HStack(spacing: 0) {
-                        Text(post.category.capitalized)
-                            .foregroundColor(Color(post.category))
-                            .bold()
-                        Text(placeName)
-                    }
-                    .font(.system(size: 12))
-                    .lineLimit(1)
-                    .foregroundColor(Color("foreground"))
+                HStack(spacing: 0) {
+                    Text(post.category.capitalized)
+                        .foregroundColor(Color(post.category))
+                        .bold()
+                    Text(" · ")
+                        .foregroundColor(.gray)
+                    Text(appState.relativeTime(for: post.createdAt))
+                        .foregroundColor(.gray)
                 }
+                .font(.system(size: 12))
+                .lineLimit(1)
             }
             
             Spacer()
@@ -182,6 +174,30 @@ struct PostHeader: View {
                 .cornerRadius(23)
         }
     }
+}
+
+struct PostPlaceName: View {
+    var post: Post
+    
+    var placeName: String {
+        if let regionName = post.place.regionName {
+            return "\(post.place.name), \(regionName)"
+        } else {
+            return post.place.name
+        }
+    }
+    
+    var body: some View {
+        NavigationLink(destination: pinView) {
+            Text(placeName)
+                .font(.system(size: 16))
+                .bold()
+                .foregroundColor(Color("foreground"))
+                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.leading)
+        }
+    }
     
     @ViewBuilder var pinView: some View {
         LazyView {
@@ -189,6 +205,7 @@ struct PostHeader: View {
         }
     }
 }
+
 
 struct PostCaption: View {
     var post: Post
@@ -200,6 +217,8 @@ struct PostCaption: View {
                 .foregroundColor(Color("foreground"))
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, minHeight: 10, alignment: .leading)
+        } else {
+            Spacer().frame(height: 5)
         }
     }
 }
@@ -257,10 +276,6 @@ struct PostFooter: View {
             .foregroundColor(.gray)
             
             Spacer()
-            
-            Text(appState.relativeTime(for: post.createdAt))
-                .font(.system(size: 11))
-                .foregroundColor(.gray)
         }
         .padding(.horizontal, 10)
     }
