@@ -8,6 +8,12 @@
 import SwiftUI
 import Firebase
 
+fileprivate let gcmMessageIDKey = "gcm.message_id"
+
+fileprivate let appState = AppState(apiClient: APIClient())
+fileprivate let globalViewState = GlobalViewState()
+fileprivate let deepLinkManager = DeepLinkManager()
+
 @main
 struct JimoApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
