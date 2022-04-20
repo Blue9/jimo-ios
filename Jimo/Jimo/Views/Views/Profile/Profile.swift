@@ -8,7 +8,6 @@
 import SwiftUI
 import ASCollectionView
 
-
 struct Profile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
@@ -151,6 +150,7 @@ struct Profile: View {
 struct ProfileLoadingScreen: View {
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel = ViewModel()
+
     var username: String
 
     var body: some View {
@@ -158,19 +158,6 @@ struct ProfileLoadingScreen: View {
             ProfileScreen(initialUser: user)
         } else {
             ProgressView().onAppear(perform: { viewModel.loadProfile(with: appState, username: username) })
-        }
-    }
-
-    class ViewModel: ObservableObject {
-        @Published var initialUser: User?
-
-        func loadProfile(with appState: AppState, username: String) {
-            _ = appState.getUser(username: username)
-                .sink(receiveCompletion: {
-                    if case let .failure(error) = $0 {
-                        print("Error when loading user", error)
-                    }
-                }, receiveValue: { [weak self] in self?.initialUser = $0 })
         }
     }
 }

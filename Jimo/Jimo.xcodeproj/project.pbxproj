@@ -12,6 +12,7 @@
 		1FC816C625E34249009B803F /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC816C525E34249009B803F /* Feedback.swift */; };
 		1FFF5CEC264A384D005BB943 /* UserFollowFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF5CEB264A384D005BB943 /* UserFollowFeed.swift */; };
 		5AC7369627E6B720009563F6 /* DeepLinkOpenable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC7369527E6B720009563F6 /* DeepLinkOpenable.swift */; };
+		5ACBEC96281083D400A47948 /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ACBEC95281083D400A47948 /* DeepLinkManager.swift */; };
 		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
 		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
@@ -169,6 +170,7 @@
 		46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo-JimoUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5AC7369527E6B720009563F6 /* DeepLinkOpenable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkOpenable.swift; sourceTree = "<group>"; };
+		5ACBEC95281083D400A47948 /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
 		7124939F1770230B52A71F08 /* libPods-Jimo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.debug.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.release.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -504,6 +506,7 @@
 			isa = PBXGroup;
 			children = (
 				C72BB2B028038DEA001997C1 /* PostDestination.swift */,
+				5ACBEC95281083D400A47948 /* DeepLinkManager.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -1155,6 +1158,7 @@
 				C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */,
 				C7416D0E264793B200FA58EE /* Comment.swift in Sources */,
 				C76A8AFF2596DDD700623DA2 /* ImagePicker.swift in Sources */,
+				5ACBEC96281083D400A47948 /* DeepLinkManager.swift in Sources */,
 				C7031A7927C5AD0E00A90D24 /* MapInfoView.swift in Sources */,
 				C79183482597DABF006B4056 /* PopupView.swift in Sources */,
 				C753CF7527C327C000B1EEA3 /* MapV3.swift in Sources */,

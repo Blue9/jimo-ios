@@ -230,3 +230,19 @@ class ProfileVM: ObservableObject {
             })
     }
 }
+
+extension ProfileLoadingScreen {
+    class ViewModel: ObservableObject {
+        @Published var initialUser: User?
+        var loadUserCancellable: Cancellable?
+
+        func loadProfile(with appState: AppState, username: String) {
+            loadUserCancellable = appState.getUser(username: username)
+                .sink(receiveCompletion: {
+                    if case let .failure(error) = $0 {
+                        print("Error when loading user", error)
+                    }
+                }, receiveValue: { [weak self] in self?.initialUser = $0 })
+        }
+    }
+}

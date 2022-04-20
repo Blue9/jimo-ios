@@ -51,20 +51,15 @@ struct MainAppView: View {
         .sheet(item: $viewModel.sheetPresentType) {
             switch $0 {
             case .createPost:
-                CreatePost(presented: true)
+                CreatePost(presented: $viewModel.createPostPresented)
                     .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
-            case .viewProfile:
-                if case let .profile(username) = deepLinkManager.presentableEntity {
-                    ProfileLoadingScreen(username: username)
-                        .environmentObject(appState)
-                } else {
-                    Text("")
-                }
-            case .viewPost:
-                // TODO guard case let .post(uuid) = deepLinkManager.presentableEntity else { Text("") }
-                Text("")
+            case .viewProfile(let username):
+                ProfileLoadingScreen(username: username)
+                    .environmentObject(appState)
+            case .viewPost(let uuid):
+                Text(uuid)
             }
         }
         .accentColor(Color("foreground"))
@@ -75,8 +70,8 @@ struct MainAppView: View {
             UITabBar.appearance().backgroundColor = UIColor(Color("background"))
 
             switch deepLinkManager.presentableEntity {
-            case .profile(username): viewModel.sheetPresentType = .viewProfile
-            case .post(uuid): viewModel.sheetPresentType = .viewPost
+            case .profile(let username): viewModel.sheetPresentType = .viewProfile(username)
+            case .post(let uuid): viewModel.sheetPresentType = .viewPost(uuid)
             case .none: break
             }
         }
@@ -85,20 +80,28 @@ struct MainAppView: View {
 
 extension MainAppView {
     class ViewModel: ObservableObject {
-        enum SheetPresentType: String, Identifiable {
-            var id: RawValue { rawValue }
-
-            case createPost, viewProfile, viewPost
+        enum SheetPresentType: Identifiable {
+            var id: String {
+                switch self {
+                case .createPost: return "createPost"
+                case .viewProfile(let username): return username
+                case .viewPost(let uuid): return uuid
+                }
+            }
+            case createPost, viewProfile(String), viewPost(String)
         }
 
         let newPostTag: Tab = .create
 
+        @Published var createPostPresented: Bool = false {
+            didSet { sheetPresentType = createPostPresented ? .createPost : nil }
+        }
         @Published var sheetPresentType: SheetPresentType?
         @Published var selection: Tab {
             didSet {
                 if selection == newPostTag {
                     selection = oldValue
-                    sheetPresentType = .createPost
+                    createPostPresented = true
                 }
             }
         }
