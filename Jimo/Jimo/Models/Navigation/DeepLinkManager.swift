@@ -5,25 +5,48 @@
 //  Created by Xilin Liu on 4/20/22.
 //
 
-import Foundation
+import SwiftUI
 
 class DeepLinkManager: ObservableObject {
-    @Published var presentableEntity: DeepLinkEntity = .none
+    @Published var presentableEntity: DeepLinkEntity?
+    
+    @ViewBuilder
+    func viewForDeepLink(_ entity: DeepLinkEntity?) -> some View {
+        // entity == presentableEntity
+        switch entity {
+        case .profile(let username):
+            DeepLinkProfileLoadingScreen(username: username).id(username)
+        default:
+            ProgressView()
+                .onAppear {
+                    self.presentableEntity = nil
+                }
+        }
+    }
 }
 
 /// What type of detail page we want to open based on the deeplink URL
-enum DeepLinkEntity {
-    case profile(String), post(String), none
+enum DeepLinkEntity: Equatable, Identifiable {
+    case profile(String), post(PostId)
+    
+    var id: String {
+        switch self {
+        case .profile(let username):
+            return username
+        case .post(let id):
+            return id
+        }
+    }
 }
 
 extension URL {
     private struct Constants {
         static let DEEPLINK_HOST = "go.jimoapp.com"
 
-        static let PROFILE_DEEPLINK_PATH = "view-profile"
+        static let PROFILE_DEEPLINK_PATH = "/view-profile"
         static let PROFILE_QUERY_PARAMETER = "username"
 
-        static let POST_DEEPLINK_PATH = "view-post"
+        static let POST_DEEPLINK_PATH = "/view-post"
         static let POST_QUERY_PARAMETER = "id"
     }
 
@@ -32,7 +55,7 @@ extension URL {
 
     /// Decodes the entity type and entity Id from the deeplink
     /// e.g. `https://go.jimoapp.com/view-profile?username=<username>`
-    var entityType: DeepLinkEntity {
+    var entityType: DeepLinkEntity? {
         guard isDeepLink,
               let urlComponents = URLComponents(string: absoluteString)
         else { return .none }

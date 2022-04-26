@@ -25,6 +25,7 @@ struct MainAppView: View {
             MapTab()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
+                .environmentObject(deepLinkManager)
                 .tabItem("Map", image: UIImage(named: "mapIcon"))
             
             Feed(onCreatePostTap: { viewModel.selection = .create })
@@ -48,19 +49,11 @@ struct MainAppView: View {
                 .environmentObject(globalViewState)
                 .tabItem("Profile", image: UIImage(named: "profileIcon"))
         }
-        .sheet(item: $viewModel.sheetPresentType) {
-            switch $0 {
-            case .createPost:
-                CreatePost(presented: $viewModel.createPostPresented)
-                    .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-            case .viewProfile(let username):
-                ProfileLoadingScreen(username: username)
-                    .environmentObject(appState)
-            case .viewPost(let uuid):
-                Text(uuid)
-            }
+        .sheet(isPresented: $viewModel.createPostPresented) {
+            CreatePost(presented: $viewModel.createPostPresented)
+                .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
+                .environmentObject(appState)
+                .environmentObject(globalViewState)
         }
         .accentColor(Color("foreground"))
         .onAppear {
@@ -68,11 +61,11 @@ struct MainAppView: View {
             UITabBar.appearance().backgroundImage = UIImage()
             UITabBar.appearance().barTintColor = UIColor(Color("background"))
             UITabBar.appearance().backgroundColor = UIColor(Color("background"))
-
-            switch deepLinkManager.presentableEntity {
-            case .profile(let username): viewModel.sheetPresentType = .viewProfile(username)
-            case .post(let uuid): viewModel.sheetPresentType = .viewPost(uuid)
-            case .none: break
+        }
+        .onChange(of: deepLinkManager.presentableEntity) { item in
+            if item != .none {
+                viewModel.createPostPresented = false
+                viewModel.selection = .map
             }
         }
     }
@@ -80,23 +73,9 @@ struct MainAppView: View {
 
 extension MainAppView {
     class ViewModel: ObservableObject {
-        enum SheetPresentType: Identifiable {
-            var id: String {
-                switch self {
-                case .createPost: return "createPost"
-                case .viewProfile(let username): return username
-                case .viewPost(let uuid): return uuid
-                }
-            }
-            case createPost, viewProfile(String), viewPost(String)
-        }
-
         let newPostTag: Tab = .create
-
-        @Published var createPostPresented: Bool = false {
-            didSet { sheetPresentType = createPostPresented ? .createPost : nil }
-        }
-        @Published var sheetPresentType: SheetPresentType?
+        
+        @Published var createPostPresented: Bool = false
         @Published var selection: Tab {
             didSet {
                 if selection == newPostTag {

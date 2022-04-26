@@ -231,18 +231,25 @@ class ProfileVM: ObservableObject {
     }
 }
 
-extension ProfileLoadingScreen {
+extension DeepLinkProfileLoadingScreen {
     class ViewModel: ObservableObject {
         @Published var initialUser: User?
+        @Published var loadStatus: ProfileLoadStatus = .notInitialized
+        
         var loadUserCancellable: Cancellable?
-
-        func loadProfile(with appState: AppState, username: String) {
+        
+        func loadProfile(with appState: AppState, viewState: GlobalViewState, username: String) {
             loadUserCancellable = appState.getUser(username: username)
-                .sink(receiveCompletion: {
+                .sink { [weak self] in
                     if case let .failure(error) = $0 {
                         print("Error when loading user", error)
+                        viewState.setError("User not found")
+                        self?.loadStatus = .failed
                     }
-                }, receiveValue: { [weak self] in self?.initialUser = $0 })
+                } receiveValue: { [weak self] in
+                    self?.initialUser = $0
+                    self?.loadStatus = .success
+                }
         }
     }
 }
