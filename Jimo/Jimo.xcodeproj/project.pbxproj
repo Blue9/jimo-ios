@@ -127,6 +127,7 @@
 		C7D2D85225CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D2D85125CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift */; };
 		C7D2D85725CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D2D85625CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift */; };
 		C7D2D85C25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */; };
+		C7D432AA2818A01900789380 /* DeepLinkViewPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D432A92818A01900789380 /* DeepLinkViewPost.swift */; };
 		C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D73FD625A7BCDD007699AF /* ProfileTab.swift */; };
 		C7DE07B426AE5FEE006048E4 /* CommentPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DE07B326AE5FEE006048E4 /* CommentPublisher.swift */; };
 		C7E2732D25EC62DA00C787DB /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E2732C25EC62DA00C787DB /* Checkbox.swift */; };
@@ -290,6 +291,7 @@
 		C7D2D85125CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKCoordinateRegion+Equatable.swift"; sourceTree = "<group>"; };
 		C7D2D85625CE6E1200246BD0 /* CLLocationCoordinate2D+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D+Equatable.swift"; sourceTree = "<group>"; };
 		C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKCoordinateSpan+Equatable.swift"; sourceTree = "<group>"; };
+		C7D432A92818A01900789380 /* DeepLinkViewPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkViewPost.swift; sourceTree = "<group>"; };
 		C7D73FD625A7BCDD007699AF /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
 		C7DE07B326AE5FEE006048E4 /* CommentPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentPublisher.swift; sourceTree = "<group>"; };
 		C7E2732C25EC62DA00C787DB /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
@@ -426,6 +428,7 @@
 				C7EAD4D325ABBDCC004A9F53 /* PostVM.swift */,
 				C736A9EA25A541F60086B809 /* ViewPost.swift */,
 				C70E61C626EAE56E00340EEC /* PostComponents.swift */,
+				C7D432A92818A01900789380 /* DeepLinkViewPost.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -1090,6 +1093,7 @@
 				C751768025FEFA5A00DCB856 /* SuggestedUserView.swift in Sources */,
 				C75C2EE125561309009B6ADA /* ContentView.swift in Sources */,
 				C77B0ED827964FC700743351 /* PlacePage.swift in Sources */,
+				C7D432AA2818A01900789380 /* DeepLinkViewPost.swift in Sources */,
 				C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */,
 				C79E1E9F2788BE2200267A86 /* MapViewV2.swift in Sources */,
 				1F98464425EF38AB0075AF04 /* Notifications.swift in Sources */,

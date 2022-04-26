@@ -418,6 +418,10 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func getPost(_ postId: PostId) -> AnyPublisher<Post, APIError> {
+        return self.apiClient.getPost(postId)
+    }
+    
     func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
         return self.apiClient.updatePost(postId, request)
             .map { post in

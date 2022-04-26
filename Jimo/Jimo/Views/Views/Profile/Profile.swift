@@ -179,7 +179,6 @@ struct DeepLinkProfileLoadingScreen: View {
                 NavTitle("Profile")
             }
         })
-        .trackScreen(.profileView)
     }
 }
 

@@ -16,6 +16,8 @@ class DeepLinkManager: ObservableObject {
         switch entity {
         case .profile(let username):
             DeepLinkProfileLoadingScreen(username: username).id(username)
+        case .post(let postId):
+            DeepLinkViewPost(postId: postId)
         default:
             ProgressView()
                 .onAppear {
