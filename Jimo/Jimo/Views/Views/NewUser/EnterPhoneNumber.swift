@@ -69,6 +69,10 @@ struct EnterPhoneNumber: View {
                 NavigationLink(destination: VerifyPhoneNumber(), isActive: $viewModel.nextStep) {
                     EmptyView()
                 }
+                
+                NavigationLink(destination: EmailLogin(), isActive: $viewModel.showSecretEmailPage) {
+                    EmptyView()
+                }
             }
             .padding(.horizontal, 30)
             .frame(maxHeight: .infinity)
@@ -96,6 +100,9 @@ extension EnterPhoneNumber {
         @Published private(set) var error = ""
         @Published private(set) var loading = false
         
+        /// Hack to allow logging in with emails
+        @Published var showSecretEmailPage = false
+        
         func setError(_ error: String) {
             withAnimation {
                 self.error = error
@@ -105,6 +112,13 @@ extension EnterPhoneNumber {
         
         func getCode(appState: AppState) {
             hideKeyboard()
+            
+            /// Hack to allow logging in with emails
+            if phoneNumber == "546-6" {
+                showSecretEmailPage = true
+                return
+            }
+            
             withAnimation {
                 loading = true
             }

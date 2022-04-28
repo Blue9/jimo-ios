@@ -10,20 +10,11 @@ import Combine
 
 struct EmailLogin: View {
     @EnvironmentObject var appState: AppState
-    
-    @State private var email = ""
-    @State private var password = ""
-    @State private var error = ""
-    @State private var showError = false
-    @State private var signInCancellable: Cancellable? = nil
-    
-    func setError(_ error: String) {
-        showError = true
-        self.error = error
-    }
+    @StateObject var viewModel = ViewModel()
     
     func signIn() {
         hideKeyboard()
+        viewModel.signIn(appState: appState)
     }
         
     var body: some View {
@@ -33,12 +24,12 @@ struct EmailLogin: View {
                     .aspectRatio(contentMode: .fit)
                 
                 Text("Welcome back!")
-                TextField("Email", text: $email)
+                TextField("Email", text: $viewModel.email)
                     .padding(12)
                     .background(RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color("foreground")))
                 
-                SecureField("Password", text: $password)
+                SecureField("Password", text: $viewModel.password)
                     .padding(12)
                     .background(RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color("foreground")))
@@ -57,15 +48,43 @@ struct EmailLogin: View {
             }
             .padding(.horizontal, 24)
         }
-        .popup(isPresented: $showError, type: .toast, autohideIn: 2) {
-            Toast(text: error, type: .error)
+        .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 2) {
+            Toast(text: viewModel.error, type: .error)
         }
         .navigationBarTitleDisplayMode(.inline)
-        //.navigationTitle("Sign in")
         .toolbar {
             ToolbarItem(placement: .principal) {
-                NavTitle("Sign in")
+                NavTitle("Super secret menu")
             }
+        }
+    }
+}
+
+extension EmailLogin {
+    class ViewModel: ObservableObject {
+        var cancellable: Cancellable?
+        
+        @Published var email = ""
+        @Published var password = ""
+        
+        @Published var error = ""
+        @Published var showError = false
+        
+        func setError(_ error: String) {
+            showError = true
+            self.error = error
+        }
+        
+        func signIn(appState: AppState) {
+            cancellable = appState.signIn(email: email, password: password)
+                .sink { completion in
+                    if case let .failure(error) = completion {
+                        print("Error while signing in", error)
+                        self.setError(error.localizedDescription)
+                    }
+                } receiveValue: { result in
+                    
+                }
         }
     }
 }
