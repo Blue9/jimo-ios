@@ -41,7 +41,7 @@ struct HomeMenu: View {
             Spacer().frame(maxHeight: height * 0.23)
             
             VStack(spacing: 0) {
-                NavigationLink(destination: EnterPhoneNumber()) {
+                NavigationLink(destination: EmailLogin()) {
                     LargeButton("Sign Up")
                 }
                 .padding(.bottom, 8)

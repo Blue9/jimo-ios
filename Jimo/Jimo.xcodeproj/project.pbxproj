@@ -14,6 +14,7 @@
 		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
 		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
 		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
+		C3573075281B396500E5D6C3 /* EmailLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3573074281B396500E5D6C3 /* EmailLogin.swift */; };
 		C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */; };
 		C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7019F6725EEB10200C1165A /* InviteContactsView.swift */; };
 		C7031A6B27C5A61400A90D24 /* RegionWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7031A6A27C5A61400A90D24 /* RegionWrapper.swift */; };
@@ -169,6 +170,7 @@
 		5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo-JimoUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7124939F1770230B52A71F08 /* libPods-Jimo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.debug.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C3573074281B396500E5D6C3 /* EmailLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLogin.swift; sourceTree = "<group>"; };
 		C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.release.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.release.xcconfig"; sourceTree = "<group>"; };
 		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionMonitor.swift; sourceTree = "<group>"; };
@@ -493,6 +495,7 @@
 				C70AE47925CA8E76009920E8 /* EnterPhoneNumber.swift */,
 				C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */,
 				C7260C582585D27C0002A335 /* CreateProfileView.swift */,
+				C3573074281B396500E5D6C3 /* EmailLogin.swift */,
 			);
 			path = NewUser;
 			sourceTree = "<group>";
@@ -1085,6 +1088,7 @@
 				C70F53C227F2ABEF00A15EE2 /* RequestLocation.swift in Sources */,
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
 				C751768025FEFA5A00DCB856 /* SuggestedUserView.swift in Sources */,
+				C3573075281B396500E5D6C3 /* EmailLogin.swift in Sources */,
 				C75C2EE125561309009B6ADA /* ContentView.swift in Sources */,
 				C77B0ED827964FC700743351 /* PlacePage.swift in Sources */,
 				C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */,
