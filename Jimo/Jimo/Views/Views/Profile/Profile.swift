@@ -349,17 +349,17 @@ struct FollowButtonView: View {
                     )
                     .frame(height: 30)
             } else if profileVM.relationToUser == .following {
-                Button.defaultButton(textType: .unfollow) {
+                ProfileButton(textType: .unfollow) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.unfollowUser(username: user.username, appState: appState, viewState: viewState)
                 }
             } else if profileVM.relationToUser == .blocked {
-                Button.defaultButton(textType: .unblock) {
+                ProfileButton(textType: .unblock) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.unblockUser(username: user.username, appState: appState, viewState: viewState)
                 }
             } else {
-                Button.defaultButton(textType: .follow) {
+                ProfileButton(textType: .follow) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.followUser(username: user.username, appState: appState, viewState: viewState)
                 }
@@ -393,7 +393,7 @@ struct ShareButtonView: View {
                 // if user is blocked, then don't allow sharing
                 Spacer().frame(height: 30)
             } else {
-                Button<Text>.defaultButton(textType: .share, action: actionSheet)
+                ProfileButton(textType: .share, action: actionSheet)
             }
         }
         .padding(.horizontal)
@@ -407,58 +407,62 @@ struct ShareButtonView: View {
     }
 }
 
-extension Button {
-    private struct Constants {
-        let TEXT_PADDING: CGFloat = 10
-        let TEXT_FONT = SwiftUI.Font.system(size: 15)
-        let TEXT_CORNER_RADIUS: CGFloat = 2
-    }
+fileprivate enum TextType {
+    case share, follow, unfollow, unblock, loading
 
-    enum TextType {
-        case share, follow, unfollow, unblock, loading
-
-        var text: String {
-            switch self {
-            case .share: return "Share"
-            case .follow: return "Follow"
-            case .unfollow: return "Unfollow"
-            case .unblock: return "Unblock"
-            case .loading: return "Loading..."
-            }
-        }
-
-        var backgroundColor: Color {
-            switch self {
-            case .loading, .unfollow, .share: return .white
-            case .unblock: return .red
-            case .follow: return .blue
-            }
-        }
-
-        var foregroundColor: Color {
-            return shouldOverlay ? .gray : .white
-        }
-
-        var shouldOverlay: Bool {
-            return backgroundColor == .white
+    var text: String {
+        switch self {
+        case .share: return "Share"
+        case .follow: return "Follow"
+        case .unfollow: return "Unfollow"
+        case .unblock: return "Unblock"
+        case .loading: return "Loading..."
         }
     }
 
-    static func defaultButton(textType: TextType, action: @escaping () -> Void) -> Button<Text> {
-        let constants = Constants()
-        return Button(action: action) {
+    var backgroundColor: Color {
+        switch self {
+        case .loading, .unfollow, .share: return .white
+        case .unblock: return .red
+        case .follow: return .blue
+        }
+    }
+
+    var foregroundColor: Color {
+        return shouldOverlay ? .gray : .white
+    }
+
+    var shouldOverlay: Bool {
+        return backgroundColor == .white
+    }
+}
+
+fileprivate struct ProfileButton: View {
+    var textType: TextType
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
             Text(textType.text)
-                .padding(constants.TEXT_PADDING)
-                .font(constants.TEXT_FONT)
+                .padding(Constants.TEXT_PADDING)
+                .font(Constants.TEXT_FONT)
                 .frame(maxWidth: .infinity)
                 .background(textType.backgroundColor)
-                .cornerRadius(constants.TEXT_CORNER_RADIUS)
+                .cornerRadius(Constants.TEXT_CORNER_RADIUS)
                 .foregroundColor(textType.foregroundColor)
                 .overlay(
-                    RoundedRectangle(cornerRadius: constants.TEXT_CORNER_RADIUS)
+                    RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
                         .stroke(Color.gray, lineWidth: textType.shouldOverlay ? 1 : 0)
                 )
                 .frame(height: 30)
         }.frame(height: 30)
+    }
+}
+
+extension ProfileButton {
+    private struct Constants {
+        static let TEXT_PADDING: CGFloat = 10
+        static let TEXT_FONT = SwiftUI.Font.system(size: 15)
+        static let TEXT_CORNER_RADIUS: CGFloat = 2
     }
 }
