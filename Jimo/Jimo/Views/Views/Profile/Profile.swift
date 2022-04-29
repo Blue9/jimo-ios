@@ -247,6 +247,8 @@ struct ProfileHeaderView: View {
                 .frame(minHeight: 40)
                 Spacer()
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
+                Spacer()
+                ShareButtonView(profileVM: profileVM, initialUser: initialUser)
             }
         }
         .padding(.leading, 20)
@@ -347,50 +349,116 @@ struct FollowButtonView: View {
                     )
                     .frame(height: 30)
             } else if profileVM.relationToUser == .following {
-                Button(action: {
+                Button.defaultButton(textType: .unfollow) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.unfollowUser(username: user.username, appState: appState, viewState: viewState)
-                }) {
-                    Text("Unfollow")
-                        .padding(10)
-                        .font(.system(size: 15))
-                        .frame(maxWidth: .infinity)
-                        .background(Color.white)
-                        .cornerRadius(2)
-                        .foregroundColor(.gray)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1)
-                        )
-                }.frame(height: 30)
+                }
             } else if profileVM.relationToUser == .blocked {
-                Button(action: {
+                Button.defaultButton(textType: .unblock) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.unblockUser(username: user.username, appState: appState, viewState: viewState)
-                }) {
-                    Text("Unblock")
-                        .padding(10)
-                        .font(.system(size: 15))
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red)
-                        .cornerRadius(2)
-                        .foregroundColor(.white)
-                }.frame(height: 30)
+                }
             } else {
-                Button(action: {
+                Button.defaultButton(textType: .follow) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.followUser(username: user.username, appState: appState, viewState: viewState)
-                }) {
-                    Text("Follow")
-                        .padding(10)
-                        .font(.system(size: 15))
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(2)
-                        .foregroundColor(.white)
-                }.frame(height: 30)
+                }
             }
         }
         .padding(.horizontal)
+    }
+}
+
+struct ShareButtonView: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    @ObservedObject var profileVM: ProfileVM
+
+    let initialUser: User
+
+    var user: User {
+        profileVM.user ?? initialUser
+    }
+
+    var isCurrentUser: Bool {
+        guard case let .user(currentUser) = appState.currentUser else {
+            return false
+        }
+        return user.username == currentUser.username
+    }
+
+    var body: some View {
+        VStack {
+            if profileVM.relationToUser == .blocked {
+                // if user is blocked, then don't allow sharing
+                Spacer().frame(height: 30)
+            } else {
+                Button<Text>.defaultButton(textType: .share, action: actionSheet)
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    private func actionSheet() {
+        // TODO update link
+        guard let urlShare = URL(string: "https://www.google.com/") else { return }
+        let activityVC = UIActivityViewController(activityItems: [urlShare], applicationActivities: nil)
+        UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true)
+    }
+}
+
+extension Button {
+    private struct Constants {
+        let TEXT_PADDING: CGFloat = 10
+        let TEXT_FONT = SwiftUI.Font.system(size: 15)
+        let TEXT_CORNER_RADIUS: CGFloat = 2
+    }
+
+    enum TextType {
+        case share, follow, unfollow, unblock, loading
+
+        var text: String {
+            switch self {
+            case .share: return "Share"
+            case .follow: return "Follow"
+            case .unfollow: return "Unfollow"
+            case .unblock: return "Unblock"
+            case .loading: return "Loading..."
+            }
+        }
+
+        var backgroundColor: Color {
+            switch self {
+            case .loading, .unfollow, .share: return .white
+            case .unblock: return .red
+            case .follow: return .blue
+            }
+        }
+
+        var foregroundColor: Color {
+            return shouldOverlay ? .gray : .white
+        }
+
+        var shouldOverlay: Bool {
+            return backgroundColor == .white
+        }
+    }
+
+    static func defaultButton(textType: TextType, action: @escaping () -> Void) -> Button<Text> {
+        let constants = Constants()
+        return Button(action: action) {
+            Text(textType.text)
+                .padding(constants.TEXT_PADDING)
+                .font(constants.TEXT_FONT)
+                .frame(maxWidth: .infinity)
+                .background(textType.backgroundColor)
+                .cornerRadius(constants.TEXT_CORNER_RADIUS)
+                .foregroundColor(textType.foregroundColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: constants.TEXT_CORNER_RADIUS)
+                        .stroke(Color.gray, lineWidth: textType.shouldOverlay ? 1 : 0)
+                )
+                .frame(height: 30)
+        }.frame(height: 30)
     }
 }
