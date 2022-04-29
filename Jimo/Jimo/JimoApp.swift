@@ -8,10 +8,11 @@
 import SwiftUI
 import Firebase
 
-let gcmMessageIDKey = "gcm.message_id"
+fileprivate let gcmMessageIDKey = "gcm.message_id"
 
 fileprivate let appState = AppState(apiClient: APIClient())
 fileprivate let globalViewState = GlobalViewState()
+fileprivate let deepLinkManager = DeepLinkManager()
 
 @main
 struct JimoApp: App {
@@ -22,6 +23,7 @@ struct JimoApp: App {
             ContentView()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
+                .environmentObject(deepLinkManager)
                 .onAppear {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
@@ -29,7 +31,7 @@ struct JimoApp: App {
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onOpenURL { url in
-                    // TODO handle url
+                    deepLinkManager.presentableEntity = url.entityType
                 }
         }
     }
@@ -48,7 +50,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         application.registerForRemoteNotifications()
         return true
     }
-    
+
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         // Pass device token to auth
         Auth.auth().setAPNSToken(deviceToken, type: .prod)

@@ -597,6 +597,13 @@ class APIClient: ObservableObject {
     }
     
     /**
+     Get the given post.
+     */
+    func getPost(_ postId: PostId) -> AnyPublisher<Post, APIError> {
+        return doRequest(endpoint: Endpoint.post(postId: postId))
+    }
+    
+    /**
      Edit a post.
      */
     func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {

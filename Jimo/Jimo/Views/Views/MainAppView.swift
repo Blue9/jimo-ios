@@ -12,8 +12,10 @@ enum Tab: Int {
 }
 
 struct MainAppView: View {
+
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @EnvironmentObject var deepLinkManager: DeepLinkManager
     @StateObject var viewModel = ViewModel()
     
     let currentUser: PublicUser
@@ -23,6 +25,7 @@ struct MainAppView: View {
             MapTab()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
+                .environmentObject(deepLinkManager)
                 .tabItem("Map", image: UIImage(named: "mapIcon"))
             
             Feed(onCreatePostTap: { viewModel.selection = .create })
@@ -46,8 +49,8 @@ struct MainAppView: View {
                 .environmentObject(globalViewState)
                 .tabItem("Profile", image: UIImage(named: "profileIcon"))
         }
-        .sheet(isPresented: $viewModel.newPostSelected) {
-            CreatePost(presented: $viewModel.newPostSelected)
+        .sheet(isPresented: $viewModel.createPostPresented) {
+            CreatePost(presented: $viewModel.createPostPresented)
                 .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
@@ -59,6 +62,12 @@ struct MainAppView: View {
             UITabBar.appearance().barTintColor = UIColor(Color("background"))
             UITabBar.appearance().backgroundColor = UIColor(Color("background"))
         }
+        .onChange(of: deepLinkManager.presentableEntity) { item in
+            if item != .none {
+                viewModel.createPostPresented = false
+                viewModel.selection = .map
+            }
+        }
     }
 }
 
@@ -66,12 +75,12 @@ extension MainAppView {
     class ViewModel: ObservableObject {
         let newPostTag: Tab = .create
         
-        @Published var newPostSelected = false
+        @Published var createPostPresented: Bool = false
         @Published var selection: Tab {
             didSet {
                 if selection == newPostTag {
                     selection = oldValue
-                    newPostSelected = true
+                    createPostPresented = true
                 }
             }
         }

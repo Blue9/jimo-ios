@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct MapTab: View {
+    @EnvironmentObject var deepLinkManager: DeepLinkManager
+    
     var body: some View {
         NavigationView {
             MapViewV2()
+                .background(NavigationLink(item: $deepLinkManager.presentableEntity, destination: deepLinkManager.viewForDeepLink))
                 .navigationBarHidden(true)
                 .trackScreen(.mapTab)
         }
