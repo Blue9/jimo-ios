@@ -242,13 +242,16 @@ struct ProfileHeaderView: View {
                         .lineLimit(2)
                         .minimumScaleFactor(0.8)
                 }
-                .foregroundColor(Color("foreground"))
-                .frame(width: 120, alignment: .topLeading)
-                .frame(minHeight: 40)
+                    .foregroundColor(Color("foreground"))
+                    .frame(width: 120, alignment: .topLeading)
+                    .frame(minHeight: 40)
                 Spacer()
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
-                Spacer()
-                ShareButtonView(profileVM: profileVM, initialUser: initialUser)
+                if profileVM.relationToUser != .blocked {
+                    // cannot share blocked user profile
+                    Spacer()
+                    ShareButtonView(profileVM: profileVM, initialUser: initialUser)
+                }
             }
         }
         .padding(.leading, 20)
@@ -389,12 +392,7 @@ struct ShareButtonView: View {
 
     var body: some View {
         VStack {
-            if profileVM.relationToUser == .blocked {
-                // if user is blocked, then don't allow sharing
-                Spacer().frame(height: 30)
-            } else {
-                ProfileButton(textType: .share, action: actionSheet)
-            }
+            ProfileButton(textType: .share, action: actionSheet)
         }
         .padding(.horizontal)
     }
@@ -429,6 +427,7 @@ fileprivate enum TextType {
     }
 
     var foregroundColor: Color {
+        if self == .share { return .blue }
         return shouldOverlay ? .gray : .white
     }
 
@@ -443,18 +442,33 @@ fileprivate struct ProfileButton: View {
     
     var body: some View {
         Button(action: action) {
-            Text(textType.text)
-                .padding(Constants.TEXT_PADDING)
-                .font(Constants.TEXT_FONT)
-                .frame(maxWidth: .infinity)
-                .background(textType.backgroundColor)
-                .cornerRadius(Constants.TEXT_CORNER_RADIUS)
-                .foregroundColor(textType.foregroundColor)
-                .overlay(
-                    RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
-                        .stroke(Color.gray, lineWidth: textType.shouldOverlay ? 1 : 0)
-                )
-                .frame(height: 30)
+            if textType == .share {
+                // TODO combine image and text button types
+                Image(systemName: "square.and.arrow.up")
+                    .padding(Constants.TEXT_PADDING)
+                    .background(textType.backgroundColor)
+                    .cornerRadius(Constants.TEXT_CORNER_RADIUS)
+                    .foregroundColor(textType.foregroundColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
+                            .stroke(textType.foregroundColor, lineWidth: textType.shouldOverlay ? 1 : 0)
+                    )
+                    .frame(height: 30)
+
+            } else {
+                Text(textType.text)
+                    .padding(Constants.TEXT_PADDING)
+                    .font(Constants.TEXT_FONT)
+                    .frame(maxWidth: .infinity)
+                    .background(textType.backgroundColor)
+                    .cornerRadius(Constants.TEXT_CORNER_RADIUS)
+                    .foregroundColor(textType.foregroundColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
+                            .stroke(textType.foregroundColor, lineWidth: textType.shouldOverlay ? 1 : 0)
+                    )
+                    .frame(height: 30)
+            }
         }.frame(height: 30)
     }
 }
