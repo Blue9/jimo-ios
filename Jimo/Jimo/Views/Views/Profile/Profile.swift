@@ -399,7 +399,8 @@ struct ShareButtonView: View {
 
     private func actionSheet() {
         // TODO update link
-        guard let urlShare = URL(string: "https://www.google.com/") else { return }
+        //https://go.jimoapp.com/view-profile?username=<username>`
+        guard let urlShare = user.profileUrl else { return }
         let activityVC = UIActivityViewController(activityItems: [urlShare], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true)
     }
