@@ -10,9 +10,9 @@ import Firebase
 import FirebaseAnalytics
 
 #if DEBUG
-fileprivate let enableAnalytics = false
+fileprivate let ANALYTICS_ENABLED = false
 #else
-fileprivate let enableAnalytics = true
+fileprivate let ANALYTICS_ENABLED = true
 #endif
 
 extension View {
@@ -43,8 +43,9 @@ class Analytics {
     }
     
     static func initialize() {
-        FirebaseAnalytics.Analytics.setAnalyticsCollectionEnabled(enableAnalytics)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(enableAnalytics)
+        print("ANALYTICS_ENABLED == \(ANALYTICS_ENABLED)")
+        FirebaseAnalytics.Analytics.setAnalyticsCollectionEnabled(ANALYTICS_ENABLED)
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(ANALYTICS_ENABLED)
     }
 
     /// Used to track a given event.
@@ -52,19 +53,19 @@ class Analytics {
     ///   - event: The type of analytic we want to track.
     ///   - parameters: Any additional properties we want to associate with the event.
     static func track(_ event: AnalyticsName, parameters: [String: Any?]? = nil) {
-        guard enableAnalytics else {
-            print("event \(event.rawValue) parameters \(String(describing: parameters))")
+        guard ANALYTICS_ENABLED else {
+            print("event \(event.eventName) parameters \(String(describing: parameters))")
             return
         }
-        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: parameters?.compactMapValues { $0 })
+        FirebaseAnalytics.Analytics.logEvent(event.eventName, parameters: parameters?.compactMapValues { $0 })
     }
 }
 
 /// Each analytic event is stored here
-enum AnalyticsName: RawRepresentable, Equatable {
+enum AnalyticsName: Equatable {
     typealias RawValue = String
 
-    var rawValue: RawValue {
+    var eventName: String {
         // hard code for firebase screen view event
         if self == .screenView {
             return AnalyticsEventScreenView
@@ -76,11 +77,7 @@ enum AnalyticsName: RawRepresentable, Equatable {
         }
         return name
     }
-
-    init?(rawValue: String) {
-        return nil
-    }
-
+    
     // MARK: Push Notifications
 
     /// Track when new screen is viewed
@@ -93,9 +90,16 @@ enum AnalyticsName: RawRepresentable, Equatable {
     case inviteContact
 
     /// Share sheet presented
-    case shareSheetPresented
+    case shareProfilePresented
     /// Share sheet cancelled
-    case shareSheetCancelled
+    case shareProfileCancelled
     /// Share sheet completed
-    case shareSheetCompleted
+    case shareProfileCompleted
+    
+    /// Share sheet presented
+    case sharePostPresented
+    /// Share sheet cancelled
+    case sharePostCancelled
+    /// Share sheet completed
+    case sharePostCompleted
 }

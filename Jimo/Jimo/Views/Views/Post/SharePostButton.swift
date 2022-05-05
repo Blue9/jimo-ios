@@ -13,7 +13,7 @@ struct SharePostButton: View {
     
     var body: some View {
         if let url = post.postUrl {
-            ShareButtonView(url: url, size: 22)
+            ShareButtonView(shareType: .post, url: url, size: 22)
         }
     }
 }
