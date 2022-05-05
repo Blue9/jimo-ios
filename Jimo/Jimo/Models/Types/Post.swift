@@ -30,8 +30,8 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
         place.location.coordinate()
     }
     
-    var postUrl: URL? {
-        URL(string: "https://go.jimoapp.com/view-post?id=\(id)")
+    var postUrl: URL {
+        URL(string: "https://go.jimoapp.com/view-post?id=\(id)")!
     }
 }
 

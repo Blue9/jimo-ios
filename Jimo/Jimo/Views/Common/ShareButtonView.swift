@@ -11,8 +11,7 @@ struct ShareButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @State private var showShareSheet = false
-    var shareType: ShareType
-    var url: URL
+    var shareAction: ShareAction
     var size: CGFloat = 25
     
     var body: some View {
@@ -31,16 +30,33 @@ struct ShareButtonView: View {
             .frame(width: size, height: size)
         }
         .background(ActivityView(
-            shareType: shareType,
-            activityItems: [url],
+            shareAction: shareAction,
             applicationActivities: nil,
             isPresented: $showShareSheet
         ))
     }
 }
 
-enum ShareType: Equatable {
-    case profile, post
+enum ShareAction {
+    case profile(User), post(Post)
+    
+    var url: URL {
+        switch self {
+        case .profile(let user):
+            return user.profileUrl
+        case .post(let post):
+            return post.postUrl
+        }
+    }
+    
+    var name: String {
+        switch self {
+        case .profile(let user):
+            return user.username
+        case .post(let post):
+            return post.place.name
+        }
+    }
     
     var presentedEvent: AnalyticsName {
         switch self {

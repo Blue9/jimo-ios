@@ -251,8 +251,8 @@ struct ProfileHeaderView: View {
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
                 
                 // Cannot share blocked user profile
-                if profileVM.relationToUser != .blocked, let url = user.profileUrl {
-                    ShareButtonView(shareType: .profile, url: url)
+                if profileVM.relationToUser != .blocked {
+                    ShareButtonView(shareAction: .profile(user))
                         .offset(y: -2)
                         .padding()
                 }

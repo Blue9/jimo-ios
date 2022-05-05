@@ -8,16 +8,14 @@
 import SwiftUI
 
 struct ActivityView: UIViewControllerRepresentable {
-    var shareType: ShareType
-    var activityItems: [Any]
+    var shareAction: ShareAction
     var applicationActivities: [UIActivity]? = nil
     
     @Binding var isPresented: Bool
     
     func makeUIViewController(context: Context) -> ActivityViewWrapper {
         ActivityViewWrapper(
-            shareType: shareType,
-            activityItems: activityItems,
+            shareAction: shareAction,
             applicationActivities: applicationActivities,
             isPresented: $isPresented
         )
@@ -29,21 +27,22 @@ struct ActivityView: UIViewControllerRepresentable {
     }
 }
 
-class ActivityViewWrapper: UIViewController {
-    var shareType: ShareType
-    var activityItems: [Any]
+class ActivityViewWrapper: UIViewController, UIActivityItemSource {
+    var shareAction: ShareAction
     var applicationActivities: [UIActivity]?
     
     var isPresented: Binding<Bool>
     
+    var shareTitle: String {
+        "Check \(shareAction.name) out on Jimo"
+    }
+    
     init(
-        shareType: ShareType,
-        activityItems: [Any],
+        shareAction: ShareAction,
         applicationActivities: [UIActivity]? = nil,
         isPresented: Binding<Bool>
     ) {
-        self.shareType = shareType
-        self.activityItems = activityItems
+        self.shareAction = shareAction
         self.applicationActivities = applicationActivities
         self.isPresented = isPresented
         super.init(nibName: nil, bundle: nil)
@@ -63,13 +62,13 @@ class ActivityViewWrapper: UIViewController {
         let isActivityPresented = presentedViewController != nil
         if isActivityPresented != isPresented.wrappedValue {
             if !isActivityPresented {
-                Analytics.track(shareType.presentedEvent)
-                let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
+                Analytics.track(shareAction.presentedEvent)
+                let controller = UIActivityViewController(activityItems: [self], applicationActivities: applicationActivities)
                 controller.completionWithItemsHandler = { (activityType, completed, _, _) in
                     if completed {
-                        Analytics.track(self.shareType.completedEvent, parameters: ["activity_type": activityType?.rawValue])
+                        Analytics.track(self.shareAction.completedEvent, parameters: ["activity_type": activityType?.rawValue])
                     } else {
-                        Analytics.track(self.shareType.cancelledEvent)
+                        Analytics.track(self.shareAction.cancelledEvent)
                     }
                     self.isPresented.wrappedValue = false
                 }
@@ -79,5 +78,21 @@ class ActivityViewWrapper: UIViewController {
                 self.presentedViewController?.dismiss(animated: true, completion: nil)
             }
         }
+    }
+    
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return shareTitle
+    }
+    
+    func activityViewController(
+        _ activityViewController: UIActivityViewController,
+        itemForActivityType activityType: UIActivity.ActivityType?
+    ) -> Any? {
+        if activityType == .message {
+            /// iMessage is stripping the query params from the URL for some reason
+            /// https://developer.apple.com/forums/thread/131930
+            return "\(shareTitle)\n\(shareAction.url.absoluteString)"
+        }
+        return shareAction.url
     }
 }
