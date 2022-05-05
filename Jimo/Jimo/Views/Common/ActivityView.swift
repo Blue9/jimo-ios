@@ -50,8 +50,14 @@ class ActivityViewWrapper: UIViewController {
         let isActivityPresented = presentedViewController != nil
         if isActivityPresented != isPresented.wrappedValue {
             if !isActivityPresented {
+                Analytics.track(.shareSheetPresented)
                 let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
                 controller.completionWithItemsHandler = { (activityType, completed, _, _) in
+                    if completed {
+                        Analytics.track(.shareSheetCompleted, properties: ["activity_type": activityType?.rawValue])
+                    } else {
+                        Analytics.track(.shareSheetCancelled)
+                    }
                     self.isPresented.wrappedValue = false
                 }
                 present(controller, animated: true, completion: nil)

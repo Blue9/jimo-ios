@@ -246,7 +246,7 @@ struct Feed: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
-                            Analytics.shared.logNotificationBellTap(badgePresent: notificationBellBadgePresent)
+                            Analytics.track(.tapNotificationBell, properties: ["badge_present": notificationBellBadgePresent])
                             self.showNotifications.toggle()
                         }) {
                             notificationFeedIcon
