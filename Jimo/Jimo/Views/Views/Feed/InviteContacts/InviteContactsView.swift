@@ -129,7 +129,7 @@ fileprivate struct ContactView: View {
         let sms: String = "sms:+\(contact.phoneNumber)&body=Check out the places I posted on Jimo! 😘"
             + "\n\nhttps://apps.apple.com/app/id1541360118"
         let url: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        Analytics.shared.logInviteContact()
+        Analytics.track(.inviteContact)
         UIApplication.shared.open(URL.init(string: url)!, options: [:], completionHandler: nil)
     }
     
