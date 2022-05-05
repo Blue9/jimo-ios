@@ -54,7 +54,7 @@ class ActivityViewWrapper: UIViewController {
                 let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
                 controller.completionWithItemsHandler = { (activityType, completed, _, _) in
                     if completed {
-                        Analytics.track(.shareSheetCompleted, properties: ["activity_type": activityType?.rawValue])
+                        Analytics.track(.shareSheetCompleted, parameters: ["activity_type": activityType?.rawValue])
                     } else {
                         Analytics.track(.shareSheetCancelled)
                     }

@@ -18,92 +18,46 @@ fileprivate let enableAnalytics = true
 extension View {
     /// Mark the given view as a screen and track when it appears.
     func trackScreen(_ screen: Screen) -> some View {
-        self.appear { Analytics.shared.currentScreen = screen }
+        self.appear { Analytics.currentScreen = screen }
     }
     
     /// Track the given sheet as a screen, screenAfterDismiss is necessary because the previous screen's isn't called when the sheet is dismissed.
     func trackSheet(_ screen: Screen, screenAfterDismiss: @escaping () -> Screen) -> some View {
         self
-            .appear { Analytics.shared.currentScreen = screen }
-            .disappear { Analytics.shared.currentScreen = screenAfterDismiss() }
+            .appear { Analytics.currentScreen = screen }
+            .disappear { Analytics.currentScreen = screenAfterDismiss() }
     }
 }
 
 class Analytics {
-    static let shared = Analytics()
-    
-    var ANALYTICS_ENABLED: Bool!
-    var currentScreen: Screen? {
+    static var currentScreen: Screen? {
         didSet {
             guard currentScreen != oldValue else {
                 return
             }
-            Analytics.track(.screenView, properties: [
+            Analytics.track(.screenView, parameters: [
                 AnalyticsParameterScreenName: (currentScreen ?? .unknown).rawValue,
                 AnalyticsParameterScreenClass: (currentScreen ?? .unknown).rawValue
             ])
         }
     }
     
-    func initialize() {
-        ANALYTICS_ENABLED = enableAnalytics
-        print("ANALYTICS_ENABLED == \(String(describing: ANALYTICS_ENABLED))")
-        FirebaseAnalytics.Analytics.setAnalyticsCollectionEnabled(ANALYTICS_ENABLED)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(ANALYTICS_ENABLED)
+    static func initialize() {
+        FirebaseAnalytics.Analytics.setAnalyticsCollectionEnabled(enableAnalytics)
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(enableAnalytics)
     }
 
     /// Used to track a given event.
     /// - Parameters:
     ///   - event: The type of analytic we want to track.
-    ///   - properties: Any additional properties we want to associate with the event.
-    ///   - key: The key to increment and track on. Shortcut used to track how many times a given event has been hit prior. While we could just extrapolate this information from the analytics, this is useful in allowing us to continue tracking between installations. A rare case but worth tracking since it's so cheap.
-    static func track(_ event: AnalyticsName, properties: [String: Any?]? = nil, key: AnalyticsKey? = nil) {
-        guard let key = key else {
-            FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: properties?.compactMapValues { $0 })
+    ///   - parameters: Any additional properties we want to associate with the event.
+    static func track(_ event: AnalyticsName, parameters: [String: Any?]? = nil) {
+        guard enableAnalytics else {
+            print("event \(event.rawValue) parameters \(String(describing: parameters))")
             return
         }
-
-        let attempt = UserDefaults.standard.integer(forKey: key.rawValue) + 1
-        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: join(properties?.compactMapValues { $0 }, [
-            "attempts": attempt
-        ]))
-        UserDefaults.standard.set(attempt, forKey: key.rawValue)
+        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: parameters?.compactMapValues { $0 })
     }
-
-    /**
-     Consolidate multiple nullable dictionaries into a single dictionary.
-     */
-    private static func join(_ props: [String: Any]?...) -> [String: Any] {
-        var total: [String: Any] = [:]
-        for prop in props {
-            if let prop = prop {
-                total = total.merging(prop, uniquingKeysWith: { first, _ in first })
-            }
-        }
-        return total
-    }
-}
-
-/// UserDefaults key for tracking number of attempts per
-/// TODO currently unused as we do not track numbers
-enum AnalyticsKey {
-    typealias RawValue = String
-
-    var rawValue: RawValue {
-        var name = "\(self)".snakeized
-        if let index = name.firstIndex(of: "(") {
-            name = name.prefix(upTo: index).lowercased()
-        }
-        return "ANALYTICS_" + name.uppercased()
-    }
-
-    init?(rawValue: String) {
-        return nil
-    }
-
-    case notificationsPrompt
-    case locationsPrompt
-    case contactsPrompt
 }
 
 /// Each analytic event is stored here
