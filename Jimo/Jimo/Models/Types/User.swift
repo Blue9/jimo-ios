@@ -20,6 +20,12 @@ protocol User {
     var followingCount: Int { get set }
 }
 
+extension User {
+    var profileUrl: URL? {
+        URL(string: "https://go.jimoapp.com/view-profile?username=\(username)")
+    }
+}
+
 struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
     var id: UserId {
         userId

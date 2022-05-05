@@ -152,9 +152,9 @@ struct DeepLinkProfileLoadingScreen: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
-
+    
     var username: String
-
+    
     var body: some View {
         Group {
             if let user = viewModel.initialUser {
@@ -245,8 +245,15 @@ struct ProfileHeaderView: View {
                 .foregroundColor(Color("foreground"))
                 .frame(width: 120, alignment: .topLeading)
                 .frame(minHeight: 40)
+                
                 Spacer()
+                
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
+                
+                // Cannot share blocked user profile
+                if profileVM.relationToUser != .blocked, let url = user.profileUrl {
+                    ShareButtonView(url: url)
+                }
             }
         }
         .padding(.leading, 20)
@@ -347,50 +354,81 @@ struct FollowButtonView: View {
                     )
                     .frame(height: 30)
             } else if profileVM.relationToUser == .following {
-                Button(action: {
+                ProfileButton(textType: .unfollow) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.unfollowUser(username: user.username, appState: appState, viewState: viewState)
-                }) {
-                    Text("Unfollow")
-                        .padding(10)
-                        .font(.system(size: 15))
-                        .frame(maxWidth: .infinity)
-                        .background(Color.white)
-                        .cornerRadius(2)
-                        .foregroundColor(.gray)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color.gray, lineWidth: 1)
-                        )
-                }.frame(height: 30)
+                }
             } else if profileVM.relationToUser == .blocked {
-                Button(action: {
+                ProfileButton(textType: .unblock) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.unblockUser(username: user.username, appState: appState, viewState: viewState)
-                }) {
-                    Text("Unblock")
-                        .padding(10)
-                        .font(.system(size: 15))
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red)
-                        .cornerRadius(2)
-                        .foregroundColor(.white)
-                }.frame(height: 30)
+                }
             } else {
-                Button(action: {
+                ProfileButton(textType: .follow) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     profileVM.followUser(username: user.username, appState: appState, viewState: viewState)
-                }) {
-                    Text("Follow")
-                        .padding(10)
-                        .font(.system(size: 15))
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(2)
-                        .foregroundColor(.white)
-                }.frame(height: 30)
+                }
             }
         }
-        .padding(.horizontal)
+        .padding(.leading)
+    }
+}
+
+fileprivate enum TextType {
+    case follow, unfollow, unblock, loading
+    
+    var text: String {
+        switch self {
+        case .follow: return "Follow"
+        case .unfollow: return "Unfollow"
+        case .unblock: return "Unblock"
+        case .loading: return "Loading..."
+        }
+    }
+    
+    var backgroundColor: Color {
+        switch self {
+        case .loading, .unfollow: return .white
+        case .unblock: return .red
+        case .follow: return .blue
+        }
+    }
+    
+    var foregroundColor: Color {
+        return buttonHasBorder ? .gray : .white
+    }
+    
+    var buttonHasBorder: Bool {
+        return backgroundColor == .white
+    }
+}
+
+fileprivate struct ProfileButton: View {
+    var textType: TextType
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(textType.text)
+                .padding(Constants.TEXT_PADDING)
+                .font(Constants.TEXT_FONT)
+                .frame(maxWidth: .infinity)
+                .background(textType.backgroundColor)
+                .cornerRadius(Constants.TEXT_CORNER_RADIUS)
+                .foregroundColor(textType.foregroundColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
+                        .stroke(textType.foregroundColor, lineWidth: textType.buttonHasBorder ? 1 : 0)
+                )
+                .frame(height: 30)
+        }.frame(height: 30)
+    }
+}
+
+extension ProfileButton {
+    private struct Constants {
+        static let TEXT_PADDING: CGFloat = 10
+        static let TEXT_FONT = SwiftUI.Font.system(size: 15)
+        static let TEXT_CORNER_RADIUS: CGFloat = 2
     }
 }
