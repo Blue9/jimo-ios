@@ -10,16 +10,15 @@ import SwiftUI
 struct ShareButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    @State private var showShareSheet = false
     var shareAction: ShareAction
     var size: CGFloat = 25
     
     var body: some View {
         Button {
-            showShareSheet = true
+            viewState.showShareOverlay(for: shareAction)
         } label: {
             Group {
-                if showShareSheet {
+                if viewState.shareAction == shareAction {
                     ProgressView()
                 } else {
                     Image(systemName: "square.and.arrow.up")
@@ -29,16 +28,20 @@ struct ShareButtonView: View {
             .scaledToFit()
             .frame(width: size, height: size)
         }
-        .background(ActivityView(
-            shareAction: shareAction,
-            applicationActivities: nil,
-            isPresented: $showShareSheet
-        ))
     }
 }
 
-enum ShareAction {
+enum ShareAction: Identifiable, Equatable {
     case profile(User), post(Post)
+    
+    var id: String {
+        switch self {
+        case .profile(let user):
+            return user.id
+        case .post(let post):
+            return post.id
+        }
+    }
     
     var url: URL {
         switch self {
@@ -83,5 +86,9 @@ enum ShareAction {
         case .post:
             return .sharePostCancelled
         }
+    }
+    
+    static func == (lhs: ShareAction, rhs: ShareAction) -> Bool {
+        lhs.id == rhs.id
     }
 }

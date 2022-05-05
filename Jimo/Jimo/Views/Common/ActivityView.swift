@@ -72,7 +72,7 @@ class ActivityViewWrapper: UIViewController, UIActivityItemSource {
                     }
                     self.isPresented.wrappedValue = false
                 }
-                present(controller, animated: true, completion: nil)
+                self.present(controller, animated: true, completion: nil)
             }
             else {
                 self.presentedViewController?.dismiss(animated: true, completion: nil)
