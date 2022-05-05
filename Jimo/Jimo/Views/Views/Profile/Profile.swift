@@ -152,9 +152,9 @@ struct DeepLinkProfileLoadingScreen: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
-
+    
     var username: String
-
+    
     var body: some View {
         Group {
             if let user = viewModel.initialUser {
@@ -242,15 +242,17 @@ struct ProfileHeaderView: View {
                         .lineLimit(2)
                         .minimumScaleFactor(0.8)
                 }
-                    .foregroundColor(Color("foreground"))
-                    .frame(width: 120, alignment: .topLeading)
-                    .frame(minHeight: 40)
+                .foregroundColor(Color("foreground"))
+                .frame(width: 120, alignment: .topLeading)
+                .frame(minHeight: 40)
+                
                 Spacer()
+                
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
-                if profileVM.relationToUser != .blocked {
-                    // cannot share blocked user profile
-                    Spacer()
-                    ShareButtonView(profileVM: profileVM, initialUser: initialUser)
+                
+                // Cannot share blocked user profile
+                if profileVM.relationToUser != .blocked, let url = user.profileUrl {
+                    ShareButtonView(url: url)
                 }
             }
         }
@@ -368,71 +370,35 @@ struct FollowButtonView: View {
                 }
             }
         }
-        .padding(.horizontal)
-    }
-}
-
-struct ShareButtonView: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var viewState: GlobalViewState
-    @ObservedObject var profileVM: ProfileVM
-
-    let initialUser: User
-
-    var user: User {
-        profileVM.user ?? initialUser
-    }
-
-    var isCurrentUser: Bool {
-        guard case let .user(currentUser) = appState.currentUser else {
-            return false
-        }
-        return user.username == currentUser.username
-    }
-
-    var body: some View {
-        VStack {
-            ProfileButton(textType: .share, action: actionSheet)
-        }
-        .padding(.horizontal)
-    }
-
-    private func actionSheet() {
-        // TODO update link
-        //https://go.jimoapp.com/view-profile?username=<username>`
-        guard let urlShare = user.profileUrl else { return }
-        let activityVC = UIActivityViewController(activityItems: [urlShare], applicationActivities: nil)
-        UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true)
+        .padding(.leading)
     }
 }
 
 fileprivate enum TextType {
-    case share, follow, unfollow, unblock, loading
-
+    case follow, unfollow, unblock, loading
+    
     var text: String {
         switch self {
-        case .share: return "Share"
         case .follow: return "Follow"
         case .unfollow: return "Unfollow"
         case .unblock: return "Unblock"
         case .loading: return "Loading..."
         }
     }
-
+    
     var backgroundColor: Color {
         switch self {
-        case .loading, .unfollow, .share: return .white
+        case .loading, .unfollow: return .white
         case .unblock: return .red
         case .follow: return .blue
         }
     }
-
+    
     var foregroundColor: Color {
-        if self == .share { return .blue }
-        return shouldOverlay ? .gray : .white
+        return buttonHasBorder ? .gray : .white
     }
-
-    var shouldOverlay: Bool {
+    
+    var buttonHasBorder: Bool {
         return backgroundColor == .white
     }
 }
@@ -443,33 +409,18 @@ fileprivate struct ProfileButton: View {
     
     var body: some View {
         Button(action: action) {
-            if textType == .share {
-                // TODO combine image and text button types
-                Image(systemName: "square.and.arrow.up")
-                    .padding(Constants.TEXT_PADDING)
-                    .background(textType.backgroundColor)
-                    .cornerRadius(Constants.TEXT_CORNER_RADIUS)
-                    .foregroundColor(textType.foregroundColor)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
-                            .stroke(textType.foregroundColor, lineWidth: textType.shouldOverlay ? 1 : 0)
-                    )
-                    .frame(height: 30)
-
-            } else {
-                Text(textType.text)
-                    .padding(Constants.TEXT_PADDING)
-                    .font(Constants.TEXT_FONT)
-                    .frame(maxWidth: .infinity)
-                    .background(textType.backgroundColor)
-                    .cornerRadius(Constants.TEXT_CORNER_RADIUS)
-                    .foregroundColor(textType.foregroundColor)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
-                            .stroke(textType.foregroundColor, lineWidth: textType.shouldOverlay ? 1 : 0)
-                    )
-                    .frame(height: 30)
-            }
+            Text(textType.text)
+                .padding(Constants.TEXT_PADDING)
+                .font(Constants.TEXT_FONT)
+                .frame(maxWidth: .infinity)
+                .background(textType.backgroundColor)
+                .cornerRadius(Constants.TEXT_CORNER_RADIUS)
+                .foregroundColor(textType.foregroundColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Constants.TEXT_CORNER_RADIUS)
+                        .stroke(textType.foregroundColor, lineWidth: textType.buttonHasBorder ? 1 : 0)
+                )
+                .frame(height: 30)
         }.frame(height: 30)
     }
 }
