@@ -252,7 +252,9 @@ struct ProfileHeaderView: View {
                 
                 // Cannot share blocked user profile
                 if profileVM.relationToUser != .blocked, let url = user.profileUrl {
-                    ShareButtonView(url: url)
+                    ShareButtonView(shareType: .profile, url: url)
+                        .offset(y: -2)
+                        .padding()
                 }
             }
         }

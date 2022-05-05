@@ -8,13 +8,19 @@
 import SwiftUI
 
 struct ActivityView: UIViewControllerRepresentable {
+    var shareType: ShareType
     var activityItems: [Any]
     var applicationActivities: [UIActivity]? = nil
     
     @Binding var isPresented: Bool
     
     func makeUIViewController(context: Context) -> ActivityViewWrapper {
-        ActivityViewWrapper(activityItems: activityItems, applicationActivities: applicationActivities, isPresented: $isPresented)
+        ActivityViewWrapper(
+            shareType: shareType,
+            activityItems: activityItems,
+            applicationActivities: applicationActivities,
+            isPresented: $isPresented
+        )
     }
     
     func updateUIViewController(_ uiViewController: ActivityViewWrapper, context: Context) {
@@ -24,12 +30,19 @@ struct ActivityView: UIViewControllerRepresentable {
 }
 
 class ActivityViewWrapper: UIViewController {
+    var shareType: ShareType
     var activityItems: [Any]
     var applicationActivities: [UIActivity]?
     
     var isPresented: Binding<Bool>
     
-    init(activityItems: [Any], applicationActivities: [UIActivity]? = nil, isPresented: Binding<Bool>) {
+    init(
+        shareType: ShareType,
+        activityItems: [Any],
+        applicationActivities: [UIActivity]? = nil,
+        isPresented: Binding<Bool>
+    ) {
+        self.shareType = shareType
         self.activityItems = activityItems
         self.applicationActivities = applicationActivities
         self.isPresented = isPresented
@@ -46,17 +59,17 @@ class ActivityViewWrapper: UIViewController {
     }
     
     fileprivate func updateState() {
-        guard parent != nil else {return}
+        guard parent != nil else { return }
         let isActivityPresented = presentedViewController != nil
         if isActivityPresented != isPresented.wrappedValue {
             if !isActivityPresented {
-                Analytics.track(.shareSheetPresented)
+                Analytics.track(shareType.presentedEvent)
                 let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
                 controller.completionWithItemsHandler = { (activityType, completed, _, _) in
                     if completed {
-                        Analytics.track(.shareSheetCompleted, parameters: ["activity_type": activityType?.rawValue])
+                        Analytics.track(self.shareType.completedEvent, parameters: ["activity_type": activityType?.rawValue])
                     } else {
-                        Analytics.track(.shareSheetCancelled)
+                        Analytics.track(self.shareType.cancelledEvent)
                     }
                     self.isPresented.wrappedValue = false
                 }

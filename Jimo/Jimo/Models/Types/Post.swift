@@ -29,6 +29,10 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var location: CLLocationCoordinate2D {
         place.location.coordinate()
     }
+    
+    var postUrl: URL? {
+        URL(string: "https://go.jimoapp.com/view-post?id=\(id)")
+    }
 }
 
 
