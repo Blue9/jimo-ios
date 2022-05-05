@@ -21,8 +21,8 @@ protocol User {
 }
 
 extension User {
-    var profileUrl: URL? {
-        URL(string: "https://go.jimoapp.com/view-profile?username=\(username)")
+    var profileUrl: URL {
+        URL(string: "https://go.jimoapp.com/view-profile?username=\(username)")!
     }
 }
 
