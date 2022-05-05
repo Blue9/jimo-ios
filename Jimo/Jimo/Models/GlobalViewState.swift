@@ -17,6 +17,21 @@ class GlobalViewState: ObservableObject {
     @Published var showSuccess = false
     @Published var successMessage = ""
     
+    @Published var shareAction: ShareAction? {
+        didSet {
+            if shareAction != nil {
+                showShareOverlay = true
+            }
+        }
+    }
+    @Published var showShareOverlay = false {
+        didSet {
+            if !showShareOverlay {
+                shareAction = nil
+            }
+        }
+    }
+    
     func setError(_ message: String) {
         self.errorMessage = message
         self.showError = true
@@ -30,5 +45,9 @@ class GlobalViewState: ObservableObject {
     func setSuccess(_ message: String) {
         self.successMessage = message
         self.showSuccess = true
+    }
+    
+    func showShareOverlay(for shareAction: ShareAction) {
+        self.shareAction = shareAction
     }
 }

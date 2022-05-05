@@ -91,6 +91,7 @@ struct ContentView: View {
             Toast(text: globalViewState.successMessage, type: .success)
                 .padding(.bottom, 50)
         }
+        .shareOverlay(globalViewState.shareAction, isPresented: $globalViewState.showShareOverlay)
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
             appState.listen()

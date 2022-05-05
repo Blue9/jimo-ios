@@ -11,6 +11,7 @@ typealias username = String
 typealias UserId = String
 
 protocol User {
+    var id: UserId { get }
     var username: username { get set }
     var firstName: String { get set }
     var lastName: String { get set }
