@@ -276,6 +276,8 @@ struct PostFooter: View {
             .foregroundColor(.gray)
             
             Spacer()
+            
+            SharePostButton(post: post)
         }
         .padding(.horizontal, 10)
     }
