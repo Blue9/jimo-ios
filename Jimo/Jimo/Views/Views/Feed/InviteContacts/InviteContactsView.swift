@@ -11,8 +11,7 @@ import Contacts
 import PhoneNumberKit
 
 
-
-fileprivate struct Contact: Identifiable {
+private struct Contact: Identifiable {
     var id = UUID()
     var name: String
     var phoneNumber: String
@@ -20,15 +19,13 @@ fileprivate struct Contact: Identifiable {
     var photo: Data?
 }
 
+private class ContactStore: ObservableObject {
+    private static let phoneNumberKit = PhoneNumberKit()
 
-fileprivate class ContactStore: ObservableObject {
-    static private let phoneNumberKit = PhoneNumberKit()
-    
     @Published var contacts: [Contact]?
     @Published var error: Error?
     @Published var loading = false
-    
-    
+
     func loadContacts(appState: AppState) {
         self.loading = true
         DispatchQueue.global(qos: .userInitiated).async {
@@ -45,9 +42,9 @@ fileprivate class ContactStore: ObservableObject {
             }
         }
     }
-    
+
     private func fetchContactsCallback(_ handler: @escaping ([Contact]?, Error?) -> Void) {
-        PermissionManager.shared.requestContacts { (granted, error) in
+        PermissionManager.shared.requestContacts { granted, error in
             if let error = error {
                 handler(nil, error)
                 return
@@ -62,7 +59,7 @@ fileprivate class ContactStore: ObservableObject {
                     var formattedArray: [Contact] = []
                     let formatter = CNContactFormatter()
                     formatter.style = .fullName
-                    try PermissionManager.shared.contactStore.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                    try PermissionManager.shared.contactStore.enumerateContacts(with: request, usingBlock: { contact, _ in
                         if let number = contact.phoneNumbers.first?.value.stringValue,
                            let name = formatter.string(from: contact),
                            let parsed = try? ContactStore.phoneNumberKit.parse(number) {
@@ -75,7 +72,7 @@ fileprivate class ContactStore: ObservableObject {
                         }
                     })
                     handler(formattedArray, nil)
-                } catch let error {
+                } catch {
                     handler(nil, error)
                 }
             } else {
@@ -86,33 +83,31 @@ fileprivate class ContactStore: ObservableObject {
     }
 }
 
-
-fileprivate enum ContactViewAlert {
+private enum ContactViewAlert {
     case confirmInvite, confirmSendMessage, error(String)
 }
 
-
-fileprivate struct ContactView: View {
+private struct ContactView: View {
     @EnvironmentObject var appState: AppState
     @State private var showAlert = false
     @State private var alertType: ContactViewAlert = .confirmInvite
     @State private var inviteCancellable: Cancellable?
-    
+
     let contact: Contact
     @Binding var loading: Bool
-    
+
     private func alert(_ type: ContactViewAlert) {
         alertType = type
         showAlert = true
     }
-    
+
     private func invite() {
         loading = true
         print("Inviting")
         self.inviteCancellable = appState.inviteUser(phoneNumber: contact.phoneNumber)
             .sink(receiveCompletion: { completion in
                 self.loading = false
-                if case .failure(_) = completion {
+                if case .failure = completion {
                     self.alert(.error("Failed to invite user"))
                 }
             }, receiveValue: { inviteStatus in
@@ -124,15 +119,15 @@ fileprivate struct ContactView: View {
                 }
             })
     }
-    
+
     private func sendMessage() {
         let sms: String = "sms:+\(contact.phoneNumber)&body=Check out the places I posted on Jimo! 😘"
             + "\n\nhttps://apps.apple.com/app/id1541360118"
         let url: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         Analytics.shared.logInviteContact()
-        UIApplication.shared.open(URL.init(string: url)!, options: [:], completionHandler: nil)
+        UIApplication.shared.open(URL(string: url)!, options: [:], completionHandler: nil)
     }
-    
+
     var profilePicture: Image {
         if let data = contact.photo,
            let image = UIImage(data: data) {
@@ -141,7 +136,7 @@ fileprivate struct ContactView: View {
             return Image(systemName: "person.crop.circle")
         }
     }
-    
+
     var body: some View {
         VStack {
             profilePicture
@@ -151,7 +146,7 @@ fileprivate struct ContactView: View {
                 .scaledToFill()
                 .frame(width: 80, height: 80)
                 .cornerRadius(40)
-            
+
             Text(contact.name)
                 .font(.system(size: 12))
         }
@@ -188,17 +183,17 @@ fileprivate struct ContactView: View {
 
 struct InviteContactsView: View {
     @EnvironmentObject var appState: AppState
-    
+
     @StateObject private var contactStore: ContactStore = ContactStore()
     @State private var filter: String = ""
     @State private var loading = false
-    
+
     private var columns: [GridItem] = [
         GridItem(.flexible(minimum: 50), spacing: 10),
         GridItem(.flexible(minimum: 50), spacing: 10),
         GridItem(.flexible(minimum: 50), spacing: 10)
     ]
-    
+
     private var filteredContacts: [Contact]? {
         if let contacts = contactStore.contacts, filter.count > 0 {
             return contacts.filter({ $0.name.lowercased().contains(filter.lowercased()) })
@@ -206,13 +201,13 @@ struct InviteContactsView: View {
             return contactStore.contacts
         }
     }
-    
+
     var body: some View {
         VStack {
             if contactStore.loading {
                 ProgressView()
             }
-            
+
             if let contacts = filteredContacts {
                 ZStack {
                     VStack {
@@ -222,7 +217,7 @@ struct InviteContactsView: View {
                             .background(RoundedRectangle(cornerRadius: 10)
                                             .stroke(Color.gray, style: StrokeStyle(lineWidth: 2)))
                             .padding(12)
-                        
+
                         ScrollView {
                             LazyVGrid(columns: columns) {
                                 ForEach(contacts) { contact in
@@ -235,17 +230,17 @@ struct InviteContactsView: View {
                             hideKeyboard()
                         })
                     }
-                    
+
                     if self.loading {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(Color("background").opacity(0.5))
-                            
+
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            
+
             if contactStore.error != nil {
                 VStack {
                     Button(action: {

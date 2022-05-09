@@ -11,7 +11,7 @@ import Combine
 class SingleCommentVM: ObservableObject {
     @Published var likingComment = false
     var cancellable: AnyCancellable?
-    
+
     func likeComment(
         appState: AppState,
         globalViewState: GlobalViewState,
@@ -26,7 +26,7 @@ class SingleCommentVM: ObservableObject {
                 }
             } receiveValue: { _ in }
     }
-    
+
     func unlikeComment(
         appState: AppState,
         globalViewState: GlobalViewState,
@@ -45,13 +45,13 @@ class SingleCommentVM: ObservableObject {
 
 class CommentsViewModel: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published var newCommentText = ""
     @Published var creatingComment = false
     @Published var comments: [Comment] = []
     @Published var loadingComments = false
     var cursor: String?
-    
+
     var postId: PostId?
     var highlightedComment: Comment? {
         didSet {
@@ -63,24 +63,24 @@ class CommentsViewModel: ObservableObject {
     }
     var appState: AppState?
     var viewState: GlobalViewState?
-    
+
     var refreshCommentsCancellable: AnyCancellable?
     var createCommentCancellable: AnyCancellable?
     var deleteCommentCancellable: AnyCancellable?
-    
+
     init() {
         nc.addObserver(self, selector: #selector(commentCreated), name: CommentPublisher.commentCreated, object: nil)
         nc.addObserver(self, selector: #selector(commentLikes), name: CommentPublisher.commentLikes, object: nil)
         nc.addObserver(self, selector: #selector(commentDeleted), name: CommentPublisher.commentDeleted, object: nil)
     }
-    
+
     @objc private func commentCreated(notification: Notification) {
         let comment = notification.object as! Comment
         if comment.postId == postId {
             self.comments.insert(comment, at: 0)
         }
     }
-    
+
     @objc private func commentLikes(notification: Notification) {
         let like = notification.object as! CommentLikePayload
         let commentIndex = comments.indices.first(where: { comments[$0].commentId == like.commentId })
@@ -89,12 +89,12 @@ class CommentsViewModel: ObservableObject {
             comments[i].liked = like.liked
         }
     }
-    
+
     @objc private func commentDeleted(notification: Notification) {
         let commentId = notification.object as! CommentId
         comments.removeAll(where: { $0.commentId == commentId })
     }
-    
+
     func createComment() {
         guard let postId = postId, let appState = appState, let viewState = viewState else {
             return
@@ -115,7 +115,7 @@ class CommentsViewModel: ObservableObject {
                 self?.newCommentText = ""
             }
     }
-    
+
     func loadComments(onFinish: OnFinish? = nil) {
         guard let postId = postId, let appState = appState, let viewState = viewState else {
             onFinish?()
@@ -138,7 +138,7 @@ class CommentsViewModel: ObservableObject {
                 self?.cursor = commentPage.cursor
             }
     }
-    
+
     func deleteComment(commentId: CommentId) {
         guard let appState = appState, let viewState = viewState else {
             return
@@ -156,7 +156,7 @@ class CommentsViewModel: ObservableObject {
                 }
             }
     }
-    
+
     func loadMore() {
         guard let postId = postId, let cursor = cursor, let appState = appState, let viewState = viewState else {
             return
@@ -176,3 +176,4 @@ class CommentsViewModel: ObservableObject {
             }
     }
 }
+

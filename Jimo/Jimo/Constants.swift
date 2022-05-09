@@ -8,49 +8,15 @@
 import SwiftUI
 
 struct Colors {
-    static let colors = [
-        Color("food"),
-        Color("lodging"),
-        Color("activity"),
-        Color("attraction"),
-        Color("nightlife"),
-        Color("shopping")
-    ]
-    
+    static let colors = PostCategory.allCases.map { $0.color }
+
     static let gradientColors = Gradient(colors: colors)
-    
+
     static let linearGradient = LinearGradient(
         gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
-    
+
     static let angularGradient = AngularGradient(colors: colors + [Color("food")], center: .center)
-    
+
     static let linearGradientReversed = LinearGradient(
         gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
-}
-
-
-struct Category: Identifiable, Hashable {
-    var id: String {
-        key
-    }
-    var name: String
-    var key: String
-    var colorName: String {
-        key
-    }
-    var imageName: String {
-        key
-    }
-}
-
-
-struct Categories {
-    static let categories = [
-        Category(name: "Food", key: "food"),
-        Category(name: "Things to do", key: "activity"),
-        Category(name: "Nightlife", key: "nightlife"),
-        Category(name: "Things to see", key: "attraction"),
-        Category(name: "Lodging", key: "lodging"),
-        Category(name: "Shopping", key: "shopping"),
-    ]
 }

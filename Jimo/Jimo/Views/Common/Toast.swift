@@ -8,10 +8,10 @@
 import SwiftUI
 
 enum ToastType {
-    case success, warning, error;
-    
-    func color() -> Color {
-        switch (self) {
+    case success, warning, error
+
+    var color: Color {
+        switch self {
         case .success:
             return Color(red: 0.15, green: 0.83, blue: 0.3)
         case .warning:
@@ -23,16 +23,15 @@ enum ToastType {
 }
 
 struct Toast: View {
-    
     let text: String
     let type: ToastType
-    
+
     var body: some View {
         Text(text)
             .font(.system(size: 14))
             .foregroundColor(.white)
             .padding(15)
-            .background(type.color())
+            .background(type.color)
             .cornerRadius(15)
             .padding(.bottom, 40)
             .shadow(radius: 5)

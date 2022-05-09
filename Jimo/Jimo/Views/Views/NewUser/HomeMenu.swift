@@ -18,13 +18,13 @@ struct RaisedButtonStyle: ButtonStyle {
 
 struct HomeMenu: View {
     @Environment(\.colorScheme) var colorScheme
-    
+
     let height = UIScreen.main.bounds.height
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(maxHeight: height * 0.22)
-            
+
             VStack(spacing: 0) {
                 Image("logo")
                     .resizable()
@@ -37,16 +37,16 @@ struct HomeMenu: View {
                     .font(.system(size: 16))
             }
             .scaledToFit()
-            
+
             Spacer().frame(maxHeight: height * 0.23)
-            
+
             VStack(spacing: 0) {
                 NavigationLink(destination: EnterPhoneNumber()) {
                     LargeButton("Sign Up")
                 }
                 .padding(.bottom, 8)
                 .buttonStyle(RaisedButtonStyle())
-                
+
                 HStack(spacing: 10) {
                     VStack {
                         Divider()
@@ -63,7 +63,7 @@ struct HomeMenu: View {
                     }
                 }
                 .padding(.vertical, 5)
-                
+
                 NavigationLink(destination: EnterPhoneNumber()) {
                     Group {
                         Text("Already have an account? ") + Text("Sign in").bold()
@@ -75,7 +75,7 @@ struct HomeMenu: View {
                 }
             }
             .padding(.bottom, 50)
-            
+
             Spacer()
         }
         .padding(.horizontal, 50)

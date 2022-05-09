@@ -33,17 +33,16 @@ struct MapSearchField: View {
                         withAnimation {
                             self.text = ""
                         }
-                    }) {
+                    }, label: {
                         Image(systemName: "multiply.circle.fill")
                             .foregroundColor(.gray)
-                    }
+                    })
                 }
             }
             .padding(8)
             .background(Color(.systemGray5))
             .cornerRadius(10)
 
-            
             if isActive {
                 Button(action: {
                     withAnimation {
@@ -51,10 +50,10 @@ struct MapSearchField: View {
                         self.text = ""
                     }
                     hideKeyboard()
-                }) {
+                }, label: {
                     Text("Cancel")
                         .foregroundColor(.blue)
-                }
+                })
                 .padding(.trailing, 10)
                 .transition(.move(edge: .trailing))
             }

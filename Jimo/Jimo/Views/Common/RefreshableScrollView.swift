@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-
 private struct OffsetPreferenceKey: PreferenceKey {
     static var defaultValue: CGFloat = .zero
+
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {}
 }
 
@@ -18,24 +18,24 @@ struct RefreshableScrollView<Content: View>: View {
     @State private var offset: CGFloat = 0
     @State private var refreshing = false
     @State private var frozen = false
-    
+
     let threshold: CGFloat = 80
     var content: Content
     var onRefresh: OnRefresh?
-    
+
     init(@ViewBuilder content: () -> Content, onRefresh: OnRefresh? = nil) {
         self.content = content()
         self.onRefresh = onRefresh
     }
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             ZStack(alignment: .top) {
                 offsetReader
-                
+
                 content
                     .padding(.bottom, 98)
-                    .alignmentGuide(.top, computeValue: { dimension in
+                    .alignmentGuide(.top, computeValue: { _ in
                         refreshing && frozen ? -threshold : 0
                     })
                 topView
@@ -44,7 +44,7 @@ struct RefreshableScrollView<Content: View>: View {
         .coordinateSpace(name: "frameLayer")
         .onPreferenceChange(OffsetPreferenceKey.self, perform: onOffsetChange)
     }
-    
+
     var arrowRotationDegrees: CGFloat {
         if offset < 40 {
             return 0
@@ -54,7 +54,7 @@ struct RefreshableScrollView<Content: View>: View {
             return 180 * (offset - 40) / (threshold - 40)
         }
     }
-    
+
     var topView: some View {
         Group {
             if refreshing {
@@ -70,7 +70,7 @@ struct RefreshableScrollView<Content: View>: View {
         .frame(height: threshold)
         .offset(y: refreshing && frozen ? 0 : -threshold)
     }
-    
+
     var offsetReader: some View {
         GeometryReader { proxy in
             Color.clear
@@ -81,13 +81,13 @@ struct RefreshableScrollView<Content: View>: View {
         }
         .frame(height: 0)
     }
-    
+
     func onFinish() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         self.refreshing = false
         self.frozen = false
     }
-    
+
     private func onOffsetChange(offset: CGFloat) {
         self.offset = offset
         if !refreshing && previousOffset <= threshold && offset > threshold {
@@ -126,3 +126,4 @@ struct RefreshableScrollView_Previews: PreviewProvider {
         }
     }
 }
+

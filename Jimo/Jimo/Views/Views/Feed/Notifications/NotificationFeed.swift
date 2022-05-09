@@ -15,7 +15,7 @@ class NotificationFeedVM: ObservableObject {
 
     private var cancellable: Cancellable?
     private var cursor: String?
-    
+
     func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
         cursor = nil
         loading = true
@@ -28,11 +28,11 @@ class NotificationFeedVM: ObservableObject {
                     viewState.setError("Could not load activity feed.")
                 }
             }, receiveValue: { [weak self] response in
-                self?.feedItems = response.notifications.filter{ item in item.type != .unknown }
+                self?.feedItems = response.notifications.filter { item in item.type != .unknown }
                 self?.cursor = response.cursor
             })
     }
-    
+
     func loadMoreNotifications(appState: AppState, viewState: GlobalViewState) {
         guard cursor != nil else {
             return
@@ -50,7 +50,7 @@ class NotificationFeedVM: ObservableObject {
                     viewState.setError("Could not load more items.")
                 }
             }, receiveValue: { [weak self] response in
-                self?.feedItems.append(contentsOf: response.notifications.filter{ item in item.type != .unknown })
+                self?.feedItems.append(contentsOf: response.notifications.filter { item in item.type != .unknown })
                 self?.cursor = response.cursor
             })
     }
@@ -59,16 +59,16 @@ class NotificationFeedVM: ObservableObject {
 struct NotificationFeedItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @State private var relativeTime: String = ""
-    
+
     let item: NotificationItem
-    let defaultProfileImage: Image = Image(systemName: "person.crop.circle")
-    
+    let defaultProfileImage = Image(systemName: "person.crop.circle")
+
     var user: PublicUser {
         item.user
     }
-    
+
     @ViewBuilder var profilePicture: some View {
         URLImage(url: user.profilePictureUrl, loading: defaultProfileImage)
             .frame(width: 40, height: 40, alignment: .center)
@@ -78,7 +78,7 @@ struct NotificationFeedItem: View {
             .cornerRadius(50)
             .padding(.trailing, 5)
     }
-    
+
     @ViewBuilder var postPreview: some View {
         if let url = item.post?.imageUrl {
             URLImage(url: url)
@@ -88,7 +88,7 @@ struct NotificationFeedItem: View {
                 .padding(.trailing)
         }
     }
-    
+
     @ViewBuilder var destinationView: some View {
         if item.type == ItemType.like {
             if let post = item.post {
@@ -109,7 +109,7 @@ struct NotificationFeedItem: View {
                 NavigationLink(destination: ProfileScreen(initialUser: user)) {
                     profilePicture
                 }
-                
+
                 VStack(alignment: .leading) {
                     if item.type == ItemType.follow {
                         Text(item.user.username + " started following you.")
@@ -125,15 +125,15 @@ struct NotificationFeedItem: View {
                         .font(.caption)
                         .foregroundColor(.gray)
                         .onAppear {
-                            if relativeTime == "" {
+                            if relativeTime.isEmpty {
                                 relativeTime = appState.relativeTime(for: item.createdAt)
                             }
                         }
                 }
                 .font(.system(size: 14))
-                
+
                 Spacer()
-                
+
                 postPreview
             }
         }
@@ -141,15 +141,14 @@ struct NotificationFeedItem: View {
     }
 }
 
-
 struct NotificationFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @ObservedObject var notificationFeedVM: NotificationFeedVM
-    
+
     @State private var initialized = false
-    
+
     var body: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 0, data: notificationFeedVM.feedItems) { item, _ in
@@ -166,7 +165,7 @@ struct NotificationFeed: View {
             .sectionFooter {
                 VStack {
                     Divider()
-                    
+
                     ProgressView()
                         .opacity(notificationFeedVM.loading ? 1 : 0)
                     Text("You've reached the end!")

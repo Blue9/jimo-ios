@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct NavTitle: View {
-    
     let title: String
-    
+
     init(_ title: String) {
         self.title = title
     }
-    
+
     var body: some View {
         Text(title)
             .fontWeight(.semibold)

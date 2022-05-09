@@ -15,7 +15,7 @@ enum PermissionStatus {
 
 class PermissionManager: NSObject {
     static let shared = PermissionManager()
-    
+
     let locationManager = CLLocationManager()
     let contactStore = CNContactStore()
 }

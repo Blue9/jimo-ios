@@ -12,10 +12,8 @@ enum ItemType: String, Codable {
     case like
     case comment
     case unknown
-}
 
-extension ItemType {
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         self = try ItemType(rawValue: decoder.singleValueContainer().decode(RawValue.self)) ?? .unknown
     }
 }

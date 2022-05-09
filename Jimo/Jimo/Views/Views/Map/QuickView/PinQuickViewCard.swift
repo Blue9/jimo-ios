@@ -12,31 +12,31 @@ fileprivate let quickViewWidth: CGFloat = 320
 
 struct PinQuickViewCard: View {
     @EnvironmentObject var appState: AppState
-    
+
     @StateObject private var page: Page = Page.withIndex(1)
     @StateObject private var postIndex: Page = Page.withIndex(1)
-    
+
     @ObservedObject var mapViewModel: MapViewModelV2
     @ObservedObject var quickViewModel: QuickViewModel
-    
+
     var pin: MapPinV3
-    
+
     var isLoading: Bool {
         quickViewModel.isLoading(placeId: pin.placeId, mapViewModel: mapViewModel)
     }
-    
+
     var place: Place? {
         quickViewModel.getPlace(for: pin.placeId, mapViewModel: mapViewModel)
     }
-    
+
     var posts: [Post] {
         quickViewModel.getPosts(for: pin.placeId, mapViewModel: mapViewModel)
     }
-    
+
     var pageIds: [String] {
         ["placeInfo"] + posts.map { $0.id }
     }
-    
+
     private func selectIndex(_ index: Int) {
         if page.index != index {
             withAnimation(.easeInOut(duration: 0.1)) {
@@ -49,7 +49,7 @@ struct PinQuickViewCard: View {
             }
         }
     }
-    
+
     @ViewBuilder var pageIndicator: some View {
         Pager(page: postIndex, data: pageIds.indices, id: \.self) { i in
             Circle()
@@ -68,7 +68,7 @@ struct PinQuickViewCard: View {
         .onPageChanged { index in selectIndex(index) }
         .swipeInteractionArea(.page)
     }
-    
+
     @ViewBuilder var postPages: some View {
         Pager(page: page, data: pageIds.indices, id: \.self) { index in
             Group {
@@ -97,7 +97,7 @@ struct PinQuickViewCard: View {
         .onPageChanged { index in selectIndex(index) }
         .frame(width: quickViewWidth - 15, height: 150)
     }
-    
+
     var body: some View {
         HStack(spacing: 0) {
             if place != nil {
@@ -128,7 +128,7 @@ struct PinQuickViewCard: View {
 
 fileprivate struct PinQuickViewPlaceholder: View {
     let color = Color("foreground").opacity(0.3)
-    
+
     var body: some View {
         HStack(alignment: .top) {
             Rectangle()
@@ -136,29 +136,29 @@ fileprivate struct PinQuickViewPlaceholder: View {
                 .foregroundColor(color)
                 .frame(width: 120, height: 120)
                 .cornerRadius(2)
-            
+
             VStack(alignment: .leading, spacing: 5) {
                 Rectangle()
                     .fill()
                     .foregroundColor(color)
                     .frame(width: 80, height: 12)
-                
+
                 Rectangle()
                     .fill()
                     .foregroundColor(color)
                     .frame(width: 150, height: 12)
-                
+
                 Rectangle()
                     .fill()
                     .foregroundColor(color)
                     .frame(width: 150, height: 12)
-                
+
                 Rectangle()
                     .fill()
                     .foregroundColor(color)
                     .frame(width: 150, height: 12)
             }
-            
+
             Spacer()
         }
         .padding(.leading, 15)

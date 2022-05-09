@@ -11,7 +11,7 @@ enum PostDestination: Identifiable {
     case profile(PublicUser)
     case post(PostId)
     case map(PostId)
-    
+
     var id: String {
         switch self {
         case .profile(let user):

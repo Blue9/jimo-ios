@@ -10,11 +10,11 @@ import SwiftUI
 struct SearchBar: View {
     @Binding var text: String
     @Binding var isActive: Bool
-    
-    var placeholder: String = "Search"
-    var disableAutocorrection: Bool = false
-    var onCommit: () -> ()
-    
+
+    var placeholder = "Search"
+    var disableAutocorrection = false
+    var onCommit: () -> Void
+
     var body: some View {
         HStack {
             TextField(placeholder, text: $text, onCommit: onCommit)
@@ -30,17 +30,17 @@ struct SearchBar: View {
                             .foregroundColor(.gray)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 8)
-                        
+
                         if isActive {
                             Button(action: {
                                 withAnimation {
                                     self.text = ""
                                 }
-                            }) {
+                            }, label: {
                                 Image(systemName: "multiply.circle.fill")
                                     .foregroundColor(.gray)
                                     .padding(.trailing, 8)
-                            }
+                            })
                         }
                     }
                 )
@@ -49,7 +49,7 @@ struct SearchBar: View {
                         self.isActive = true
                     }
                 }
-            
+
             if isActive {
                 Button(action: {
                     withAnimation {
@@ -57,10 +57,10 @@ struct SearchBar: View {
                         self.text = ""
                     }
                     hideKeyboard()
-                }) {
+                }, label: {
                     Text("Cancel")
                         .foregroundColor(.blue)
-                }
+                })
                 .padding(.trailing, 10)
                 .transition(.move(edge: .trailing))
             }

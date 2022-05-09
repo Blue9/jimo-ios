@@ -10,15 +10,15 @@ import SwiftUI
 struct CommentItemLikeButton: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var singleCommentVM: SingleCommentVM
-    
+
     let comment: Comment
-    
+
     private var likeCount: Int {
         comment.likeCount
     }
-    
+
     var body: some View {
         VStack {
             if comment.liked {
@@ -50,7 +50,7 @@ struct CommentItemLikeButton: View {
                 }
                 .disabled(singleCommentVM.likingComment)
             }
-            
+
             Text(String(likeCount))
                 .font(.system(size: 12))
                 .foregroundColor(Color("foreground"))
@@ -62,15 +62,15 @@ struct CommentItemLikeButton: View {
 struct CommentItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var commentsViewModel: CommentsViewModel
     @StateObject var singleCommentVM = SingleCommentVM()
     @State private var confirmDelete = false
     @State private var relativeTime = ""
-    
+
     let comment: Comment
     let isMyPost: Bool
-    
+
     var canDeleteComment: Bool {
         // True if it is the current user's comment or on the current user's post
         guard case let .user(user) = appState.currentUser else {
@@ -78,15 +78,15 @@ struct CommentItem: View {
         }
         return comment.user.id == user.id || isMyPost
     }
-    
+
     var isHighlighted: Bool {
         comment.commentId == commentsViewModel.highlightedComment?.commentId
     }
-    
+
     var profileView: some View {
         ProfileScreen(initialUser: comment.user)
     }
-    
+
     var profilePicture: some View {
         URLImage(url: comment.user.profilePictureUrl,
                  loading: Image(systemName: "person.crop.circle").resizable())
@@ -98,17 +98,17 @@ struct CommentItem: View {
             .padding(.leading, 5)
             .padding(.top, 10)
     }
-    
+
     var body: some View {
         HStack(alignment: .center) {
             VStack {
                 NavigationLink(destination: profileView) {
                     profilePicture
                 }
-                
+
                 Spacer()
             }
-            
+
             VStack(alignment: .leading) {
                 NavigationLink(destination: profileView) {
                     Text(comment.user.username.lowercased())
@@ -116,30 +116,30 @@ struct CommentItem: View {
                         .bold()
                         .foregroundColor(Color("foreground"))
                 }
-                
+
                 Spacer().frame(height: 3)
-                
+
                 Text(comment.content)
                     .font(.system(size: 12))
                     .foregroundColor(Color("foreground"))
-                
+
                 Spacer().frame(height: 2)
-                
+
                 Text(relativeTime)
                     .font(.caption)
                     .foregroundColor(.gray)
                     .onAppear(perform: {
-                        if relativeTime == "" {
+                        if relativeTime.isEmpty {
                             relativeTime = appState.relativeTime(for: comment.createdAt)
                         }
                     })
-                
+
                 Spacer().frame(height: 2)
             }
             .padding(.vertical, 5)
-            
+
             Spacer()
-            
+
             VStack {
                 Spacer().frame(height: 18)
                 CommentItemLikeButton(singleCommentVM: singleCommentVM, comment: comment)
@@ -180,7 +180,7 @@ struct CommentItem_Previews: PreviewProvider {
         followerCount: 20,
         followingCount: 20
     )
-    
+
     static var otherUser = PublicUser(
         userId: "user2-id",
         username: "someOtherUser",
@@ -191,15 +191,15 @@ struct CommentItem_Previews: PreviewProvider {
         followerCount: 20,
         followingCount: 20
     )
-    
+
     static var appState: AppState = {
         let state = AppState(apiClient: APIClient())
         state.currentUser = .user(user)
         return state
     }()
-    
+
     static var commentsViewModel = CommentsViewModel()
-    
+
     static var previews: some View {
         VStack(spacing: 0) {
             CommentItem(commentsViewModel: commentsViewModel, comment: Comment(

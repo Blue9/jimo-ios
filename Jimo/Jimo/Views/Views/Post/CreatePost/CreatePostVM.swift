@@ -11,7 +11,7 @@ import MapKit
 
 enum CreatePostActiveSheet: String, Identifiable {
     case placeSearch, imagePicker
-    
+
     var id: String {
         self.rawValue
     }
@@ -20,28 +20,28 @@ enum CreatePostActiveSheet: String, Identifiable {
 enum CreatePostImage {
     case uiImage(UIImage)
     case webImage(ImageId, String)
-    
+
     var uiImage: UIImage? {
         switch self {
         case .uiImage(let image):
             return image
-        case .webImage(_, _):
+        case .webImage:
             return nil
         }
     }
-    
+
     var imageId: ImageId? {
         switch self {
-        case .uiImage(_):
+        case .uiImage:
             return nil
         case .webImage(let imageId, _):
             return imageId
         }
     }
-    
+
     var url: String? {
         switch self {
-        case .uiImage(_):
+        case .uiImage:
             return nil
         case .webImage(_, let url):
             return url
@@ -51,16 +51,16 @@ enum CreatePostImage {
 
 enum CreateOrEdit: Equatable {
     case create, edit(PostId)
-    
+
     var title: String {
         switch self {
         case .create:
             return "Save a place"
-        case .edit(_):
+        case .edit:
             return "Update a place"
         }
     }
-    
+
     func action(appState: AppState) -> ((CreatePostRequest) -> AnyPublisher<Void, APIError>) {
         switch self {
         case .create:
@@ -77,7 +77,7 @@ enum Status {
 
 class CreatePostVM: ObservableObject {
     var createOrEdit: CreateOrEdit
-    
+
     @Published var activeSheet: CreatePostActiveSheet?
     /// Post data
     @Published var name: String?
@@ -85,20 +85,20 @@ class CreatePostVM: ObservableObject {
     @Published var placeRegion: Region?
     @Published var previewRegion: MKCoordinateRegion?
     @Published var additionalPlaceData: AdditionalPlaceDataRequest?
-    
+
     @Published var category: String? = nil
     @Published var content: String = ""
     @Published var image: CreatePostImage?
-    
+
     /// Only used when editing
     @Published var placeId: String?
-    
+
     /// View information
     @Published var showError = false
     @Published var errorMessage = ""
-    
+
     @Published var postingStatus = Status.drafting
-    
+
     var uiImageBinding: Binding<UIImage?> {
         Binding<UIImage?>(
             get: { self.image?.uiImage },
@@ -111,14 +111,14 @@ class CreatePostVM: ObservableObject {
             }
         )
     }
-    
+
     var cancelBag: Set<AnyCancellable> = Set()
-    
+
     /// Create post
     init() {
         self.createOrEdit = .create
     }
-    
+
     /// Edit post
     func initAsEditor(_ post: Post) {
         self.createOrEdit = .edit(post.id)
@@ -136,7 +136,7 @@ class CreatePostVM: ObservableObject {
         }
         self.placeId = post.place.placeId
     }
-    
+
     var maybeCreatePlaceRequest: MaybeCreatePlaceRequest? {
         guard let name = name, let location = placeCoordinate else {
             return nil
@@ -148,7 +148,7 @@ class CreatePostVM: ObservableObject {
             additionalData: additionalPlaceData
         )
     }
-    
+
     func selectPlace(place: MKMapItem) {
         name = place.name
         placeId = nil
@@ -157,7 +157,7 @@ class CreatePostVM: ObservableObject {
         previewRegion = CreatePostVM.toPreviewRegion(place)
         additionalPlaceData = AdditionalPlaceDataRequest(place)
     }
-    
+
     func resetPlace() {
         name = nil
         placeId = nil
@@ -166,7 +166,7 @@ class CreatePostVM: ObservableObject {
         previewRegion = nil
         additionalPlaceData = nil
     }
-    
+
     func createPost(appState: AppState) {
         guard let category = category else {
             errorMessage = "Category is required"
@@ -205,7 +205,7 @@ class CreatePostVM: ObservableObject {
             self.postingStatus = .success
         }.store(in: &cancelBag)
     }
-    
+
     private func buildRequest(
         appState: AppState,
         placeId: PlaceId?,
@@ -237,7 +237,7 @@ class CreatePostVM: ObservableObject {
             )
         }
     }
-    
+
     private func tryUploadImage<R>(
         appState: AppState,
         image: UIImage,
@@ -260,18 +260,18 @@ class CreatePostVM: ObservableObject {
                 then(imageId)
             }).eraseToAnyPublisher()
     }
-    
+
     private static func toRegion(_ mapItem: MKMapItem) -> Region? {
         if let area = mapItem.placemark.region as? CLCircularRegion {
             return Region(coord: area.center, radius: area.radius.magnitude)
         }
         return nil
     }
-    
+
     private static func toPreviewRegion(_ mapItem: MKMapItem) -> MKCoordinateRegion {
         var span: CLLocationDegrees = 4  // Default span = 4
         if let region = mapItem.placemark.region as? CLCircularRegion {
-            span = min(region.radius * 10, 200000) / 111111
+            span = min(region.radius * 10, 200_000) / 111_111
         }
         return MKCoordinateRegion(
             center: mapItem.placemark.coordinate,

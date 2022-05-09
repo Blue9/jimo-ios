@@ -10,25 +10,27 @@ import SwiftUI
 // onAppear and onDisappear are buggy, this is a more stable way of handling onAppear and onDisappear events.
 struct UIKitDisappear: UIViewControllerRepresentable {
     let action: () -> Void
-    
+
     func makeUIViewController(context: Context) -> UIDisappearViewController {
        let vc = UIDisappearViewController()
         vc.action = action
         return vc
     }
-    
+
     func updateUIViewController(_ controller: UIDisappearViewController, context: Context) {
     }
 }
 
 class UIDisappearViewController: UIViewController {
     var action: (() -> Void)?
-    
+
     override func viewDidLoad() {
+        super.viewDidLoad()
         view.addSubview(UILabel())
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         action?()
     }
 }
@@ -38,3 +40,4 @@ extension View {
         self.background(UIKitDisappear(action: perform))
     }
 }
+

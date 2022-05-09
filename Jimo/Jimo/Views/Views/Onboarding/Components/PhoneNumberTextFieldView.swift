@@ -12,7 +12,7 @@ import PhoneNumberKit
 struct PhoneNumberTextFieldView: UIViewRepresentable {
     @Binding var phoneNumber: String
     private let textField = PhoneNumberTextField()
-    
+
     func makeUIView(context: Context) -> PhoneNumberTextField {
         textField.withExamplePlaceholder = true
         textField.withFlag = true
@@ -22,21 +22,21 @@ struct PhoneNumberTextFieldView: UIViewRepresentable {
         textField.addTarget(context.coordinator, action: #selector(Coordinator.onTextUpdate), for: .editingChanged)
         return textField
     }
-    
+
     func updateUIView(_ view: PhoneNumberTextField, context: Context) {
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     class Coordinator: NSObject, UITextFieldDelegate {
         var parent: PhoneNumberTextFieldView
-        
+
         init(_ parent: PhoneNumberTextFieldView) {
             self.parent = parent
         }
-        
+
         @objc func onTextUpdate(textField: UITextField) {
             self.parent.phoneNumber = textField.text!
         }

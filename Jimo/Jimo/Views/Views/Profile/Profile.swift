@@ -12,22 +12,22 @@ struct Profile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var profileVM = ProfileVM()
-    
+
     let initialUser: User
-    
+
     var username: String {
         initialUser.username
     }
-    
+
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
-    
+
     var profileGrid: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 0) {
                 ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
             }
-            
+
             ASCollectionViewSection(id: 1, data: profileVM.posts, dataID: \.self) { post, _ in
                 GeometryReader { geometry in
                     NavigationLink(destination: ViewPost(initialPost: post)) {
@@ -46,7 +46,7 @@ struct Profile: View {
                 .background(Color(post.category))
                 .cornerRadius(2)
             }
-            
+
             ASCollectionViewSection(id: 2) {
                 Group {
                     if profileVM.loadStatus == .success {
@@ -94,7 +94,7 @@ struct Profile: View {
         .font(.system(size: 15))
         .ignoresSafeArea(.keyboard, edges: .all)
     }
-    
+
     var body: some View {
         profileGrid
             .appear {
@@ -152,9 +152,9 @@ struct DeepLinkProfileLoadingScreen: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
-    
+
     var username: String
-    
+
     var body: some View {
         Group {
             if let user = viewModel.initialUser {
@@ -184,7 +184,7 @@ struct DeepLinkProfileLoadingScreen: View {
 
 struct ProfileScreen: View {
     var initialUser: User
-    
+
     var body: some View {
         Profile(initialUser: initialUser)
             .background(Color("background"))
@@ -202,21 +202,21 @@ struct ProfileScreen: View {
 struct ProfileHeaderView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var profileVM: ProfileVM
-    
+
     let initialUser: User
-    
+
     var user: User {
         profileVM.user ?? initialUser
     }
-    
-    let defaultImage: Image = Image(systemName: "person.crop.circle")
-    
+
+    let defaultImage = Image(systemName: "person.crop.circle")
+
     var name: String {
         user.firstName + " " + user.lastName
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
@@ -245,11 +245,11 @@ struct ProfileHeaderView: View {
                 .foregroundColor(Color("foreground"))
                 .frame(width: 120, alignment: .topLeading)
                 .frame(minHeight: 40)
-                
+
                 Spacer()
-                
+
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
-                
+
                 // Cannot share blocked user profile
                 if profileVM.relationToUser != .blocked, let url = user.profileUrl {
                     ShareButtonView(url: url)
@@ -264,18 +264,18 @@ struct ProfileHeaderView: View {
 struct ProfileStatsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @ObservedObject var profileVM: ProfileVM
-    
+
     let initialUser: User
-    
+
     @State private var showFollowers = false
     @State private var showFollowing = false
-    
+
     var user: User {
         profileVM.user ?? initialUser
     }
-    
+
     var body: some View {
         HStack {
             VStack {
@@ -285,7 +285,7 @@ struct ProfileStatsView: View {
             .padding(.leading, 15)
             .padding(.trailing, 10)
             Spacer()
-            
+
             Button(action: { showFollowers.toggle() }) {
                 VStack {
                     Text(String(user.followerCount)).bold()
@@ -294,7 +294,7 @@ struct ProfileStatsView: View {
             }
             .padding(.trailing, 10)
             Spacer()
-            
+
             Button(action: { showFollowing.toggle()} ) {
                 VStack {
                     Text(String(user.followingCount)).bold()
@@ -322,20 +322,20 @@ struct FollowButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
-    
+
     let initialUser: User
-    
+
     var user: User {
         profileVM.user ?? initialUser
     }
-    
+
     var isCurrentUser: Bool {
         guard case let .user(currentUser) = appState.currentUser else {
             return false
         }
         return user.username == currentUser.username
     }
-    
+
     var body: some View {
         VStack {
             if isCurrentUser {
@@ -374,9 +374,9 @@ struct FollowButtonView: View {
     }
 }
 
-fileprivate enum TextType {
+private enum TextType {
     case follow, unfollow, unblock, loading
-    
+
     var text: String {
         switch self {
         case .follow: return "Follow"
@@ -385,7 +385,7 @@ fileprivate enum TextType {
         case .loading: return "Loading..."
         }
     }
-    
+
     var backgroundColor: Color {
         switch self {
         case .loading, .unfollow: return .white
@@ -393,20 +393,20 @@ fileprivate enum TextType {
         case .follow: return .blue
         }
     }
-    
+
     var foregroundColor: Color {
         return buttonHasBorder ? .gray : .white
     }
-    
+
     var buttonHasBorder: Bool {
         return backgroundColor == .white
     }
 }
 
-fileprivate struct ProfileButton: View {
+private struct ProfileButton: View {
     var textType: TextType
     var action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             Text(textType.text)

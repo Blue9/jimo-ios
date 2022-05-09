@@ -12,14 +12,14 @@ import ASCollectionView
 struct Search: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
-    
+
     @State private var initialLoadCompleted = false
-    
+
     let defaultImage: Image = Image(systemName: "person.crop.circle")
-    
+
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultImage)
             .frame(width: 40, height: 40, alignment: .center)
@@ -29,11 +29,11 @@ struct Search: View {
             .cornerRadius(50)
             .padding(.trailing)
     }
-    
+
     func profileView(user: User) -> some View {
         ProfileScreen(initialUser: user)
     }
-    
+
     @ViewBuilder
     func discoverCell(post: Post) -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -46,19 +46,19 @@ struct Search: View {
             .background(Color(post.category))
             .cornerRadius(2)
             .padding(.bottom, 5)
-            
+
             Text(post.place.name)
                 .font(.system(size: 12))
                 .bold()
                 .lineLimit(1)
-            
+
             Text(post.place.regionName ?? "")
                 .font(.system(size: 12))
                 .lineLimit(1)
         }
         .padding(.bottom, 10)
     }
-    
+
     @ViewBuilder var discoverFeed: some View {
         if !discoverViewModel.initialized {
             ProgressView().padding(.top, 20)
@@ -66,7 +66,7 @@ struct Search: View {
             discoverFeedLoaded
         }
     }
-    
+
     var discoverFeedLoaded: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 0, data: discoverViewModel.posts) { post, _ in
@@ -92,13 +92,13 @@ struct Search: View {
         }
         .ignoresSafeArea(.keyboard, edges: .all)
     }
-    
+
     var userResults: some View {
         List(searchViewModel.userResults, id: \.username) { (user: PublicUser) in
             NavigationLink(destination: profileView(user: user)) {
                 HStack {
                     profilePicture(user: user)
-                    
+
                     VStack(alignment: .leading) {
                         Text(user.username)
                             .font(.system(size: 15))
@@ -114,7 +114,7 @@ struct Search: View {
         .gesture(DragGesture().onChanged { _ in hideKeyboard() })
         .listStyle(PlainListStyle())
     }
-    
+
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
@@ -127,13 +127,13 @@ struct Search: View {
                 )
                 .padding(.horizontal)
                 .padding(.bottom, 0)
-                
+
                 if !searchViewModel.searchBarFocused {
                     discoverFeed
                 } else {
                     userResults
                 }
-                
+
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

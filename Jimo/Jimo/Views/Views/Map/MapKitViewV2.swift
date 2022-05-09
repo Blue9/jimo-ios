@@ -12,11 +12,11 @@ struct MapKitViewV2: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     @Binding var selectedPin: MapPinV3?
     @State var selectedAnnotation: PlaceAnnotationV2? = nil
-    
+
     var annotations: [PlaceAnnotationV2]
-    
+
     var onLongPress: ((CLLocationCoordinate2D) -> ())?
-    
+
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
         mapView.addAnnotations(annotations)
@@ -37,7 +37,7 @@ struct MapKitViewV2: UIViewRepresentable {
         mapView.addGestureRecognizer(tapRecognizer)
         return mapView
     }
-    
+
     func updateUIView(_ view: MKMapView, context: Context) {
         let viewAnnotations = Set(view.annotations.compactMap { $0 as? PlaceAnnotationV2 })
         let currentAnnotations = Set(annotations)
@@ -59,23 +59,23 @@ struct MapKitViewV2: UIViewRepresentable {
             view.addAnnotations(Array(toAdd))
         }
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     class Coordinator: NSObject, MKMapViewDelegate {
         private let annotationScaleHelper = AnnotationScaleHelper()
         var parent: MapKitViewV2
-        
+
         init(_ parent: MapKitViewV2) {
             self.parent = parent
         }
-        
+
         @objc func tapGesture(sender: UITapGestureRecognizer) {
             hideKeyboard()
         }
-        
+
         @objc func longPressGesture(sender: UITapGestureRecognizer) {
             guard let mapView = sender.view as? MKMapView, sender.state == .began else {
                 return
@@ -85,18 +85,18 @@ struct MapKitViewV2: UIViewRepresentable {
             // TODO: Add in future feature
             // parent.onLongPress?(coordinate)
         }
-        
+
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
             self.parent.region = mapView.region
             annotationScaleHelper.updateScales(for: mapView, selectedPinId: parent.selectedPin?.id)
         }
-        
+
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             guard let annotation = annotation as? PlaceAnnotationV2 else {
                 return nil
             }
             var view = mapView.dequeueReusableAnnotationView(withIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
-            
+
             if view == nil {
                 view = LocationAnnotationViewV2(
                     annotation: annotation,
@@ -107,7 +107,7 @@ struct MapKitViewV2: UIViewRepresentable {
             view?.transform = self.annotationScaleHelper.transform
             return view
         }
-        
+
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             if let annotation = view.annotation as? PlaceAnnotationV2 {
                 DispatchQueue.main.async {
@@ -117,7 +117,7 @@ struct MapKitViewV2: UIViewRepresentable {
                 self.highlight(view, annotation: annotation)
             }
         }
-        
+
         func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
             self.removeHighlight(for: view)
             DispatchQueue.main.async {
@@ -125,7 +125,7 @@ struct MapKitViewV2: UIViewRepresentable {
                 self.parent.selectedAnnotation = nil
             }
         }
-        
+
         private func highlight(_ view: MKAnnotationView, annotation: PlaceAnnotationV2) {
             UIView.animate(withDuration: 0.2) {
                 view.transform = CGAffineTransform(scaleX: 1.25, y: 1.25)
@@ -138,7 +138,7 @@ struct MapKitViewV2: UIViewRepresentable {
                 view.layer.shadowPath = UIBezierPath(rect: view.bounds).cgPath
             }
         }
-        
+
         private func removeHighlight(for view: MKAnnotationView) {
             UIView.animate(withDuration: 0.2) {
                 view.transform = self.annotationScaleHelper.transform
@@ -152,11 +152,11 @@ struct MapKitViewV2: UIViewRepresentable {
 
 fileprivate class AnnotationScaleHelper {
     var scale: AnnotationScale = .regular
-    
+
     var transform: CGAffineTransform {
         CGAffineTransform(scaleX: scale.rawValue, y: scale.rawValue)
     }
-    
+
     func updateScales(for mapView: MKMapView, selectedPinId: PlaceId?) {
         let newScale = getScale(for: mapView.region)
         guard self.scale != newScale else {
@@ -174,15 +174,16 @@ fileprivate class AnnotationScaleHelper {
             }
         }
     }
-    
+
     private func getScale(for region: MKCoordinateRegion) -> AnnotationScale {
         if region.span.longitudeDelta > 5 {
             return .small
         }
         return .regular
     }
-    
+
     enum AnnotationScale: CGFloat {
         case small = 0.75, regular = 1
     }
 }
+

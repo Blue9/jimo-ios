@@ -5,34 +5,34 @@
 //  Created by Gautam Mekkat on 11/8/20.
 //
 
-import SwiftUI
 import SDWebImageSwiftUI
+import SwiftUI
 
 struct URLImage: View {
     var url: String?
     var loading: Image?
     var thumbnail: Bool
-    
+
     @Binding var imageSize: CGSize?
-    
+
     var realUrl: URL? {
         if let url = url {
             return URL(string: url)
         }
         return nil
     }
-    
+
     var maxDim: CGFloat {
         thumbnail ? 500 : 3000
     }
-    
+
     var body: some View {
         WebImage(
             url: realUrl,
             context: [.imageThumbnailPixelSize: CGSize(width: maxDim, height: maxDim)]
         )
         .resizable()
-        .onSuccess { image, data, cacheType in
+        .onSuccess { image, _, _ in
             DispatchQueue.main.async {
                 self.imageSize = image.size
             }

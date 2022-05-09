@@ -25,10 +25,12 @@ class UIAppearViewController: UIViewController {
     var action: (() -> Void)?
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         view.addSubview(UILabel())
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         action?()
     }
 }

@@ -12,7 +12,7 @@ struct ShareButtonView: View {
     @EnvironmentObject var viewState: GlobalViewState
     @State private var showShareSheet = false
     var url: URL
-    
+
     var body: some View {
         Button {
             showShareSheet = true

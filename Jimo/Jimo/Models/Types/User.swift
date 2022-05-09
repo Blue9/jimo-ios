@@ -40,7 +40,6 @@ struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
     var followingCount: Int
 }
 
-
 struct UserPreferences: Codable {
     var followNotifications: Bool
     var postLikedNotifications: Bool
@@ -49,19 +48,16 @@ struct UserPreferences: Codable {
     var searchableByPhoneNumber: Bool
 }
 
-
 struct CreateUserRequest: Codable {
     var username: String
     var firstName: String
     var lastName: String
 }
 
-
 struct CreateUserResponse: Codable {
     var created: PublicUser?
     var error: UserFieldError?
 }
-
 
 struct UpdateProfileRequest: Codable {
     var profilePictureId: ImageId?
@@ -70,12 +66,10 @@ struct UpdateProfileRequest: Codable {
     var lastName: String
 }
 
-
 struct UpdateProfileResponse: Codable {
     var user: PublicUser?
     var error: UserFieldError?
 }
-
 
 struct UserFieldError: Codable {
     var uid: String?
@@ -85,12 +79,10 @@ struct UserFieldError: Codable {
     var other: String?
 }
 
-
 struct FollowUserResponse: Codable {
     var followed: Bool
     var followers: Int?
 }
-
 
 struct FollowFeedItem: Identifiable, Codable, Hashable {
     var id: String {
@@ -100,12 +92,10 @@ struct FollowFeedItem: Identifiable, Codable, Hashable {
     var relation: UserRelation?
 }
 
-
 struct FollowFeedResponse: Codable {
     var users: [FollowFeedItem]
     var cursor: String?
 }
-
 
 enum UserRelation: String, Codable {
     case following, blocked
@@ -115,23 +105,19 @@ struct RelationToUser: Codable {
     var relation: UserRelation?
 }
 
-
 struct InviteUserRequest: Codable {
     var phoneNumber: String
 }
-
 
 struct UserInviteStatus: Codable {
     var invited: Bool
     var message: String?
 }
 
-
 struct UserWaitlistStatus: Codable {
     var invited: Bool
     var waitlisted: Bool
 }
-
 
 struct PhoneNumbersRequest: Codable {
     var phoneNumbers: [String]

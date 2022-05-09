@@ -11,16 +11,16 @@ import MapKit
 extension PermissionManager {
     func requestLocation() {
         if self.locationManager.authorizationStatus == .denied {
-            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (success) in })
+            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
         }
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.startUpdatingLocation()
     }
-    
+
     func getLocation() -> CLLocation? {
         return self.locationManager.location
     }
-    
+
     func hasRequestedLocation() -> Bool {
         return self.locationManager.authorizationStatus != .notDetermined
     }

@@ -12,12 +12,11 @@ extension PermissionManager {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             if settings.authorizationStatus == .denied {
                 DispatchQueue.main.async {
-                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (success) in })
+                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
                 }
             }
         }
         UNUserNotificationCenter.current().requestAuthorization(
-            options: [.alert, .badge, .sound],
-            completionHandler: {_, _ in })
+            options: [.alert, .badge, .sound], completionHandler: { _, _ in })
     }
 }

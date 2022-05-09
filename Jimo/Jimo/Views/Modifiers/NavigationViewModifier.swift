@@ -8,11 +8,10 @@
 import Foundation
 import SwiftUI
 
-
 // From https://filipmolcik.com/navigationview-dynamic-background-color-in-swiftui/
 struct NavigationBarModifier: ViewModifier {
     var backgroundColor: UIColor?
-    
+
     init(backgroundColor: UIColor?) {
         self.backgroundColor = backgroundColor
         let coloredAppearance = UINavigationBarAppearance()
@@ -23,9 +22,9 @@ struct NavigationBarModifier: ViewModifier {
         UINavigationBar.appearance().scrollEdgeAppearance = coloredAppearance
         // UINavigationBar.appearance().tintColor = .white
     }
-    
+
     func body(content: Content) -> some View {
-        ZStack{
+        ZStack {
             content
             VStack {
                 GeometryReader { geometry in

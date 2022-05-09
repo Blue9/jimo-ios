@@ -10,22 +10,21 @@ import Combine
 import Contacts
 import PhoneNumberKit
 
-
 class ExistingContactStore: SuggestedUserStore {
     static let phoneNumberKit = PhoneNumberKit()
-    
+
     @Published var allUsers: [PublicUser] = []
     @Published var selectedUsernames: Set<String> = []
-    
+
     @Published var loadingExistingUsers = true
     @Published var loadingExistingUsersError: Error?
-    
+
     @Published var followingLoading = false
     @Published var followManyFailed = false
-    
+
     private var getUsersCancellable: Cancellable?
     private var followUsersCancellable: Cancellable?
-    
+
     func getExistingUsers(appState: AppState) {
         withAnimation {
             self.loadingExistingUsers = true
@@ -63,7 +62,7 @@ class ExistingContactStore: SuggestedUserStore {
                 })
         }
     }
-    
+
     private func fetchContacts() -> AnyPublisher<[String], Error> {
         Future<[String], Error> { promise in
             ExistingContactStore.fetchContactsCallback({ phoneNumbers, error in
@@ -75,9 +74,9 @@ class ExistingContactStore: SuggestedUserStore {
             })
         }.eraseToAnyPublisher()
     }
-    
+
     private static func fetchContactsCallback(_ handler: @escaping ([String]?, Error?) -> Void) {
-        PermissionManager.shared.requestContacts { (granted, error) in
+        PermissionManager.shared.requestContacts { granted, error in
             if let error = error {
                 handler(nil, error)
                 return
@@ -88,14 +87,14 @@ class ExistingContactStore: SuggestedUserStore {
                 request.sortOrder = .givenName
                 do {
                     var formattedArray: [String] = []
-                    try PermissionManager.shared.contactStore.enumerateContacts(with: request, usingBlock: { (contact, stopPointer) in
+                    try PermissionManager.shared.contactStore.enumerateContacts(with: request, usingBlock: { contact, _ in
                         if let number = contact.phoneNumbers.first?.value.stringValue,
                            let parsed = try? ExistingContactStore.phoneNumberKit.parse(number) {
                             formattedArray.append(ExistingContactStore.phoneNumberKit.format(parsed, toType: .e164))
                         }
                     })
                     handler(formattedArray, nil)
-                } catch let error {
+                } catch {
                     handler(nil, error)
                 }
             } else {
@@ -104,7 +103,7 @@ class ExistingContactStore: SuggestedUserStore {
             }
         }
     }
-    
+
     func follow(appState: AppState) {
         followingLoading = true
         followUsersCancellable = appState.followMany(usernames: Array(selectedUsernames))
@@ -122,7 +121,7 @@ class ExistingContactStore: SuggestedUserStore {
                 }
             }
     }
-    
+
     func toggleSelected(for username: String) {
         if selectedUsernames.contains(username) {
             selectedUsernames.remove(username)
@@ -130,11 +129,11 @@ class ExistingContactStore: SuggestedUserStore {
             selectedUsernames.insert(username)
         }
     }
-    
+
     func clearAll() {
         selectedUsernames.removeAll()
     }
-    
+
     func selectAll() {
         selectedUsernames = Set(allUsers.map { $0.username })
     }

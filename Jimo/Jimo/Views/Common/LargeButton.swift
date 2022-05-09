@@ -8,20 +8,19 @@
 import SwiftUI
 
 struct LargeButton<Content: View>: View {
-    
     let content: Content
     let fontSize: CGFloat
-    
+
     init(_ text: String, fontSize: CGFloat = 24) where Content == Text {
         self.content = Text(text)
         self.fontSize = fontSize
     }
-    
+
     init(@ViewBuilder _ content: @escaping () -> Content, fontSize: CGFloat = 24) {
         self.content = content()
         self.fontSize = fontSize
     }
-    
+
     var body: some View {
         content
             .foregroundColor(Color("foreground"))

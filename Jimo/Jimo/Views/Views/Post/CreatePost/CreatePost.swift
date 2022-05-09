@@ -5,29 +5,28 @@
 //  Created by Gautam Mekkat on 11/6/20.
 //
 
-import SwiftUI
-import MapKit
 import Combine
-
+import MapKit
+import SwiftUI
 
 struct CreatePostCategory: View {
     var name: String
     var key: String
     @Binding var selected: String?
-    
+
     var colored: Bool {
         selected == nil || selected == key
     }
-    
+
     var body: some View {
         HStack {
             Image(key)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 35, maxHeight: 35)
-            
+
             Spacer()
-            
+
             Text(name)
                 .font(.system(size: 15))
                 .foregroundColor(.black)
@@ -44,9 +43,25 @@ struct CreatePostCategory: View {
     }
 }
 
+enum PostCategory: String, CaseIterable {
+    case food, nightlife, activity, attraction, lodging, shopping
+
+    var displayName: String {
+        switch self {
+        case .activity: return "Things to do"
+        case .attraction: return "Things to see"
+        default: return rawValue.capitalized
+        }
+    }
+
+    var color: Color { Color(rawValue) }
+}
+
 struct CategoryPicker: View {
     @Binding var category: String?
-    
+
+    private let categoryStack: [[PostCategory]] = [[.food, .activity], [.nightlife, .attraction], [.lodging, .shopping]]
+
     var body: some View {
         VStack {
             HStack {
@@ -55,21 +70,14 @@ struct CategoryPicker: View {
                     .bold()
                 Spacer()
             }
-            
+
             VStack {
-                HStack {
-                    CreatePostCategory(name: "Food", key: "food", selected: $category)
-                    CreatePostCategory(name: "Things to do", key: "activity", selected: $category)
-                }
-                
-                HStack {
-                    CreatePostCategory(name: "Nightlife", key: "nightlife", selected: $category)
-                    CreatePostCategory(name: "Things to see", key: "attraction", selected: $category)
-                }
-                
-                HStack {
-                    CreatePostCategory(name: "Lodging", key: "lodging", selected: $category)
-                    CreatePostCategory(name: "Shopping", key: "shopping", selected: $category)
+                ForEach(categoryStack, id: \.self) { row in
+                    HStack {
+                        ForEach(row, id: \.self) { category in
+                            CreatePostCategory(name: category.rawValue, key: category.displayName, selected: $category)
+                        }
+                    }
                 }
             }
         }
@@ -79,10 +87,10 @@ struct CategoryPicker: View {
 
 struct FormInputButton: View {
     var name: String
-    var content: String? = nil
+    var content: String?
     var destination: AnyView?
     var clearAction: () -> Void
-    
+
     @ViewBuilder var clearInputView: some View {
         Button(action: clearAction) {
             Image(systemName: "xmark.circle")
@@ -90,13 +98,13 @@ struct FormInputButton: View {
                 .padding(.trailing)
         }
     }
-    
+
     @ViewBuilder var rightArrow: some View {
         Image(systemName: "chevron.right")
             .foregroundColor(.gray)
             .padding(.trailing)
     }
-    
+
     var body: some View {
         HStack {
             Group {
@@ -107,7 +115,7 @@ struct FormInputButton: View {
                     Text(name).font(.system(size: 15)).bold()
                 }
             }.frame(maxWidth: .infinity, alignment: .leading)
-            
+
             if content == nil {
                 rightArrow
             } else {
@@ -124,7 +132,7 @@ struct FormInputText: View {
     var name: String
     var height: CGFloat = 100
     @Binding var text: String
-    
+
     var body: some View {
         if #available(iOS 15.0, *) {
             MultilineTextField(name, text: $text, height: height)
@@ -132,7 +140,7 @@ struct FormInputText: View {
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
                         Spacer()
-                        
+
                         Button("Done") {
                             hideKeyboard()
                         }
@@ -146,7 +154,6 @@ struct FormInputText: View {
     }
 }
 
-
 struct CreatePostDivider: View {
     var body: some View {
         Divider()
@@ -155,35 +162,34 @@ struct CreatePostDivider: View {
     }
 }
 
-
 struct MapPreview: View {
     @EnvironmentObject var appState: AppState
-    
+
     var category: String?
     var region: MKCoordinateRegion
-    
+
     let width = UIScreen.main.bounds.width - 20
     let height: CGFloat = 200
-    
-    @State private var snapshotImage: UIImage? = nil
-    
+
+    @State private var snapshotImage: UIImage?
+
     var currentUserProfilePicture: String? {
         if case let .user(user) = appState.currentUser {
             return user.profilePictureUrl
         }
         return nil
     }
-    
+
     func generateSnapshot(width: CGFloat, height: CGFloat) {
         // Map options.
         let mapOptions = MKMapSnapshotter.Options()
         mapOptions.region = region
         mapOptions.size = CGSize(width: width, height: height)
         mapOptions.showsBuildings = false
-        
+
         // Create the snapshotter and run it.
         let snapshotter = MKMapSnapshotter(options: mapOptions)
-        snapshotter.start { (snapshotOrNil, errorOrNil) in
+        snapshotter.start { snapshotOrNil, errorOrNil in
             if let error = errorOrNil {
                 print(error)
                 return
@@ -193,22 +199,22 @@ struct MapPreview: View {
             }
         }
     }
-    
+
     var body: some View {
         ZStack {
             Group {
                 if let image = snapshotImage {
                     Image(uiImage: image)
                 } else {
-                    Color.init(red: 250 / 255, green: 245 / 255, blue: 241 / 255)
+                    Color(red: 250 / 255, green: 245 / 255, blue: 241 / 255)
                 }
             }
-            
+
             Circle()
                 .fill()
                 .frame(width: 40, height: 40)
                 .foregroundColor(category != nil ? Color(category!) : .gray)
-            
+
             URLImage(
                 url: currentUserProfilePicture,
                 loading: Image(systemName: "person.crop.circle"),
@@ -228,7 +234,7 @@ struct MapPreview: View {
 struct CreatePost: View {
     @StateObject var createPostVM = CreatePostVM()
     @Binding var presented: Bool
-    
+
     var body: some View {
         CreatePostWithModel(createPostVM: createPostVM, presented: $presented)
     }
@@ -238,9 +244,9 @@ struct CreatePostWithModel: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @ObservedObject var createPostVM: CreatePostVM
-    
+
     @Binding var presented: Bool
-    
+
     var buttonColor: Color {
         if let category = createPostVM.category {
             return Color(category)
@@ -248,12 +254,12 @@ struct CreatePostWithModel: View {
             return Color(#colorLiteral(red: 0.9529411765, green: 0.9529411765, blue: 0.9529411765, alpha: 0.9921568627))
         }
     }
-    
+
     func createPost() {
         hideKeyboard()
         createPostVM.createPost(appState: appState)
     }
-    
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -264,37 +270,36 @@ struct CreatePostWithModel: View {
                             .fontWeight(.bold)
                             .padding(.horizontal, 10)
                             .padding(.bottom, 10)
-                        
+
                         Divider().padding(.leading, 10)
-                        
+
                         Group {
-                            Button(action: { createPostVM.activeSheet = .placeSearch }) {
+                            Button(action: { createPostVM.activeSheet = .placeSearch }, label: {
                                 FormInputButton(
                                     name: "Enter location",
                                     content: createPostVM.name,
                                     clearAction: createPostVM.resetPlace)
-                            }
+                            })
                         }
                         .frame(height: 40)
                         .padding(.horizontal, 10)
-                        
+
                         Divider().padding(.leading, 10)
-                        
+
                         HStack {
                             ImageSelectionView(createPostVM: createPostVM, buttonColor: buttonColor)
-                            
+
                             FormInputText(name: "Write a note (recommended)", text: $createPostVM.content)
                         }
                         .padding(10)
                         .ignoresSafeArea(.keyboard, edges: .bottom)
-                        
+
                         Divider().padding(.leading, 10)
-                        
+
                         CategoryPicker(category: $createPostVM.category)
                             .padding(.vertical, 10)
                             .ignoresSafeArea(.keyboard, edges: .bottom)
-                        
-                        
+
                         if let region = createPostVM.previewRegion {
                             Group {
                                 VStack(alignment: .leading, spacing: 0) {
@@ -302,7 +307,7 @@ struct CreatePostWithModel: View {
                                         .font(.system(size: 15))
                                         .bold()
                                         .padding(10)
-                                    
+
                                     MapPreview(category: createPostVM.category, region: region)
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 200)
@@ -312,7 +317,7 @@ struct CreatePostWithModel: View {
                             }
                             .id(createPostVM.previewRegion)
                         }
-                        
+
                         Spacer()
                     }
                     .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -333,7 +338,7 @@ struct CreatePostWithModel: View {
                         .scaledToFit()
                         .frame(width: 50)
                 }
-                
+
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         self.presented = false
@@ -341,7 +346,7 @@ struct CreatePostWithModel: View {
                         Image(systemName: "xmark").foregroundColor(Color("foreground"))
                     }
                 }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         self.createPost()
@@ -370,7 +375,7 @@ struct CreatePostWithModel: View {
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             }
-            .onChange(of: createPostVM.activeSheet) { activeSheet in
+            .onChange(of: createPostVM.activeSheet) { _ in
                 // Bug where if the keyboard is up and the sheet changes from image picker back to create post, tapping
                 // a category is offset
                 hideKeyboard()
@@ -390,9 +395,9 @@ struct CreatePostWithModel: View {
 
 struct ImageSelectionView: View {
     @ObservedObject var createPostVM: CreatePostVM
-    
+
     var buttonColor: Color
-    
+
     func imageView(image: CreatePostImage) -> some View {
         Group {
             switch image {
@@ -414,13 +419,13 @@ struct ImageSelectionView: View {
             }
         }
     }
-    
+
     var body: some View {
         Group {
             if let image = createPostVM.image {
                 ZStack(alignment: .topLeading) {
                     imageView(image: image)
-                    
+
                     Button {
                         createPostVM.image = nil
                     } label: {
@@ -440,7 +445,7 @@ struct ImageSelectionView: View {
                         .onTapGesture {
                             createPostVM.activeSheet = .imagePicker
                         }
-                    
+
                     Image(systemName: "photo.fill")
                         .resizable()
                         .scaledToFit()

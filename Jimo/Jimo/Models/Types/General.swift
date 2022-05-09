@@ -15,17 +15,14 @@ struct FirebaseUser {
     var phoneNumber: String?
 }
 
-
 struct NotificationTokenRequest: Codable {
     var token: String
 }
-
 
 struct FeedbackRequest: Codable {
     var contents: String
     var followUp: Bool
 }
-
 
 struct SimpleResponse: Codable {
     var success: Bool

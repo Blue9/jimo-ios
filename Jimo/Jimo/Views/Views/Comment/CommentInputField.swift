@@ -11,18 +11,18 @@ struct CommentInputField: View {
     @State private var isFocused = false
     @Binding var text: String
     var submitting: Bool
-    
+
     var buttonColor: Color = .black
-    
+
     var onSubmit: () -> Void
-    
+
     var inputBody: some View {
         TextField("Add a comment", text: $text) { isFocused in
             self.isFocused = isFocused
         }
         .disabled(submitting)
     }
-    
+
     var body: some View {
         HStack(spacing: 0) {
             HStack {
@@ -40,11 +40,11 @@ struct CommentInputField: View {
             .padding(.vertical, 6)
             .background(Color("foreground").opacity(0.2))
             .cornerRadius(10)
-            
+
             Group {
                 if text.count > 0 {
                     Spacer()
-                    
+
                     Button(action: {
                         withAnimation {
                             hideKeyboard()

@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 import SwiftUIPager
 
-fileprivate let quickViewWidth: CGFloat = 320
+private let quickViewWidth: CGFloat = 320
 
 struct MapQuickView: View {
     @EnvironmentObject var appState: AppState
@@ -18,7 +18,7 @@ struct MapQuickView: View {
     @ObservedObject var mapViewModel: MapViewModelV2
     @ObservedObject var quickViewModel: QuickViewModel
     
-    var onPageChanged: (Int) -> ()
+    var onPageChanged: (Int) -> Void
     
     private func loadPosts(index: Int) {
         if index < 0 || index >= mapViewModel.pins.count {
@@ -70,7 +70,7 @@ struct MapQuickView: View {
     }
     
     var body: some View {
-        if mapViewModel.pins.count > 0 {
+        if !mapViewModel.pins.isEmpty {
             quickViewBody
                 .onAppear {
                     if let selectedPin = mapViewModel.selectedPin {

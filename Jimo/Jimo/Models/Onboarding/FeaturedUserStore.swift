@@ -13,13 +13,13 @@ class FeaturedUserStore: SuggestedUserStore {
     @Published var selectedUsernames: Set<String> = []
     @Published var loadingSuggestedUsers = true
     @Published var loadingSuggestedUsersError: Error?
-    
+
     @Published var followingLoading = false
     @Published var followManyFailed = false
-    
+
     private var getUsersCancellable: Cancellable?
     private var followUsersCancellable: Cancellable?
-    
+
     func getExistingUsers(appState: AppState) {
         withAnimation {
             loadingSuggestedUsers = true
@@ -42,7 +42,7 @@ class FeaturedUserStore: SuggestedUserStore {
                 }
             }
     }
-    
+
     func follow(appState: AppState) {
         withAnimation {
             followingLoading = true
@@ -67,7 +67,7 @@ class FeaturedUserStore: SuggestedUserStore {
                 }
             }
     }
-    
+
     func toggleSelected(for username: String) {
         if selectedUsernames.contains(username) {
             selectedUsernames.remove(username)
@@ -75,11 +75,11 @@ class FeaturedUserStore: SuggestedUserStore {
             selectedUsernames.insert(username)
         }
     }
-    
+
     func clearAll() {
         selectedUsernames.removeAll()
     }
-    
+
     func selectAll() {
         selectedUsernames = Set(allUsers.map { $0.username })
     }

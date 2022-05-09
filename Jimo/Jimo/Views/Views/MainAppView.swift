@@ -12,14 +12,13 @@ enum Tab: Int {
 }
 
 struct MainAppView: View {
-
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @EnvironmentObject var deepLinkManager: DeepLinkManager
     @StateObject var viewModel = ViewModel()
-    
+
     let currentUser: PublicUser
-    
+
     var body: some View {
         UITabView(selection: viewModel.selectionIndex) {
             MapTab()
@@ -27,7 +26,7 @@ struct MainAppView: View {
                 .environmentObject(globalViewState)
                 .environmentObject(deepLinkManager)
                 .tabItem("Map", image: UIImage(named: "mapIcon"))
-            
+
             Feed(onCreatePostTap: { viewModel.selection = .create })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
@@ -36,14 +35,14 @@ struct MainAppView: View {
                     image: UIImage(named: "feedIcon"),
                     badgeValue: appState.unreadNotifications > 0 ? String(appState.unreadNotifications) : nil
                 )
-            
+
             Text("").tabItem("Save", image: UIImage(named: "postIcon"))
-            
+
             Search()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .tabItem("Discover", image: UIImage(named: "searchIcon"))
-            
+
             ProfileTab(currentUser: currentUser)
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
@@ -74,8 +73,8 @@ struct MainAppView: View {
 extension MainAppView {
     class ViewModel: ObservableObject {
         let newPostTag: Tab = .create
-        
-        @Published var createPostPresented: Bool = false
+
+        @Published var createPostPresented = false
         @Published var selection: Tab {
             didSet {
                 if selection == newPostTag {
@@ -84,14 +83,14 @@ extension MainAppView {
                 }
             }
         }
-        
+
         var selectionIndex: Binding<Int> {
             Binding<Int>(
                 get: { self.selection.rawValue },
                 set: { self.selection = Tab(rawValue: $0)! }
             )
         }
-        
+
         var currentTab: Screen {
             switch selection {
             case .map:
@@ -106,7 +105,7 @@ extension MainAppView {
                 return .profileTab
             }
         }
-        
+
         init() {
             self.selection = Tab.map
         }

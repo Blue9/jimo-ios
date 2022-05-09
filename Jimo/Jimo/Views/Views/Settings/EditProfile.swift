@@ -12,18 +12,18 @@ struct EditProfile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @StateObject private var viewModel = ViewModel()
-    
+
     var buttonDisabled: Bool {
         !viewModel.initialized || !viewModel.edited || viewModel.updating
     }
-    
+
     var body: some View {
         Form {
-            
+
             ZStack(alignment: .trailing) {
                 HStack {
                     Spacer()
-                    
+
                     Group {
                         if let image = viewModel.image {
                             Image(uiImage: image)
@@ -41,10 +41,10 @@ struct EditProfile: View {
                     .onTapGesture {
                         viewModel.showImagePicker = true
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 if viewModel.image != nil {
                     Text("Reset")
                         .foregroundColor(.white)
@@ -56,33 +56,33 @@ struct EditProfile: View {
                         }
                 }
             }
-            
+
             HStack(spacing: 10) {
                 Text("Username").bold()
                 TextField("Username", text: $viewModel.username)
                     .autocapitalization(.none)
             }
-            
+
             HStack(spacing: 10) {
                 Text("First name").bold()
                 TextField("First name", text: $viewModel.firstName)
             }
-            
+
             HStack(spacing: 10) {
                 Text("Last name").bold()
                 TextField("Last name", text: $viewModel.lastName)
             }
-            
+
             Section {
                 Button(action: { viewModel.updateProfile(
-                        appState: appState, viewState: globalViewState)}) {
-                    if viewModel.updating {
-                        ProgressView()
-                    } else {
-                        Text("Save changes")
-                            .foregroundColor(buttonDisabled ? .gray : .blue)
-                    }
-                }
+                    appState: appState, viewState: globalViewState)}, label: {
+                        if viewModel.updating {
+                            ProgressView()
+                        } else {
+                            Text("Save changes")
+                                .foregroundColor(buttonDisabled ? .gray : .blue)
+                        }
+                    })
                 .disabled(buttonDisabled)
             }
         }
@@ -110,7 +110,7 @@ extension EditProfile {
         @Published var firstName: String = "" { didSet { edited = true } }
         @Published var lastName: String = "" { didSet { edited = true } }
         @Published var profilePictureUrl: String? = nil
-        
+
         @Published var showImagePicker = false
         @Published var image: UIImage? = nil {
             didSet {
@@ -119,15 +119,15 @@ extension EditProfile {
                 }
             }
         }
-        
+
         @Published var edited = false
         @Published var initialized = false
-        
+
         @Published var updating = false
-        
+
         private var cancellable: Cancellable? = nil
         private var uploadImageCancellable: Cancellable? = nil
-        
+
         func initialize(appState: AppState) {
             guard case let .user(user) = appState.currentUser else {
                 return
@@ -139,7 +139,7 @@ extension EditProfile {
             initialized = true
             edited = false
         }
-        
+
         func updateProfile(appState: AppState, viewState: GlobalViewState) {
             updating = true
             hideKeyboard()
@@ -158,7 +158,7 @@ extension EditProfile {
                 self.updateProfile(appState: appState, viewState: viewState, profilePictureId: nil)
             }
         }
-        
+
         private func updateProfile(appState: AppState, viewState: GlobalViewState, profilePictureId: String?) {
             cancellable = appState.updateProfile(
                 UpdateProfileRequest(

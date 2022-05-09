@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 import SwiftUIPager
 
-fileprivate let quickViewWidth: CGFloat = 320
+private let quickViewWidth: CGFloat = 320
 
 struct LiteMapView: View {
     let locationManager = CLLocationManager()

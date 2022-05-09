@@ -14,44 +14,44 @@ enum ProfileLoadStatus {
 
 class ProfileVM: ObservableObject {
     let nc = NotificationCenter.default
-    
-    var loadUserCancellable: Cancellable? = nil
-    var loadRelationCancellable: Cancellable? = nil
-    var loadPostsCancellable: Cancellable? = nil
-    
+
+    var loadUserCancellable: Cancellable?
+    var loadRelationCancellable: Cancellable?
+    var loadPostsCancellable: Cancellable?
+
     var relationCancellable: AnyCancellable?
-    
+
     @Published var user: PublicUser?
     @Published var loadedRelation = false
     @Published var relationToUser: UserRelation?
     @Published var posts: [Post] = []
     @Published var cursor: String?
-    
+
     /// This really just tracks the post loading (ignores user and follow status) for simplicity
     @Published var loadStatus = ProfileLoadStatus.notInitialized
     @Published var loadingMore = false
-    
+
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
-    
+
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
         if post.user.id == user?.id {
             posts.insert(post, at: 0)
         }
     }
-    
+
     @objc private func postUpdated(notification: Notification) {
         let post = notification.object as! Post
         if let i = posts.indices.first(where: { posts[$0].postId == post.postId }) {
             posts[i] = post
         }
     }
-    
+
     @objc private func postLiked(notification: Notification) {
         let like = notification.object as! PostLikePayload
         let postIndex = posts.indices.first(where: { posts[$0].postId == like.postId })
@@ -60,29 +60,29 @@ class ProfileVM: ObservableObject {
             posts[i].liked = like.liked
         }
     }
-    
+
     @objc private func postDeleted(notification: Notification) {
         let postId = notification.object as! PostId
         posts.removeAll(where: { $0.postId == postId })
     }
-    
+
     func isCurrentUser(appState: AppState, username: String) -> Bool {
         guard case let .user(currentUser) = appState.currentUser else {
             return false
         }
         return username == currentUser.username
     }
-    
+
     func removePost(postId: PostId) {
         posts = posts.filter({ postId != $0.postId })
     }
-    
+
     func refresh(username: String, appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
         loadUser(username: username, appState: appState, viewState: viewState)
         loadRelation(username: username, appState: appState, viewState: viewState)
         loadPosts(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
     }
-    
+
     func loadUser(username: String, appState: AppState, viewState: GlobalViewState) {
         loadUserCancellable = appState.getUser(username: username)
             .sink(receiveCompletion: { completion in
@@ -98,7 +98,7 @@ class ProfileVM: ObservableObject {
                 self?.user = user
             })
     }
-    
+
     func loadRelation(username: String, appState: AppState, viewState: GlobalViewState) {
         guard !isCurrentUser(appState: appState, username: username) else { return }
         loadRelationCancellable = appState.relation(to: username)
@@ -112,7 +112,7 @@ class ProfileVM: ObservableObject {
                 self?.loadedRelation = true
             }
     }
-    
+
     func loadPosts(username: String, appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
         loadPostsCancellable = appState.getPosts(username: username)
             .sink(receiveCompletion: { [weak self] completion in
@@ -133,7 +133,7 @@ class ProfileVM: ObservableObject {
                 self?.cursor = userFeed.cursor
             })
     }
-    
+
     func loadMorePosts(username: String, appState: AppState, viewState: GlobalViewState) {
         guard let cursor = cursor else {
             // No more to load
@@ -152,7 +152,7 @@ class ProfileVM: ObservableObject {
                 self?.cursor = userFeed.cursor
             })
     }
-    
+
     func followUser(username: String, appState: AppState, viewState: GlobalViewState) {
         relationCancellable = appState.followUser(username: username)
             .sink(receiveCompletion: { completion in
@@ -166,7 +166,7 @@ class ProfileVM: ObservableObject {
                 }
             })
     }
-    
+
     func unfollowUser(username: String, appState: AppState, viewState: GlobalViewState) {
         relationCancellable = appState.unfollowUser(username: username)
             .sink(receiveCompletion: { completion in
@@ -180,7 +180,7 @@ class ProfileVM: ObservableObject {
                 }
             })
     }
-    
+
     func blockUser(username: String, appState: AppState, viewState: GlobalViewState) {
         guard relationToUser == nil else {
             viewState.setError("Cannot block someone you already follow or block")
@@ -205,7 +205,7 @@ class ProfileVM: ObservableObject {
                 }
             })
     }
-    
+
     func unblockUser(username: String, appState: AppState, viewState: GlobalViewState) {
         guard relationToUser == .blocked else {
             viewState.setError("This user is not blocked")
@@ -235,9 +235,9 @@ extension DeepLinkProfileLoadingScreen {
     class ViewModel: ObservableObject {
         @Published var initialUser: User?
         @Published var loadStatus: ProfileLoadStatus = .notInitialized
-        
+
         var loadUserCancellable: Cancellable?
-        
+
         func loadProfile(with appState: AppState, viewState: GlobalViewState, username: String) {
             loadUserCancellable = appState.getUser(username: username)
                 .sink { [weak self] in

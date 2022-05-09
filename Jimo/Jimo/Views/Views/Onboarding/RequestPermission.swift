@@ -9,42 +9,42 @@ import SwiftUI
 
 struct RequestPermission: View {
     @State private var requesting = false
-    
+
     var onCompleteRequest: () -> ()
-    
+
     var action: () -> ()
     var title: String
     var imageName: String
     var caption: String
-    
+
     func request() {
         action()
         withAnimation {
             self.requesting = true
         }
     }
-    
+
     func next() {
         withAnimation {
             self.onCompleteRequest()
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 20) {
             Text(title)
                 .font(.system(size: 24))
                 .multilineTextAlignment(.center)
                 .padding(40)
-            
+
             Group {
                 Image(imageName)
-                
+
                 Text(caption)
             }
-            
+
             Spacer()
-            
+
             VStack(spacing: 20) {
                 if !requesting {
                     Button(action: {
@@ -52,7 +52,7 @@ struct RequestPermission: View {
                     }) {
                         LargeButton("Enable", fontSize: 20)
                     }
-                    
+
                     Button(action: {
                         next()
                     }) {

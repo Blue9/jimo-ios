@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct TextAlert: UIViewControllerRepresentable {
     @State private var text = ""
     @Binding var isPresented: Bool
@@ -50,6 +49,7 @@ struct TextAlert: UIViewControllerRepresentable {
     class Coordinator: NSObject, UITextFieldDelegate {
         var alert: UIAlertController?
         var parent: TextAlert
+
         init(_ parent: TextAlert) {
             self.parent = parent
         }
@@ -73,4 +73,3 @@ extension View {
         }
     }
 }
-

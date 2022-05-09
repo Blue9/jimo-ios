@@ -10,18 +10,18 @@ import Combine
 
 class DiscoverViewModel: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published var posts: [Post] = []
     @Published var initialized = false
-    
+
     private var loadFeedCancellable: Cancellable?
-    
+
     init() {
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
-    
+
     @objc private func postLiked(notification: Notification) {
         let like = notification.object as! PostLikePayload
         let postIndex = posts.indices.first(where: { posts[$0].postId == like.postId })
@@ -30,19 +30,19 @@ class DiscoverViewModel: ObservableObject {
             posts[i].liked = like.liked
         }
     }
-    
+
     @objc private func postUpdated(notification: Notification) {
         let post = notification.object as! Post
         if let i = posts.indices.first(where: { posts[$0].postId == post.postId }) {
             posts[i] = post
         }
     }
-    
+
     @objc private func postDeleted(notification: Notification) {
         let postId = notification.object as! PostId
         posts.removeAll(where: { $0.postId == postId })
     }
-    
+
     func loadDiscoverPage(appState: AppState, onFinish: OnFinish? = nil) {
         loadFeedCancellable = appState.discoverFeed()
             .sink(receiveCompletion: { [weak self] completion in
@@ -56,3 +56,4 @@ class DiscoverViewModel: ObservableObject {
             })
     }
 }
+

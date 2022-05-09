@@ -13,16 +13,16 @@ struct PlaceSearch: View {
     @StateObject var locationSearch: LocationSearch = LocationSearch()
     @State private var showAlert = false
     @State private var searchBarFocused = false
-    
+
     var selectPlace: (MKMapItem) -> Void
-    
+
     func setupLocationSearch() {
         locationSearch.completer.resultTypes = [.address, .pointOfInterest]
     }
-    
+
     private func getAddress(mapItem: MKMapItem) -> String {
         let placemark = mapItem.placemark
-        var streetAddress: String? = nil
+        var streetAddress: String?
         if let subThoroughfare = placemark.subThoroughfare,
            let thoroughfare = placemark.thoroughfare {
             streetAddress = subThoroughfare + " " + thoroughfare
@@ -34,7 +34,7 @@ struct PlaceSearch: View {
         ];
         return components.compactMap({ $0 }).joined(separator: ", ")
     }
-    
+
     @ViewBuilder private var autocompleteResults: some View {
         List {
             Section {
@@ -91,7 +91,7 @@ struct PlaceSearch: View {
         }
         .listStyle(.plain)
     }
-    
+
     @ViewBuilder private var searchResults: some View {
         List(locationSearch.mkSearchResults, id: \.self) { (mapItem: MKMapItem) in
             HStack {
@@ -114,7 +114,7 @@ struct PlaceSearch: View {
         }
         .listStyle(.plain)
     }
-    
+
     var body: some View {
         VStack {
             ZStack(alignment: .center) {
@@ -125,12 +125,12 @@ struct PlaceSearch: View {
                     }
                     Spacer()
                 }
-                
+
                 NavTitle("Name")
             }
             .padding(.top, 15)
             .padding(.bottom, 10)
-            
+
             SearchBar(
                 text: $locationSearch.searchQuery,
                 isActive: $searchBarFocused,
@@ -140,13 +140,13 @@ struct PlaceSearch: View {
                 }
             )
             .padding(.horizontal)
-            
+
             if locationSearch.searchState == .search {
                 searchResults
             } else {
                 autocompleteResults
             }
-            
+
             Spacer()
         }
         .foregroundColor(Color("foreground"))

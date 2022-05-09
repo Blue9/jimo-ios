@@ -25,18 +25,16 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var likeCount: Int
     var commentCount: Int
     var liked: Bool
-    
+
     var location: CLLocationCoordinate2D {
         place.location.coordinate()
     }
 }
 
-
 struct FeedResponse: Codable {
     var posts: [Post]
     var cursor: String?
 }
-
 
 struct CreatePostRequest: Codable {
     /// One of placeId and place must be specified

@@ -19,7 +19,7 @@ struct CategoryView: View {
     }
     
     var allSelected: Bool {
-        selected.count == Categories.categories.count
+        selected.count == PostCategory.allCases.count
     }
     
     var onlySelected: Bool {
@@ -49,7 +49,7 @@ struct CategoryView: View {
             if allSelected {
                 self.selected = [key]
             } else if onlySelected {
-                self.selected = Set(Categories.categories.map({ $0.key }))
+                self.selected = Set(PostCategory.allCases.map({ $0.rawValue }))
             } else if isSelected {
                 self.selected.remove(key)
             } else {
@@ -59,15 +59,14 @@ struct CategoryView: View {
     }
 }
 
-
 struct CategoryFilter: View {
     @Binding var selectedCategories: Set<String>
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                ForEach(Categories.categories) { category in
-                    CategoryView(name: category.name, key: category.key, selected: $selectedCategories)
+                ForEach(PostCategory.allCases, id: \.self) { category in
+                    CategoryView(name: category.displayName, key: category.rawValue, selected: $selectedCategories)
                 }
             }
             .padding(.horizontal)

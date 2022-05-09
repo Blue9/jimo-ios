@@ -18,6 +18,10 @@ target 'Jimo' do
 
   pod 'PhoneNumberKit', '~> 3.3'
 
+  # misc
+  pod 'SwiftLint'
+  pod 'SwiftGen'
+
   target 'JimoTests' do
     inherit! :search_paths
     # Pods for testing

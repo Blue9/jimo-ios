@@ -11,18 +11,18 @@ import MapKit
 struct PostLikeButton: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @ObservedObject var postVM: PostVM
     var post: Post
-    
+
     private var showFilledHeart: Bool {
         (post.liked || postVM.liking) && !postVM.unliking
     }
-    
+
     private var likeCount: Int {
         post.likeCount
     }
-    
+
     var body: some View {
         HStack {
             if showFilledHeart {
@@ -63,15 +63,15 @@ struct PostHeader: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @StateObject var editorVM = CreatePostVM()
     @ObservedObject var postVM: PostVM
-    
+
     var post: Post
-    
+
     @State private var showPostOptions = false
-    
+
     @State private var showEditSheet = false
     @State private var showConfirmDelete = false
     @State private var showConfirmReport = false
-    
+
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
             return user.username == post.user.username
@@ -79,13 +79,13 @@ struct PostHeader: View {
         // Should never be here since user should be logged in
         return false
     }
-    
+
     var body: some View {
         HStack {
             NavigationLink(destination: profileView) {
                 profilePicture
             }.buttonStyle(NoButtonStyle())
-            
+
             VStack(alignment: .leading) {
                 NavigationLink(destination: profileView) {
                     Text(post.user.username.lowercased())
@@ -93,7 +93,7 @@ struct PostHeader: View {
                         .bold()
                         .foregroundColor(Color("foreground"))
                 }.buttonStyle(NoButtonStyle())
-                
+
                 HStack(spacing: 0) {
                     Text(post.category.capitalized)
                         .foregroundColor(Color(post.category))
@@ -106,9 +106,9 @@ struct PostHeader: View {
                 .font(.system(size: 12))
                 .lineLimit(1)
             }
-            
+
             Spacer()
-            
+
             Button(action: { self.showPostOptions = true }) {
                 Image(systemName: "ellipsis")
                     .font(.subheadline)
@@ -155,13 +155,13 @@ struct PostHeader: View {
             postVM.reportPost(postId: post.id, details: text, appState: appState, viewState: globalViewState)
         }
     }
-    
+
     @ViewBuilder var profileView: some View {
         LazyView {
             ProfileScreen(initialUser: post.user)
         }
     }
-    
+
     @ViewBuilder var profilePicture: some View {
         ZStack {
             URLImage(
@@ -178,7 +178,7 @@ struct PostHeader: View {
 
 struct PostPlaceName: View {
     var post: Post
-    
+
     var placeName: String {
         if let regionName = post.place.regionName {
             return "\(post.place.name), \(regionName)"
@@ -186,7 +186,7 @@ struct PostPlaceName: View {
             return post.place.name
         }
     }
-    
+
     var body: some View {
         NavigationLink(destination: pinView) {
             Text(placeName)
@@ -198,7 +198,7 @@ struct PostPlaceName: View {
                 .multilineTextAlignment(.leading)
         }
     }
-    
+
     @ViewBuilder var pinView: some View {
         LazyView {
             LiteMapView(post: post)
@@ -209,7 +209,7 @@ struct PostPlaceName: View {
 
 struct PostCaption: View {
     var post: Post
-    
+
     var body: some View {
         if post.content.count > 0 {
             Text(post.content)
@@ -225,9 +225,9 @@ struct PostCaption: View {
 
 struct PostImage: View {
     var post: Post
-    
+
     @State private var imageSize: CGSize?
-    
+
     var body: some View {
         PostImageTrackedSize(post: post, imageSize: $imageSize)
     }
@@ -235,9 +235,9 @@ struct PostImage: View {
 
 struct PostImageTrackedSize: View {
     var post: Post
-    
+
     @Binding var imageSize: CGSize?
-    
+
     var body: some View {
         ZStack {
             if let url = post.imageUrl {
@@ -247,7 +247,7 @@ struct PostImageTrackedSize: View {
             }
         }
     }
-    
+
     @ViewBuilder var mapSnapshot: some View {
         MapSnapshotView(post: post, width: UIScreen.main.bounds.width)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
@@ -259,7 +259,7 @@ struct PostFooter: View {
     @ObservedObject var viewModel: PostVM
     var post: Post
     var showZeroCommentCount: Bool
-    
+
     var body: some View {
         HStack(spacing: 3) {
             PostLikeButton(postVM: viewModel, post: post)
@@ -274,9 +274,10 @@ struct PostFooter: View {
             }
             .font(.system(size: 11))
             .foregroundColor(.gray)
-            
+
             Spacer()
         }
         .padding(.horizontal, 10)
     }
 }
+

@@ -11,35 +11,35 @@ import ASCollectionView
 
 class FeedViewModel: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published var feed: [Post] = []
     @Published var initialized = false
     @Published var loadingMorePosts = false
-    
+
     var cursor: String?
-    
+
     var refreshFeedCancellable: AnyCancellable?
     var listenToFeedCancellable: AnyCancellable?
-    
+
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
-    
+
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
         feed.insert(post, at: 0)
     }
-    
+
     @objc private func postUpdated(notification: Notification) {
         let post = notification.object as! Post
         if let i = feed.indices.first(where: { feed[$0].postId == post.postId }) {
             feed[i] = post
         }
     }
-    
+
     @objc private func postLiked(notification: Notification) {
         let like = notification.object as! PostLikePayload
         let postIndex = feed.indices.first(where: { feed[$0].postId == like.postId })
@@ -48,12 +48,12 @@ class FeedViewModel: ObservableObject {
             feed[i].liked = like.liked
         }
     }
-    
+
     @objc private func postDeleted(notification: Notification) {
         let postId = notification.object as! PostId
         feed.removeAll(where: { $0.postId == postId })
     }
-    
+
     func refreshFeed(appState: AppState, globalViewState: GlobalViewState, onFinish: OnFinish? = nil) {
         refreshFeedCancellable = appState.refreshFeed()
             .sink(receiveCompletion: { [weak self] completion in
@@ -74,7 +74,7 @@ class FeedViewModel: ObservableObject {
                 self?.initialized = true
             })
     }
-    
+
     func loadMorePosts(appState: AppState, globalViewState: GlobalViewState) {
         guard let cursor = cursor, !loadingMorePosts else {
             return
@@ -102,22 +102,22 @@ struct FeedBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var feedViewModel = FeedViewModel()
-    
+
     @State private var showFullPost: PostId?
-    
+
     var onCreatePostTap: () -> ()
-    
+
     private let columns: [GridItem] = [
         GridItem(.fixed(UIScreen.main.bounds.width), spacing: 0)
     ]
-    
+
     private func loadMore() {
         if feedViewModel.loadingMorePosts {
             return
         }
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
-    
+
     @ViewBuilder
     private func postView(for postId: PostId?) -> some View {
         if let post = feedViewModel.feed.first(where: { $0.id == postId }) {
@@ -126,7 +126,7 @@ struct FeedBody: View {
             EmptyView().onAppear { showFullPost = nil }
         }
     }
-    
+
     var body: some View {
         Group {
             if !feedViewModel.initialized {
@@ -156,7 +156,7 @@ struct FeedBody: View {
         }
         .background(Color("background"))
     }
-    
+
     var initializedFeed: some View {
         ASCollectionView(data: feedViewModel.feed, dataID: \.self) { post, _ in
             FeedItem(post: post, showFullPost: $showFullPost)
@@ -185,17 +185,17 @@ struct FeedBody: View {
 struct Feed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @State private var showFeedback = false
     @State private var showInvite = false
     @State private var showNotifications = false
-    
+
     @StateObject private var notificationFeedVM = NotificationFeedVM()
-    
+
     var notificationBellBadgePresent: Bool {
         appState.unreadNotifications > 0
     }
-    
+
     var onCreatePostTap: () -> ()
 
     var notificationFeedIcon: some View {
@@ -211,7 +211,7 @@ struct Feed: View {
             }
         }
     }
-    
+
     var body: some View {
         NavigationView {
             FeedBody(onCreatePostTap: onCreatePostTap)

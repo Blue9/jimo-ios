@@ -9,7 +9,7 @@ import SwiftUI
 
 class DeepLinkManager: ObservableObject {
     @Published var presentableEntity: DeepLinkEntity?
-    
+
     @ViewBuilder
     func viewForDeepLink(_ entity: DeepLinkEntity?) -> some View {
         // entity == presentableEntity
@@ -30,7 +30,7 @@ class DeepLinkManager: ObservableObject {
 /// What type of detail page we want to open based on the deeplink URL
 enum DeepLinkEntity: Equatable, Identifiable {
     case profile(String), post(PostId)
-    
+
     var id: String {
         switch self {
         case .profile(let username):

@@ -12,30 +12,30 @@ import SwiftUIPager
 
 struct MapViewV2: View {
     @AppStorage("shouldShowHelpInfo") var shouldShowHelpInfo = true
-    
+
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     let geocoder = CLGeocoder()
-    
+
     @StateObject var mapViewModel = MapViewModelV2()
     @StateObject var createPostVM = CreatePostVM()
     @StateObject var regionWrapper = RegionWrapper()
     @StateObject var quickViewModel = QuickViewModel()
-    
+
     @State private var showCreatePost = false
     @State private var bottomSheetPosition: MapSheetPosition = .bottom
     @State private var searchFieldActive = false
-    
+
     @State private var initialized = false
     @State private var firstLoad = true
-    
+
     @State private var showHelpAlert = false
-    
+
     var quickViewDisplayed: Bool {
         mapViewModel.selectedPin != nil
     }
-    
+
     @ViewBuilder var mapOverlay: some View {
         VStack(spacing: 0) {
             if !quickViewDisplayed {
@@ -50,7 +50,7 @@ struct MapViewV2: View {
         }
         .animation(.easeInOut, value: quickViewDisplayed)
     }
-    
+
     private func selectPin(pin: MapPinV3) {
         bottomSheetPosition = .hidden
         regionWrapper.region.center.wrappedValue = pin.location.coordinate()
@@ -59,7 +59,7 @@ struct MapViewV2: View {
         }
         regionWrapper.trigger.toggle()
     }
-    
+
     @ViewBuilder var quickViewOverlay: some View {
         VStack(spacing: 5) {
             Spacer()
@@ -67,7 +67,7 @@ struct MapViewV2: View {
                 Spacer()
                 Button(action: {
                     mapViewModel.selectedPin = nil
-                }) {
+                }, label: {
                     Image(systemName: "xmark")
                         .foregroundColor(.blue)
                         .font(.system(size: 20))
@@ -75,10 +75,10 @@ struct MapViewV2: View {
                         .background(Color("background"))
                         .cornerRadius(10)
                         .contentShape(Rectangle())
-                }
+                })
             }
             .padding(.horizontal, (UIScreen.main.bounds.width - 320) / 2)
-            
+
             MapQuickView(
                 mapViewModel: mapViewModel,
                 quickViewModel: quickViewModel
@@ -90,7 +90,7 @@ struct MapViewV2: View {
         }
         .padding()
     }
-    
+
     @ViewBuilder var mapBody: some View {
         MapKitViewV2(
             region: regionWrapper.region,
@@ -98,7 +98,7 @@ struct MapViewV2: View {
             annotations: mapViewModel.pins.map { PlaceAnnotationV2(pin: $0, zIndex: $0.icon.numPosts) }
         ) { coordinate in
             let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+            geocoder.reverseGeocodeLocation(location) { placemarks, error in
                 if let placemark = placemarks?.first {
                     let mapItem = MKMapItem(placemark: MKPlacemark(placemark: placemark))
                     createPostVM.selectPlace(place: mapItem)
@@ -134,17 +134,15 @@ struct MapViewV2: View {
         )
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
-    
+
     /// This is a separate view because the map lags when initially showing the popup in a regular ZStack
     var popupBody: some View {
         ZStack {
         }
         .popup(
             isPresented: $showHelpAlert,
-            type: .default,
             position: .top,
             animation: .interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0),
-            autohideIn: nil,
             dragToDismiss: false,
             closeOnTap: false,
             closeOnTapOutside: false,
@@ -153,23 +151,24 @@ struct MapViewV2: View {
                 MapInfoView(presented: $showHelpAlert)
             }
     }
-    
+
     var body: some View {
         mapBody
             .overlay(popupBody)
             .appear {
-                if !initialized {
+                guard !initialized else {
                     initialized = true
-                    if shouldShowHelpInfo {
-                        showHelpAlert = true
-                        shouldShowHelpInfo = false
-                    }
-                    mapViewModel.initialize(
-                        appState: appState,
-                        viewState: globalViewState,
-                        regionWrapper: regionWrapper
-                    )
+                    return
                 }
+                if shouldShowHelpInfo {
+                    showHelpAlert = true
+                    shouldShowHelpInfo = false
+                }
+                mapViewModel.initialize(
+                    appState: appState,
+                    viewState: globalViewState,
+                    regionWrapper: regionWrapper
+                )
             }
             .onChange(of: mapViewModel.selectedPin) { selectedPin in
                 withAnimation {
@@ -190,3 +189,4 @@ struct MapViewV2: View {
             }
     }
 }
+

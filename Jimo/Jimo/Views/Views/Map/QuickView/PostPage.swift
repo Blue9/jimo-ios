@@ -9,15 +9,15 @@ import SwiftUI
 
 struct PostPage: View {
     var post: Post
-    
+
     @State private var showFullPost = false
-    
+
     @ViewBuilder var fullPostView: some View {
         LazyView {
             ViewPost(initialPost: post)
         }
     }
-    
+
     @ViewBuilder var mainBody: some View {
         HStack(alignment: .top) {
             Group {
@@ -36,13 +36,13 @@ struct PostPage: View {
             }
             .frame(width: 120, height: 120)
             .cornerRadius(2)
-            
+
             VStack(alignment: .leading, spacing: 5) {
                 Text(post.place.name)
                     .font(.caption)
                     .fontWeight(.black)
                     .lineLimit(1)
-                
+
                 Group {
                     Text(post.user.username.lowercased() + " ")
                         .font(.caption)
@@ -51,12 +51,12 @@ struct PostPage: View {
                     Text(post.content)
                         .font(.caption)
                 }
-                
+
                 Spacer()
-                
+
                 HStack(spacing: 5) {
                     MiniPostLikeButton(post: post).font(.system(size: 15))
-                    
+
                     Image(systemName: "bubble.right")
                         .font(.system(size: 15))
                         .offset(y: 1.5)
@@ -67,7 +67,7 @@ struct PostPage: View {
             Spacer()
         }
     }
-    
+
     var body: some View {
         mainBody
             .onTapGesture {
@@ -80,15 +80,15 @@ struct PostPage: View {
 fileprivate struct MiniPostLikeButton: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @StateObject private var postViewModel = PostVM()
-    
+
     var post: Post
-    
+
     private var showFilledHeart: Bool {
         (post.liked || postViewModel.liking) && !postViewModel.unliking
     }
-    
+
     var body: some View {
         if showFilledHeart {
             Button(action: {

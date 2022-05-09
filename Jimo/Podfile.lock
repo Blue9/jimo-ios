@@ -125,6 +125,8 @@ PODS:
   - SDWebImage/Core (5.11.1)
   - SDWebImageSwiftUI (2.0.2):
     - SDWebImage (~> 5.10)
+  - SwiftGen (6.5.1)
+  - SwiftLint (0.46.5)
 
 DEPENDENCIES:
   - Firebase/Analytics
@@ -135,6 +137,8 @@ DEPENDENCIES:
   - PhoneNumberKit (~> 3.3)
   - SDWebImage
   - SDWebImageSwiftUI
+  - SwiftGen
+  - SwiftLint
 
 SPEC REPOS:
   trunk:
@@ -156,6 +160,8 @@ SPEC REPOS:
     - PromisesObjC
     - SDWebImage
     - SDWebImageSwiftUI
+    - SwiftGen
+    - SwiftLint
 
 SPEC CHECKSUMS:
   Firebase: 817b9171d0d51dccc458b94a5e8edff6b1dd323d
@@ -176,7 +182,9 @@ SPEC CHECKSUMS:
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageSwiftUI: 8a3923c95108312b03a599ec1498754af55a6819
+  SwiftGen: a6d22010845f08fe18fbdf3a07a8e380fd22e0ea
+  SwiftLint: 2c16e8fa99dac2e440dc0c70ea74d2532048f6cf
 
-PODFILE CHECKSUM: 2ee345995a03aaa8401837fb79c26ff80c73ba44
+PODFILE CHECKSUM: f1e3a533fff63433f25c173378e16ae7e038ce55
 
 COCOAPODS: 1.11.2

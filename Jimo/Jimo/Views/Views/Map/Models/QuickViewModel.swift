@@ -25,19 +25,19 @@ struct PlaceCacheKey: Hashable {
 
 class QuickViewModel: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published var allPosts: [PostId: Post] = [:]
     @Published var placePostsCache: [PlaceCacheKey: PlaceCache] = [:]
-    
+
     var mapItemCache: [PlaceId: MKMapItem] = [:]
-    
+
     private var cancelBag: Set<AnyCancellable> = .init()
-    
+
     init() {
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
     }
-    
+
     @objc private func postLiked(notification: Notification) {
         let like = notification.object as! PostLikePayload
         allPosts[like.postId]?.likeCount = like.likeCount
@@ -48,7 +48,7 @@ class QuickViewModel: ObservableObject {
         let post = notification.object as! Post
         allPosts[post.postId] = post
     }
-    
+
     private func cacheKey(for placeId: PlaceId, mapViewModel: MapViewModelV2) -> PlaceCacheKey {
         PlaceCacheKey(
             placeId: placeId,
@@ -57,20 +57,20 @@ class QuickViewModel: ObservableObject {
             categoryFilter: mapViewModel.selectedCategories
         )
     }
-    
+
     func getPosts(for placeId: PlaceId, mapViewModel: MapViewModelV2) -> [Post] {
         let postIds = placePostsCache[cacheKey(for: placeId, mapViewModel: mapViewModel)]?.posts ?? []
         return postIds.compactMap { allPosts[$0] }
     }
-    
+
     func getPlace(for placeId: PlaceId, mapViewModel: MapViewModelV2) -> Place? {
         placePostsCache[cacheKey(for: placeId, mapViewModel: mapViewModel)]?.place
     }
-    
+
     func isLoading(placeId: PlaceId, mapViewModel: MapViewModelV2) -> Bool {
         placePostsCache[cacheKey(for: placeId, mapViewModel: mapViewModel)]?.loading ?? true
     }
-    
+
     func loadPosts(appState: AppState, mapViewModel: MapViewModelV2, placeId: PlaceId) {
         let cacheKey = cacheKey(for: placeId, mapViewModel: mapViewModel)
         if let cachedPlace = placePostsCache[cacheKey], cachedPlace.place != nil || cachedPlace.loading {
@@ -117,7 +117,7 @@ class QuickViewModel: ObservableObject {
         }
         .store(in: &cancelBag)
     }
-    
+
     func getMapItem(place: Place, handle: @escaping (MKMapItem?) -> Void) {
         if let mapItem = mapItemCache[place.id] {
             handle(mapItem)

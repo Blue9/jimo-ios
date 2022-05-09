@@ -10,22 +10,22 @@ import Combine
 
 class PostVM: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published var post: Post?
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false
-    
-    var updatePostCancellable: Cancellable? = nil
-    var likeCancellable: Cancellable? = nil
-    var unlikeCancellable: Cancellable? = nil
-    var deleteCancellable: Cancellable? = nil
-    var reportCancellable: Cancellable? = nil
-    
-    var onDelete: (() -> ())?
-    
+
+    var updatePostCancellable: Cancellable?
+    var likeCancellable: Cancellable?
+    var unlikeCancellable: Cancellable?
+    var deleteCancellable: Cancellable?
+    var reportCancellable: Cancellable?
+
+    var onDelete: (() -> Void)?
+
     /// Listen for post updates and update the current post (optional to call this, only necessary if you want to listen to updates)
-    func listen(post: Post, onDelete: @escaping () -> ()) {
+    func listen(post: Post, onDelete: @escaping () -> Void) {
         guard self.post == nil else {
             return
         }
@@ -35,7 +35,7 @@ class PostVM: ObservableObject {
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
-    
+
     @objc func postLiked(notification: Notification) {
         guard let postId = post?.id else {
             return
@@ -46,11 +46,11 @@ class PostVM: ObservableObject {
             self.post?.likeCount = like.likeCount
         }
     }
-    
+
     @objc func postUpdated(notification: Notification) {
         self.post = notification.object as? Post
     }
-    
+
     @objc func postDeleted(notification: Notification) {
         guard let post = post, let onDelete = onDelete else {
             return
@@ -60,7 +60,7 @@ class PostVM: ObservableObject {
             onDelete()
         }
     }
-    
+
     func likePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         liking = true
         likeCancellable = appState.likePost(postId: postId)
@@ -70,11 +70,11 @@ class PostVM: ObservableObject {
                     print("Error when liking", error)
                     viewState.setError("Failed to like post")
                 }
-            }, receiveValue: { response in
+            }, receiveValue: { _ in
                 print("Liked post")
             })
     }
-    
+
     func unlikePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         unliking = true
         unlikeCancellable = appState.unlikePost(postId: postId)
@@ -84,11 +84,11 @@ class PostVM: ObservableObject {
                     print("Error when unliking", error)
                     viewState.setError("Failed to unlike post")
                 }
-            }, receiveValue: { response in
+            }, receiveValue: { _ in
                 print("Unliked post")
             })
     }
-    
+
     func deletePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         deleting = true
         deleteCancellable = appState.deletePost(postId: postId)
@@ -100,7 +100,7 @@ class PostVM: ObservableObject {
                 }
             }, receiveValue: {})
     }
-    
+
     func reportPost(postId: PostId, details: String, appState: AppState, viewState: GlobalViewState) {
         reportCancellable = appState.reportPost(postId: postId, details: details)
             .sink(receiveCompletion: { completion in

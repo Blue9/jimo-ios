@@ -11,19 +11,19 @@ import Combine
 struct VerifyPhoneNumber: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
-    
+
     var body: some View {
         ZStack {
             VStack(spacing: 20) {
                 Text("Enter your six-digit verification code")
-                
+
                 TextField("Verification code", text: $viewModel.verificationCode)
                     .keyboardType(.numberPad)
                     .frame(height: 40, alignment: .center)
                     .padding(10)
                     .background(RoundedRectangle(cornerRadius: 10)
                                     .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
-                
+
                 Button(action: {
                     viewModel.verifyPhoneNumber(appState: appState)
                 }) {
@@ -52,14 +52,14 @@ extension VerifyPhoneNumber {
         @Published var verificationCode = ""
         @Published var error = ""
         @Published var showError = false
-        
+
         private var cancelBag: Set<AnyCancellable> = .init()
-        
+
         func setError(_ error: String) {
             self.showError = true
             self.error = error
         }
-        
+
         func verifyPhoneNumber(appState: AppState) {
             hideKeyboard()
             appState.signInPhone(verificationCode: verificationCode)

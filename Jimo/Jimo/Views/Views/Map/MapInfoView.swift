@@ -37,7 +37,7 @@ struct MapInfoView: View {
                 Text("Love you, the Jimo team")
             }
             
-            Button(action: { presented.toggle() }) {
+            Button(action: { presented.toggle() }, label: {
                 Text("Love you too")
                     .font(.system(size: 15))
                     .foregroundColor(.white)
@@ -46,7 +46,7 @@ struct MapInfoView: View {
                     .background(Color.blue)
                     .cornerRadius(10)
                     .contentShape(Rectangle())
-            }
+            })
         }
         .multilineTextAlignment(.leading)
         .font(.system(size: 14))

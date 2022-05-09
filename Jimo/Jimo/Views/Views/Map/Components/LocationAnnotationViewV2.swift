@@ -51,7 +51,7 @@ class LocationAnnotationViewV2: MKAnnotationView {
                 context: [.imageTransformer: transformer])
             image.tintColor = UIColor(named: pin.icon.category?.lowercased() ?? "lightgray")
             image.backgroundColor = .white
-            image.contentMode = .scaleAspectFill;
+            image.contentMode = .scaleAspectFill
         } else {
             image = UIImageView(image: UIImage(systemName: "person.crop.circle"))
             image.tintColor = .gray
