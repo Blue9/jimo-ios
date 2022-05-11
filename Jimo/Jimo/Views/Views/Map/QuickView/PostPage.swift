@@ -11,6 +11,7 @@ struct PostPage: View {
     var post: Post
     
     @State private var showFullPost = false
+    @StateObject private var postViewModel = PostVM()
     
     @ViewBuilder var fullPostView: some View {
         LazyView {
@@ -55,12 +56,21 @@ struct PostPage: View {
                 Spacer()
                 
                 HStack(spacing: 5) {
-                    MiniPostLikeButton(post: post).font(.system(size: 15))
+                    MiniPostLikeButton(postViewModel: postViewModel, post: post)
+                        .font(.system(size: 15))
+                    Text(String(post.likeCount)).font(.caption)
+                    
+                    Spacer().frame(width: 2)
                     
                     Image(systemName: "bubble.right")
                         .font(.system(size: 15))
                         .offset(y: 1.5)
                     Text(String(post.commentCount)).font(.caption)
+                    
+                    Spacer()
+                    
+                    MiniPostSaveButton(postViewModel: postViewModel, post: post)
+                        .font(.system(size: 15))
                 }
                 .foregroundColor(Color("foreground"))
             }
@@ -81,7 +91,7 @@ fileprivate struct MiniPostLikeButton: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     
-    @StateObject private var postViewModel = PostVM()
+    @ObservedObject var postViewModel: PostVM
     
     var post: Post
     
@@ -104,6 +114,35 @@ fileprivate struct MiniPostLikeButton: View {
                 postViewModel.likePost(postId: post.id, appState: appState, viewState: viewState)
             }) {
                 Image(systemName: "heart")
+            }
+            .foregroundColor(Color("foreground"))
+        }
+    }
+}
+
+fileprivate struct MiniPostSaveButton: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    
+    @ObservedObject var postViewModel: PostVM
+    
+    var post: Post
+    
+    var body: some View {
+        if post.saved {
+            Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                postViewModel.unsavePost(postId: post.id, appState: appState, viewState: viewState)
+            }) {
+                Image(systemName: "bookmark.fill")
+            }
+            .foregroundColor(Color("foreground"))
+        } else {
+            Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                postViewModel.savePost(postId: post.id, appState: appState, viewState: viewState)
+            }) {
+                Image(systemName: "bookmark")
             }
             .foregroundColor(Color("foreground"))
         }

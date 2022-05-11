@@ -205,11 +205,11 @@ struct PostHeader: View {
             ActionSheet(
                 title: Text("Post options"),
                 buttons: isMyPost ? [
-                    .default(Text("Edit"), action: {
-                        showEditSheet = true
-                    }),
                     .default(Text("Share"), action: {
                         globalViewState.showShareOverlay(for: .post(post))
+                    }),
+                    .default(Text("Edit"), action: {
+                        showEditSheet = true
                     }),
                     .destructive(Text("Delete"), action: {
                         showConfirmDelete = true

@@ -257,14 +257,21 @@ struct ProfileHeaderView: View {
     }
     
     @ViewBuilder
-    func headerButtonText(_ text: String) -> some View {
-        Text(text)
-            .font(.caption)
-            .bold()
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color("foreground").opacity(0.15))
-            .cornerRadius(2)
+    func headerButtonText(_ text: String, _ buttonImage: String? = nil) -> some View {
+        HStack(spacing: 3) {
+            if let buttonImage = buttonImage {
+                Image(systemName: buttonImage)
+                    .font(.system(size: 12))
+            }
+            Text(text)
+                .font(.caption)
+                .bold()
+        }
+        .padding(.leading)
+        .padding(.trailing)
+        .padding(.vertical, 8)
+        .background(Color("foreground").opacity(0.15))
+        .cornerRadius(2)
     }
     
     @ViewBuilder
@@ -272,13 +279,13 @@ struct ProfileHeaderView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 NavigationLink(destination: SavedPosts()) {
-                    headerButtonText("Saved posts")
+                    headerButtonText("Saved posts", "bookmark")
                 }
                 NavigationLink(destination: EditProfile()) {
-                    headerButtonText("Edit profile")
+                    headerButtonText("Edit profile", "square.and.pencil")
                 }
                 NavigationLink(destination: Feedback()) {
-                    headerButtonText("Submit feedback")
+                    headerButtonText("Submit feedback", nil)
                 }
             }
             .padding(.horizontal, 20)
