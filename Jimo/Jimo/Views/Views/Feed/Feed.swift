@@ -186,7 +186,7 @@ struct FeedBody: View {
         .onPullToRefresh { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
         }
-        .edgesIgnoringSafeArea(.all)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .navigation(item: $showFullPost, destination: postView)
     }
 }
