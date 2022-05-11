@@ -361,9 +361,9 @@ struct PostFooter: View {
             HStack(spacing: 0) {
                 PostLikeButton(postVM: viewModel, post: post)
                 Divider().padding(.vertical, 5)
-                PostSaveButton(postVM: viewModel, post: post)
-                Divider().padding(.vertical, 5)
                 PostCommentsIcon(post: post, showZeroCommentCount: showZeroCommentCount, onTap: onCommentTap)
+                Divider().padding(.vertical, 5)
+                PostSaveButton(postVM: viewModel, post: post)
             }
         }
     }
