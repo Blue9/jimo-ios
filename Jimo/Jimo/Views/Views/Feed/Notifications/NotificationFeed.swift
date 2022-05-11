@@ -90,7 +90,7 @@ struct NotificationFeedItem: View {
     }
     
     @ViewBuilder var destinationView: some View {
-        if item.type == ItemType.like {
+        if item.type == ItemType.like || item.type == ItemType.save {
             if let post = item.post {
                 ViewPost(initialPost: post)
             }
@@ -111,16 +111,19 @@ struct NotificationFeedItem: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    if item.type == ItemType.follow {
-                        Text(item.user.username + " started following you.")
-                            .lineLimit(1)
-                    } else if item.type == ItemType.like {
-                        Text(item.user.username + " liked your post.")
-                            .lineLimit(1)
-                    } else if item.type == ItemType.comment {
-                        Text(item.user.username + " commented on your post.")
-                            .lineLimit(1)
+                    switch item.type {
+                    case .follow:
+                        Text(item.user.username + " started following you")
+                    case .like:
+                        Text(item.user.username + " likes your post")
+                    case .save:
+                        Text(item.user.username + " saved your post")
+                    case .comment:
+                        Text(item.user.username + " commented on your post")
+                    case .unknown:
+                        EmptyView()
                     }
+                    
                     Text(relativeTime)
                         .font(.caption)
                         .foregroundColor(.gray)
@@ -134,7 +137,7 @@ struct NotificationFeedItem: View {
                 
                 Spacer()
                 
-                postPreview
+                postPreview.cornerRadius(2)
             }
         }
         .buttonStyle(NoButtonStyle())

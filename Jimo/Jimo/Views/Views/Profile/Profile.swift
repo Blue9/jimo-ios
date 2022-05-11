@@ -241,10 +241,10 @@ struct ProfileHeaderView: View {
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
                 
                 // Cannot share blocked user profile
-                if profileVM.relationToUser != .blocked && !profileVM.isCurrentUser(appState: appState, username: user.username) {
+                if profileVM.relationToUser != .blocked {
                     ShareButtonView(shareAction: .profile(user))
                         .offset(y: -2)
-                        .padding()
+                        .padding(.horizontal)
                 }
             }.padding(.leading, 20)
             
@@ -277,12 +277,6 @@ struct ProfileHeaderView: View {
                 NavigationLink(destination: EditProfile()) {
                     headerButtonText("Edit profile")
                 }
-                Button {
-                    viewState.showShareOverlay(for: .profile(user))
-                } label: {
-                    headerButtonText("Share profile")
-                }
-                
                 NavigationLink(destination: Feedback()) {
                     headerButtonText("Submit feedback")
                 }

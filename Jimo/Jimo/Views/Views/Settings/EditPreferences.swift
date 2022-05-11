@@ -27,9 +27,9 @@ struct EditPreferences: View {
             
             Toggle(isOn: $settingsViewModel.postLikedNotifications) {
                 VStack(alignment: .leading) {
-                    Text("Post likes")
+                    Text("Post likes and saves")
                     
-                    Text("Get notified when someone likes your post")
+                    Text("Get notified when someone likes or saves your post")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }

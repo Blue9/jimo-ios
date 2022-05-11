@@ -23,29 +23,38 @@ struct PostLikeButton: View {
         post.likeCount
     }
     
-    var body: some View {
+    @ViewBuilder
+    var icon: some View {
         HStack {
             if showFilledHeart {
-                Button(action: {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    postVM.unlikePost(postId: post.id, appState: appState, viewState: globalViewState)
-                }) {
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 20))
-                }
-                .foregroundColor(.red)
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.red)
             } else {
-                Button(action: {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    postVM.likePost(postId: post.id, appState: appState, viewState: globalViewState)
-                }) {
-                    Image(systemName: "heart")
-                        .font(.system(size: 20))
-                }
-                .foregroundColor(Color("foreground"))
+                Image(systemName: "heart")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color("foreground"))
             }
         }
         .offset(y: 0.5)
+    }
+    
+    var body: some View {
+        Button {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            if showFilledHeart {
+                postVM.unlikePost(postId: post.id, appState: appState, viewState: globalViewState)
+            } else {
+                postVM.likePost(postId: post.id, appState: appState, viewState: globalViewState)
+            }
+        } label: {
+            HStack {
+                icon
+                Text("Like").font(.system(size: 12))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 40)
+        }
     }
 }
 
@@ -56,39 +65,68 @@ struct PostSaveButton: View {
     @ObservedObject var postVM: PostVM
     var post: Post
     
+    @ViewBuilder
+    var icon: some View {
+        if post.saved {
+            Image(systemName: "bookmark.fill")
+                .resizable()
+                .frame(width: 16, height: 21)
+                .foregroundColor(Color("foreground"))
+        } else {
+            Image(systemName: "bookmark")
+                .resizable()
+                .frame(width: 16, height: 21)
+                .foregroundColor(Color("foreground"))
+        }
+    }
+    
     var body: some View {
-        HStack {
+        Button {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             if post.saved {
-                Button(action: {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    postVM.unsavePost(postId: post.id, appState: appState, viewState: globalViewState)
-                }) {
-                    Image(systemName: "bookmark.fill")
-                        .resizable()
-                        .frame(width: 16, height: 21)
-                }
-                .foregroundColor(Color("foreground"))
+                postVM.unsavePost(postId: post.id, appState: appState, viewState: globalViewState)
             } else {
-                Button(action: {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    postVM.savePost(postId: post.id, appState: appState, viewState: globalViewState)
-                }) {
-                    Image(systemName: "bookmark")
-                        .resizable()
-                        .frame(width: 16, height: 21)
-                }
-                .foregroundColor(Color("foreground"))
+                postVM.savePost(postId: post.id, appState: appState, viewState: globalViewState)
             }
+        } label: {
+            HStack {
+                icon
+                Text("Save").font(.system(size: 12))
+            }
+            .frame(height: 40)
+            .frame(maxWidth: .infinity)
         }
     }
 }
 
 struct PostCommentsIcon: View {
+    var post: Post
+    var showZeroCommentCount: Bool
+    
+    var onTap: (() -> ())?
+    
+    var label: some View {
+        HStack {
+            Image(systemName: "bubble.right")
+                .font(.system(size: 20))
+                .foregroundColor(Color("foreground"))
+                .offset(y: 1.5)
+            Text("Comment").font(.system(size: 12))
+        }
+        .frame(height: 40)
+        .frame(maxWidth: .infinity)
+    }
+    
     var body: some View {
-        Image(systemName: "bubble.right")
-            .font(.system(size: 20))
-            .foregroundColor(Color("foreground"))
-            .offset(y: 1.5)
+        if let onTap = onTap {
+            Button {
+                onTap()
+            } label: {
+                label
+            }
+        } else {
+            label
+        }
     }
 }
 
@@ -144,11 +182,16 @@ struct PostHeader: View {
             Spacer()
             
             Button(action: { self.showPostOptions = true }) {
-                Image(systemName: "ellipsis")
-                    .font(.subheadline)
-                    .frame(height: 26)
-                    .padding(.horizontal, 10)
-                    .contentShape(Rectangle())
+                if globalViewState.showShareOverlay {
+                    ProgressView()
+                        .padding(.horizontal, 10)
+                } else {
+                    Image(systemName: "ellipsis")
+                        .font(.subheadline)
+                        .frame(height: 26)
+                        .padding(.horizontal, 10)
+                        .contentShape(Rectangle())
+                }
             }
         }
         .padding(.leading, 10)
@@ -165,11 +208,17 @@ struct PostHeader: View {
                     .default(Text("Edit"), action: {
                         showEditSheet = true
                     }),
+                    .default(Text("Share"), action: {
+                        globalViewState.showShareOverlay(for: .post(post))
+                    }),
                     .destructive(Text("Delete"), action: {
                         showConfirmDelete = true
                     }),
                     .cancel()
                 ] : [
+                    .default(Text("Share"), action: {
+                        globalViewState.showShareOverlay(for: .post(post))
+                    }),
                     .default(Text("Report"), action: {
                         showConfirmReport = true
                     }),
@@ -294,29 +343,28 @@ struct PostFooter: View {
     var post: Post
     var showZeroCommentCount: Bool
     
+    var onCommentTap: (() -> ())?
+    
+    var likeCountText: String {
+        return "like".plural(post.likeCount)
+    }
+    
+    var commentCountText: String {
+        return "comment".plural(post.commentCount)
+    }
+    
     var body: some View {
-        HStack(spacing: 3) {
-            PostLikeButton(postVM: viewModel, post: post)
-            Spacer().frame(width: 2)
-            PostCommentsIcon()
-            Group {
-                if post.commentCount == 0 && !showZeroCommentCount {
-                    Text("Add a comment")
-                } else {
-                    Text("\(post.commentCount) comment\(post.commentCount != 1 ? "s" : "")")
-                }
+        VStack(alignment: .leading) {
+            Text("\(likeCountText) · \(commentCountText)").font(.caption)
+                .padding(.horizontal, 10)
+            
+            HStack(spacing: 0) {
+                PostLikeButton(postVM: viewModel, post: post)
+                Divider().padding(.vertical, 5)
+                PostCommentsIcon(post: post, showZeroCommentCount: showZeroCommentCount, onTap: onCommentTap)
+                Divider().padding(.vertical, 5)
+                PostSaveButton(postVM: viewModel, post: post)
             }
-            .font(.system(size: 11))
-            .foregroundColor(.gray)
-            
-            Spacer()
-            
-            PostSaveButton(postVM: viewModel, post: post)
-            
-            Spacer().frame(width: 5)
-            
-            SharePostButton(post: post)
         }
-        .padding(.horizontal, 10)
     }
 }
