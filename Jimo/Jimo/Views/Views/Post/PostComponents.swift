@@ -49,6 +49,40 @@ struct PostLikeButton: View {
     }
 }
 
+struct PostSaveButton: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var globalViewState: GlobalViewState
+    
+    @ObservedObject var postVM: PostVM
+    var post: Post
+    
+    var body: some View {
+        HStack {
+            if post.saved {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    postVM.unsavePost(postId: post.id, appState: appState, viewState: globalViewState)
+                }) {
+                    Image(systemName: "bookmark.fill")
+                        .resizable()
+                        .frame(width: 16, height: 21)
+                }
+                .foregroundColor(Color("foreground"))
+            } else {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    postVM.savePost(postId: post.id, appState: appState, viewState: globalViewState)
+                }) {
+                    Image(systemName: "bookmark")
+                        .resizable()
+                        .frame(width: 16, height: 21)
+                }
+                .foregroundColor(Color("foreground"))
+            }
+        }
+    }
+}
+
 struct PostCommentsIcon: View {
     var body: some View {
         Image(systemName: "bubble.right")
@@ -276,6 +310,10 @@ struct PostFooter: View {
             .foregroundColor(.gray)
             
             Spacer()
+            
+            PostSaveButton(postVM: viewModel, post: post)
+            
+            Spacer().frame(width: 5)
             
             SharePostButton(post: post)
         }

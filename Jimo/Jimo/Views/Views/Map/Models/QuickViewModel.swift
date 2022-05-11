@@ -35,6 +35,7 @@ class QuickViewModel: ObservableObject {
     
     init() {
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postSaved), name: PostPublisher.postSaved, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
     }
     
@@ -43,7 +44,12 @@ class QuickViewModel: ObservableObject {
         allPosts[like.postId]?.likeCount = like.likeCount
         allPosts[like.postId]?.liked = like.liked
     }
-
+    
+    @objc private func postSaved(notification: Notification) {
+        let save = notification.object as! PostSavePayload
+        allPosts[save.postId]?.saved = save.saved
+    }
+    
     @objc private func postUpdated(notification: Notification) {
         let post = notification.object as! Post
         allPosts[post.postId] = post
@@ -85,6 +91,8 @@ class QuickViewModel: ObservableObject {
             request = appState.getGlobalMutualPostsV3(for: placeId, categories: categories)
         case .following:
             request = appState.getFollowingMutualPostsV3(for: placeId, categories: categories)
+        case .savedPosts:
+            request = appState.getSavedPostsMapMutualPostsV3(for: placeId, categories: categories)
         case .custom:
             request = appState.getCustomMutualPostsV3(
                 for: placeId, categories: categories, users: Array(mapViewModel.selectedUsers))

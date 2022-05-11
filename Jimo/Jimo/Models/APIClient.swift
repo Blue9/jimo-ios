@@ -60,6 +60,15 @@ struct Endpoint {
         return Endpoint(path: "/me")
     }
     
+    static func savedPosts(cursor: String? = nil) -> Endpoint {
+        let path = "/me/saved-posts"
+        var queryItems: [URLQueryItem] = []
+        if let cursor = cursor {
+            queryItems.append(URLQueryItem(name: "cursor", value: cursor))
+        }
+        return Endpoint(path: path, queryItems: queryItems)
+    }
+    
     static func profilePicture() -> Endpoint {
         return Endpoint(path: "/me/photo")
     }
@@ -146,6 +155,14 @@ struct Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
     
+    static func savePost(postId: String) -> Endpoint {
+        return Endpoint(path: "/posts/\(postId)/save")
+    }
+    
+    static func unsavePost(postId: String) -> Endpoint {
+        return Endpoint(path: "/posts/\(postId)/unsave")
+    }
+    
     // MARK: - Comment endpoints
     
     static func comments(for postId: PostId, cursor: String? = nil) -> Endpoint {
@@ -199,6 +216,10 @@ struct Endpoint {
     static func getFollowingMap() -> Endpoint {
         return Endpoint(path: "/map/following")
     }
+
+    static func getSavedPostsMap() -> Endpoint {
+        return Endpoint(path: "/map/saved-posts")
+    }
     
     static func getCustomMap() -> Endpoint {
         return Endpoint(path: "/map/custom")
@@ -218,6 +239,10 @@ struct Endpoint {
     
     static func getFollowingMutualPostsV3(placeId: PlaceId) -> Endpoint {
         return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/following")
+    }
+    
+    static func getSavedPostsMapMutualPostsV3(placeId: PlaceId) -> Endpoint {
+        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/saved-posts")
     }
     
     static func getCustomMutualPostsV3(placeId: PlaceId) -> Endpoint {
@@ -378,6 +403,13 @@ class APIClient: ObservableObject {
     }
     
     /**
+     Get the saved posts by the current user.
+     */
+    func getSavedPosts(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        doRequest(endpoint: Endpoint.savedPosts(cursor: cursor))
+    }
+    
+    /**
      Create a new user profile.
      */
     func createUser(_ request: CreateUserRequest) -> AnyPublisher<CreateUserResponse, APIError> {
@@ -475,6 +507,17 @@ class APIClient: ObservableObject {
     }
     
     /**
+     Get the map of the current user's saved posts.
+     */
+    func getSavedPostsMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        return doRequest(
+            endpoint: Endpoint.getSavedPostsMap(),
+            httpMethod: "POST",
+            body: GetMapRequest(region: region, categories: categories)
+        )
+    }
+    
+    /**
      Get the map of the given users.
      */
     func getCustomMap(region: Region, userIds: [String], categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
@@ -512,6 +555,17 @@ class APIClient: ObservableObject {
     func getFollowingMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
         return doRequest(
             endpoint: Endpoint.getFollowingMutualPostsV3(placeId: placeId),
+            httpMethod: "POST",
+            body: PlaceLoadRequest(categories: categories)
+        )
+    }
+    
+    /**
+     Get all saved posts for the given place
+     */
+    func getSavedPostsMapMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return doRequest(
+            endpoint: Endpoint.getSavedPostsMapMutualPostsV3(placeId: placeId),
             httpMethod: "POST",
             body: PlaceLoadRequest(categories: categories)
         )
@@ -629,6 +683,20 @@ class APIClient: ObservableObject {
      */
     func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         doRequest(endpoint: Endpoint.postLikes(postId: postId), httpMethod: "DELETE")
+    }
+    
+    /**
+     Save the given post.
+     */
+    func savePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: Endpoint.savePost(postId: postId), httpMethod: "POST")
+    }
+    
+    /**
+     Unsave the given post.
+     */
+    func unsavePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: Endpoint.unsavePost(postId: postId), httpMethod: "POST")
     }
     
     /**

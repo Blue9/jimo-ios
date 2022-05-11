@@ -25,6 +25,7 @@ class FeedViewModel: ObservableObject {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postSaved), name: PostPublisher.postSaved, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
     
@@ -46,6 +47,14 @@ class FeedViewModel: ObservableObject {
         if let i = postIndex {
             feed[i].likeCount = like.likeCount
             feed[i].liked = like.liked
+        }
+    }
+    
+    @objc private func postSaved(notification: Notification) {
+        let save = notification.object as! PostSavePayload
+        let postIndex = feed.indices.first(where: { feed[$0].postId == save.postId })
+        if let i = postIndex {
+            feed[i].saved = save.saved
         }
     }
     
@@ -142,7 +151,7 @@ struct FeedBody: View {
                     HStack {
                         Image("postIcon")
                             .font(.system(size: 15))
-                        Text("Save a place to get started")
+                        Text("Create a post to get started")
                     }
                     .font(.system(size: 15))
                     .foregroundColor(.white)

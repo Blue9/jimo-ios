@@ -29,22 +29,9 @@ struct Profile: View {
             }
             
             ASCollectionViewSection(id: 1, data: profileVM.posts, dataID: \.self) { post, _ in
-                GeometryReader { geometry in
-                    NavigationLink(destination: ViewPost(initialPost: post)) {
-                        if let url = post.imageUrl {
-                            URLImage(url: url, thumbnail: true)
-                                .frame(maxWidth: .infinity)
-                                .frame(width: geometry.size.width, height: geometry.size.width)
-                        } else {
-                            MapSnapshotView(post: post, width: (UIScreen.main.bounds.width - 6) / 3)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: geometry.size.width)
-                        }
-                    }
+                NavigationLink(destination: ViewPost(initialPost: post)) {
+                    PostGridCell(post: post)
                 }
-                .aspectRatio(1, contentMode: .fit)
-                .background(Color(post.category))
-                .cornerRadius(2)
             }
             
             ASCollectionViewSection(id: 2) {
@@ -75,7 +62,7 @@ struct Profile: View {
                     layoutMode: .fixedNumberOfColumns(3),
                     itemSpacing: 2,
                     lineSpacing: 2,
-                    itemSize: .absolute((UIScreen.main.bounds.width - 8) / 3),
+                    itemSize: .estimated(80),
                     sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
                 )
             default:
@@ -205,6 +192,8 @@ struct ProfileHeaderView: View {
     
     @ObservedObject var profileVM: ProfileVM
     
+    @State private var showCreatePostView = false
+    
     let initialUser: User
     
     var user: User {
@@ -229,7 +218,8 @@ struct ProfileHeaderView: View {
                     .cornerRadius(40)
                     .padding(.trailing)
                 ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
-            }
+            }.padding(.leading, 20)
+            
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(user.username)
@@ -251,15 +241,54 @@ struct ProfileHeaderView: View {
                 FollowButtonView(profileVM: profileVM, initialUser: initialUser)
                 
                 // Cannot share blocked user profile
-                if profileVM.relationToUser != .blocked {
+                if profileVM.relationToUser != .blocked && !profileVM.isCurrentUser(appState: appState, username: user.username) {
                     ShareButtonView(shareAction: .profile(user))
                         .offset(y: -2)
                         .padding()
                 }
+            }.padding(.leading, 20)
+            
+            if profileVM.isCurrentUser(appState: appState, username: user.username) {
+                currentUserHeader
+                    .padding(.top)
             }
         }
-        .padding(.leading, 20)
         .background(Color("background"))
+    }
+    
+    @ViewBuilder
+    func headerButtonText(_ text: String) -> some View {
+        Text(text)
+            .font(.caption)
+            .bold()
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color("foreground").opacity(0.15))
+            .cornerRadius(2)
+    }
+    
+    @ViewBuilder
+    var currentUserHeader: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+                NavigationLink(destination: SavedPosts()) {
+                    headerButtonText("Saved posts")
+                }
+                NavigationLink(destination: EditProfile()) {
+                    headerButtonText("Edit profile")
+                }
+                Button {
+                    viewState.showShareOverlay(for: .profile(user))
+                } label: {
+                    headerButtonText("Share profile")
+                }
+                
+                NavigationLink(destination: Feedback()) {
+                    headerButtonText("Submit feedback")
+                }
+            }
+            .padding(.horizontal, 20)
+        }
     }
 }
 
@@ -282,7 +311,7 @@ struct ProfileStatsView: View {
         HStack {
             VStack {
                 Text(String(user.postCount)).bold()
-                Text("Places")
+                Text("Posts")
             }
             .padding(.leading, 15)
             .padding(.trailing, 10)

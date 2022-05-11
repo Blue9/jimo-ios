@@ -97,6 +97,38 @@ struct FollowingViewSelector: View {
     }
 }
 
+struct SavedPostsViewSelector: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    
+    @ObservedObject var mapViewModel: MapViewModelV2
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "bookmark.circle")
+                .resizable()
+                .font(.system(size: 14, weight: .light))
+                .foregroundColor(Color("foreground").opacity(0.8))
+                .frame(width: 40, height: 40)
+            
+            HStack(spacing: 5) {
+                Text("Saved Posts")
+                    .bold()
+            }
+            .font(.system(size: 15))
+            .lineLimit(1)
+            
+            Spacer()
+            
+            CircularCheckbox(selected: mapViewModel.savedPostsSelected)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            mapViewModel.toggleSavedPosts()
+        }
+    }
+}
+
 
 struct SelectableUser: View {
     @EnvironmentObject var appState: AppState
@@ -207,12 +239,15 @@ struct UserFilter: View {
     
     var existingMapBody: some View {
         VStack(spacing: 0) {
-            VStack {
+            VStack(spacing: 10) {
+                if mapViewModel.searchUsersQuery.isEmpty {
+                    SavedPostsViewSelector(mapViewModel: mapViewModel)
+                    GlobalViewSelector(mapViewModel: mapViewModel)
+                    FollowingViewSelector(mapViewModel: mapViewModel)
+                }
+                
                 if filteredUsers.count > 0 {
                     VStack(spacing: 10) {
-                        GlobalViewSelector(mapViewModel: mapViewModel)
-                        FollowingViewSelector(mapViewModel: mapViewModel)
-                        
                         ForEach(filteredUsers) { user in
                             SelectableUser(mapViewModel: mapViewModel, user: user)
                                 .matchedGeometryEffect(id: user.id, in: userFilter)

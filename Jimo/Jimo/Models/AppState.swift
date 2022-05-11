@@ -315,6 +315,10 @@ class AppState: ObservableObject {
             .store(in: &self.cancelBag)
     }
     
+    func getSavedPosts(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        return self.apiClient.getSavedPosts(cursor: cursor)
+    }
+    
     func refreshFeed() -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getFeed()
     }
@@ -341,6 +345,10 @@ class AppState: ObservableObject {
         self.apiClient.getFollowingMap(region: region, categories: categories)
     }
     
+    func getSavedPostsMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+        self.apiClient.getSavedPostsMap(region: region, categories: categories)
+    }
+    
     func getCustomMap(region: Region, userIds: [String], categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
         self.apiClient.getCustomMap(region: region, userIds: userIds, categories: categories)
     }
@@ -360,6 +368,10 @@ class AppState: ObservableObject {
     
     func getFollowingMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
         return self.apiClient.getFollowingMutualPostsV3(for: placeId, categories: categories)
+    }
+    
+    func getSavedPostsMapMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
+        return self.apiClient.getSavedPostsMapMutualPostsV3(for: placeId, categories: categories)
     }
     
     func getCustomMutualPostsV3(for placeId: PlaceId, categories: [String], users: [UserId]) -> AnyPublisher<[Post], APIError> {
@@ -456,6 +468,24 @@ class AppState: ObservableObject {
             .map { like in
                 self.postPublisher.postUnliked(postId: postId, likeCount: like.likes)
                 return like
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func savePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
+        return self.apiClient.savePost(postId: postId)
+            .map {
+                self.postPublisher.postSaved(postId: postId)
+                return $0
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func unsavePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
+        return self.apiClient.unsavePost(postId: postId)
+            .map {
+                self.postPublisher.postUnsaved(postId: postId)
+                return $0
             }
             .eraseToAnyPublisher()
     }

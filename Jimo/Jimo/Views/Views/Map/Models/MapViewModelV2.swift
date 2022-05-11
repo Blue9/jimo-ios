@@ -15,7 +15,7 @@ enum MapLoadStatus {
 }
 
 enum MapLoadStrategy {
-    case everyone, following, custom, none
+    case everyone, following, savedPosts, custom, none
 }
 
 struct CurrentMapRequest {
@@ -31,10 +31,12 @@ protocol MapActions {
     
     func toggleGlobal()
     func toggleFollowing()
+    func toggleSavedPosts()
     func toggleUser(user: PublicUser)
     
     var globalSelected: Bool { get }
     var followingSelected: Bool { get }
+    var savedPostsSelected: Bool { get }
     func isSelected(userId: UserId) -> Bool
     
     func selectPin(index: Int)
@@ -83,6 +85,10 @@ class MapViewModelV2: MapActions, ObservableObject {
     
     var followingSelected: Bool {
         mapLoadStrategy == .following
+    }
+
+    var savedPostsSelected: Bool {
+        mapLoadStrategy == .savedPosts
     }
     
     func initialize(appState: AppState, viewState: GlobalViewState, regionWrapper: RegionWrapper) {
@@ -140,6 +146,16 @@ class MapViewModelV2: MapActions, ObservableObject {
     func toggleFollowing() {
         if mapLoadStrategy != .following {
             mapLoadStrategy = .following
+            selectedUsers.removeAll()
+        } else {
+            mapLoadStrategy = .none
+            pins.removeAll()
+        }
+    }
+    
+    func toggleSavedPosts() {
+        if mapLoadStrategy != .savedPosts {
+            mapLoadStrategy = .savedPosts
             selectedUsers.removeAll()
         } else {
             mapLoadStrategy = .none
@@ -224,6 +240,8 @@ class MapViewModelV2: MapActions, ObservableObject {
             self.loadGlobalMap(appState: appState, globalViewState: viewState, request: request)
         case .following:
             self.loadFollowingMap(appState: appState, globalViewState: viewState, request: request)
+        case .savedPosts:
+            self.loadSavedPostsMap(appState: appState, globalViewState: viewState, request: request)
         case .custom:
             self.loadCustomMap(appState: appState, globalViewState: viewState, request: request)
         case .none:
@@ -276,6 +294,28 @@ class MapViewModelV2: MapActions, ObservableObject {
     private func loadFollowingMap(appState: AppState, globalViewState: GlobalViewState, request: CurrentMapRequest) {
         mapLoadStatus = .loading
         appState.getFollowingMap(region: request.region, categories: request.categories)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                if case let .failure(error) = completion {
+                    self.mapLoadStatus = .failed
+                    print("Error loading map", error)
+                    globalViewState.setError("Could not load map")
+                } else {
+                    self.mapLoadStatus = .success
+                }
+            } receiveValue: { [weak self] mapResponseV3 in
+                guard let self = self else {
+                    return
+                }
+                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+            }.store(in: &cancelBag)
+    }
+    
+    private func loadSavedPostsMap(appState: AppState, globalViewState: GlobalViewState, request: CurrentMapRequest) {
+        mapLoadStatus = .loading
+        appState.getSavedPostsMap(region: request.region, categories: request.categories)
             .sink { [weak self] completion in
                 guard let self = self else {
                     return

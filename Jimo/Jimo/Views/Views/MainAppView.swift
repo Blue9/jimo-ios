@@ -37,7 +37,7 @@ struct MainAppView: View {
                     badgeValue: appState.unreadNotifications > 0 ? String(appState.unreadNotifications) : nil
                 )
             
-            Text("").tabItem("Save", image: UIImage(named: "postIcon"))
+            Text("").tabItem("Post", image: UIImage(named: "postIcon"))
             
             Search()
                 .environmentObject(appState)

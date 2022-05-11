@@ -25,6 +25,7 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var likeCount: Int
     var commentCount: Int
     var liked: Bool
+    var saved: Bool
     
     var location: CLLocationCoordinate2D {
         place.location.coordinate()
