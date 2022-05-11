@@ -127,8 +127,10 @@ extension AppDelegate {
         
         // Print full message.
         if let postId = userInfo["post_id"] as? PostId {
+            appState.unreadNotifications = 0
             deepLinkManager.presentableEntity = .post(postId)
         } else if let username = userInfo["username"] as? String {
+            appState.unreadNotifications = 0
             deepLinkManager.presentableEntity = .profile(username)
         }
         
