@@ -365,7 +365,7 @@ struct CreatePostWithModel: View {
                         PlaceSearch(selectPlace: createPostVM.selectPlace)
                             .trackSheet(.enterLocationView, screenAfterDismiss: { .createPostSheet })
                     case .imagePicker:
-                        ImagePicker(image: createPostVM.uiImageBinding)
+                        ImagePicker(image: createPostVM.uiImageBinding, allowsEditing: true)
                     }
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
