@@ -49,7 +49,7 @@ struct ViewPost: View {
                 PostPlaceName(post: post)
                 PostCaption(post: post)
             }
-            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true)
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true, onCommentTap: nil)
                 .padding(.bottom, 10)
         }
         .onAppear {

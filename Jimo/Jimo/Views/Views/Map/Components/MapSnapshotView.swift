@@ -8,6 +8,52 @@
 import SwiftUI
 import MapKit
 
+class MapSnapshotCacheKey: NSObject {
+    var colorScheme: ColorScheme
+    
+    var place: Place
+    var category: String
+    var profilePictureUrl: String?
+    var span: CLLocationDegrees
+    var width: CGFloat
+    var height: CGFloat?
+    
+    init(_ colorScheme: ColorScheme, _ post: Post, _ span: CLLocationDegrees, _ width: CGFloat, _ height: CGFloat?) {
+        self.colorScheme = colorScheme
+        self.place = post.place
+        self.category = post.category
+        self.profilePictureUrl = post.user.profilePictureUrl
+        self.span = span
+        self.width = width
+        self.height = height
+    }
+    
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let o = object as? MapSnapshotCacheKey else {
+            return false
+        }
+        return place == o.place
+            && category == o.category
+            && profilePictureUrl == o.profilePictureUrl
+            && span == o.span
+            && width == o.width
+            && height == o.height
+    }
+    
+    override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(place)
+        hasher.combine(category)
+        hasher.combine(profilePictureUrl)
+        hasher.combine(span)
+        hasher.combine(width)
+        hasher.combine(height)
+        return hasher.finalize()
+    }
+}
+
+fileprivate let cache = NSCache<MapSnapshotCacheKey, UIImage>()
+
 // From https://codakuma.com/swiftui-static-maps/
 struct MapSnapshotView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -19,8 +65,16 @@ struct MapSnapshotView: View {
     
     @State private var snapshotImage: UIImage? = nil
     
+    var cacheKey: MapSnapshotCacheKey {
+        MapSnapshotCacheKey(colorScheme, post, span, width, height)
+    }
+    
     func generateSnapshot(width: CGFloat, height: CGFloat) {
         guard snapshotImage == nil else {
+            return
+        }
+        if let image = cache.object(forKey: cacheKey) {
+            self.snapshotImage = image
             return
         }
         // The region the map should display.
@@ -46,6 +100,7 @@ struct MapSnapshotView: View {
                 return
             }
             if let snapshot = snapshotOrNil {
+                cache.setObject(snapshot.image, forKey: cacheKey)
                 self.snapshotImage = snapshot.image
             }
         }

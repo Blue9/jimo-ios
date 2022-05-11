@@ -35,6 +35,7 @@ class ProfileVM: ObservableObject {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
+        nc.addObserver(self, selector: #selector(postSaved), name: PostPublisher.postSaved, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
     
@@ -58,6 +59,14 @@ class ProfileVM: ObservableObject {
         if let i = postIndex {
             posts[i].likeCount = like.likeCount
             posts[i].liked = like.liked
+        }
+    }
+    
+    @objc private func postSaved(notification: Notification) {
+        let save = notification.object as! PostSavePayload
+        let postIndex = posts.indices.first(where: { posts[$0].postId == save.postId })
+        if let i = postIndex {
+            posts[i].saved = save.saved
         }
     }
     

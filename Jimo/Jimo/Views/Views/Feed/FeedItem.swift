@@ -36,7 +36,12 @@ struct FeedItem: View {
                         showFullPost = post.id
                     }
             }
-            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false)
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false, onCommentTap: { showFullPost = post.id })
+            
+            Rectangle()
+                .frame(maxWidth: .infinity)
+                .frame(height: 8)
+                .foregroundColor(Color("foreground").opacity(0.1))
         }
     }
 }

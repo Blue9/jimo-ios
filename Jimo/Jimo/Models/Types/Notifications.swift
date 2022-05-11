@@ -11,6 +11,7 @@ enum ItemType: String, Codable {
     case follow
     case like
     case comment
+    case save
     case unknown
 }
 

@@ -21,6 +21,7 @@ enum Screen: String {
     case createPostSheet
     case searchTab
     case profileTab
+    case savedPosts
     
     // Other views
     case enterLocationView

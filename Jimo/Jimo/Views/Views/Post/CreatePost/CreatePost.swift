@@ -349,7 +349,7 @@ struct CreatePostWithModel: View {
                         if createPostVM.postingStatus == .loading {
                             ProgressView()
                         } else {
-                            Text("Save").bold()
+                            Text("Post").bold()
                         }
                     }.disabled(createPostVM.postingStatus == .loading)
                 }
