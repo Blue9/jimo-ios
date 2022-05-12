@@ -46,8 +46,12 @@ struct Endpoint {
         return Endpoint(path: "/me/contacts")
     }
     
-    static func suggestedUsers() -> Endpoint {
+    static func featuredUsers() -> Endpoint {
         return Endpoint(path: "/me/suggested")
+    }
+    
+    static func suggestedUsers() -> Endpoint {
+        return Endpoint(path: "/me/suggested-users")
     }
     
     static func followMany() -> Endpoint {
@@ -348,6 +352,13 @@ class APIClient: ObservableObject {
         return doRequest(endpoint: Endpoint.contacts(),
                          httpMethod: "POST",
                          body: PhoneNumbersRequest(phoneNumbers: phoneNumbers))
+    }
+    
+    /**
+     Get the list of featured users.
+     */
+    func getFeaturedUsers() -> AnyPublisher<[PublicUser], APIError> {
+        return doRequest(endpoint: Endpoint.featuredUsers())
     }
     
     /**

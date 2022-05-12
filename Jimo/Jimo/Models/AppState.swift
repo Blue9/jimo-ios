@@ -124,6 +124,10 @@ class AppState: ObservableObject {
         return apiClient.getUsersInContacts(phoneNumbers: phoneNumbers)
     }
     
+    func getFeaturedUsers() -> AnyPublisher<[PublicUser], APIError> {
+        return apiClient.getFeaturedUsers()
+    }
+    
     func getSuggestedUsers() -> AnyPublisher<[PublicUser], APIError> {
         return apiClient.getSuggestedUsers()
     }

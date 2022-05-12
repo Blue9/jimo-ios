@@ -24,7 +24,7 @@ class FeaturedUserStore: SuggestedUserStore {
         withAnimation {
             loadingSuggestedUsers = true
         }
-        getUsersCancellable = appState.getSuggestedUsers()
+        getUsersCancellable = appState.getFeaturedUsers()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Error when getting featured users")

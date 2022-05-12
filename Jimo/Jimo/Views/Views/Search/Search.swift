@@ -14,6 +14,7 @@ struct Search: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     
     @StateObject var searchViewModel = SearchViewModel()
+    @StateObject var suggestedViewModel = SuggestedUserCarouselViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
     
     @State private var initialLoadCompleted = false
@@ -44,25 +45,55 @@ struct Search: View {
     
     var discoverFeedLoaded: some View {
         ASCollectionView {
-            ASCollectionViewSection(id: 0, data: discoverViewModel.posts) { post, _ in
+            if suggestedViewModel.shouldPresent() {
+                ASCollectionViewSection(id: 0) {
+                    SuggestedUsersCarousel(viewModel: suggestedViewModel)
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width / 3)
+                        .fixedSize(horizontal: true, vertical: true)
+                }.sectionHeader {
+                    HStack {
+                        Text("Users to follow")
+                            .font(.headline)
+                            .padding()
+                        
+                        Spacer()
+                    }
+                }
+            }
+            
+            ASCollectionViewSection(id: 1, data: discoverViewModel.posts) { post, _ in
                 NavigationLink(destination: ViewPost(initialPost: post)) {
                     PostGridCell(post: post)
+                }
+            }.sectionHeader {
+                HStack {
+                    Text("Suggested posts")
+                        .font(.headline)
+                        .padding()
+                    
+                    Spacer()
                 }
             }
         }
         .alwaysBounceVertical()
         .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .grid(
-                layoutMode: .fixedNumberOfColumns(3),
-                itemSpacing: 2,
-                lineSpacing: 2,
-                itemSize: .estimated(80),
-                sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
-            )
+        .layout { sectionID in
+            switch sectionID {
+            case 0:
+                return .list(itemSize: .estimated(80))
+            default:
+                return .grid(
+                    layoutMode: .fixedNumberOfColumns(3),
+                    itemSpacing: 2,
+                    lineSpacing: 2,
+                    itemSize: .estimated(80),
+                    sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
+                )
+            }
         }
         .scrollIndicatorsEnabled(horizontal: false, vertical: false)
         .onPullToRefresh { onFinish in
+            suggestedViewModel.load(appState: appState, viewState: globalViewState)
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
         }
         .ignoresSafeArea(.keyboard, edges: .all)
@@ -125,6 +156,7 @@ struct Search: View {
                 if !initialLoadCompleted {
                     initialLoadCompleted = true
                     searchViewModel.listen(appState: appState)
+                    suggestedViewModel.load(appState: appState, viewState: globalViewState)
                     discoverViewModel.loadDiscoverPage(appState: appState)
                 }
             }

@@ -39,6 +39,10 @@ struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
     var postCount: Int
     var followerCount: Int
     var followingCount: Int
+    
+    var fullName: String {
+        "\(firstName) \(lastName)"
+    }
 }
 
 
