@@ -102,4 +102,20 @@ enum AnalyticsName: Equatable {
     case sharePostCancelled
     /// Share sheet completed
     case sharePostCompleted
+    
+    case postCreated
+    case postUpdated
+    case postDeleted
+    
+    case postLiked
+    case postUnliked
+    
+    case commentCreated
+    case commentDeleted
+    
+    case postSaved
+    case postUnsaved
+    
+    case userFollowed
+    case userUnfollowed
 }

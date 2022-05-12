@@ -384,6 +384,7 @@ class AppState: ObservableObject {
         return self.apiClient.followUser(username: username)
             .map { response in
                 self.userPublisher.userRelationChanged(username: username, relation: .following)
+                Analytics.track(.userFollowed)
                 return response
             }
             .eraseToAnyPublisher()
@@ -393,6 +394,7 @@ class AppState: ObservableObject {
         return self.apiClient.unfollowUser(username: username)
             .map { response in
                 self.userPublisher.userRelationChanged(username: username, relation: nil)
+                Analytics.track(.userUnfollowed)
                 return response
             }
             .eraseToAnyPublisher()
@@ -426,6 +428,11 @@ class AppState: ObservableObject {
         return self.apiClient.createPost(request)
             .map { post in
                 self.postPublisher.postCreated(post: post)
+                Analytics.track(.postCreated, parameters: [
+                    "category": request.category,
+                    "hasCaption": request.content.count > 0,
+                    "hasPhoto": request.imageId != nil
+                ])
             }
             .eraseToAnyPublisher()
     }
@@ -438,6 +445,11 @@ class AppState: ObservableObject {
         return self.apiClient.updatePost(postId, request)
             .map { post in
                 self.postPublisher.postUpdated(post: post)
+                Analytics.track(.postUpdated, parameters: [
+                    "category": request.category,
+                    "hasCaption": request.content.count > 0,
+                    "hasPhoto": request.imageId != nil
+                ])
             }
             .eraseToAnyPublisher()
     }
@@ -446,6 +458,7 @@ class AppState: ObservableObject {
         return self.apiClient.deletePost(postId: postId)
             .map { _ in
                 self.postPublisher.postDeleted(postId: postId)
+                Analytics.track(.postDeleted)
             }
             .eraseToAnyPublisher()
     }
@@ -458,6 +471,7 @@ class AppState: ObservableObject {
         return self.apiClient.likePost(postId: postId)
             .map { like in
                 self.postPublisher.postLiked(postId: postId, likeCount: like.likes)
+                Analytics.track(.postLiked)
                 return like
             }
             .eraseToAnyPublisher()
@@ -467,6 +481,7 @@ class AppState: ObservableObject {
         return self.apiClient.unlikePost(postId: postId)
             .map { like in
                 self.postPublisher.postUnliked(postId: postId, likeCount: like.likes)
+                Analytics.track(.postUnliked)
                 return like
             }
             .eraseToAnyPublisher()
@@ -476,6 +491,7 @@ class AppState: ObservableObject {
         return self.apiClient.savePost(postId: postId)
             .map {
                 self.postPublisher.postSaved(postId: postId)
+                Analytics.track(.postSaved)
                 return $0
             }
             .eraseToAnyPublisher()
@@ -485,6 +501,7 @@ class AppState: ObservableObject {
         return self.apiClient.unsavePost(postId: postId)
             .map {
                 self.postPublisher.postUnsaved(postId: postId)
+                Analytics.track(.postUnsaved)
                 return $0
             }
             .eraseToAnyPublisher()
@@ -504,6 +521,7 @@ class AppState: ObservableObject {
         apiClient.createComment(for: postId, content: content)
             .map { comment in
                 self.commentPublisher.commentCreated(comment: comment)
+                Analytics.track(.commentCreated)
                 return comment
             }
             .eraseToAnyPublisher()
@@ -513,6 +531,7 @@ class AppState: ObservableObject {
         apiClient.deleteComment(commentId: commentId)
             .map { response in
                 self.commentPublisher.commentDeleted(commentId: commentId)
+                Analytics.track(.commentDeleted)
                 return response
             }
             .eraseToAnyPublisher()
