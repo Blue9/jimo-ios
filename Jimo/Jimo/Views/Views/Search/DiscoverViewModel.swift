@@ -7,14 +7,24 @@
 
 import Foundation
 import Combine
+import CoreLocation
 
 class DiscoverViewModel: ObservableObject {
+    let locationManager = CLLocationManager()
     let nc = NotificationCenter.default
     
     @Published var posts: [Post] = []
     @Published var initialized = false
     
     private var loadFeedCancellable: Cancellable?
+    
+    var maybeLocation: Location? {
+        if let location = locationManager.location {
+            return Location(coord: location.coordinate)
+        } else {
+            return nil
+        }
+    }
     
     init() {
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
@@ -53,15 +63,15 @@ class DiscoverViewModel: ObservableObject {
     }
     
     func loadDiscoverPage(appState: AppState, onFinish: OnFinish? = nil) {
-        loadFeedCancellable = appState.discoverFeed()
+        loadFeedCancellable = appState.discoverFeedV2(location: maybeLocation)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.initialized = true
                 onFinish?()
                 if case let .failure(error) = completion {
                     print("Error when loading posts", error)
                 }
-            }, receiveValue: { [weak self] posts in
-                self?.posts = posts
+            }, receiveValue: { [weak self] feed in
+                self?.posts = feed.posts
             })
     }
 }

@@ -39,6 +39,10 @@ struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
     var postCount: Int
     var followerCount: Int
     var followingCount: Int
+    
+    var fullName: String {
+        "\(firstName) \(lastName)"
+    }
 }
 
 
@@ -105,6 +109,20 @@ struct FollowFeedItem: Identifiable, Codable, Hashable {
 struct FollowFeedResponse: Codable {
     var users: [FollowFeedItem]
     var cursor: String?
+}
+
+
+struct SuggestedUserItem: Identifiable, Codable, Hashable {
+    var id: String {
+        user.id
+    }
+    var user: PublicUser
+    var numMutualFriends: Int
+}
+
+
+struct SuggestedUsersResponse: Codable {
+    var users: [SuggestedUserItem]
 }
 
 
