@@ -55,8 +55,8 @@ struct SuggestedUsersCarousel: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-                ForEach(viewModel.users, id: \.self) { user in
-                    SuggestedUserCard(viewModel: viewModel, user: user)
+                ForEach(viewModel.users, id: \.self) { item in
+                    SuggestedUserCard(viewModel: viewModel, item: item)
                 }
             }.padding()
         }
@@ -67,7 +67,7 @@ class SuggestedUserCarouselViewModel: ObservableObject {
     let nc = NotificationCenter.default
     
     @Published fileprivate var loadStatus: LoadStatus = .notInitialized
-    @Published var users: [PublicUser] = []
+    @Published var users: [SuggestedUserItem] = []
     @Published var followedUsernames: Set<String> = []
     
     var cancelBag: Set<AnyCancellable> = .init()
@@ -78,7 +78,7 @@ class SuggestedUserCarouselViewModel: ObservableObject {
     
     @objc private func userRelationChanged(notification: Notification) {
         let payload = notification.object as! UserRelationPayload
-        if users.contains(where: { $0.username == payload.username }) {
+        if users.contains(where: { $0.user.username == payload.username }) {
             switch payload.relation {
             case .blocked, .none:
                 followedUsernames.remove(payload.username)
@@ -102,8 +102,8 @@ class SuggestedUserCarouselViewModel: ObservableObject {
                 if case .failure = completion {
                     self?.loadStatus = .failed
                 }
-            } receiveValue: { [weak self] users in
-                self?.users = users
+            } receiveValue: { [weak self] response in
+                self?.users = response.users
                 self?.loadStatus = .loaded
             }.store(in: &cancelBag)
     }
@@ -137,8 +137,8 @@ class SuggestedUserCarouselViewModel: ObservableObject {
             followedUsernames.remove(username)
         }
         if let followerCount = response.followers,
-           let i = self.users.firstIndex(where: { $0.username == username }) {
-            self.users[i].followerCount = followerCount
+           let i = self.users.firstIndex(where: { $0.user.username == username }) {
+            self.users[i].user.followerCount = followerCount
         }
     }
 }
@@ -147,7 +147,11 @@ fileprivate struct SuggestedUserCard: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var viewModel: SuggestedUserCarouselViewModel
-    var user: PublicUser
+    var item: SuggestedUserItem
+    
+    var user: PublicUser {
+        item.user
+    }
     
     var isFollowed: Bool {
         viewModel.isFollowed(user.username)
@@ -168,8 +172,8 @@ fileprivate struct SuggestedUserCard: View {
             thumbnail: true
         )
         .foregroundColor(.gray)
-        .frame(width: 50, height: 50)
-        .cornerRadius(25)
+        .frame(width: 60, height: 60)
+        .cornerRadius(30)
     }
     
     @ViewBuilder var followButton: some View {
@@ -186,7 +190,7 @@ fileprivate struct SuggestedUserCard: View {
             }
             .font(.system(size: 12))
             .frame(maxWidth: .infinity)
-            .frame(height: 20)
+            .frame(height: 30)
             .foregroundColor(followType.foregroundColor)
             .background(followType.backgroundColor)
             .cornerRadius(2)
@@ -203,11 +207,12 @@ fileprivate struct SuggestedUserCard: View {
         }) {
             VStack {
                 profilePicture
-                Text(user.username).font(.system(size: 12)).bold()
-                Text(user.fullName).font(.system(size: 12))
+                Text(user.username).font(.system(size: 12)).bold().lineLimit(1)
+                Text(user.fullName).font(.system(size: 12)).lineLimit(1)
                 followButton.padding(.horizontal)
+                Text("mutual friend".plural(item.numMutualFriends)).font(.caption)
             }
-            .frame(width: width, height: width)
+            .frame(width: width, height: width * 1.4)
             .background(Color("foreground").opacity(0.1))
             .cornerRadius(2)
         }.buttonStyle(NoButtonStyle())

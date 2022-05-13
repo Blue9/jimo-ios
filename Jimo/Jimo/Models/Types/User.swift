@@ -112,6 +112,20 @@ struct FollowFeedResponse: Codable {
 }
 
 
+struct SuggestedUserItem: Identifiable, Codable, Hashable {
+    var id: String {
+        user.id
+    }
+    var user: PublicUser
+    var numMutualFriends: Int
+}
+
+
+struct SuggestedUsersResponse: Codable {
+    var users: [SuggestedUserItem]
+}
+
+
 enum UserRelation: String, Codable {
     case following, blocked
 }

@@ -128,7 +128,7 @@ class AppState: ObservableObject {
         return apiClient.getFeaturedUsers()
     }
     
-    func getSuggestedUsers() -> AnyPublisher<[PublicUser], APIError> {
+    func getSuggestedUsers() -> AnyPublisher<SuggestedUsersResponse, APIError> {
         return apiClient.getSuggestedUsers()
     }
     
@@ -567,12 +567,19 @@ class AppState: ObservableObject {
     
     // MARK: - Discover
     
+    @available(*, deprecated, message: "Use discoverFeedV2")
     func discoverFeed() -> AnyPublisher<[Post], APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return self.apiClient.getDiscoverFeed()
-            .eraseToAnyPublisher()
+    }
+    
+    func discoverFeedV2(location: Location? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        guard case .user = currentUser else {
+            return Fail(error: APIError.authError).eraseToAnyPublisher()
+        }
+        return self.apiClient.getDiscoverFeedV2(location: location)
     }
     
     // MARK: - Feedback

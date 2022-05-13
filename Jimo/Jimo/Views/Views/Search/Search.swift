@@ -48,7 +48,7 @@ struct Search: View {
             if suggestedViewModel.shouldPresent() {
                 ASCollectionViewSection(id: 0) {
                     SuggestedUsersCarousel(viewModel: suggestedViewModel)
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width / 3)
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width / 3 * 1.3)
                         .fixedSize(horizontal: true, vertical: true)
                 }.sectionHeader {
                     HStack {
@@ -67,7 +67,7 @@ struct Search: View {
                 }
             }.sectionHeader {
                 HStack {
-                    Text("Suggested posts")
+                    Text(discoverViewModel.maybeLocation != nil ? "Suggested posts near you" : "Suggested posts")
                         .font(.headline)
                         .padding()
                     

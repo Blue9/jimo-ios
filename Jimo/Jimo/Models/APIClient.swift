@@ -195,10 +195,23 @@ struct Endpoint {
         return Endpoint(path: "/search/users", queryItems: [URLQueryItem(name: "q", value: query)])
     }
     
-    // MARK: - Discover endpoint
+    // MARK: - Discover endpoints
     
+    @available(*, deprecated, message: "Use discoverFeedV2")
     static func discoverFeed() -> Endpoint {
         return Endpoint(path: "/me/discover")
+    }
+    
+    static func discoverFeedV2(location: Location? = nil) -> Endpoint {
+        let path = "/me/discoverV2"
+        if let location = location {
+            let queryItems = [
+                URLQueryItem(name: "long", value: String(location.longitude)),
+                URLQueryItem(name: "lat", value: String(location.latitude))
+            ]
+            return Endpoint(path: path, queryItems: queryItems)
+        }
+        return Endpoint(path: path)
     }
     
     // MARK: - Map endpoints
@@ -364,7 +377,7 @@ class APIClient: ObservableObject {
     /**
      Get the list of suggested users.
      */
-    func getSuggestedUsers() -> AnyPublisher<[PublicUser], APIError> {
+    func getSuggestedUsers() -> AnyPublisher<SuggestedUsersResponse, APIError> {
         return doRequest(endpoint: Endpoint.suggestedUsers())
     }
     
@@ -749,10 +762,15 @@ class APIClient: ObservableObject {
         doRequest(endpoint: Endpoint.searchUser(query: query))
     }
     
-    // MARK: - Discover endpoint
+    // MARK: - Discover endpoints
     
+    @available(*, deprecated, message: "Use getDiscoverFeed")
     func getDiscoverFeed() -> AnyPublisher<[Post], APIError> {
         doRequest(endpoint: Endpoint.discoverFeed())
+    }
+    
+    func getDiscoverFeedV2(location: Location? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        doRequest(endpoint: Endpoint.discoverFeedV2(location: location))
     }
     
     func uploadImage(imageData: Data) -> AnyPublisher<ImageUploadResponse, APIError> {
