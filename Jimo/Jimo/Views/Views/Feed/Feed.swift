@@ -229,6 +229,13 @@ struct Feed: View {
                                     .environmentObject(appState)
                                     .environmentObject(globalViewState), isActive: $showNotifications) {}
                 )
+                .background(
+                    /// iOS 14.5 bug
+                    /// https://developer.apple.com/forums/thread/677333
+                    NavigationLink(destination: EmptyView()) {
+                        EmptyView()
+                    }
+                )
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
                 .toolbar(content: {
@@ -256,7 +263,7 @@ struct Feed: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             Analytics.track(.tapNotificationBell, parameters: ["badge_present": notificationBellBadgePresent])
-                            self.showNotifications.toggle()
+                            self.showNotifications = true
                         }) {
                             notificationFeedIcon
                         }
