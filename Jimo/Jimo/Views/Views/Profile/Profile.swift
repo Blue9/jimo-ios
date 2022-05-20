@@ -8,6 +8,33 @@
 import SwiftUI
 import ASCollectionView
 
+fileprivate enum NavigationDestination: Identifiable {
+    case savedPosts, editProfile, submitFeedback
+    
+    var id: String {
+        switch self {
+        case .savedPosts:
+            return "savedPosts"
+        case .editProfile:
+            return "editProfile"
+        case .submitFeedback:
+            return "submitFeedback"
+        }
+    }
+    
+    @ViewBuilder
+    func destinationView() -> some View {
+        switch self {
+        case .savedPosts:
+            SavedPosts()
+        case .editProfile:
+            EditProfile()
+        case .submitFeedback:
+            Feedback()
+        }
+    }
+}
+
 struct Profile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
@@ -21,11 +48,25 @@ struct Profile: View {
     
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
+    @State private var navigationDestination: NavigationDestination?
+    
+    @ViewBuilder
+    private func destinationView(for destination: NavigationDestination?) -> some View {
+        if let destination = destination {
+            destination.destinationView()
+        } else {
+            EmptyView().onAppear { self.navigationDestination = nil }
+        }
+    }
     
     var profileGrid: some View {
         ASCollectionView {
             ASCollectionViewSection(id: 0) {
-                ProfileHeaderView(profileVM: profileVM, initialUser: initialUser).padding(.bottom, 10)
+                ProfileHeaderView(
+                    profileVM: profileVM,
+                    navigationDestination: $navigationDestination,
+                    initialUser: initialUser
+                ).padding(.bottom, 10)
             }
             
             ASCollectionViewSection(id: 1, data: profileVM.posts, dataID: \.self) { post, _ in
@@ -80,6 +121,7 @@ struct Profile: View {
         }
         .font(.system(size: 15))
         .ignoresSafeArea(.keyboard, edges: .all)
+        .navigation(item: $navigationDestination, destination: destinationView)
     }
     
     var body: some View {
@@ -194,6 +236,8 @@ struct ProfileHeaderView: View {
     
     @State private var showCreatePostView = false
     
+    @Binding fileprivate var navigationDestination: NavigationDestination?
+    
     let initialUser: User
     
     var user: User {
@@ -257,36 +301,38 @@ struct ProfileHeaderView: View {
     }
     
     @ViewBuilder
-    func headerButtonText(_ text: String, _ buttonImage: String? = nil) -> some View {
-        HStack(spacing: 3) {
-            if let buttonImage = buttonImage {
-                Image(systemName: buttonImage)
-                    .font(.system(size: 12))
+    fileprivate func headerButtonText(
+        _ dest: NavigationDestination,
+        _ text: String,
+        _ buttonImage: String? = nil
+    ) -> some View {
+        Button {
+            self.navigationDestination = dest
+        } label: {
+            HStack(spacing: 3) {
+                if let buttonImage = buttonImage {
+                    Image(systemName: buttonImage)
+                        .font(.system(size: 12))
+                }
+                Text(text)
+                    .font(.caption)
+                    .bold()
             }
-            Text(text)
-                .font(.caption)
-                .bold()
+            .padding(.leading)
+            .padding(.trailing)
+            .padding(.vertical, 8)
+            .background(Color("foreground").opacity(0.15))
+            .cornerRadius(2)
         }
-        .padding(.leading)
-        .padding(.trailing)
-        .padding(.vertical, 8)
-        .background(Color("foreground").opacity(0.15))
-        .cornerRadius(2)
     }
     
     @ViewBuilder
     var currentUserHeader: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-                NavigationLink(destination: SavedPosts()) {
-                    headerButtonText("Saved posts", "bookmark")
-                }
-                NavigationLink(destination: EditProfile()) {
-                    headerButtonText("Edit profile", "square.and.pencil")
-                }
-                NavigationLink(destination: Feedback()) {
-                    headerButtonText("Submit feedback", nil)
-                }
+                headerButtonText(.savedPosts, "Saved posts", "bookmark")
+                headerButtonText(.editProfile, "Edit profile", "square.and.pencil")
+                headerButtonText(.submitFeedback, "Submit feedback", nil)
             }
             .padding(.horizontal, 20)
         }
