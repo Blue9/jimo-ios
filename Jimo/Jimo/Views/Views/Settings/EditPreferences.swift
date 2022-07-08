@@ -12,6 +12,8 @@ struct EditPreferences: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     
     @ObservedObject var settingsViewModel: SettingsViewModel
+    @State private var showSubmitFeedback = false
+    @State private var showConfirmDelete = false
     
     var notificationSection: some View {
         Group {
@@ -39,7 +41,7 @@ struct EditPreferences: View {
                 VStack(alignment: .leading) {
                     Text("Comments")
                     
-                    Text("Get notified when someone comments on your post")
+                    Text("Get notified when someone comments on your post or replies to your comment")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }
@@ -61,6 +63,7 @@ struct EditPreferences: View {
         Form {
             Section(header: Text("Notifications")) {
                 notificationSection
+                savePreferencesButton("notification")
             }
             
             Section(header: Text("Privacy")) {
@@ -73,20 +76,59 @@ struct EditPreferences: View {
                             .font(.caption)
                     }
                 }
+                savePreferencesButton("privacy")
             }
             
-            Button(action: {
-                settingsViewModel.updatePreferences(appState: appState, viewState: globalViewState)
-            }) {
-                Text("Save preferences").foregroundColor(.blue)
+            Section(header: Text("Danger Zone")) {
+                if #available(iOS 15.0, *) {
+                    Button(action: { showConfirmDelete = true }) {
+                        Text("Delete account")
+                            .foregroundColor(.red)
+                    }
+                    .alert("Are you sure?", isPresented: $showConfirmDelete) {
+                        Button("Delete account", role: .destructive, action: { settingsViewModel.deleteAccount(appState: appState, viewState: globalViewState) })
+                        Button("Submit feedback", action: {
+                            showConfirmDelete = false
+                            showSubmitFeedback = true
+                        })
+                        Button("Cancel", role: .cancel, action: { showConfirmDelete = false }).keyboardShortcut(.defaultAction)
+                    } message: {
+                        Text("Your account will be immediately deactivated, and all your personal data, including images and posts, will be permanently deleted within the next 24 hours.")
+                    }
+                } else {
+                    Button(action: { showConfirmDelete = true }) {
+                        Text("Delete account")
+                            .foregroundColor(.red)
+                    }
+                    .alert(isPresented: $showConfirmDelete) {
+                        Alert(
+                            title: Text("Are you sure?"),
+                            message: Text("Your account will be immediately deactivated, and all your personal data, including images and posts, will be permanently deleted within the next 24 hours."),
+                            primaryButton: .destructive(
+                                Text("Delete account"),
+                                action: { settingsViewModel.deleteAccount(appState: appState, viewState: globalViewState) }
+                            ),
+                            secondaryButton: .cancel())
+                    }
+                }
             }
         }
+        .background(NavigationLink(destination: LazyView { Feedback() }, isActive: $showSubmitFeedback, label: {}))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
         .toolbar {
             ToolbarItem(placement: .principal) {
                 NavTitle("Preferences")
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func savePreferencesButton(_ type: String) -> some View {
+        Button(action: {
+            settingsViewModel.updatePreferences(appState: appState, viewState: globalViewState)
+        }) {
+            Text("Save \(type) preferences").foregroundColor(.blue)
         }
     }
 }

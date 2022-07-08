@@ -20,6 +20,7 @@ class SettingsViewModel: ObservableObject {
     
     var getPreferencesCancellable: Cancellable?
     var setPreferencesCancellable: Cancellable?
+    var deleteAccountCancellable: Cancellable?
     
     func loadPreferences(appState: AppState, viewState: GlobalViewState) {
         loading = true
@@ -60,6 +61,21 @@ class SettingsViewModel: ObservableObject {
                 self.setPreferences(preferences)
                 self.loading = false
             })
+    }
+    
+    func deleteAccount(appState: AppState, viewState: GlobalViewState) {
+        deleteAccountCancellable = appState.deleteUser()
+            .sink { completion in
+                if case .failure = completion {
+                    viewState.setError("Failed to delete account. Please try again, or reach out to help@jimoapp.com if the issue persists.")
+                }
+            } receiveValue: { response in
+                if !response.success {
+                    viewState.setError("Cannot delete this account at this time.")
+                } else {
+                    appState.signOutFirebase()
+                }
+            }
     }
     
     private func setPreferences(_ preferences: UserPreferences) {
@@ -130,16 +146,5 @@ struct Settings: View {
             }
         }
         .trackScreen(.settings)
-    }
-}
-
-struct Settings_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            Settings()
-        }
-        .navigationViewStyle(StackNavigationViewStyle())
-        .environmentObject(AppState(apiClient: APIClient()))
-        .environmentObject(GlobalViewState())
     }
 }

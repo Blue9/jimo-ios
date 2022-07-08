@@ -14,6 +14,7 @@ import SDWebImage
 
 enum CurrentUser {
     case user(PublicUser)
+    case deactivated
     case doesNotExist
     case loading
     case failed
@@ -197,7 +198,7 @@ class AppState: ObservableObject {
         }
         let registeredToken = getNotificationToken()
         guard let token = registeredToken else {
-            self.signOutAndClearData()
+            self.signOutFirebase()
             return
         }
         if case .user(_) = currentUser {
@@ -209,14 +210,22 @@ class AppState: ObservableObject {
                     }
                 }, receiveValue: { [weak self] status in
                     if status.success {
-                        self?.signOutAndClearData()
+                        self?.signOutFirebase()
                     }
                     self?.signingOut = false
                 })
                 .store(in: &cancelBag)
         } else {
             // Otherwise, just log out
-            self.signOutAndClearData()
+            self.signOutFirebase()
+        }
+    }
+    
+    func signOutFirebase() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("Already logged out")
         }
     }
     
@@ -276,6 +285,10 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    func deleteUser() -> AnyPublisher<SimpleResponse, APIError> {
+        self.apiClient.deleteUser()
+    }
+    
     func updateProfile(_ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
@@ -312,8 +325,15 @@ class AppState: ObservableObject {
         self.currentUser = .loading
         self.apiClient.getMe()
             .map({ CurrentUser.user($0) })
-            .catch({ error in
-                return Just(error == .notFound ? CurrentUser.doesNotExist : CurrentUser.failed)
+            .catch({ error -> Just<CurrentUser> in
+                switch error {
+                case .notFound:
+                    return Just(CurrentUser.doesNotExist)
+                case .gone:
+                    return Just(CurrentUser.deactivated)
+                default:
+                    return Just(CurrentUser.failed)
+                }
             })
             .assign(to: \.currentUser, on: self)
             .store(in: &self.cancelBag)
@@ -616,14 +636,6 @@ class AppState: ObservableObject {
     
     private func getImageData(for image: UIImage) -> Data? {
         image.jpegData(compressionQuality: 0.33)
-    }
-    
-    private func signOutAndClearData() {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("Already logged out")
-        }
     }
     
     // MARK: - Notification logic
