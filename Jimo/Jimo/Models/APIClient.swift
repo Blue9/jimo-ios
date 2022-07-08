@@ -81,6 +81,10 @@ struct Endpoint {
         return Endpoint(path: "/users")
     }
     
+    static func deleteUser() -> Endpoint {
+        return Endpoint(path: "/me/delete")
+    }
+    
     static func user(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)")
     }
@@ -296,6 +300,7 @@ enum APIError: Error, Equatable {
     case decodeError
     case authError
     case notFound
+    case gone
     case methodNotAllowed
     case rateLimitError
     case serverError
@@ -438,6 +443,13 @@ class APIClient: ObservableObject {
      */
     func createUser(_ request: CreateUserRequest) -> AnyPublisher<CreateUserResponse, APIError> {
         return doRequest(endpoint: Endpoint.createUser(), httpMethod: "POST", body: request)
+    }
+    
+    /**
+     Delete the current user's account.
+     */
+    func deleteUser() -> AnyPublisher<SimpleResponse, APIError> {
+        return doRequest(endpoint: Endpoint.deleteUser(), httpMethod: "POST")
     }
     
     /**
@@ -885,6 +897,8 @@ class APIClient: ObservableObject {
                 throw APIError.notFound
             case 405:
                 throw APIError.methodNotAllowed
+            case 410:
+                throw APIError.gone
             case 429:
                 throw APIError.rateLimitError
             case 500...:

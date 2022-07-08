@@ -66,11 +66,23 @@ struct ContentView: View {
                     currentUser: user
                 )
                 .id(user) // Force view reset when current user changes (i.e., when updating profile)
+            } else if case .deactivated = appState.currentUser {
+                DeactivatedProfileView()
             } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist
                 NavigationView {
                     CreateProfileView()
-                        .navigationBarHidden(true)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                NavTitle("Create your account")
+                            }
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Sign out") {
+                                    appState.signOut()
+                                }
+                            }
+                        }
                 }
                 .navigationViewStyle(StackNavigationViewStyle())
             }
