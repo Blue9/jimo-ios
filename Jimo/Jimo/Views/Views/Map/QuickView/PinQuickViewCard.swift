@@ -19,18 +19,18 @@ struct PinQuickViewCard: View {
     @ObservedObject var mapViewModel: MapViewModelV2
     @ObservedObject var quickViewModel: QuickViewModel
     
-    var pin: MapPinV3
+    var pin: MKJimoPinAnnotation
     
     var isLoading: Bool {
-        quickViewModel.isLoading(placeId: pin.placeId, mapViewModel: mapViewModel)
+        quickViewModel.isLoading(placeId: pin.placeId!, mapViewModel: mapViewModel)
     }
     
     var place: Place? {
-        quickViewModel.getPlace(for: pin.placeId, mapViewModel: mapViewModel)
+        quickViewModel.getPlace(for: pin.placeId!, mapViewModel: mapViewModel)
     }
     
     var posts: [Post] {
-        quickViewModel.getPosts(for: pin.placeId, mapViewModel: mapViewModel)
+        quickViewModel.getPosts(for: pin.placeId!, mapViewModel: mapViewModel)
     }
     
     var pageIds: [String] {
@@ -108,7 +108,7 @@ struct PinQuickViewCard: View {
                 PinQuickViewPlaceholder()
             } else {
                 Button(action: {
-                    quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId)
+                    quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId!)
                 }) {
                     Text("Tap to load posts")
                         .foregroundColor(.white)

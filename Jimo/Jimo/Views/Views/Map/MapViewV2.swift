@@ -51,15 +51,6 @@ struct MapViewV2: View {
         .animation(.easeInOut, value: quickViewDisplayed)
     }
     
-    private func selectPin(pin: MapPinV3) {
-        bottomSheetPosition = .hidden
-        regionWrapper.region.center.wrappedValue = pin.location.coordinate()
-        if regionWrapper.region.span.longitudeDelta.wrappedValue > 0.2 {
-            regionWrapper.region.span.wrappedValue = MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
-        }
-        regionWrapper.trigger.toggle()
-    }
-    
     @ViewBuilder var quickViewOverlay: some View {
         VStack(spacing: 5) {
             Spacer()
@@ -82,30 +73,19 @@ struct MapViewV2: View {
             MapQuickView(
                 mapViewModel: mapViewModel,
                 quickViewModel: quickViewModel
-            ) { index in
-                withAnimation {
-                    mapViewModel.selectPin(index: index)
-                }
-            }
+            )
         }
         .padding()
     }
     
     @ViewBuilder var mapBody: some View {
-        MapKitViewV2(
-            region: regionWrapper.region,
+        JimoMapView(
+            pins: $mapViewModel.pins,
             selectedPin: $mapViewModel.selectedPin,
-            annotations: mapViewModel.pins.map { PlaceAnnotationV2(pin: $0, zIndex: $0.icon.numPosts) }
-        ) { coordinate in
-            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
-                if let placemark = placemarks?.first {
-                    let mapItem = MKMapItem(placemark: MKPlacemark(placemark: placemark))
-                    createPostVM.selectPlace(place: mapItem)
-                    showCreatePost.toggle()
-                }
-            }
-        }
+            region: regionWrapper.region,
+            regionWrapper: regionWrapper,
+            mapViewModel: mapViewModel
+        )
         .edgesIgnoringSafeArea(.top)
         .overlay(mapOverlay)
         .overlay(quickViewDisplayed ? quickViewOverlay : nil)
@@ -173,8 +153,8 @@ struct MapViewV2: View {
             }
             .onChange(of: mapViewModel.selectedPin) { selectedPin in
                 withAnimation {
-                    if let selectedPin = selectedPin {
-                        selectPin(pin: selectedPin)
+                    if selectedPin != nil {
+                        bottomSheetPosition = .hidden
                     } else {
                         bottomSheetPosition = .middle
                     }

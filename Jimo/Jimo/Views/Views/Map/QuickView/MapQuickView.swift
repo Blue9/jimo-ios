@@ -18,20 +18,18 @@ struct MapQuickView: View {
     @ObservedObject var mapViewModel: MapViewModelV2
     @ObservedObject var quickViewModel: QuickViewModel
     
-    var onPageChanged: (Int) -> ()
-    
     private func loadPosts(index: Int) {
         if index < 0 || index >= mapViewModel.pins.count {
             return
         }
         let pin = mapViewModel.pins[index]
-        quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId)
+        quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId!)
     }
     
-    private func selectPin(pin: MapPinV3) {
+    private func selectPin(pin: MKJimoPinAnnotation) {
         if let i = mapViewModel.pins.firstIndex(of: pin) {
             page.update(.new(index: i))
-            quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId)
+            quickViewModel.loadPosts(appState: appState, mapViewModel: mapViewModel, placeId: pin.placeId!)
         }
     }
     
@@ -54,7 +52,7 @@ struct MapQuickView: View {
         .loopPages()
         .onPageChanged { index in
             print("Page changed")
-            onPageChanged(index)
+            mapViewModel.selectPin(index: index)
             loadPostsAndPreloadNextAndPrevious(index: index)
         }
         .frame(width: UIScreen.main.bounds.width, height: 150)

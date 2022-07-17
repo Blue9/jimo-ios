@@ -102,6 +102,9 @@
 		C76DEA33255E559C008A9E1B /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76DEA32255E559C008A9E1B /* Search.swift */; };
 		C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913725D20F6E00762803 /* FollowContacts.swift */; };
 		C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913D25D21E2800762803 /* OnboardingView.swift */; };
+		C770781D287941F300E5F596 /* JimoMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C770781C287941F300E5F596 /* JimoMapView.swift */; };
+		C770781F28794AB400E5F596 /* MKJimoPinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C770781E28794AB400E5F596 /* MKJimoPinAnnotation.swift */; };
+		C77078212879517700E5F596 /* JimoPinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77078202879517700E5F596 /* JimoPinView.swift */; };
 		C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77321DB2557EF390087FAA6 /* URLImage.swift */; };
 		C773DFBD25DF90FA00E40102 /* TextAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = C773DFBC25DF90FA00E40102 /* TextAlert.swift */; };
 		C7770C0C2612FD0F00F28B26 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7770C0B2612FD0F00F28B26 /* LaunchScreen.storyboard */; };
@@ -139,6 +142,9 @@
 		C7D2D85C25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D2D85B25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift */; };
 		C7D432AA2818A01900789380 /* DeepLinkViewPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D432A92818A01900789380 /* DeepLinkViewPost.swift */; };
 		C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D73FD625A7BCDD007699AF /* ProfileTab.swift */; };
+		C7D947CE287BF310001B38A2 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = C7D947CD287BF310001B38A2 /* Collections */; };
+		C7D947D0287BF310001B38A2 /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = C7D947CF287BF310001B38A2 /* DequeModule */; };
+		C7D947D2287BF310001B38A2 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = C7D947D1287BF310001B38A2 /* OrderedCollections */; };
 		C7DE07B426AE5FEE006048E4 /* CommentPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DE07B326AE5FEE006048E4 /* CommentPublisher.swift */; };
 		C7E2732D25EC62DA00C787DB /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E2732C25EC62DA00C787DB /* Checkbox.swift */; };
 		C7E7F68427F3C09800F9D598 /* Screens.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E7F68327F3C09800F9D598 /* Screens.swift */; };
@@ -277,6 +283,9 @@
 		C76DEA32255E559C008A9E1B /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
 		C76E913725D20F6E00762803 /* FollowContacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowContacts.swift; sourceTree = "<group>"; };
 		C76E913D25D21E2800762803 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		C770781C287941F300E5F596 /* JimoMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JimoMapView.swift; sourceTree = "<group>"; };
+		C770781E28794AB400E5F596 /* MKJimoPinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKJimoPinAnnotation.swift; sourceTree = "<group>"; };
+		C77078202879517700E5F596 /* JimoPinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JimoPinView.swift; sourceTree = "<group>"; };
 		C77321DB2557EF390087FAA6 /* URLImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImage.swift; sourceTree = "<group>"; };
 		C773DFBC25DF90FA00E40102 /* TextAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAlert.swift; sourceTree = "<group>"; };
 		C7770C0B2612FD0F00F28B26 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -334,8 +343,11 @@
 			files = (
 				C72BB2AE28038C09001997C1 /* ASCollectionView in Frameworks */,
 				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
+				C7D947CE287BF310001B38A2 /* Collections in Frameworks */,
 				C79E1E9D2788BDE500267A86 /* BottomSheet in Frameworks */,
 				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */,
+				C7D947D2287BF310001B38A2 /* OrderedCollections in Frameworks */,
+				C7D947D0287BF310001B38A2 /* DequeModule in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -686,6 +698,7 @@
 		C75C2F43255619D4009B6ADA /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C770781B287941E300E5F596 /* MapV4 */,
 				C70AE46B25CA8DAA009920E8 /* NewUser */,
 				C76E913C25D21E1300762803 /* Onboarding */,
 				C78049122788CDE000A9A2AF /* Map */,
@@ -735,6 +748,16 @@
 				C70F53C127F2ABEF00A15EE2 /* RequestLocation.swift */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		C770781B287941E300E5F596 /* MapV4 */ = {
+			isa = PBXGroup;
+			children = (
+				C770781C287941F300E5F596 /* JimoMapView.swift */,
+				C770781E28794AB400E5F596 /* MKJimoPinAnnotation.swift */,
+				C77078202879517700E5F596 /* JimoPinView.swift */,
+			);
+			path = MapV4;
 			sourceTree = "<group>";
 		};
 		C77B0ED627964E8500743351 /* QuickView */ = {
@@ -853,6 +876,9 @@
 				C79E1E9C2788BDE500267A86 /* BottomSheet */,
 				C7FC69DF2790160100C41ED3 /* SwiftUIPager */,
 				C72BB2AD28038C09001997C1 /* ASCollectionView */,
+				C7D947CD287BF310001B38A2 /* Collections */,
+				C7D947CF287BF310001B38A2 /* DequeModule */,
+				C7D947D1287BF310001B38A2 /* OrderedCollections */,
 			);
 			productName = GoodplacesApp;
 			productReference = C75C2EDB25561309009B6ADA /* Jimo.app */;
@@ -932,6 +958,7 @@
 				C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */,
 				C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 				C72BB2AC28038C09001997C1 /* XCRemoteSwiftPackageReference "ASCollectionView" */,
+				C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
 			projectDirPath = "";
@@ -1122,6 +1149,7 @@
 				C7A9497827C979AE002D89FE /* LiteMapView.swift in Sources */,
 				C75C2F202556166D009B6ADA /* User.swift in Sources */,
 				C7031A6E27C5A6F400A90D24 /* PinQuickViewCard.swift in Sources */,
+				C770781F28794AB400E5F596 /* MKJimoPinAnnotation.swift in Sources */,
 				C7EAD4D425ABBDCC004A9F53 /* PostVM.swift in Sources */,
 				C706477A2797289800B9CCD2 /* MapSearchField.swift in Sources */,
 				C758BAAE26FC0033007DFE30 /* LazyView.swift in Sources */,
@@ -1173,6 +1201,7 @@
 				1FC816C625E34249009B803F /* Feedback.swift in Sources */,
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
 				C70367062557629900F970DE /* NavigationViewModifier.swift in Sources */,
+				C77078212879517700E5F596 /* JimoPinView.swift in Sources */,
 				C72BB2B328038F6D001997C1 /* View+navigation.swift in Sources */,
 				C73ED51D260EFDF4005CC0B4 /* View+appear.swift in Sources */,
 				C70AE47A25CA8E76009920E8 /* EnterPhoneNumber.swift in Sources */,
@@ -1231,6 +1260,7 @@
 				C764145525D0FD6000CBDE3F /* DiscoverViewModel.swift in Sources */,
 				C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */,
 				C75C2F25255616CC009B6ADA /* Post.swift in Sources */,
+				C770781D287941F300E5F596 /* JimoMapView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1581,6 +1611,14 @@
 				kind = branch;
 			};
 		};
+		C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/fermoya/SwiftUIPager.git";
@@ -1601,6 +1639,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */;
 			productName = BottomSheet;
+		};
+		C7D947CD287BF310001B38A2 /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
+		};
+		C7D947CF287BF310001B38A2 /* DequeModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = DequeModule;
+		};
+		C7D947D1287BF310001B38A2 /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
 		};
 		C7FC69DF2790160100C41ED3 /* SwiftUIPager */ = {
 			isa = XCSwiftPackageProductDependency;
