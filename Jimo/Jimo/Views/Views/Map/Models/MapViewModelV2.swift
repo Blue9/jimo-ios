@@ -40,7 +40,6 @@ protocol MapActions {
     func isSelected(userId: UserId) -> Bool
     
     func selectPin(index: Int)
-    func deselectPin()
 }
 
 class MapViewModelV2: MapActions, ObservableObject {
@@ -69,9 +68,10 @@ class MapViewModelV2: MapActions, ObservableObject {
     @Published private(set) var selectedUsers: Set<UserId> = .init()
     
     // If this is non-nil, the quick view is visible
-    @Published var selectedPin: MapPinV3?
+    @Published var selectedPin: MKJimoPinAnnotation?
     
-    @Published private(set) var pins: [MapPinV3] = []
+    @Published var pins: [MKJimoPinAnnotation] = []
+    @Published var loadedRegion: Region?
     @Published private(set) var userSearchResults: [PublicUser] = []
     
     @Published private(set) var loadedUsers: [UserId: PublicUser] = [:]
@@ -114,7 +114,7 @@ class MapViewModelV2: MapActions, ObservableObject {
             self.listenToRegionChanges()
         }
         Publishers.CombineLatest4($mapLoadStrategy, $regionToLoad, $selectedCategories, $selectedUsers)
-            .throttle(for: 1, scheduler: RunLoop.main, latest: true)
+            .throttle(for: 0.25, scheduler: RunLoop.main, latest: true)
             .sink { [weak self] mapLoadStrategy, region, categories, users in
                 guard let self = self, let region = region, self.selectedPin == nil else {
                     return
@@ -182,14 +182,24 @@ class MapViewModelV2: MapActions, ObservableObject {
         return selectedUsers.contains(userId)
     }
     
+    func selectPin(pin: MKJimoPinAnnotation) {
+        let oldValue = selectedPin
+        selectedPin = pin // since selectedPin != nil, other areas of the code won't update self.pins
+        if oldValue == nil {
+            print("Computing quick view path")
+            pins = greedyTravelingSalesman(pins: pins)
+        }
+        regionWrapper.region.center.wrappedValue = pin.coordinate
+        if regionWrapper.region.span.longitudeDelta.wrappedValue > 0.2 {
+            regionWrapper.region.span.wrappedValue = MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
+        }
+        regionWrapper.trigger.toggle()
+    }
+    
     func selectPin(index: Int) {
         if index < pins.count {
             selectedPin = pins[index]
         }
-    }
-    
-    func deselectPin() {
-        selectedPin = nil
     }
     
     func listenToRegionChanges() {
@@ -287,7 +297,7 @@ class MapViewModelV2: MapActions, ObservableObject {
                 guard let self = self else {
                     return
                 }
-                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+                self.updateMapPinsAsync(mapResponseV3.pins, request: request)
             }.store(in: &cancelBag)
     }
     
@@ -309,7 +319,7 @@ class MapViewModelV2: MapActions, ObservableObject {
                 guard let self = self else {
                     return
                 }
-                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+                self.updateMapPinsAsync(mapResponseV3.pins, request: request)
             }.store(in: &cancelBag)
     }
     
@@ -331,7 +341,7 @@ class MapViewModelV2: MapActions, ObservableObject {
                 guard let self = self else {
                     return
                 }
-                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+                self.updateMapPinsAsync(mapResponseV3.pins, request: request)
             }.store(in: &cancelBag)
     }
     
@@ -353,7 +363,7 @@ class MapViewModelV2: MapActions, ObservableObject {
                 guard let self = self else {
                     return
                 }
-                self.updateMapPinsAsync(mapResponseV3.pins, requestId: request.requestId)
+                self.updateMapPinsAsync(mapResponseV3.pins, request: request)
             }.store(in: &cancelBag)
     }
     
@@ -380,16 +390,20 @@ class MapViewModelV2: MapActions, ObservableObject {
     
     /// Handle data updates
     
-    private func updateMapPinsAsync(_ pins: [MapPinV3], requestId: UUID) {
+    private func updateMapPinsAsync(_ pins: [MapPinV3], request: CurrentMapRequest) {
         DispatchQueue.global(qos: .userInitiated).async {
-            let pins = self.greedyTravelingSalesman(pins: pins)
             DispatchQueue.main.async {
                 guard self.selectedPin == nil else {
                     print("Quick view is shown, not updating pins")
                     return
                 }
-                if self.latestMapRequestId == requestId {
-                    self.pins = pins
+                // TODO: could be more efficient
+                if self.latestMapRequestId == request.requestId {
+                    let newPins = Set(pins.map({ MKJimoPinAnnotation(from: $0) }))
+                    let oldPins = Set(self.pins)
+                    self.pins.removeAll(where: { !newPins.contains($0) })
+                    self.pins.append(contentsOf: newPins.subtracting(oldPins))
+                    self.loadedRegion = request.region
                     self.latestMapRequestId = nil
                 } else {
                     print("Request changed, not setting pins")
@@ -397,36 +411,37 @@ class MapViewModelV2: MapActions, ObservableObject {
             }
         }
     }
-    
-    private func greedyTravelingSalesman(pins: [MapPinV3]) -> [MapPinV3] {
-        // Return the list of pins in a somewhat reasonable order
-        guard pins.count > 0 else {
-            return []
-        }
-        // Get distance between every point, first int must be < second
-        var distances: [[Double]] = [[Double]](repeating: [Double](repeating: -1, count: pins.count), count: pins.count)
-        for i in 0..<pins.count-1 {
-            for j in i+1..<pins.count {
-                let iLocation = MKMapPoint(pins[i].location.coordinate())
-                let jLocation = MKMapPoint(pins[j].location.coordinate())
-                let distance = iLocation.distance(to: jLocation).magnitude
-                distances[i][j] = distance
-                distances[j][i] = distance
-            }
-        }
-        
-        var chain: [Int] = [0]
-        var visited: Set<Int> = [0]
-        while visited.count < pins.count {
-            let last = chain.last!
-            let next = distances[last].enumerated()
-                .sorted { $0.element < $1.element }
-                .filter { !visited.contains($0.offset) }
-                .first!
-                .offset
-            chain.append(next)
-            visited.insert(next)
-        }
-        return chain.map { pins[$0] }
+}
+
+
+fileprivate func greedyTravelingSalesman(pins: [MKJimoPinAnnotation]) -> [MKJimoPinAnnotation] {
+    // Return the list of pins in a somewhat reasonable order
+    guard pins.count > 0 else {
+        return []
     }
+    // Get distance between every point, first int must be < second
+    var distances: [[Double]] = [[Double]](repeating: [Double](repeating: -1, count: pins.count), count: pins.count)
+    for i in 0..<pins.count-1 {
+        for j in i+1..<pins.count {
+            let iLocation = MKMapPoint(pins[i].coordinate)
+            let jLocation = MKMapPoint(pins[j].coordinate)
+            let distance = iLocation.distance(to: jLocation).magnitude
+            distances[i][j] = distance
+            distances[j][i] = distance
+        }
+    }
+    
+    var chain: [Int] = [0]
+    var visited: Set<Int> = [0]
+    while visited.count < pins.count {
+        let last = chain.last!
+        let next = distances[last].enumerated()
+            .sorted { $0.element < $1.element }
+            .filter { !visited.contains($0.offset) }
+            .first!
+            .offset
+        chain.append(next)
+        visited.insert(next)
+    }
+    return chain.map { pins[$0] }
 }
