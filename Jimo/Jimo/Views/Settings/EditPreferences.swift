@@ -27,6 +27,16 @@ struct EditPreferences: View {
                 }
             }
             
+            Toggle(isOn: $settingsViewModel.postNotifications) {
+                VStack(alignment: .leading) {
+                    Text("Posts")
+                    
+                    Text("Get notified when someone you follow makes a new post")
+                        .foregroundColor(.gray)
+                        .font(.caption)
+                }
+            }
+            
             Toggle(isOn: $settingsViewModel.postLikedNotifications) {
                 VStack(alignment: .leading) {
                     Text("Post likes and saves")

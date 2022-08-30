@@ -635,7 +635,7 @@ class AppState: ObservableObject {
     // MARK: - Helpers
     
     private func getImageData(for image: UIImage) -> Data? {
-        image.jpegData(compressionQuality: 0.33)
+        image.jpegData(compressionQuality: 0.67)
     }
     
     // MARK: - Notification logic
