@@ -10,6 +10,7 @@ import Combine
 
 class SettingsViewModel: ObservableObject {
     @Published var postLikedNotifications: Bool = false
+    @Published var postNotifications: Bool = false
     @Published var followNotifications: Bool = false
     @Published var commentNotifications: Bool = false
     @Published var commentLikedNotifications: Bool = false
@@ -44,6 +45,7 @@ class SettingsViewModel: ObservableObject {
         setPreferencesCancellable = appState.updatePreferences(
             .init(followNotifications: followNotifications,
                   postLikedNotifications: postLikedNotifications,
+                  postNotifications: postNotifications,
                   commentNotifications: commentNotifications,
                   commentLikedNotifications: commentLikedNotifications,
                   searchableByPhoneNumber: searchableByPhoneNumber))
@@ -80,6 +82,7 @@ class SettingsViewModel: ObservableObject {
     
     private func setPreferences(_ preferences: UserPreferences) {
         self.postLikedNotifications = preferences.postLikedNotifications
+        self.postNotifications = preferences.postNotifications
         self.followNotifications = preferences.followNotifications
         self.commentNotifications = preferences.commentNotifications
         self.commentLikedNotifications = preferences.commentLikedNotifications

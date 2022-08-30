@@ -195,7 +195,7 @@ struct Endpoint {
     
     // MARK: - Search endpoints
     
-    static func searchUser(query: String) -> Endpoint {
+    static func searchUsers(query: String) -> Endpoint {
         return Endpoint(path: "/search/users", queryItems: [URLQueryItem(name: "q", value: query)])
     }
     
@@ -771,7 +771,7 @@ class APIClient: ObservableObject {
     // MARK: - Search endpoints
     
     func searchUsers(query: String) -> AnyPublisher<[PublicUser], APIError> {
-        doRequest(endpoint: Endpoint.searchUser(query: query))
+        doRequest(endpoint: Endpoint.searchUsers(query: query))
     }
     
     // MARK: - Discover endpoints
