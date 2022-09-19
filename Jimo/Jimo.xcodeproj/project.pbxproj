@@ -13,9 +13,6 @@
 		1FFF5CEC264A384D005BB943 /* UserFollowFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF5CEB264A384D005BB943 /* UserFollowFeed.swift */; };
 		5ACBEC96281083D400A47948 /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ACBEC95281083D400A47948 /* DeepLinkManager.swift */; };
 		5AE22D8928245AA1004DA2AA /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE22D8828245AA1004DA2AA /* String+Extension.swift */; };
-		94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */; };
-		A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */; };
-		B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7124939F1770230B52A71F08 /* libPods-Jimo.a */; };
 		C3573075281B396500E5D6C3 /* EmailLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3573074281B396500E5D6C3 /* EmailLogin.swift */; };
 		C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */; };
 		C7019F6825EEB10200C1165A /* InviteContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7019F6725EEB10200C1165A /* InviteContactsView.swift */; };
@@ -179,21 +176,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.debug.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.debug.xcconfig"; sourceTree = "<group>"; };
-		1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo.release.xcconfig"; path = "Target Support Files/Pods-Jimo/Pods-Jimo.release.xcconfig"; sourceTree = "<group>"; };
 		1F98464325EF38AB0075AF04 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		1F98464925EF409E0075AF04 /* NotificationFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationFeed.swift; sourceTree = "<group>"; };
 		1FC816C525E34249009B803F /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
 		1FFF5CEB264A384D005BB943 /* UserFollowFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFollowFeed.swift; sourceTree = "<group>"; };
-		46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.debug.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo-JimoUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5ACBEC95281083D400A47948 /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
 		5AE22D8828245AA1004DA2AA /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
-		7124939F1770230B52A71F08 /* libPods-Jimo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Jimo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.debug.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C3573074281B396500E5D6C3 /* EmailLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLogin.swift; sourceTree = "<group>"; };
-		C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JimoTests.release.xcconfig"; path = "Target Support Files/Pods-JimoTests/Pods-JimoTests.release.xcconfig"; sourceTree = "<group>"; };
-		C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jimo-JimoUITests.release.xcconfig"; path = "Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests.release.xcconfig"; sourceTree = "<group>"; };
 		C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionMonitor.swift; sourceTree = "<group>"; };
 		C7019F6725EEB10200C1165A /* InviteContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteContactsView.swift; sourceTree = "<group>"; };
 		C7031A6A27C5A61400A90D24 /* RegionWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegionWrapper.swift; sourceTree = "<group>"; };
@@ -337,7 +326,6 @@
 		C7FD676F27C44F0800B8B2B8 /* LocationAnnotationViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationAnnotationViewV2.swift; sourceTree = "<group>"; };
 		C7FF3D1E278D711B0031FAE4 /* MapQuickView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapQuickView.swift; sourceTree = "<group>"; };
 		C7FF3D20278D80F20031FAE4 /* BlurBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurBackground.swift; sourceTree = "<group>"; };
-		EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-JimoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -346,7 +334,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C72BB2AE28038C09001997C1 /* ASCollectionView in Frameworks */,
-				B1BDC32DD302CD7D02D01BF6 /* libPods-Jimo.a in Frameworks */,
 				C7D947CE287BF310001B38A2 /* Collections in Frameworks */,
 				C79E1E9D2788BDE500267A86 /* BottomSheet in Frameworks */,
 				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */,
@@ -359,7 +346,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				94FA500EAC2023560527DE7F /* libPods-JimoTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,7 +353,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A788A941DB49C8E2AB2195EB /* libPods-Jimo-JimoUITests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,12 +362,6 @@
 		08D0F93A6A0254024999DD24 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */,
-				1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */,
-				46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */,
-				C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */,
-				9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */,
-				C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -474,7 +453,6 @@
 				C75C2EFA25561309009B6ADA /* JimoUITests */,
 				C75C2EDC25561309009B6ADA /* Products */,
 				08D0F93A6A0254024999DD24 /* Pods */,
-				C7CDED1B011467E29D97C765 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -881,16 +859,6 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
-		C7CDED1B011467E29D97C765 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				7124939F1770230B52A71F08 /* libPods-Jimo.a */,
-				5A1ED3703FCFA0D2784FCB63 /* libPods-Jimo-JimoUITests.a */,
-				EB9F8359083287A5DCE222B5 /* libPods-JimoTests.a */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -898,11 +866,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C75C2F0025561309009B6ADA /* Build configuration list for PBXNativeTarget "Jimo" */;
 			buildPhases = (
-				582AA55124FF262E1F953149 /* [CP] Check Pods Manifest.lock */,
 				C75C2ED725561309009B6ADA /* Sources */,
 				C75C2ED825561309009B6ADA /* Frameworks */,
 				C75C2ED925561309009B6ADA /* Resources */,
-				43F84AF732442B64C6227273 /* [CP] Copy Pods Resources */,
 				C750AB2225DA61FF00049D6D /* ShellScript */,
 			);
 			buildRules = (
@@ -926,7 +892,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C75C2F0325561309009B6ADA /* Build configuration list for PBXNativeTarget "JimoTests" */;
 			buildPhases = (
-				44F0A8C6D1D6928AEEF86D01 /* [CP] Check Pods Manifest.lock */,
 				C75C2EE825561309009B6ADA /* Sources */,
 				C75C2EE925561309009B6ADA /* Frameworks */,
 				C75C2EEA25561309009B6ADA /* Resources */,
@@ -945,11 +910,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C75C2F0625561309009B6ADA /* Build configuration list for PBXNativeTarget "JimoUITests" */;
 			buildPhases = (
-				A8F3AED62A6753F859A442DD /* [CP] Check Pods Manifest.lock */,
 				C75C2EF325561309009B6ADA /* Sources */,
 				C75C2EF425561309009B6ADA /* Frameworks */,
 				C75C2EF525561309009B6ADA /* Resources */,
-				71139F8842D6A46E5FEFA6BE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -994,9 +957,9 @@
 			mainGroup = C75C2ED225561308009B6ADA;
 			packageReferences = (
 				C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */,
-				C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
+				C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager.git" */,
 				C72BB2AC28038C09001997C1 /* XCRemoteSwiftPackageReference "ASCollectionView" */,
-				C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */,
+				C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections.git" */,
 			);
 			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
 			projectDirPath = "";
@@ -1038,106 +1001,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		43F84AF732442B64C6227273 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo/Pods-Jimo-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		44F0A8C6D1D6928AEEF86D01 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-JimoTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		582AA55124FF262E1F953149 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Jimo-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		71139F8842D6A46E5FEFA6BE /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Jimo-JimoUITests/Pods-Jimo-JimoUITests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A8F3AED62A6753F859A442DD /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Jimo-JimoUITests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		C750AB2225DA61FF00049D6D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1454,7 +1317,6 @@
 		};
 		C75C2F0125561309009B6ADA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0C3D8D810C9EE1AAD08C7081 /* Pods-Jimo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1481,7 +1343,6 @@
 		};
 		C75C2F0225561309009B6ADA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1E1E16AB7C2E9F83F99FB5FC /* Pods-Jimo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1507,7 +1368,6 @@
 		};
 		C75C2F0425561309009B6ADA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9259EE546D4102C558B8162D /* Pods-JimoTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1530,7 +1390,6 @@
 		};
 		C75C2F0525561309009B6ADA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C4BEAA07CB633BF4EBA752E4 /* Pods-JimoTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1553,7 +1412,6 @@
 		};
 		C75C2F0725561309009B6ADA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 46903672F5D692917EF2A9D8 /* Pods-Jimo-JimoUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1574,7 +1432,6 @@
 		};
 		C75C2F0825561309009B6ADA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C5AAE5879244803D3CA89D65 /* Pods-Jimo-JimoUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1651,7 +1508,7 @@
 				kind = branch;
 			};
 		};
-		C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+		C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-collections.git";
 			requirement = {
@@ -1659,7 +1516,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
+		C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/fermoya/SwiftUIPager.git";
 			requirement = {
@@ -1682,22 +1539,22 @@
 		};
 		C7D947CD287BF310001B38A2 /* Collections */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections.git" */;
 			productName = Collections;
 		};
 		C7D947CF287BF310001B38A2 /* DequeModule */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections.git" */;
 			productName = DequeModule;
 		};
 		C7D947D1287BF310001B38A2 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			package = C7D947CC287BF310001B38A2 /* XCRemoteSwiftPackageReference "swift-collections.git" */;
 			productName = OrderedCollections;
 		};
 		C7FC69DF2790160100C41ED3 /* SwiftUIPager */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager" */;
+			package = C7FC69DE2790160100C41ED3 /* XCRemoteSwiftPackageReference "SwiftUIPager.git" */;
 			productName = SwiftUIPager;
 		};
 /* End XCSwiftPackageProductDependency section */
