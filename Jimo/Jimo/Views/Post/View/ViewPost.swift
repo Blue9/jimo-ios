@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ASCollectionView
 
 struct ViewPost: View {
     @EnvironmentObject var appState: AppState
@@ -18,7 +17,6 @@ struct ViewPost: View {
     @State private var initializedComments = false
     
     @State private var imageSize: CGSize?
-    @State private var scrollPosition: ASCollectionViewScrollPosition?
     
     let initialPost: Post
     var highlightedComment: Comment? = nil
@@ -70,55 +68,26 @@ struct ViewPost: View {
     }
     
     @ViewBuilder var mainBody: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: imageSize == nil ? 0 : 1, data: [post], dataID: \.self) { post, _ in
-                postItem(post: post)
+        RefreshableScrollView {
+            postItem(post: post)
+            
+            LazyVStack(spacing: 0) {
+                ForEach(commentsViewModel.comments) { comment in
+                    ZStack(alignment: .bottom) {
+                        CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
+                        Divider()
+                            .foregroundColor(.gray)
+                            .padding(.horizontal, 10)
+                    }
                     .frame(width: UIScreen.main.bounds.width)
                     .fixedSize()
-            }
-            
-            ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
-                ZStack(alignment: .bottom) {
-                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
-                    Divider()
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 10)
+                    .background(Color("background"))
                 }
-                .frame(width: UIScreen.main.bounds.width)
-                .fixedSize()
-                .background(Color("background"))
-            }.sectionFooter {
-                VStack {
-                    if commentsViewModel.loadingComments {
-                        ProgressView()
-                    }
-                    Spacer().frame(height: 150)
-                }
-                .padding(.top, 20)
             }
-        }
-        .shouldScrollToAvoidKeyboard(false)
-        .alwaysBounceVertical()
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                commentsViewModel.loadMore()
-            }
-        }
-        .layout(interSectionSpacing: 0) { sectionID in
-            switch sectionID {
-            case 2: // Comments
-                return .list(itemSize: .estimated(50), spacing: 0)
-            default:
-                return .list(itemSize: .estimated(50))
-            }
-        }
-        .onScroll { (point, size) in
-            hideKeyboard()
-        }
-        .scrollPositionSetter($scrollPosition)
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             commentsViewModel.loadComments(onFinish: onFinish)
+        } onLoadMore: {
+            commentsViewModel.loadMore()
         }
         .onAppear {
             postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })

@@ -6,14 +6,15 @@
 //
 
 import SwiftUI
+import BottomSheet
 
 enum MapSheetPosition: CGFloat, CaseIterable {
-    case top = 0.975, middle = 0.4, bottom = 0.2, hidden = 0
+    case top = 0.975, middle = 0.4, bottom = 0.2
 }
 
 struct MapBottomSheetBody: View {
     @ObservedObject var mapViewModel: MapViewModelV2
-    @Binding var bottomSheetPosition: MapSheetPosition
+    @Binding var bottomSheetPosition: BottomSheetPosition
     
     var body: some View {
         ScrollView(showsIndicators: false) {

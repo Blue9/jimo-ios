@@ -18,10 +18,13 @@ enum Screen: String {
     // Authenticated
     case mapTab
     case feedTab
+    case forYouFeed
     case createPostSheet
     case searchTab
     case profileTab
     case savedPosts
+    
+    case searchUsers
     
     // Other views
     case enterLocationView

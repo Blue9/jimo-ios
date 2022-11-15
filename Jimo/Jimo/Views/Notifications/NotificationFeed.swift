@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ASCollectionView
 
 struct NotificationFeed: View {
     @EnvironmentObject var appState: AppState
@@ -17,43 +16,18 @@ struct NotificationFeed: View {
     @State private var initialized = false
     
     var body: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0, data: notificationFeedVM.feedItems) { item, _ in
+        RefreshableScrollView(spacing: 10) {
+            ForEach(notificationFeedVM.feedItems) { item in
                 NotificationFeedItem(item: item)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
                     .padding(.horizontal, 10)
-                    .frame(width: UIScreen.main.bounds.width)
-                    .fixedSize()
-                Divider()
-                    .padding(.horizontal, 10)
-                    .hidden()
             }
-            .sectionFooter {
-                VStack {
-                    Divider()
-                    
-                    ProgressView()
-                        .opacity(notificationFeedVM.loading ? 1 : 0)
-                    Text("You've reached the end!")
-                        .font(.system(size: 15))
-                }
-            }
-        }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .list(itemSize: .absolute(50))
-        }
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState, onFinish: onFinish)
+        } onLoadMore: {
+            notificationFeedVM.loadMoreNotifications(appState: appState, viewState: globalViewState)
         }
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                notificationFeedVM.loadMoreNotifications(appState: appState, viewState: globalViewState)
-            }
-        }
-        .ignoresSafeArea(.keyboard, edges: .all)
         .foregroundColor(Color("foreground"))
         .background(Color("background").edgesIgnoringSafeArea(.all))
         .onAppear {

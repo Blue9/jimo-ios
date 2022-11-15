@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import ASCollectionView
 
 fileprivate enum LoadStatus {
     case notInitialized, loaded, failed
@@ -19,6 +18,12 @@ struct SavedPostsFeed: View {
     @StateObject var viewModel = ViewModel()
     @State private var showFullPost: PostId?
     
+    private var columns: [GridItem] = [
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2)
+    ]
+    
     @ViewBuilder
     private func postView(for postId: PostId?) -> some View {
         if let post = viewModel.posts.first(where: { $0.id == postId }) {
@@ -29,41 +34,19 @@ struct SavedPostsFeed: View {
     }
     
     var initializedView: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 1, data: viewModel.posts, dataID: \.self) { post, _ in
-                NavigationLink(destination: ViewPost(initialPost: post)) {
-                    PostGridCell(post: post)
+        RefreshableScrollView {
+            LazyVGrid(columns: columns, spacing: 2) {
+                ForEach(viewModel.posts) { post in
+                    NavigationLink(destination: ViewPost(initialPost: post)) {
+                        PostGridCell(post: post)
+                    }
                 }
             }
-            
-            ASCollectionViewSection(id: 2) {
-                ProgressView()
-                    .opacity(viewModel.loadingMore ? 1 : 0)
-                    .padding(.top)
-            }
-        }
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .grid(
-                layoutMode: .fixedNumberOfColumns(3),
-                itemSpacing: 2,
-                lineSpacing: 2,
-                itemSize: .estimated(80),
-                sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
-            )
-        }
-        .alwaysBounceVertical()
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                viewModel.loadMore(appState: appState, globalViewState: viewState)
-            }
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             viewModel.refresh(appState: appState, globalViewState: viewState, onFinish: onFinish)
+        } onLoadMore: {
+            viewModel.loadMore(appState: appState, globalViewState: viewState)
         }
-        .ignoresSafeArea(.keyboard, edges: .all)
-        .navigation(item: $showFullPost, destination: postView)
     }
     
     var body: some View {

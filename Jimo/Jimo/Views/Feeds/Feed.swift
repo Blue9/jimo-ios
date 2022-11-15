@@ -7,14 +7,19 @@
 
 import SwiftUI
 import Combine
-import ASCollectionView
+
+fileprivate enum FeedType {
+    case following, forYou
+}
 
 struct Feed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var feedViewModel = ViewModel()
+    @StateObject var discoverViewModel = DiscoverViewModel()
     
     @State private var showFullPost: PostId?
+    @State private var feedType: FeedType = .following
     
     var onCreatePostTap: () -> ()
     
@@ -45,6 +50,7 @@ struct Feed: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .onAppear {
                         feedViewModel.refreshFeed(appState: appState, globalViewState: viewState)
+                        discoverViewModel.loadDiscoverPage(appState: appState)
                     }
             } else if feedViewModel.feed.isEmpty {
                 Button(action: {
@@ -61,34 +67,52 @@ struct Feed: View {
                     .background(Color.blue)
                     .cornerRadius(10)
                 }
+            } else if feedType == .following {
+                initializedFeed.trackScreen(.feedTab)
             } else {
-                initializedFeed
+                forYouFeed.trackScreen(.forYouFeed)
             }
         }
         .background(Color("background"))
     }
     
     var initializedFeed: some View {
-        ASCollectionView(data: feedViewModel.feed, dataID: \.self) { post, _ in
-            FeedItem(post: post, showFullPost: $showFullPost)
-                .frame(width: UIScreen.main.bounds.width)
-                .fixedSize()
-        }
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .list(itemSize: .estimated(200), spacing: 20)
-        }
-        .alwaysBounceVertical()
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                loadMore()
+        RefreshableScrollView {
+            HStack {
+                Picker("Feed Type", selection: $feedType) {
+                    Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
+                    Label("For You (Beta)", systemImage: "wand.and.stars").tag(FeedType.forYou)
+                }
+                .pickerStyle(.segmented)
+            }.padding(.horizontal, 10)
+            
+            ForEach(feedViewModel.feed) { post in
+                FeedItem(post: post, showFullPost: $showFullPost)
             }
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
+        } onLoadMore: {
+            feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .navigation(item: $showFullPost, destination: postView)
+    }
+    
+    var forYouFeed: some View {
+        RefreshableScrollView {
+            HStack {
+                Picker("Feed Type", selection: $feedType) {
+                    Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
+                    Label("For You (Beta)", systemImage: "wand.and.stars").tag(FeedType.forYou)
+                }
+                .pickerStyle(.segmented)
+            }.padding(.horizontal, 10)
+            
+            ForEach(discoverViewModel.posts) { post in
+                FeedItem(post: post, showFullPost: $showFullPost)
+            }
+        } onRefresh: { onFinish in
+            discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
+        }
         .navigation(item: $showFullPost, destination: postView)
     }
 }
