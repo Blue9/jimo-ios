@@ -14,7 +14,7 @@ struct FeedItem: View {
     @StateObject var postVM = PostVM()
     
     var post: Post
-    @Binding var showFullPost: PostId?
+    @State var showFullPost = false
     
     var body: some View {
         VStack {
@@ -25,7 +25,7 @@ struct FeedItem: View {
                 .contentShape(Rectangle())
                 .clipped()
                 .onTapGesture {
-                    showFullPost = post.id
+                    showFullPost = true
                 }
             
             VStack(spacing: 5) {
@@ -33,15 +33,20 @@ struct FeedItem: View {
                 PostCaption(post: post)
                     .lineLimit(3)
                     .onTapGesture {
-                        showFullPost = post.id
+                        showFullPost = true
                     }
             }
-            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false, onCommentTap: { showFullPost = post.id })
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false, onCommentTap: { showFullPost = true })
             
             Rectangle()
                 .frame(maxWidth: .infinity)
                 .frame(height: 8)
                 .foregroundColor(Color("foreground").opacity(0.1))
         }
+        .background(
+            NavigationLink(destination: LazyView { ViewPost(initialPost: post) }, isActive: $showFullPost) {
+                EmptyView()
+            }
+        )
     }
 }

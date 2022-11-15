@@ -18,7 +18,6 @@ struct Feed: View {
     @StateObject var feedViewModel = ViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
     
-    @State private var showFullPost: PostId?
     @State private var feedType: FeedType = .following
     
     var onCreatePostTap: () -> ()
@@ -32,15 +31,6 @@ struct Feed: View {
             return
         }
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
-    }
-    
-    @ViewBuilder
-    private func postView(for postId: PostId?) -> some View {
-        if let post = feedViewModel.feed.first(where: { $0.id == postId }) {
-            ViewPost(initialPost: post)
-        } else {
-            EmptyView().onAppear { showFullPost = nil }
-        }
     }
     
     var body: some View {
@@ -67,10 +57,14 @@ struct Feed: View {
                     .background(Color.blue)
                     .cornerRadius(10)
                 }
-            } else if feedType == .following {
-                initializedFeed.trackScreen(.feedTab)
             } else {
-                forYouFeed.trackScreen(.forYouFeed)
+                Group {
+                    if feedType == .following {
+                        initializedFeed.trackScreen(.feedTab)
+                    } else {
+                        forYouFeed.trackScreen(.forYouFeed)
+                    }
+                }
             }
         }
         .background(Color("background"))
@@ -81,20 +75,21 @@ struct Feed: View {
             HStack {
                 Picker("Feed Type", selection: $feedType) {
                     Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
-                    Label("For You (Beta)", systemImage: "wand.and.stars").tag(FeedType.forYou)
+                    Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
                 }
                 .pickerStyle(.segmented)
-            }.padding(.horizontal, 10)
+            }
+            .padding(.horizontal, 10)
+            .padding(.bottom, 10)
             
             ForEach(feedViewModel.feed) { post in
-                FeedItem(post: post, showFullPost: $showFullPost)
+                FeedItem(post: post)
             }
         } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
         } onLoadMore: {
             feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
         }
-        .navigation(item: $showFullPost, destination: postView)
     }
     
     var forYouFeed: some View {
@@ -102,18 +97,19 @@ struct Feed: View {
             HStack {
                 Picker("Feed Type", selection: $feedType) {
                     Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
-                    Label("For You (Beta)", systemImage: "wand.and.stars").tag(FeedType.forYou)
+                    Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
                 }
                 .pickerStyle(.segmented)
-            }.padding(.horizontal, 10)
+            }
+            .padding(.horizontal, 10)
+            .padding(.bottom, 10)
             
             ForEach(discoverViewModel.posts) { post in
-                FeedItem(post: post, showFullPost: $showFullPost)
+                FeedItem(post: post)
             }
         } onRefresh: { onFinish in
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
         }
-        .navigation(item: $showFullPost, destination: postView)
     }
 }
 

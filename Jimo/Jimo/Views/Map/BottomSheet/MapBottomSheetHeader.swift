@@ -25,7 +25,6 @@ struct MapBottomSheetHeader: View {
                         bottomSheetPosition = .relative(isActive ? MapSheetPosition.top.rawValue : MapSheetPosition.middle.rawValue)
                     }
                 }
-                .padding(.horizontal, 10)
             
             if !searchFieldActive {
                 Button(action: { showHelpAlert.toggle() }) {
@@ -37,5 +36,6 @@ struct MapBottomSheetHeader: View {
                 }
             }
         }
+        .padding(.horizontal, 10)
     }
 }
