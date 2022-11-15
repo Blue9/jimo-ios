@@ -68,13 +68,13 @@ struct MainAppView: View {
             Circle()
                 .fill()
                 .foregroundColor(.white)
-                .frame(width: 50, height: 50)
+                .frame(width: 55, height: 55)
             Button(action: { viewModel.createPostPresented = true }) {
                 ZStack {
                     Circle()
                         .fill()
                         .foregroundColor(.blue)
-                        .frame(width: 50, height: 50)
+                        .frame(width: 55, height: 55)
                     Image(systemName: "plus")
                         .foregroundColor(.white)
                         .font(.system(size: 30))
