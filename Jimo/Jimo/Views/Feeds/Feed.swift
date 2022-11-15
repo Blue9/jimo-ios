@@ -19,6 +19,7 @@ struct Feed: View {
     @StateObject var discoverViewModel = DiscoverViewModel()
     
     @State private var feedType: FeedType = .following
+    @State private var showFindFriendsSheet = false
     
     var onCreatePostTap: () -> ()
     
@@ -68,6 +69,11 @@ struct Feed: View {
             }
         }
         .background(Color("background"))
+        .fullScreenCover(isPresented: $showFindFriendsSheet) {
+            SearchUsers()
+                .environmentObject(appState)
+                .environmentObject(viewState)
+        }
     }
     
     var initializedFeed: some View {
@@ -80,7 +86,9 @@ struct Feed: View {
                 .pickerStyle(.segmented)
             }
             .padding(.horizontal, 10)
-            .padding(.bottom, 10)
+            
+            FindFriendsButton(showFindFriendsSheet: $showFindFriendsSheet)
+                .padding(.bottom, 10)
             
             ForEach(feedViewModel.feed) { post in
                 FeedItem(post: post)
@@ -212,4 +220,28 @@ extension Feed {
         }
     }
 
+}
+
+fileprivate struct FindFriendsButton: View {
+    @Binding var showFindFriendsSheet: Bool
+    
+    var body: some View {
+        Button(action: {
+            Analytics.track(.feedFindFriendsTapped)
+            showFindFriendsSheet = true
+        }) {
+            Text("Find more people to follow")
+                .padding(10)
+                .font(.system(size: 15))
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(10)
+                .foregroundColor(.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10).stroke(.white, lineWidth: 1)
+                )
+                .frame(height: 50)
+        }
+        .padding(.horizontal, 20)
+    }
 }

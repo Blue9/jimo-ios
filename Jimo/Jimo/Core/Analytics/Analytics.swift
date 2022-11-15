@@ -118,4 +118,6 @@ enum AnalyticsName: Equatable {
     
     case userFollowed
     case userUnfollowed
+    case findFriendsTapped
+    case feedFindFriendsTapped
 }

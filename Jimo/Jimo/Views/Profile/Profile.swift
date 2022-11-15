@@ -400,6 +400,16 @@ fileprivate enum TextType {
         }
     }
     
+    var analyticsEvent: AnalyticsName? {
+        switch self {
+        case .follow: return .userFollowed
+        case .unfollow: return .userUnfollowed
+        case .unblock: return nil
+        case .loading: return nil
+        case .search: return .findFriendsTapped
+        }
+    }
+    
     var backgroundColor: Color {
         switch self {
         case .loading, .unfollow: return .white
@@ -422,7 +432,12 @@ fileprivate struct ProfileButton: View {
     var action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            if let analyticsEvent = textType.analyticsEvent {
+                Analytics.track(analyticsEvent)
+            }
+            action()
+        }) {
             Text(textType.text)
                 .padding(Constants.TEXT_PADDING)
                 .font(Constants.TEXT_FONT)

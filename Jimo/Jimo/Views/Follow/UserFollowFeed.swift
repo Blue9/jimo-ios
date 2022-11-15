@@ -180,7 +180,10 @@ struct FollowFeedItemView: View {
     @ViewBuilder var followItemButton: some View {
         if item.relation == .following {
             FollowFeedItemButton(
-                action: { followFeedItemVM.unfollowUser(appState: appState, viewState: globalViewState, item: item) },
+                action: {
+                    followFeedItemVM.unfollowUser(appState: appState, viewState: globalViewState, item: item)
+                    Analytics.track(.userUnfollowed)
+                },
                 text: "Following",
                 background: .white,
                 foreground: .gray
@@ -194,7 +197,10 @@ struct FollowFeedItemView: View {
             )
         } else {
             FollowFeedItemButton(
-                action: { followFeedItemVM.followUser(appState: appState, viewState: globalViewState, item: item) },
+                action: {
+                    followFeedItemVM.followUser(appState: appState, viewState: globalViewState, item: item)
+                    Analytics.track(.userFollowed)
+                },
                 text: "Follow",
                 background: .blue,
                 foreground: .white
