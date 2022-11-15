@@ -62,25 +62,33 @@ struct MainAppView: View {
         }
     }
     
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            mainBody
+    @ViewBuilder
+    var newPostButton: some View {
+        ZStack {
             Circle()
                 .fill()
                 .foregroundColor(.white)
-                .frame(width: 60, height: 60)
-                .opacity(viewModel.selection == .map ? 1 : 0)
+                .frame(width: 50, height: 50)
             Button(action: { viewModel.createPostPresented = true }) {
                 ZStack {
                     Circle()
                         .fill()
                         .foregroundColor(.blue)
-                        .frame(width: 60, height: 60)
+                        .frame(width: 50, height: 50)
                     Image(systemName: "plus")
                         .foregroundColor(.white)
                         .font(.system(size: 30))
                 }
-            }.opacity(viewModel.selection == .map ? 1 : 0)
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            mainBody
+            
+            newPostButton
+                .opacity(viewModel.selection == .map ? 1 : 0) // sadly not clean
         }
     }
 }

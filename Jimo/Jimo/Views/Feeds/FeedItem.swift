@@ -44,7 +44,10 @@ struct FeedItem: View {
                 .foregroundColor(Color("foreground").opacity(0.1))
         }
         .background(
-            NavigationLink(destination: LazyView { ViewPost(initialPost: post) }, isActive: $showFullPost) {
+            NavigationLink(
+                destination: LazyView { ViewPost(initialPost: post) },
+                isActive: $showFullPost
+            ) {
                 EmptyView()
             }
         )

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct CommentInputField: View {
-    @State private var isFocused = false
     @Binding var text: String
+    var isFocused: FocusState<Bool>.Binding
     var submitting: Bool
     
     var buttonColor: Color = .black
@@ -17,19 +17,20 @@ struct CommentInputField: View {
     var onSubmit: () -> Void
     
     var inputBody: some View {
-        TextField("Add a comment", text: $text) { isFocused in
-            self.isFocused = isFocused
-        }
-        .disabled(submitting)
+        TextField("Add a comment", text: $text)
+            .focused(isFocused)
+            .disabled(submitting)
     }
     
     var body: some View {
         HStack(spacing: 0) {
             HStack {
                 inputBody
-                if isFocused {
+                if isFocused.wrappedValue {
                     Button("Cancel") {
-                        hideKeyboard()
+                        DispatchQueue.main.async {
+                            isFocused.wrappedValue = false
+                        }
                     }.foregroundColor(.blue)
                 }
             }
@@ -47,7 +48,9 @@ struct CommentInputField: View {
                     
                     Button(action: {
                         withAnimation {
-                            hideKeyboard()
+                            DispatchQueue.main.async {
+                                isFocused.wrappedValue = false
+                            }
                             onSubmit()
                         }
                     }) {
