@@ -408,7 +408,6 @@ class AppState: ObservableObject {
         return self.apiClient.followUser(username: username)
             .map { response in
                 self.userPublisher.userRelationChanged(username: username, relation: .following)
-                Analytics.track(.userFollowed)
                 return response
             }
             .eraseToAnyPublisher()
@@ -418,7 +417,6 @@ class AppState: ObservableObject {
         return self.apiClient.unfollowUser(username: username)
             .map { response in
                 self.userPublisher.userRelationChanged(username: username, relation: nil)
-                Analytics.track(.userUnfollowed)
                 return response
             }
             .eraseToAnyPublisher()

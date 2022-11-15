@@ -55,19 +55,6 @@ struct FeedTab: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
                 .toolbar(content: {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: { showInvite.toggle() }) {
-                            Image(systemName: "person.crop.circle.badge.plus")
-                                .foregroundColor(Color("foreground"))
-                        }
-                        .sheet(isPresented: $showInvite) {
-                            NavigationView {
-                                InviteContactsView()
-                                    .trackSheet(.inviteContacts, screenAfterDismiss: { .feedTab })
-                            }
-                            .environmentObject(appState)
-                        }
-                    }
                     ToolbarItem(placement: .principal) {
                         Image("logo")
                             .renderingMode(.template)
@@ -85,7 +72,6 @@ struct FeedTab: View {
                         }
                     }
                 })
-                .trackScreen(.feedTab)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

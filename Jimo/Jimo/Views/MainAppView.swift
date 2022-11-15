@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum Tab: Int {
-    case map = 0, feed = 1, create = 2, search = 3, profile = 4
+    case feed = 0, map = 1, profile = 2
 }
 
 struct MainAppView: View {
@@ -19,34 +19,27 @@ struct MainAppView: View {
     
     let currentUser: PublicUser
     
-    var body: some View {
+    var mainBody: some View {
         UITabView(selection: viewModel.selectionIndex) {
-            MapTab()
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
-                .environmentObject(deepLinkManager)
-                .tabItem("Map", image: UIImage(named: "mapIcon"))
-            
-            FeedTab(onCreatePostTap: { viewModel.selection = .create })
+            FeedTab(onCreatePostTap: { viewModel.createPostPresented = true })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .tabItem(
-                    "Feed",
+                    "",
                     image: UIImage(named: "feedIcon"),
                     badgeValue: appState.unreadNotifications > 0 ? String(appState.unreadNotifications) : nil
                 )
             
-            Text("").tabItem("Post", image: UIImage(named: "postIcon"))
-            
-            Search()
+            MapTab()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
-                .tabItem("Discover", image: UIImage(named: "searchIcon"))
+                .environmentObject(deepLinkManager)
+                .tabItem("", image: UIImage(named: "mapIcon"))
             
             ProfileTab(currentUser: currentUser)
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
-                .tabItem("Profile", image: UIImage(named: "profileIcon"))
+                .tabItem("", image: UIImage(named: "profileIcon"))
         }
         .sheet(isPresented: $viewModel.createPostPresented) {
             CreatePost(presented: $viewModel.createPostPresented)
@@ -68,21 +61,42 @@ struct MainAppView: View {
             }
         }
     }
+    
+    @ViewBuilder
+    var newPostButton: some View {
+        ZStack {
+            Circle()
+                .fill()
+                .foregroundColor(.white)
+                .frame(width: 55, height: 55)
+            Button(action: { viewModel.createPostPresented = true }) {
+                ZStack {
+                    Circle()
+                        .fill()
+                        .foregroundColor(.blue)
+                        .frame(width: 55, height: 55)
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                        .font(.system(size: 30))
+                }
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            mainBody
+            
+            newPostButton
+                .opacity(viewModel.selection == .map ? 1 : 0) // sadly not clean
+        }
+    }
 }
 
 fileprivate extension MainAppView {
     class ViewModel: ObservableObject {
-        let newPostTag: Tab = .create
-        
         @Published var createPostPresented: Bool = false
-        @Published var selection: Tab = Tab.map {
-            didSet {
-                if selection == newPostTag {
-                    selection = oldValue
-                    createPostPresented = true
-                }
-            }
-        }
+        @Published var selection: Tab = Tab.map
         
         var selectionIndex: Binding<Int> {
             Binding<Int>(
@@ -93,14 +107,10 @@ fileprivate extension MainAppView {
         
         var currentTab: Screen {
             switch selection {
-            case .map:
-                return .mapTab
             case .feed:
                 return .feedTab
-            case .create: /// Should never actually be here since create is a sheet and not a tab
-                return .createPostSheet
-            case .search:
-                return .searchTab
+            case .map:
+                return .mapTab
             case .profile:
                 return .profileTab
             }

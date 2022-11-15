@@ -50,7 +50,7 @@ fileprivate enum FollowButtonType: Equatable {
 struct SuggestedUsersCarousel: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    @ObservedObject var viewModel = SuggestedUserCarouselViewModel()
+    @ObservedObject var viewModel: SuggestedUserCarouselViewModel
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -103,7 +103,7 @@ class SuggestedUserCarouselViewModel: ObservableObject {
                     self?.loadStatus = .failed
                 }
             } receiveValue: { [weak self] response in
-                self?.users = response.users
+                self?.users = response.users.sorted { $0.user.postCount * $0.numMutualFriends > $1.user.postCount * $1.numMutualFriends }
                 self?.loadStatus = .loaded
             }.store(in: &cancelBag)
     }

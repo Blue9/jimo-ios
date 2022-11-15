@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import BottomSheet
 
 struct MapBottomSheetHeader: View {
     @ObservedObject var mapViewModel: MapViewModelV2
     
     @Binding var searchFieldActive: Bool
-    @Binding var bottomSheetPosition: MapSheetPosition
+    @Binding var bottomSheetPosition: BottomSheetPosition
     
     @Binding var showHelpAlert: Bool
     
@@ -21,7 +22,7 @@ struct MapBottomSheetHeader: View {
                 .ignoresSafeArea(.keyboard, edges: .all)
                 .onChange(of: searchFieldActive) { isActive in
                     withAnimation {
-                        bottomSheetPosition = isActive ? .top : .middle
+                        bottomSheetPosition = .relative(isActive ? MapSheetPosition.top.rawValue : MapSheetPosition.middle.rawValue)
                     }
                 }
             
@@ -35,5 +36,6 @@ struct MapBottomSheetHeader: View {
                 }
             }
         }
+        .padding(.horizontal, 10)
     }
 }

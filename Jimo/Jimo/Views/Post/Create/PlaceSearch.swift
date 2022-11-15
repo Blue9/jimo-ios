@@ -12,7 +12,7 @@ struct PlaceSearch: View {
     @Environment(\.presentationMode) var presentationMode
     @StateObject var locationSearch: LocationSearch = LocationSearch()
     @State private var showAlert = false
-    @State private var searchBarFocused = false
+    @FocusState private var searchBarFocused: Bool
     
     var selectPlace: (MKMapItem) -> Void
     

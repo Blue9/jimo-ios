@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import ASCollectionView
 
 enum FollowType {
     case followers
@@ -181,7 +180,10 @@ struct FollowFeedItemView: View {
     @ViewBuilder var followItemButton: some View {
         if item.relation == .following {
             FollowFeedItemButton(
-                action: { followFeedItemVM.unfollowUser(appState: appState, viewState: globalViewState, item: item) },
+                action: {
+                    followFeedItemVM.unfollowUser(appState: appState, viewState: globalViewState, item: item)
+                    Analytics.track(.userUnfollowed)
+                },
                 text: "Following",
                 background: .white,
                 foreground: .gray
@@ -195,7 +197,10 @@ struct FollowFeedItemView: View {
             )
         } else {
             FollowFeedItemButton(
-                action: { followFeedItemVM.followUser(appState: appState, viewState: globalViewState, item: item) },
+                action: {
+                    followFeedItemVM.followUser(appState: appState, viewState: globalViewState, item: item)
+                    Analytics.track(.userFollowed)
+                },
                 text: "Follow",
                 background: .blue,
                 foreground: .white
@@ -241,8 +246,8 @@ struct FollowFeed: View {
     let username: String
     
     var body: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 1, data: followFeedVM.feedItems) { item, _ in
+        RefreshableScrollView {
+            ForEach(followFeedVM.feedItems) { item in
                 FollowFeedItemView(item: item)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
@@ -250,23 +255,7 @@ struct FollowFeed: View {
                     .frame(width: UIScreen.main.bounds.width)
                     .fixedSize()
             }
-            .sectionFooter {
-                VStack {
-                    Divider()
-                    
-                    ProgressView()
-                        .opacity(followFeedVM.loadingMoreFollows ? 1 : 0)
-                    Text("You've reached the end!")
-                        .font(.system(size: 15))
-                }
-            }
-        }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout {
-            .list(itemSize: .absolute(50))
-        }
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             followFeedVM.refreshFollows(
                 type: type,
                 for: username,
@@ -274,18 +263,9 @@ struct FollowFeed: View {
                 viewState: globalViewState,
                 onFinish: onFinish
             )
+        } onLoadMore: {
+            followFeedVM.loadMoreFollows(type: type, for: username, appState: appState, viewState: globalViewState)
         }
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                followFeedVM.loadMoreFollows(
-                    type: type,
-                    for: username,
-                    appState: appState,
-                    viewState: globalViewState
-                )
-            }
-        }
-        .ignoresSafeArea(.keyboard, edges: .all)
         .onAppear {
             if !initialized {
                 followFeedVM.refreshFollows(type: type, for: username, appState: appState, viewState: globalViewState)

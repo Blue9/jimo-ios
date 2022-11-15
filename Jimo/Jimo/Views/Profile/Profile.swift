@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ASCollectionView
 
 fileprivate enum NavigationDestination: Identifiable {
     case savedPosts, editProfile, submitFeedback
@@ -41,17 +40,21 @@ struct Profile: View {
     @StateObject var profileVM = ProfileVM()
     
     let initialUser: User
-    
-    var username: String {
-        initialUser.username
-    }
+    private let columns: [GridItem] = [
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2),
+        GridItem(.flexible(minimum: 50), spacing: 2)
+    ]
     
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
     @State private var navigationDestination: NavigationDestination?
     
-    @ViewBuilder
-    private func destinationView(for destination: NavigationDestination?) -> some View {
+    var username: String {
+        initialUser.username
+    }
+    
+    @ViewBuilder private func destinationView(for destination: NavigationDestination?) -> some View {
         if let destination = destination {
             destination.destinationView()
         } else {
@@ -60,67 +63,26 @@ struct Profile: View {
     }
     
     var profileGrid: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: 0) {
-                ProfileHeaderView(
-                    profileVM: profileVM,
-                    navigationDestination: $navigationDestination,
-                    initialUser: initialUser
-                ).padding(.bottom, 10)
-            }
+        RefreshableScrollView(spacing: 0) {
+            ProfileHeaderView(
+                profileVM: profileVM,
+                navigationDestination: $navigationDestination,
+                initialUser: initialUser
+            ).padding(.bottom, 10)
             
-            ASCollectionViewSection(id: 1, data: profileVM.posts, dataID: \.self) { post, _ in
-                NavigationLink(destination: ViewPost(initialPost: post)) {
-                    PostGridCell(post: post)
-                }
-            }
-            
-            ASCollectionViewSection(id: 2) {
-                Group {
-                    if profileVM.loadStatus == .success {
-                        ProgressView()
-                            .opacity(profileVM.loadingMore ? 1 : 0)
-                    } else if profileVM.loadStatus == .failed {
-                        Text("Failed to load posts")
-                            .padding()
-                    } else { // notInitialized
-                        ProgressView()
-                            .appear {
-                                profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
-                                profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
-                            }
+            LazyVGrid(columns: columns, spacing: 2) {
+                ForEach(profileVM.posts) { post in
+                    NavigationLink(destination: ViewPost(initialPost: post)) {
+                        PostGridCell(post: post)
                     }
                 }
-                .padding(.top)
             }
-        }
-        .alwaysBounceVertical()
-        .shouldScrollToAvoidKeyboard(false)
-        .layout { sectionID in
-            switch sectionID {
-            case 1:
-                return .grid(
-                    layoutMode: .fixedNumberOfColumns(3),
-                    itemSpacing: 2,
-                    lineSpacing: 2,
-                    itemSize: .estimated(80),
-                    sectionInsets: .init(top: 0, leading: 2, bottom: 0, trailing: 2)
-                )
-            default:
-                return .list(itemSize: .estimated(200))
-            }
-        }
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+        } onRefresh: { onFinish in
             profileVM.refresh(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
-        }
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
-            }
+        } onLoadMore: {
+            profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
         }
         .font(.system(size: 15))
-        .ignoresSafeArea(.keyboard, edges: .all)
         .navigation(item: $navigationDestination, destination: destinationView)
     }
     
@@ -246,7 +208,7 @@ struct ProfileHeaderView: View {
                 
                 Spacer()
                 
-                FollowButtonView(profileVM: profileVM, initialUser: initialUser)
+                ProfileActionButtonView(profileVM: profileVM, initialUser: initialUser)
                 
                 // Cannot share blocked user profile
                 if profileVM.relationToUser != .blocked {
@@ -321,7 +283,7 @@ struct ProfileStatsView: View {
     var body: some View {
         HStack {
             VStack {
-                Text(String(user.postCount)).bold()
+                Text(user.postCount.kFormatted).bold()
                 Text("Posts")
             }
             .padding(.leading, 15)
@@ -330,7 +292,7 @@ struct ProfileStatsView: View {
             
             Button(action: { showFollowers.toggle() }) {
                 VStack {
-                    Text(String(user.followerCount)).bold()
+                    Text(user.followerCount.kFormatted).bold()
                     Text("Followers")
                 }
             }
@@ -339,7 +301,7 @@ struct ProfileStatsView: View {
             
             Button(action: { showFollowing.toggle()} ) {
                 VStack {
-                    Text(String(user.followingCount)).bold()
+                    Text(user.followingCount.kFormatted).bold()
                     Text("Following")
                 }
             }
@@ -360,10 +322,11 @@ struct ProfileStatsView: View {
     }
 }
 
-struct FollowButtonView: View {
+struct ProfileActionButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
+    @State private var showSearchUsers = false
     
     let initialUser: User
     
@@ -381,7 +344,10 @@ struct FollowButtonView: View {
     var body: some View {
         VStack {
             if isCurrentUser {
-                Spacer().frame(height: 30)
+                ProfileButton(textType: .search) {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    showSearchUsers = true
+                }
             } else if !profileVM.loadedRelation {
                 Text("Loading...")
                     .padding(10)
@@ -412,12 +378,17 @@ struct FollowButtonView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showSearchUsers) {
+            SearchUsers()
+                .environmentObject(appState)
+                .environmentObject(viewState)
+        }
         .padding(.leading)
     }
 }
 
 fileprivate enum TextType {
-    case follow, unfollow, unblock, loading
+    case follow, unfollow, unblock, loading, search
     
     var text: String {
         switch self {
@@ -425,6 +396,17 @@ fileprivate enum TextType {
         case .unfollow: return "Unfollow"
         case .unblock: return "Unblock"
         case .loading: return "Loading..."
+        case .search: return "Find Friends"
+        }
+    }
+    
+    var analyticsEvent: AnalyticsName? {
+        switch self {
+        case .follow: return .userFollowed
+        case .unfollow: return .userUnfollowed
+        case .unblock: return nil
+        case .loading: return nil
+        case .search: return .findFriendsTapped
         }
     }
     
@@ -432,7 +414,7 @@ fileprivate enum TextType {
         switch self {
         case .loading, .unfollow: return .white
         case .unblock: return .red
-        case .follow: return .blue
+        case .follow, .search: return .blue
         }
     }
     
@@ -450,7 +432,12 @@ fileprivate struct ProfileButton: View {
     var action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            if let analyticsEvent = textType.analyticsEvent {
+                Analytics.track(analyticsEvent)
+            }
+            action()
+        }) {
             Text(textType.text)
                 .padding(Constants.TEXT_PADDING)
                 .font(Constants.TEXT_FONT)
@@ -472,5 +459,16 @@ extension ProfileButton {
         static let TEXT_PADDING: CGFloat = 10
         static let TEXT_FONT = SwiftUI.Font.system(size: 15)
         static let TEXT_CORNER_RADIUS: CGFloat = 2
+    }
+}
+
+fileprivate extension Int {
+    var kFormatted: String {
+        if self > 1000 {
+            var n = Double(self)
+            n = Double(floor(n / 100) / 10)
+            return "\(n.description)K"
+        }
+        return "\(self)"
     }
 }

@@ -9,10 +9,9 @@ import UIKit
 
 extension UIDevice {
     var hasNotch: Bool {
-        guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }),
-              window.safeAreaInsets.bottom >= 10 else {
-            return false
+        if #available(iOS 11.0, tvOS 11.0, *) {
+            return UIApplication.shared.delegate?.window??.safeAreaInsets.top ?? 0 > 20
         }
-        return true
+        return false
     }
 }

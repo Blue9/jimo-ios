@@ -24,7 +24,7 @@ struct MapViewV2: View {
     @StateObject var quickViewModel = QuickViewModel()
     
     @State private var showCreatePost = false
-    @State private var bottomSheetPosition: MapSheetPosition = .bottom
+    @State private var bottomSheetPosition: BottomSheetPosition = .relative(MapSheetPosition.bottom.rawValue)
     @State private var searchFieldActive = false
     
     @State private var initialized = false
@@ -96,9 +96,10 @@ struct MapViewV2: View {
         }
         .bottomSheet(
             bottomSheetPosition: $bottomSheetPosition,
-            options: [
-                .animation(Animation.interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0)),
-                .background({ AnyView(Color("background")) })
+            switchablePositions: [
+                .relative(MapSheetPosition.bottom.rawValue),
+                .relative(MapSheetPosition.middle.rawValue),
+                .relative(MapSheetPosition.top.rawValue)
             ],
             headerContent: {
                 MapBottomSheetHeader(
@@ -112,6 +113,8 @@ struct MapViewV2: View {
                     .ignoresSafeArea(.keyboard, edges: .all)
             }
         )
+        .customBackground(AnyView(Color("background")))
+        .customAnimation(.interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0))
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
     
@@ -156,7 +159,7 @@ struct MapViewV2: View {
                     if selectedPin != nil {
                         bottomSheetPosition = .hidden
                     } else {
-                        bottomSheetPosition = .middle
+                        bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
                     }
                 }
             }
@@ -164,7 +167,7 @@ struct MapViewV2: View {
                 if status != .loading && firstLoad {
                     firstLoad = false
                     withAnimation {
-                        bottomSheetPosition = .middle
+                        bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
                     }
                 }
             }

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ASCollectionView
 
 struct ViewPost: View {
     @EnvironmentObject var appState: AppState
@@ -18,7 +17,8 @@ struct ViewPost: View {
     @State private var initializedComments = false
     
     @State private var imageSize: CGSize?
-    @State private var scrollPosition: ASCollectionViewScrollPosition?
+    @FocusState private var commentFieldFocused: Bool
+    var focusOnAppear = false
     
     let initialPost: Post
     var highlightedComment: Comment? = nil
@@ -49,8 +49,9 @@ struct ViewPost: View {
                 PostPlaceName(post: post)
                 PostCaption(post: post)
             }
-            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true, onCommentTap: nil)
-                .padding(.bottom, 10)
+            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true, onCommentTap: {
+                commentFieldFocused = true
+            }).padding(.bottom, 10)
         }
         .onAppear {
             postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })
@@ -60,6 +61,7 @@ struct ViewPost: View {
     var commentField: some View {
         CommentInputField(
             text: $commentsViewModel.newCommentText,
+            isFocused: $commentFieldFocused,
             submitting: commentsViewModel.creatingComment,
             buttonColor: colorTheme,
             onSubmit: { [weak commentsViewModel] in
@@ -67,58 +69,35 @@ struct ViewPost: View {
                 // TODO: scroll to new comment
             }
         )
+        .onAppear {
+            if focusOnAppear {
+                commentFieldFocused = true
+            }
+        }
     }
     
     @ViewBuilder var mainBody: some View {
-        ASCollectionView {
-            ASCollectionViewSection(id: imageSize == nil ? 0 : 1, data: [post], dataID: \.self) { post, _ in
-                postItem(post: post)
+        RefreshableScrollView {
+            postItem(post: post)
+            
+            LazyVStack(spacing: 0) {
+                ForEach(commentsViewModel.comments) { comment in
+                    ZStack(alignment: .bottom) {
+                        CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
+                        Divider()
+                            .foregroundColor(.gray)
+                            .padding(.horizontal, 10)
+                    }
                     .frame(width: UIScreen.main.bounds.width)
                     .fixedSize()
-            }
-            
-            ASCollectionViewSection(id: 2, data: commentsViewModel.comments) { comment, _ in
-                ZStack(alignment: .bottom) {
-                    CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
-                    Divider()
-                        .foregroundColor(.gray)
-                        .padding(.horizontal, 10)
+                    .background(Color("background"))
                 }
-                .frame(width: UIScreen.main.bounds.width)
-                .fixedSize()
-                .background(Color("background"))
-            }.sectionFooter {
-                VStack {
-                    if commentsViewModel.loadingComments {
-                        ProgressView()
-                    }
-                    Spacer().frame(height: 150)
-                }
-                .padding(.top, 20)
             }
-        }
-        .shouldScrollToAvoidKeyboard(false)
-        .alwaysBounceVertical()
-        .onReachedBoundary { boundary in
-            if boundary == .bottom {
-                commentsViewModel.loadMore()
-            }
-        }
-        .layout(interSectionSpacing: 0) { sectionID in
-            switch sectionID {
-            case 2: // Comments
-                return .list(itemSize: .estimated(50), spacing: 0)
-            default:
-                return .list(itemSize: .estimated(50))
-            }
-        }
-        .onScroll { (point, size) in
-            hideKeyboard()
-        }
-        .scrollPositionSetter($scrollPosition)
-        .scrollIndicatorsEnabled(horizontal: false, vertical: false)
-        .onPullToRefresh { onFinish in
+            .padding(.bottom, 30)
+        } onRefresh: { onFinish in
             commentsViewModel.loadComments(onFinish: onFinish)
+        } onLoadMore: {
+            commentsViewModel.loadMore()
         }
         .onAppear {
             postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })

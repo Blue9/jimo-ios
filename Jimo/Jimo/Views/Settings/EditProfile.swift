@@ -141,7 +141,9 @@ extension EditProfile {
         }
         
         func updateProfile(appState: AppState, viewState: GlobalViewState) {
-            updating = true
+            DispatchQueue.main.async {
+                self.updating = true
+            }
             hideKeyboard()
             if let image = image {
                 uploadImageCancellable = appState.uploadImageAndGetId(image: image)

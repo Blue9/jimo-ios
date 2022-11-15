@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchBar: View {
     @Binding var text: String
-    @Binding var isActive: Bool
+    var isActive: FocusState<Bool>.Binding
     
     var placeholder: String = "Search"
     var disableAutocorrection: Bool = false
@@ -18,6 +18,7 @@ struct SearchBar: View {
     var body: some View {
         HStack {
             TextField(placeholder, text: $text, onCommit: onCommit)
+                .focused(isActive)
                 .disableAutocorrection(disableAutocorrection)
                 .textContentType(.location)
                 .padding(8)
@@ -31,7 +32,7 @@ struct SearchBar: View {
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 8)
                         
-                        if isActive {
+                        if isActive.wrappedValue {
                             Button(action: {
                                 withAnimation {
                                     self.text = ""
@@ -44,19 +45,15 @@ struct SearchBar: View {
                         }
                     }
                 )
-                .onTapGesture {
-                    withAnimation {
-                        self.isActive = true
-                    }
-                }
             
-            if isActive {
+            if isActive.wrappedValue {
                 Button(action: {
                     withAnimation {
-                        self.isActive = false
-                        self.text = ""
+                        DispatchQueue.main.async {
+                            self.isActive.wrappedValue = false
+                            self.text = ""
+                        }
                     }
-                    hideKeyboard()
                 }) {
                     Text("Cancel")
                         .foregroundColor(.blue)

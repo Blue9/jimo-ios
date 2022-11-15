@@ -13,7 +13,7 @@ struct ProfileTab: View {
     
     let currentUser: PublicUser
     
-    @State private var showSettings: Bool = false
+    @State private var showSettings = false
     
     var body: some View {
         NavigationView {
@@ -30,7 +30,7 @@ struct ProfileTab: View {
                         NavTitle("Profile")
                     }
                     ToolbarItem(placement: .navigationBarTrailing, content: {
-                        Button(action: { self.showSettings.toggle() }) {
+                        Button(action: { self.showSettings = true }) {
                             Image(systemName: "gearshape")
                         }
                     })

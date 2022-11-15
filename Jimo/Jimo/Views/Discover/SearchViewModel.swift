@@ -10,7 +10,6 @@ import Combine
 
 class SearchViewModel: ObservableObject {
     @Published var query: String = ""
-    @Published var searchBarFocused = false
     @Published var userResults: [PublicUser] = []
     
     private var queryCancellable: Cancellable?
