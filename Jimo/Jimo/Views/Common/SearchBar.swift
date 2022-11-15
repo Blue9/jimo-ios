@@ -49,8 +49,10 @@ struct SearchBar: View {
             if isActive.wrappedValue {
                 Button(action: {
                     withAnimation {
-                        self.isActive.wrappedValue = false
-                        self.text = ""
+                        DispatchQueue.main.async {
+                            self.isActive.wrappedValue = false
+                            self.text = ""
+                        }
                     }
                 }) {
                     Text("Cancel")
