@@ -15,11 +15,7 @@ struct DeactivatedProfileView: View {
         NavigationView {
             deactivatedProfileView
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        NavTitle("Goodbye")
-                    }
-                }
+                .navigationTitle(Text("Goodbye"))
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

@@ -52,11 +52,7 @@ struct EmailLogin: View {
             Toast(text: viewModel.error, type: .error)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Super secret menu")
-            }
-        }
+        .navigationTitle(Text("Super secret menu"))
     }
 }
 

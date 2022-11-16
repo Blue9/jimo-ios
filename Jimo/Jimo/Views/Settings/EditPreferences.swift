@@ -126,11 +126,7 @@ struct EditPreferences: View {
         .background(NavigationLink(destination: LazyView { Feedback() }, isActive: $showSubmitFeedback, label: {}))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Preferences")
-            }
-        }
+        .navigationTitle(Text("Preferences"))
     }
     
     @ViewBuilder

@@ -145,11 +145,7 @@ struct ProfileScreen: View {
             .background(Color("background"))
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(UIColor(Color("background")))
-            .toolbar(content: {
-                ToolbarItem(placement: .principal) {
-                    NavTitle("Profile")
-                }
-            })
+            .navigationTitle(Text("Profile"))
             .trackScreen(.profileView)
     }
 }
@@ -396,7 +392,7 @@ fileprivate enum TextType {
         case .unfollow: return "Unfollow"
         case .unblock: return "Unblock"
         case .loading: return "Loading..."
-        case .search: return "Find Friends"
+        case .search: return "Find People"
         }
     }
     

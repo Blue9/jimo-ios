@@ -237,9 +237,6 @@ fileprivate struct FindFriendsButton: View {
                 .background(Color.blue)
                 .cornerRadius(10)
                 .foregroundColor(.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10).stroke(.white, lineWidth: 1)
-                )
                 .frame(height: 50)
         }
         .padding(.horizontal, 20)

@@ -75,11 +75,8 @@ struct SearchUsers: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button("Close", action: { presentationMode.wrappedValue.dismiss() })
             }
-            
-            ToolbarItem(placement: .principal) {
-                NavTitle("Find Friends")
-            }
         }
+        .navigationTitle(Text("Find People"))
         .appear {
             if !initialized {
                 searchViewModel.listen(appState: appState)

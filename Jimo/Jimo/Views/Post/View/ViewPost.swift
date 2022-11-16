@@ -123,11 +123,7 @@ struct ViewPost: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                NavTitle("View Post")
-            }
-        })
+        .navigationTitle(Text("View Post"))
         .trackScreen(.postView)
     }
 }

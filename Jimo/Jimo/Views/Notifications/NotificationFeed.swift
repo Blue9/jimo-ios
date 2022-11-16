@@ -38,11 +38,7 @@ struct NotificationFeed: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Notifications")
-            }
-        })
+        .navigationTitle(Text("Notifications"))
         .onChange(of: notificationFeedVM.loading) { loading in
             if !loading {
                 appState.unreadNotifications = 0

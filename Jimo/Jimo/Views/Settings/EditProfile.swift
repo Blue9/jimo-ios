@@ -96,11 +96,7 @@ struct EditProfile: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Edit profile")
-            }
-        }
+        .navigationTitle(Text("Edit profile"))
     }
 }
 

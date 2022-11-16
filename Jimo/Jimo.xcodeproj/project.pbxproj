@@ -19,8 +19,8 @@
 		841D1860292350A100A3DC86 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 841D185F292350A100A3DC86 /* FirebaseMessaging */; };
 		841D18632923510800A3DC86 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 841D18622923510800A3DC86 /* SDWebImage */; };
 		841D18662923512A00A3DC86 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 841D18652923512A00A3DC86 /* SDWebImageSwiftUI */; };
-		841D18692923514400A3DC86 /* PhoneNumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = 841D18682923514400A3DC86 /* PhoneNumberKit */; };
 		842B0F672923667700828F42 /* SearchUsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842B0F662923667700828F42 /* SearchUsers.swift */; };
+		8445C5FF29258F6A00282537 /* PhoneNumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8445C5FE29258F6A00282537 /* PhoneNumberKit */; };
 		C3573075281B396500E5D6C3 /* EmailLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3573074281B396500E5D6C3 /* EmailLogin.swift */; };
 		C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */; };
 		C7031A6B27C5A61400A90D24 /* RegionWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7031A6A27C5A61400A90D24 /* RegionWrapper.swift */; };
@@ -345,8 +345,8 @@
 				C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */,
 				C7D947D2287BF310001B38A2 /* OrderedCollections in Frameworks */,
 				841D185E292350A100A3DC86 /* FirebaseCrashlytics in Frameworks */,
+				8445C5FF29258F6A00282537 /* PhoneNumberKit in Frameworks */,
 				841D18662923512A00A3DC86 /* SDWebImageSwiftUI in Frameworks */,
-				841D18692923514400A3DC86 /* PhoneNumberKit in Frameworks */,
 				841D185C292350A100A3DC86 /* FirebaseAuth in Frameworks */,
 				C7D947D0287BF310001B38A2 /* DequeModule in Frameworks */,
 			);
@@ -889,7 +889,7 @@
 				841D185F292350A100A3DC86 /* FirebaseMessaging */,
 				841D18622923510800A3DC86 /* SDWebImage */,
 				841D18652923512A00A3DC86 /* SDWebImageSwiftUI */,
-				841D18682923514400A3DC86 /* PhoneNumberKit */,
+				8445C5FE29258F6A00282537 /* PhoneNumberKit */,
 			);
 			productName = GoodplacesApp;
 			productReference = C75C2EDB25561309009B6ADA /* Jimo.app */;
@@ -969,7 +969,7 @@
 				841D1858292350A100A3DC86 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				841D18612923510800A3DC86 /* XCRemoteSwiftPackageReference "SDWebImage" */,
 				841D18642923512900A3DC86 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				841D18672923514400A3DC86 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */,
+				8445C5FD29258F6A00282537 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */,
 			);
 			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
 			projectDirPath = "";
@@ -1525,12 +1525,12 @@
 				kind = branch;
 			};
 		};
-		841D18672923514400A3DC86 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */ = {
+		8445C5FD29258F6A00282537 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marmelroy/PhoneNumberKit.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
+				branch = master;
+				kind = branch;
 			};
 		};
 		C79E1E9B2788BDE500267A86 /* XCRemoteSwiftPackageReference "BottomSheet" */ = {
@@ -1590,9 +1590,9 @@
 			package = 841D18642923512900A3DC86 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
 		};
-		841D18682923514400A3DC86 /* PhoneNumberKit */ = {
+		8445C5FE29258F6A00282537 /* PhoneNumberKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 841D18672923514400A3DC86 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */;
+			package = 8445C5FD29258F6A00282537 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */;
 			productName = PhoneNumberKit;
 		};
 		C79E1E9C2788BDE500267A86 /* BottomSheet */ = {

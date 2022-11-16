@@ -214,10 +214,10 @@ struct MapPreview: View {
                 loading: Image(systemName: "person.crop.circle"),
                 thumbnail: true
             )
-                .foregroundColor(.gray)
-                .frame(width: 35, height: 35)
-                .background(Color.white)
-                .cornerRadius(17.5)
+            .foregroundColor(.gray)
+            .frame(width: 35, height: 35)
+            .background(Color.white)
+            .cornerRadius(17.5)
         }
         .onAppear {
             generateSnapshot(width: width, height: height)
