@@ -93,7 +93,7 @@ extension EnterPhoneNumber {
         var cancelBag: Set<AnyCancellable> = .init()
         let phoneNumberKit = PhoneNumberKit()
         
-        @Published var phoneNumber = ""
+        @Published var phoneNumber: JimoPhoneNumberInput?
         @Published var showError = false
         @Published var nextStep: Bool = false
         
@@ -113,28 +113,16 @@ extension EnterPhoneNumber {
         func getCode(appState: AppState) {
             hideKeyboard()
             
-            /// Hack to allow logging in with emails
-            if phoneNumber == "546-6" {
+            if case .secretMenu = phoneNumber {
                 showSecretEmailPage = true
                 return
             }
-            
+            guard case let .number(number) = phoneNumber else {
+                setError("Invalid phone number.")
+                return
+            }
             withAnimation {
                 loading = true
-            }
-            guard phoneNumber.starts(with: "+") else {
-                setError("Phone number should begin with country code (including the '+').")
-                withAnimation {
-                    loading = false
-                }
-                return
-            }
-            guard let number = try? phoneNumberKit.parse(phoneNumber) else {
-                setError("Invalid phone number.")
-                withAnimation {
-                    loading = false
-                }
-                return
             }
             appState.verifyPhoneNumber(phoneNumber: phoneNumberKit.format(number, toType: .e164))
                 .sink(receiveCompletion: { [weak self] completion in

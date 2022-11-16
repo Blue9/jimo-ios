@@ -25,10 +25,8 @@ struct ProfileTab: View {
                                     .environmentObject(globalViewState), isActive: $showSettings) {})
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
+                .navigationTitle(Text("Profile"))
                 .toolbar(content: {
-                    ToolbarItem(placement: .principal) {
-                        NavTitle("Profile")
-                    }
                     ToolbarItem(placement: .navigationBarTrailing, content: {
                         Button(action: { self.showSettings = true }) {
                             Image(systemName: "gearshape")

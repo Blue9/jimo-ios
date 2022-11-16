@@ -30,7 +30,7 @@ struct MapBottomSheetHeader: View {
                 Button(action: { showHelpAlert.toggle() }) {
                     Image(systemName: "info.circle")
                         .opacity(0.8)
-                        .font(.system(size: 22, weight: .light))
+                        .font(.system(size: 22))
                         .frame(width: 40, height: 40)
                         .contentShape(Rectangle())
                 }

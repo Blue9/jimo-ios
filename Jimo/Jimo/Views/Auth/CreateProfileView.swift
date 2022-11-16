@@ -115,9 +115,6 @@ struct CreateProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Create profile")
-            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Sign out") {
                     appState.signOut()

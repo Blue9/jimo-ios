@@ -143,11 +143,7 @@ struct Settings: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Settings")
-            }
-        }
+        .navigationTitle(Text("Settings"))
         .trackScreen(.settings)
     }
 }

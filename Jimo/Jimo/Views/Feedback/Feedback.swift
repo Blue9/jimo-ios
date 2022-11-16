@@ -50,11 +50,7 @@ struct Feedback: View {
         .background(Color("background").edgesIgnoringSafeArea(.all))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Submit Feedback")
-            }
-        })
+        .navigationTitle(Text("Submit Feedback"))
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }

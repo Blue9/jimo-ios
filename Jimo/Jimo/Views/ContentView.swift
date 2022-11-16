@@ -47,10 +47,8 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .transition(.opacity)
                     .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(Text("Loading profile"))
                     .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            NavTitle("Loading profile")
-                        }
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button("Sign out") {
                                 appState.signOut()
@@ -72,17 +70,6 @@ struct ContentView: View {
                 // Firebase user exists, user profile does not exist
                 NavigationView {
                     CreateProfileView()
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .principal) {
-                                NavTitle("Create your account")
-                            }
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button("Sign out") {
-                                    appState.signOut()
-                                }
-                            }
-                        }
                 }
                 .navigationViewStyle(StackNavigationViewStyle())
             }
@@ -91,7 +78,7 @@ struct ContentView: View {
         .popup(isPresented: !$networkMonitor.connected, type: .toast, position: .bottom, autohideIn: nil, closeOnTap: true) {
             Toast(text: "No internet connection", type: .error)
         }
-        .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+        .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 4, closeOnTap: true, closeOnTapOutside: false) {
             Toast(text: globalViewState.errorMessage, type: .error)
                 .padding(.bottom, 50)
         }

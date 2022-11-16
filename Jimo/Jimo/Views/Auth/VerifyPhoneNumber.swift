@@ -11,6 +11,7 @@ import Combine
 struct VerifyPhoneNumber: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         ZStack {
@@ -18,11 +19,15 @@ struct VerifyPhoneNumber: View {
                 Text("Enter your six-digit verification code")
                 
                 TextField("Verification code", text: $viewModel.verificationCode)
+                    .focused($isFocused)
                     .keyboardType(.numberPad)
                     .frame(height: 40, alignment: .center)
                     .padding(10)
                     .background(RoundedRectangle(cornerRadius: 10)
                                     .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
+                    .appear {
+                        isFocused = true
+                    }
                 
                 Button(action: {
                     viewModel.verifyPhoneNumber(appState: appState)

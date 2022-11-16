@@ -35,10 +35,6 @@ struct DeepLinkProfileLoadingScreen: View {
         .background(Color("background"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Profile")
-            }
-        })
+        .navigationTitle(Text("Profile"))
     }
 }

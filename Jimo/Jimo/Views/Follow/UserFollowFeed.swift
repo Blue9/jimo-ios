@@ -274,10 +274,6 @@ struct FollowFeed: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                NavTitle(self.navTitle)
-            }
-        })
+        .navigationTitle(Text(self.navTitle))
     }
 }

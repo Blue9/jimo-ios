@@ -71,11 +71,7 @@ struct SavedPostsFeed: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                NavTitle("Saved Posts").foregroundColor(Color("foreground"))
-            }
-        })
+        .navigationTitle(Text("Saved Posts"))
         .trackScreen(.savedPosts)
     }
 }

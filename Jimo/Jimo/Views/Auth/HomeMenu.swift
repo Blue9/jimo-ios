@@ -55,7 +55,7 @@ struct HomeMenu: View {
                 }
                 .padding(.vertical, 5)
                 
-                NavigationLink(destination: EnterPhoneNumber()) {
+                NavigationLink(destination: LazyView { EnterPhoneNumber() }) {
                     Group {
                         Text("Already have an account? ") + Text("Sign in").bold()
                     }
