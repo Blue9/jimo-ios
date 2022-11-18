@@ -13,14 +13,15 @@ import Collections
 struct JimoMapView: UIViewRepresentable {
     @Binding var pins: [MKJimoPinAnnotation]
     @Binding var selectedPin: MKJimoPinAnnotation?
-    @Binding var region: MKCoordinateRegion
-    
+
     // RegionWrapper allows us to set the region binding without updating the view
-    var regionWrapper: RegionWrapper
+    @ObservedObject var regionWrapper: RegionWrapper
     var mapViewModel: MapViewModelV2 // Not @ObservedObject because we don't want to listen to every @Published change
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
+        mapView.showsCompass = false
+        mapView.pointOfInterestFilter = .excludingAll
         mapView.addAnnotations(pins)
         mapView.tintAdjustmentMode = .normal
         mapView.tintColor = .systemBlue
@@ -32,8 +33,8 @@ struct JimoMapView: UIViewRepresentable {
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
         // Handle region
-        if mapView.region != region {
-            mapView.setRegion(region, animated: true)
+        if mapView.region != regionWrapper.region.wrappedValue {
+            mapView.setRegion(regionWrapper.region.wrappedValue, animated: true)
         }
         
         // Handle pins
@@ -124,7 +125,9 @@ struct JimoMapView: UIViewRepresentable {
             }
             if let annotation = annotation as? MKJimoPinAnnotation {
                 let view = mapView.dequeueReusableAnnotationView(withIdentifier: NSStringFromClass(JimoPinView.self), for: annotation) as? JimoPinView
-                view?.toDot()
+                if !sortedVisibleAnnotations.firstN(regularPinsCapacity).contains(annotation) {
+                    view?.toDot()
+                }
                 return view
             }
             return nil
@@ -166,6 +169,11 @@ struct JimoMapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
             guard let annotation = view.annotation as? MKJimoPinAnnotation else {
                 return
+            }
+            DispatchQueue.main.async {
+                if self.mapViewModel.selectedPin == annotation {
+                    self.mapViewModel.selectedPin = nil
+                }
             }
             // We don't set parent.selectedPin to nil here, that is only done when the quick view is dismissed
             // (that ensures that if selectedPin is non-nil, then the quick view is visible)

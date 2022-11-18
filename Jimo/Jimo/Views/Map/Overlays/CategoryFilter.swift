@@ -9,13 +9,16 @@ import SwiftUI
 import BottomSheet
 
 struct CategoryView: View {
-    var name: String
-    var key: String
+    @Binding var selected: Set<Category>
     
-    @Binding var selected: Set<String>
+    var category: Category
+    
+    var key: String {
+        category.key
+    }
     
     var isSelected: Bool {
-        selected.contains(key)
+        selected.contains(category)
     }
     
     var allSelected: Bool {
@@ -33,7 +36,7 @@ struct CategoryView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 20, maxHeight: 20)
-            Text(name)
+            Text(category.name)
                 .font(.system(size: 15))
                 .fontWeight(.medium)
                 .lineLimit(1)
@@ -47,13 +50,13 @@ struct CategoryView: View {
         .frame(height: 60)
         .onTapGesture {
             if allSelected {
-                self.selected = [key]
+                self.selected = [category]
             } else if onlySelected {
-                self.selected = Set(Categories.categories.map({ $0.key }))
+                self.selected = Set(Categories.categories)
             } else if isSelected {
-                self.selected.remove(key)
+                self.selected.remove(category)
             } else {
-                self.selected.insert(key)
+                self.selected.insert(category)
             }
         }
     }
@@ -61,13 +64,13 @@ struct CategoryView: View {
 
 
 struct CategoryFilter: View {
-    @Binding var selectedCategories: Set<String>
+    @Binding var selectedCategories: Set<Category>
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 ForEach(Categories.categories) { category in
-                    CategoryView(name: category.name, key: category.key, selected: $selectedCategories)
+                    CategoryView(selected: $selectedCategories, category: category)
                 }
             }
             .padding(.horizontal)

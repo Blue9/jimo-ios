@@ -15,7 +15,7 @@ enum MapLoadStatus {
 }
 
 enum MapLoadStrategy {
-    case everyone, following, savedPosts, custom, none
+    case friends, everyone, me, savedPosts, custom, none
 }
 
 struct CurrentMapRequest {
@@ -26,23 +26,7 @@ struct CurrentMapRequest {
     var users: [String]
 }
 
-protocol MapActions {
-    func initialize(appState: AppState, viewState: GlobalViewState, regionWrapper: RegionWrapper)
-    
-    func toggleGlobal()
-    func toggleFollowing()
-    func toggleSavedPosts()
-    func toggleUser(user: PublicUser)
-    
-    var globalSelected: Bool { get }
-    var followingSelected: Bool { get }
-    var savedPostsSelected: Bool { get }
-    func isSelected(userId: UserId) -> Bool
-    
-    func selectPin(index: Int)
-}
-
-class MapViewModelV2: MapActions, ObservableObject {
+class MapViewModelV2: ObservableObject {
     var appState: AppState!
     var viewState: GlobalViewState!
     var regionWrapper: RegionWrapper!
@@ -55,52 +39,22 @@ class MapViewModelV2: MapActions, ObservableObject {
     @Published private(set) var mapLoadStatus: MapLoadStatus = .loading
     
     // Request parameters
-    @Published private(set) var mapLoadStrategy: MapLoadStrategy = .following
+    @Published var mapLoadStrategy: MapLoadStrategy = .friends
     @Published var regionToLoad: Region?
-    @Published var selectedCategories: Set<String> = [
-        "food",
-        "activity",
-        "nightlife",
-        "attraction",
-        "lodging",
-        "shopping"
-    ]
-    @Published private(set) var selectedUsers: Set<UserId> = .init()
+    @Published var selectedCategories: Set<Category> = Set(Categories.categories)
+    @Published var customUserFilter: Set<UserId> = Set() // Only matters when mapLoadStrategy == .custom
     
     // If this is non-nil, the quick view is visible
     @Published var selectedPin: MKJimoPinAnnotation?
     
     @Published var pins: [MKJimoPinAnnotation] = []
-    @Published var loadedRegion: Region?
-    @Published private(set) var userSearchResults: [PublicUser] = []
-    
-    @Published private(set) var loadedUsers: [UserId: PublicUser] = [:]
-    @Published var searchUsersQuery: String = ""
     
     // MARK: - Map actions
     
-    var globalSelected: Bool {
-        mapLoadStrategy == .everyone
-    }
-    
-    var followingSelected: Bool {
-        mapLoadStrategy == .following
-    }
-
-    var savedPostsSelected: Bool {
-        mapLoadStrategy == .savedPosts
-    }
-    
     func initialize(appState: AppState, viewState: GlobalViewState, regionWrapper: RegionWrapper) {
-        guard case let .user(user) = appState.currentUser else {
-            return
-        }
-        self.loadedUsers[user.id] = user
         self.appState = appState
         self.viewState = viewState
         self.regionWrapper = regionWrapper
-        self.listenToSearchQuery()
-        self.loadFollowing()
         if let location = PermissionManager.shared.getLocation() {
             self.regionWrapper.region.wrappedValue = MKCoordinateRegion(
                 center: location.coordinate,
@@ -113,7 +67,7 @@ class MapViewModelV2: MapActions, ObservableObject {
         } else {
             self.listenToRegionChanges()
         }
-        Publishers.CombineLatest4($mapLoadStrategy, $regionToLoad, $selectedCategories, $selectedUsers)
+        Publishers.CombineLatest4($mapLoadStrategy, $regionToLoad, $selectedCategories, $customUserFilter)
             .throttle(for: 0.25, scheduler: RunLoop.main, latest: true)
             .sink { [weak self] mapLoadStrategy, region, categories, users in
                 guard let self = self, let region = region, self.selectedPin == nil else {
@@ -123,8 +77,8 @@ class MapViewModelV2: MapActions, ObservableObject {
                     requestId: UUID(),
                     mapLoadStrategy: mapLoadStrategy,
                     region: region,
-                    categories: Array(categories),
-                    users: Array(users)
+                    categories: categories.map(\.key),
+                    users: mapLoadStrategy == .me ? [appState.me!.id] : Array(users)
                 )
                 print("Created request with ID", request.requestId)
                 self.loadMap(request: request)
@@ -133,53 +87,8 @@ class MapViewModelV2: MapActions, ObservableObject {
         
     }
     
-    func toggleGlobal() {
-        if mapLoadStrategy != .everyone {
-            mapLoadStrategy = .everyone
-            selectedUsers.removeAll()
-        } else {
-            mapLoadStrategy = .none
-            pins.removeAll()
-        }
-    }
-    
-    func toggleFollowing() {
-        if mapLoadStrategy != .following {
-            mapLoadStrategy = .following
-            selectedUsers.removeAll()
-        } else {
-            mapLoadStrategy = .none
-            pins.removeAll()
-        }
-    }
-    
-    func toggleSavedPosts() {
-        if mapLoadStrategy != .savedPosts {
-            mapLoadStrategy = .savedPosts
-            selectedUsers.removeAll()
-        } else {
-            mapLoadStrategy = .none
-            pins.removeAll()
-        }
-    }
-    
-    func toggleUser(user: PublicUser) {
-        self.loadedUsers[user.id] = user
-        if mapLoadStrategy != .custom {
-            mapLoadStrategy = .custom
-            selectedUsers.insert(user.id)
-        } else if selectedUsers.contains(user.id) {
-            selectedUsers.remove(user.id)
-        } else {
-            selectedUsers.insert(user.id)
-        }
-        if selectedUsers.isEmpty {
-            pins.removeAll()
-        }
-    }
-    
     func isSelected(userId: UserId) -> Bool {
-        return selectedUsers.contains(userId)
+        return customUserFilter.contains(userId)
     }
     
     func selectPin(pin: MKJimoPinAnnotation) {
@@ -228,18 +137,6 @@ class MapViewModelV2: MapActions, ObservableObject {
             .store(in: &cancelBag)
     }
     
-    func listenToSearchQuery() {
-        guard let appState = appState, let viewState = viewState else {
-            return
-        }
-        $searchUsersQuery
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            .sink { [weak self] query in
-                self?.search(appState: appState, globalViewState: viewState, query: query)
-            }
-            .store(in: &cancelBag)
-    }
-    
     func loadMap(request: CurrentMapRequest) {
         guard let appState = appState, let viewState = viewState else {
             return
@@ -248,35 +145,18 @@ class MapViewModelV2: MapActions, ObservableObject {
         switch mapLoadStrategy {
         case .everyone:
             self.loadGlobalMap(appState: appState, globalViewState: viewState, request: request)
-        case .following:
+        case .friends:
             self.loadFollowingMap(appState: appState, globalViewState: viewState, request: request)
         case .savedPosts:
             self.loadSavedPostsMap(appState: appState, globalViewState: viewState, request: request)
         case .custom:
             self.loadCustomMap(appState: appState, globalViewState: viewState, request: request)
+        case .me:
+            // Same as custom, makes it easier to special case
+            self.loadCustomMap(appState: appState, globalViewState: viewState, request: request)
         case .none:
             return
         }
-    }
-    
-    func loadFollowing() {
-        guard let appState = appState, case let .user(user) = appState.currentUser else {
-            return
-        }
-        appState.getFollowing(username: user.username)
-            .sink { completion in
-                if case let .failure(error) = completion {
-                    print("Could not load users", error)
-                }
-            } receiveValue: { [weak self] response in
-                guard let self = self else {
-                    return
-                }
-                let users = response.users.map { $0.user }
-                for user in users {
-                    self.loadedUsers[user.id] = user
-                }
-            }.store(in: &cancelBag)
     }
     
     private func loadGlobalMap(appState: AppState, globalViewState: GlobalViewState, request: CurrentMapRequest) {
@@ -367,21 +247,6 @@ class MapViewModelV2: MapActions, ObservableObject {
             }.store(in: &cancelBag)
     }
     
-    private func search(appState: AppState, globalViewState: GlobalViewState, query: String) {
-        appState.searchUsers(query: query)
-            .catch { error -> AnyPublisher<[PublicUser], Never> in
-                print("Error when searching", error)
-                if query.isEmpty {
-                    globalViewState.setError("Could not load suggested users")
-                }
-                return Empty().eraseToAnyPublisher()
-            }
-            .sink { [weak self] results in
-                self?.userSearchResults = results
-            }
-            .store(in: &cancelBag)
-    }
-    
     ///
     
     func sortUsersHelper(_ user1: PublicUser, _ user2: PublicUser) -> Bool {
@@ -403,7 +268,6 @@ class MapViewModelV2: MapActions, ObservableObject {
                     let oldPins = Set(self.pins)
                     self.pins.removeAll(where: { !newPins.contains($0) })
                     self.pins.append(contentsOf: newPins.subtracting(oldPins))
-                    self.loadedRegion = request.region
                     self.latestMapRequestId = nil
                 } else {
                     print("Request changed, not setting pins")

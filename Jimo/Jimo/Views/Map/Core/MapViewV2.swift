@@ -10,6 +10,23 @@ import MapKit
 import BottomSheet
 import SwiftUIPager
 
+class SheetPositionViewModel: ObservableObject {
+    @Published var bottomSheetPosition: BottomSheetPosition = .relative(MapSheetPosition.bottom.rawValue) {
+        didSet {
+            if bottomSheetPosition != .hidden {
+                businessSheetPosition = .hidden
+            }
+        }
+    }
+    @Published var businessSheetPosition: BottomSheetPosition = .hidden {
+        didSet {
+            if businessSheetPosition != .hidden {
+                bottomSheetPosition = .hidden
+            }
+        }
+    }
+}
+
 struct MapViewV2: View {
     @AppStorage("shouldShowHelpInfo") var shouldShowHelpInfo = true
     
@@ -22,10 +39,13 @@ struct MapViewV2: View {
     @StateObject var createPostVM = CreatePostVM()
     @StateObject var regionWrapper = RegionWrapper()
     @StateObject var quickViewModel = QuickViewModel()
+    @StateObject var locationSearch = LocationSearch()
+    @StateObject var sheetViewModel = SheetPositionViewModel()
     
+    @State private var showMKMapItem: MKMapItem?
     @State private var showCreatePost = false
-    @State private var bottomSheetPosition: BottomSheetPosition = .relative(MapSheetPosition.bottom.rawValue)
-    @State private var searchFieldActive = false
+    
+    @FocusState private var searchFieldActive: Bool
     
     @State private var initialized = false
     @State private var firstLoad = true
@@ -82,7 +102,6 @@ struct MapViewV2: View {
         JimoMapView(
             pins: $mapViewModel.pins,
             selectedPin: $mapViewModel.selectedPin,
-            region: regionWrapper.region,
             regionWrapper: regionWrapper,
             mapViewModel: mapViewModel
         )
@@ -95,7 +114,7 @@ struct MapViewV2: View {
                 .environmentObject(globalViewState)
         }
         .bottomSheet(
-            bottomSheetPosition: $bottomSheetPosition,
+            bottomSheetPosition: $sheetViewModel.bottomSheetPosition,
             switchablePositions: [
                 .relative(MapSheetPosition.bottom.rawValue),
                 .relative(MapSheetPosition.middle.rawValue),
@@ -103,18 +122,23 @@ struct MapViewV2: View {
             ],
             headerContent: {
                 MapBottomSheetHeader(
-                    mapViewModel: mapViewModel,
-                    searchFieldActive: $searchFieldActive,
-                    bottomSheetPosition: $bottomSheetPosition,
-                    showHelpAlert: $showHelpAlert
+                    locationSearch: locationSearch,
+                    bottomSheetPosition: $sheetViewModel.bottomSheetPosition,
+                    showHelpAlert: $showHelpAlert,
+                    searchFieldActive: $searchFieldActive
                 )
             }, mainContent: {
-                MapBottomSheetBody(mapViewModel: mapViewModel, bottomSheetPosition: $bottomSheetPosition)
-                    .ignoresSafeArea(.keyboard, edges: .all)
+                MapBottomSheetBody(
+                    mapViewModel: mapViewModel,
+                    locationSearch: locationSearch,
+                    sheetViewModel: sheetViewModel,
+                    showMKMapItem: $showMKMapItem
+                ).ignoresSafeArea(.keyboard, edges: .all)
             }
         )
-        .customBackground(AnyView(Color("background")))
-        .customAnimation(.interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0))
+        .enableFlickThrough()
+        .customBackground(AnyView(Color("background")).cornerRadius(10))
+        .customAnimation(.spring(response: 0.24, dampingFraction: 0.75, blendDuration: 0.1))
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
     
@@ -139,6 +163,39 @@ struct MapViewV2: View {
     
     var body: some View {
         mapBody
+            .bottomSheet(
+                bottomSheetPosition: $sheetViewModel.businessSheetPosition,
+                switchablePositions: [
+                    .relative(MapSheetPosition.middle.rawValue),
+                    .relative(0.6),
+                    .relative(MapSheetPosition.top.rawValue)
+                ],
+                headerContent: {
+                    VStack {
+                        HStack {
+                            Text("Helloooooooooooo")
+                            Spacer()
+                        }
+                    }
+                }, mainContent: {
+                    if let place = showMKMapItem {
+                        ScrollView {
+                            VStack {
+                                Text(place.placemark.name ?? "View place details")
+                                Text(place.debugDescription)
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+            )
+            .customAnimation(.spring(response: 0.24, dampingFraction: 0.75, blendDuration: 0.1))
+            .customBackground(AnyView(Color("background")).cornerRadius(10))
+            .showCloseButton()
+            .enableTapToDismiss()
+            .onDismiss {
+                sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
+            }
             .overlay(popupBody)
             .appear {
                 if !initialized {
@@ -154,21 +211,26 @@ struct MapViewV2: View {
                     )
                 }
             }
+            .onChange(of: searchFieldActive) { isActive in
+                withAnimation {
+                    if isActive {
+                        sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.top.rawValue)
+                    }
+                }
+            }
             .onChange(of: mapViewModel.selectedPin) { selectedPin in
                 withAnimation {
                     if selectedPin != nil {
-                        bottomSheetPosition = .hidden
+                        sheetViewModel.bottomSheetPosition = .hidden
                     } else {
-                        bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
+                        sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
                     }
                 }
             }
             .onChange(of: mapViewModel.mapLoadStatus) { status in
                 if status != .loading && firstLoad {
                     firstLoad = false
-                    withAnimation {
-                        bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
-                    }
+                    sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
                 }
             }
     }

@@ -9,15 +9,11 @@ import SwiftUI
 
 struct MapSearchField: View {
     @Binding var text: String
-    @Binding var isActive: Bool
+    var isActive: FocusState<Bool>.Binding
     
     var placeholder: String = "Search"
     
     var onCommit: () -> ()
-    
-    private func onEditingChanged(editStatus: Bool) {
-        isActive = editStatus
-    }
     
     var body: some View {
         HStack {
@@ -25,10 +21,13 @@ struct MapSearchField: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
                 
-                TextField(placeholder, text: $text, onEditingChanged: onEditingChanged, onCommit: onCommit)
+                TextField(placeholder, text: $text, onCommit: onCommit)
+                    .textContentType(.location)
+                    .focused(isActive)
+                    .submitLabel(.search)
                     .frame(maxWidth: .infinity)
                 
-                if isActive {
+                if isActive.wrappedValue {
                     Button(action: {
                         withAnimation {
                             self.text = ""
@@ -40,14 +39,14 @@ struct MapSearchField: View {
                 }
             }
             .padding(8)
-            .background(Color(.systemGray5))
+            .background(Color("foreground").opacity(0.1))
             .cornerRadius(10)
 
             
-            if isActive {
+            if isActive.wrappedValue {
                 Button(action: {
                     withAnimation {
-                        self.isActive = false
+                        self.isActive.wrappedValue = false
                         self.text = ""
                     }
                     hideKeyboard()

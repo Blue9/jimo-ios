@@ -9,24 +9,18 @@ import SwiftUI
 import BottomSheet
 
 struct MapBottomSheetHeader: View {
-    @ObservedObject var mapViewModel: MapViewModelV2
-    
-    @Binding var searchFieldActive: Bool
+    @ObservedObject var locationSearch: LocationSearch
     @Binding var bottomSheetPosition: BottomSheetPosition
-    
     @Binding var showHelpAlert: Bool
+    var searchFieldActive: FocusState<Bool>.Binding
     
     var body: some View {
         HStack {
-            MapSearchField(text: $mapViewModel.searchUsersQuery, isActive: $searchFieldActive, placeholder: "Filter by people", onCommit: {})
-                .ignoresSafeArea(.keyboard, edges: .all)
-                .onChange(of: searchFieldActive) { isActive in
-                    withAnimation {
-                        bottomSheetPosition = .relative(isActive ? MapSheetPosition.top.rawValue : MapSheetPosition.middle.rawValue)
-                    }
-                }
+            MapSearchField(text: $locationSearch.searchQuery, isActive: searchFieldActive, placeholder: "Search places", onCommit: {
+                locationSearch.search()
+            }).ignoresSafeArea(.keyboard, edges: .all)
             
-            if !searchFieldActive {
+            if !searchFieldActive.wrappedValue {
                 Button(action: { showHelpAlert.toggle() }) {
                     Image(systemName: "info.circle")
                         .opacity(0.8)

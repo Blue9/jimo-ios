@@ -95,6 +95,13 @@ class AppState: ObservableObject {
     var signingOut = false
     var registeringToken = false
     
+    var me: PublicUser? {
+        if case let .user(user) = currentUser {
+            return user
+        }
+        return nil
+    }
+    
     init(apiClient: APIClient) {
         // Uncomment the two lines below to clear the image cache
         // SDImageCache.shared.clearMemory()

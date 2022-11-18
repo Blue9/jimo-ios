@@ -20,7 +20,7 @@ struct PlaceCacheKey: Hashable {
     var placeId: PlaceId
     var loadStrategy: MapLoadStrategy
     var userFilter: Set<UserId>
-    var categoryFilter: Set<String>
+    var categoryFilter: Set<Category>
 }
 
 class QuickViewModel: ObservableObject {
@@ -59,7 +59,7 @@ class QuickViewModel: ObservableObject {
         PlaceCacheKey(
             placeId: placeId,
             loadStrategy: mapViewModel.mapLoadStrategy,
-            userFilter: mapViewModel.selectedUsers,
+            userFilter: mapViewModel.customUserFilter,
             categoryFilter: mapViewModel.selectedCategories
         )
     }
@@ -84,18 +84,21 @@ class QuickViewModel: ObservableObject {
             return
         }
         placePostsCache[cacheKey] = PlaceCache(loading: true)
-        let categories = Array(mapViewModel.selectedCategories)
+        let categories = Array(mapViewModel.selectedCategories.map(\.key))
         var request: AnyPublisher<[Post], APIError>
         switch mapViewModel.mapLoadStrategy {
         case .everyone:
             request = appState.getGlobalMutualPostsV3(for: placeId, categories: categories)
-        case .following:
+        case .friends:
             request = appState.getFollowingMutualPostsV3(for: placeId, categories: categories)
         case .savedPosts:
             request = appState.getSavedPostsMapMutualPostsV3(for: placeId, categories: categories)
         case .custom:
             request = appState.getCustomMutualPostsV3(
-                for: placeId, categories: categories, users: Array(mapViewModel.selectedUsers))
+                for: placeId, categories: categories, users: Array(mapViewModel.customUserFilter))
+        case .me:
+            request = appState.getCustomMutualPostsV3(
+                for: placeId, categories: categories, users: [appState.me!.id])
         case .none:
             return
         }
