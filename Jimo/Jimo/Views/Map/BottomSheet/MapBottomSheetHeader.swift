@@ -15,21 +15,10 @@ struct MapBottomSheetHeader: View {
     var searchFieldActive: FocusState<Bool>.Binding
     
     var body: some View {
-        HStack {
-            MapSearchField(text: $locationSearch.searchQuery, isActive: searchFieldActive, placeholder: "Search places", onCommit: {
-                locationSearch.search()
-            }).ignoresSafeArea(.keyboard, edges: .all)
-            
-            if !searchFieldActive.wrappedValue {
-                Button(action: { showHelpAlert.toggle() }) {
-                    Image(systemName: "info.circle")
-                        .opacity(0.8)
-                        .font(.system(size: 22))
-                        .frame(width: 40, height: 40)
-                        .contentShape(Rectangle())
-                }
-            }
-        }
+        MapSearchField(text: $locationSearch.searchQuery, isActive: searchFieldActive, placeholder: "Search places", onCommit: {
+            locationSearch.search()
+        })
+        .ignoresSafeArea(.keyboard, edges: .all)
         .padding(.horizontal, 10)
     }
 }

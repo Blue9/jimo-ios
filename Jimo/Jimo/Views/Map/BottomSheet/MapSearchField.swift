@@ -54,8 +54,6 @@ struct MapSearchField: View {
                     Text("Cancel")
                         .foregroundColor(.blue)
                 }
-                .padding(.trailing, 10)
-                .transition(.move(edge: .trailing))
             }
         }
         .padding(.vertical, 6)
