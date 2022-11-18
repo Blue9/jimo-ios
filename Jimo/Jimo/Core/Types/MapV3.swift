@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GetMapRequest: Codable {
+struct GetMapRequest: Codable, Equatable {
     var region: Region
     var categories: [String] = []
 }

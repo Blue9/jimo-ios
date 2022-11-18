@@ -192,14 +192,13 @@ class MapViewModelV2: ObservableObject {
                     self.mapLoadStatus = .failed
                     print("Error loading map", error)
                     globalViewState.setError("Could not load map")
-                } else {
-                    self.mapLoadStatus = .success
                 }
             } receiveValue: { [weak self] mapResponseV3 in
                 guard let self = self else {
                     return
                 }
                 self.updateMapPinsAsync(mapResponseV3.pins, request: request)
+                self.mapLoadStatus = .success
             }.store(in: &cancelBag)
     }
     

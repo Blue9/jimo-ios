@@ -20,12 +20,12 @@ struct LiteMapView: View {
     
     var post: Post
     
-    var pin: MapPinV3 {
-        MapPinV3(
+    var pin: MKJimoPinAnnotation {
+        MKJimoPinAnnotation(from: MapPinV3(
             placeId: post.place.id,
             location: post.place.location,
             icon: MapPlaceIconV3(category: post.category, iconUrl: post.user.profilePictureUrl, numPosts: 1)
-        )
+        ))
     }
     
     @ViewBuilder var pageIndicator: some View {
@@ -86,10 +86,11 @@ struct LiteMapView: View {
     }
     
     var body: some View {
-        MapKitViewV2(
-            region: regionWrapper.region,
+        JimoMapView(
+            pins: .constant([pin]),
             selectedPin: .constant(pin),
-            annotations: [PlaceAnnotationV2(pin: pin, zIndex: 1)]
+            regionWrapper: regionWrapper,
+            selectPin: {_ in}
         )
         .edgesIgnoringSafeArea(.top)
         .overlay(quickViewOverlay)

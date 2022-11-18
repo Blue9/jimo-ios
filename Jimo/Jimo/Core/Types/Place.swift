@@ -34,7 +34,7 @@ struct Location: Codable, Equatable, Hashable {
     }
 }
 
-struct Region: Codable {
+struct Region: Codable, Equatable {
     var latitude: Double
     var longitude: Double
     var radius: Double

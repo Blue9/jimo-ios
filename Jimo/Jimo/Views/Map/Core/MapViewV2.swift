@@ -103,7 +103,7 @@ struct MapViewV2: View {
             pins: $mapViewModel.pins,
             selectedPin: $mapViewModel.selectedPin,
             regionWrapper: regionWrapper,
-            mapViewModel: mapViewModel
+            selectPin: mapViewModel.selectPin(pin:)
         )
         .edgesIgnoringSafeArea(.top)
         .overlay(mapOverlay)

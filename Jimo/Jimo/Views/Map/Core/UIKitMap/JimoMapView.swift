@@ -16,7 +16,7 @@ struct JimoMapView: UIViewRepresentable {
 
     // RegionWrapper allows us to set the region binding without updating the view
     @ObservedObject var regionWrapper: RegionWrapper
-    var mapViewModel: MapViewModelV2 // Not @ObservedObject because we don't want to listen to every @Published change
+    var selectPin: (MKJimoPinAnnotation) -> ()
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
@@ -67,14 +67,12 @@ struct JimoMapView: UIViewRepresentable {
     
     class Coordinator: NSObject, MKMapViewDelegate {
         private var parent: JimoMapView
-        private var mapViewModel: MapViewModelV2
         private var sortedVisibleAnnotations: OrderedSet<MKJimoPinAnnotation> = OrderedSet()
         private var regularPinsCapacity: Int = 25
         private var isRecomputingDots = false
         
         init(_ parent: JimoMapView) {
             self.parent = parent
-            self.mapViewModel = parent.mapViewModel
         }
         
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
@@ -157,9 +155,7 @@ struct JimoMapView: UIViewRepresentable {
         
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             if let annotation = view.annotation as? MKJimoPinAnnotation {
-                DispatchQueue.main.async {
-                    self.mapViewModel.selectPin(pin: annotation)
-                }
+                parent.selectPin(annotation)
                 UIView.animate(withDuration: 0.1) {
                     self.highlight(view, annotation: annotation)
                 }
@@ -170,10 +166,8 @@ struct JimoMapView: UIViewRepresentable {
             guard let annotation = view.annotation as? MKJimoPinAnnotation else {
                 return
             }
-            DispatchQueue.main.async {
-                if self.mapViewModel.selectedPin == annotation {
-                    self.mapViewModel.selectedPin = nil
-                }
+            if parent.selectedPin == annotation {
+                parent.selectedPin = nil
             }
             // We don't set parent.selectedPin to nil here, that is only done when the quick view is dismissed
             // (that ensures that if selectedPin is non-nil, then the quick view is visible)
