@@ -173,18 +173,38 @@ struct MapViewV2: View {
                 headerContent: {
                     VStack {
                         HStack {
-                            Text("Helloooooooooooo")
+                            Text(showMKMapItem?.placemark.name ?? "Place details")
+                                .font(.title)
+                                .bold()
                             Spacer()
-                        }
+                        }.padding(.horizontal, 10)
                     }
                 }, mainContent: {
                     if let place = showMKMapItem {
                         ScrollView {
                             VStack {
-                                Text(place.placemark.name ?? "View place details")
-                                Text(place.debugDescription)
-                                Spacer()
-                            }
+                                HStack {
+                                    Text("Friends' Posts")
+                                    Spacer()
+                                }
+                                
+                                Rectangle()
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 200)
+                                    .foregroundColor(Color("foreground").opacity(0.2))
+                                    .cornerRadius(10)
+                                
+                                HStack {
+                                    Text("Community Posts")
+                                    Spacer()
+                                }
+                                
+                                Rectangle()
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 200)
+                                    .foregroundColor(Color("foreground").opacity(0.2))
+                                    .cornerRadius(10)
+                            }.padding(.horizontal, 10)
                         }
                     }
                 }
