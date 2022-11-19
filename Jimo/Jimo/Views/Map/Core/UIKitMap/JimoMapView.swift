@@ -21,6 +21,8 @@ struct JimoMapView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
+        mapView.showsCompass = false
+        mapView.pointOfInterestFilter = .excludingAll
         mapView.addAnnotations(pins)
         mapView.tintAdjustmentMode = .normal
         mapView.tintColor = .systemBlue

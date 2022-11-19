@@ -59,12 +59,24 @@ struct Feed: View {
                     .cornerRadius(10)
                 }
             } else {
-                Group {
-                    if feedType == .following {
-                        initializedFeed.trackScreen(.feedTab)
-                    } else {
-                        forYouFeed.trackScreen(.forYouFeed)
+                VStack {
+                    HStack {
+                        Picker("Feed Type", selection: $feedType) {
+                            Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
+                            Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
+                        }
+                        .pickerStyle(.segmented)
                     }
+                    .padding(.horizontal, 10)
+                    TabView(selection: $feedType) {
+                        initializedFeed
+                            .trackScreen(.feedTab)
+                            .tag(FeedType.following)
+                            
+                        forYouFeed
+                            .trackScreen(.forYouFeed)
+                            .tag(FeedType.forYou)
+                    }.tabViewStyle(.page(indexDisplayMode: .never))
                 }
             }
         }
@@ -78,15 +90,6 @@ struct Feed: View {
     
     var initializedFeed: some View {
         RefreshableScrollView {
-            HStack {
-                Picker("Feed Type", selection: $feedType) {
-                    Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
-                    Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
-                }
-                .pickerStyle(.segmented)
-            }
-            .padding(.horizontal, 10)
-            
             FindFriendsButton(showFindFriendsSheet: $showFindFriendsSheet)
                 .padding(.bottom, 10)
             
@@ -102,16 +105,6 @@ struct Feed: View {
     
     var forYouFeed: some View {
         RefreshableScrollView {
-            HStack {
-                Picker("Feed Type", selection: $feedType) {
-                    Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
-                    Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
-                }
-                .pickerStyle(.segmented)
-            }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 10)
-            
             ForEach(discoverViewModel.posts) { post in
                 FeedItem(post: post)
             }

@@ -54,7 +54,8 @@ struct Profile: View {
         initialUser.username
     }
     
-    @ViewBuilder private func destinationView(for destination: NavigationDestination?) -> some View {
+    @ViewBuilder
+    private func destinationView(for destination: NavigationDestination?) -> some View {
         if let destination = destination {
             destination.destinationView()
         } else {
@@ -133,6 +134,11 @@ struct Profile: View {
                     primaryButton: .default(Text("Block")) { profileVM.blockUser(username: username, appState: appState, viewState: viewState) },
                     secondaryButton: .cancel()
                 )
+            }
+            .fullScreenCover(isPresented: $profileVM.showSearchUsers) {
+                SearchUsers()
+                    .environmentObject(appState)
+                    .environmentObject(viewState)
             }
     }
 }
@@ -322,7 +328,6 @@ struct ProfileActionButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
-    @State private var showSearchUsers = false
     
     let initialUser: User
     
@@ -341,8 +346,7 @@ struct ProfileActionButtonView: View {
         VStack {
             if isCurrentUser {
                 ProfileButton(textType: .search) {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    showSearchUsers = true
+                    profileVM.showSearchUsers = true
                 }
             } else if !profileVM.loadedRelation {
                 Text("Loading...")
@@ -373,11 +377,6 @@ struct ProfileActionButtonView: View {
                     profileVM.followUser(username: user.username, appState: appState, viewState: viewState)
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showSearchUsers) {
-            SearchUsers()
-                .environmentObject(appState)
-                .environmentObject(viewState)
         }
         .padding(.leading)
     }
