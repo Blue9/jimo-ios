@@ -31,6 +31,8 @@ class ProfileVM: ObservableObject {
     @Published var loadStatus = ProfileLoadStatus.notInitialized
     @Published var loadingMore = false
     
+    @Published var showSearchUsers = false
+    
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)

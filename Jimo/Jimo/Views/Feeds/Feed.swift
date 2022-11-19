@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-fileprivate enum FeedType {
+fileprivate enum FeedType: Equatable {
     case following, forYou
 }
 
@@ -59,12 +59,27 @@ struct Feed: View {
                     .cornerRadius(10)
                 }
             } else {
-                Group {
-                    if feedType == .following {
-                        initializedFeed.trackScreen(.feedTab)
-                    } else {
-                        forYouFeed.trackScreen(.forYouFeed)
+                VStack {
+                    HStack {
+                        Picker("Feed Type", selection: $feedType) {
+                            Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
+                            Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
+                        }
+                        .pickerStyle(.segmented)
                     }
+                    .padding(.horizontal, 10)
+                    TabView(selection: $feedType) {
+                        initializedFeed.tag(FeedType.following)
+                        forYouFeed.tag(FeedType.forYou)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .onAppear {
+                        Analytics.currentScreen = feedType == .following ? .feedTab : .forYouFeed
+                    }
+                    .onChange(of: feedType) { feedType in
+                        Analytics.currentScreen = feedType == .following ? .feedTab : .forYouFeed
+                    }
+                    .animation(.linear, value: feedType)
                 }
             }
         }
@@ -78,15 +93,6 @@ struct Feed: View {
     
     var initializedFeed: some View {
         RefreshableScrollView {
-            HStack {
-                Picker("Feed Type", selection: $feedType) {
-                    Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
-                    Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
-                }
-                .pickerStyle(.segmented)
-            }
-            .padding(.horizontal, 10)
-            
             FindFriendsButton(showFindFriendsSheet: $showFindFriendsSheet)
                 .padding(.bottom, 10)
             
@@ -102,16 +108,6 @@ struct Feed: View {
     
     var forYouFeed: some View {
         RefreshableScrollView {
-            HStack {
-                Picker("Feed Type", selection: $feedType) {
-                    Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
-                    Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
-                }
-                .pickerStyle(.segmented)
-            }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 10)
-            
             ForEach(discoverViewModel.posts) { post in
                 FeedItem(post: post)
             }

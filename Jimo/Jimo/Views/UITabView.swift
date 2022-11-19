@@ -109,21 +109,24 @@ extension UITabView {
             parent.selectedIndex = tabBarController.selectedIndex
         }
         
-        func scrollToTop(in viewController: UIViewController, selectedIndex: Int) {
-            guard let scrollView = scrollView(in: viewController.view) else { return }
-            scrollView.scrollRectToVisible(Self.inlineTitleRect, animated: true)
-        }
-        
         func scrollToTop(in viewController: UIViewController) {
             guard let scrollView = scrollView(in: viewController.view) else { return }
             scrollView.scrollRectToVisible(Self.inlineTitleRect, animated: true)
         }
         
         func scrollView(in view: UIView) -> UIScrollView? {
+            if let collectionView = view as? UICollectionView {
+                // Hack to handle paging tab view in feed tab
+                let feedIndex = collectionView.indexPathsForVisibleItems.first?.last
+                if let index = feedIndex, collectionView.subviews.count > index {
+                    return scrollView(in: collectionView.subviews[index])
+                }
+            }
+            if let scrollView = view as? UIScrollView {
+                return scrollView
+            }
             for subview in view.subviews {
-                if let scrollView = view as? UIScrollView {
-                    return scrollView
-                } else if let scrollView = scrollView(in: subview) {
+                if let scrollView = scrollView(in: subview) {
                     return scrollView
                 }
             }
@@ -132,20 +135,16 @@ extension UITabView {
         
         func navigationController(in viewController: UIViewController) -> UINavigationController? {
             var controller: UINavigationController?
-            
             if let navigationController = viewController as? UINavigationController {
                 return navigationController
             }
-            
             viewController.children.forEach {
                 guard let navigationController = $0 as? UINavigationController else {
                     controller = navigationController(in: $0)
                     return
                 }
-                
                 controller = navigationController
             }
-            
             return controller
         }
     }
@@ -165,6 +164,18 @@ extension View {
             badgeValue: badgeValue,
             content: self
         )
+    }
+}
+
+fileprivate extension UIView {
+    var viewController: UIViewController? {
+        if let nextResponder = self.next as? UIViewController {
+            return nextResponder
+        } else if let nextResponder = self.next as? UIView {
+            return nextResponder.viewController
+        } else {
+            return nil
+        }
     }
 }
 
