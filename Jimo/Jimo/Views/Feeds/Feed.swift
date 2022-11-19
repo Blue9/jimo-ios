@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-fileprivate enum FeedType {
+fileprivate enum FeedType: Equatable {
     case following, forYou
 }
 
@@ -69,14 +69,17 @@ struct Feed: View {
                     }
                     .padding(.horizontal, 10)
                     TabView(selection: $feedType) {
-                        initializedFeed
-                            .trackScreen(.feedTab)
-                            .tag(FeedType.following)
-                            
-                        forYouFeed
-                            .trackScreen(.forYouFeed)
-                            .tag(FeedType.forYou)
-                    }.tabViewStyle(.page(indexDisplayMode: .never))
+                        initializedFeed.tag(FeedType.following)
+                        forYouFeed.tag(FeedType.forYou)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .onAppear {
+                        Analytics.currentScreen = feedType == .following ? .feedTab : .forYouFeed
+                    }
+                    .onChange(of: feedType) { feedType in
+                        Analytics.currentScreen = feedType == .following ? .feedTab : .forYouFeed
+                    }
+                    .animation(.linear, value: feedType)
                 }
             }
         }
