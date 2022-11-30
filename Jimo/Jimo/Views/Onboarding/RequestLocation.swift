@@ -16,7 +16,8 @@ struct RequestLocation: View {
             action: PermissionManager.shared.requestLocation,
             title: "Allowing location helps you find nearby recs",
             imageName: "location-icon",
-            caption: "e.g., You are close to Alex's recommendation"
+            caption: "e.g., You are close to Alex's recommendation",
+            privacyCaption: "We do not store your location on our servers."
         )
     }
 }

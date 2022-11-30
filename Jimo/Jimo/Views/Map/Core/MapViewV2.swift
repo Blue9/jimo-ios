@@ -11,8 +11,6 @@ import BottomSheet
 import SwiftUIPager
 
 struct MapViewV2: View {
-    @AppStorage("shouldShowHelpInfo") var shouldShowHelpInfo = true
-    
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     
@@ -29,9 +27,7 @@ struct MapViewV2: View {
     
     @State private var initialized = false
     @State private var firstLoad = true
-    
-    @State private var showHelpAlert = false
-    
+
     var quickViewDisplayed: Bool {
         mapViewModel.selectedPin != nil
     }
@@ -105,8 +101,7 @@ struct MapViewV2: View {
                 MapBottomSheetHeader(
                     mapViewModel: mapViewModel,
                     searchFieldActive: $searchFieldActive,
-                    bottomSheetPosition: $bottomSheetPosition,
-                    showHelpAlert: $showHelpAlert
+                    bottomSheetPosition: $bottomSheetPosition
                 )
             }, mainContent: {
                 MapBottomSheetBody(mapViewModel: mapViewModel, bottomSheetPosition: $bottomSheetPosition)
@@ -118,35 +113,11 @@ struct MapViewV2: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
     
-    /// This is a separate view because the map lags when initially showing the popup in a regular ZStack
-    var popupBody: some View {
-        ZStack {
-        }
-        .popup(
-            isPresented: $showHelpAlert,
-            type: .default,
-            position: .top,
-            animation: .interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0),
-            autohideIn: nil,
-            dragToDismiss: false,
-            closeOnTap: false,
-            closeOnTapOutside: false,
-            backgroundColor: .black.opacity(0.3),
-            dismissCallback: {}) {
-                MapInfoView(presented: $showHelpAlert)
-            }
-    }
-    
     var body: some View {
         mapBody
-            .overlay(popupBody)
             .appear {
                 if !initialized {
                     initialized = true
-                    if shouldShowHelpInfo {
-                        showHelpAlert = true
-                        shouldShowHelpInfo = false
-                    }
                     mapViewModel.initialize(
                         appState: appState,
                         viewState: globalViewState,

@@ -26,7 +26,8 @@ struct OnboardingView: View {
                         },
                         title: "Allowing contacts helps you find friends already on Jimo",
                         imageName: "contacts-icon",
-                        caption: "e.g., Your friend Alex is on Jimo!"
+                        caption: "e.g., Your friend Alex is on Jimo!",
+                        privacyCaption: "We do not store your contacts on our servers."
                     )
                     .navigationBarHidden(true)
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
@@ -44,7 +45,8 @@ struct OnboardingView: View {
                         action: PermissionManager.shared.requestNotifications,
                         title: "Enable notifications to know when your friends interact with your recs",
                         imageName: "notifications-icon",
-                        caption: "e.g., Alex likes your post"
+                        caption: "e.g., Alex likes your post",
+                        privacyCaption: "You may change your settings at any time."
                     )
                     .navigationBarHidden(true)
                     .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))

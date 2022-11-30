@@ -13,7 +13,10 @@ extension PermissionManager {
         if contactsAuthStatus() == .denied {
             UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (success) in })
         }
-        contactStore.requestAccess(for: .contacts, completionHandler: callback)
+        contactStore.requestAccess(for: .contacts) { (success, error) in
+            Analytics.track(success ? .contactsPermissionsAllowed : .contactsPermissionsDenied)
+            callback(success, error)
+        }
     }
     
     func contactsAuthStatus() -> PermissionStatus {
