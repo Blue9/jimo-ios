@@ -11,9 +11,18 @@ import Combine
 class NotificationFeedViewModel: ObservableObject {
     @Published var feedItems: [NotificationItem] = []
     @Published var loading = false
+    @Published var shouldRequestNotificationPermissions = false
 
     private var cancellable: Cancellable?
     private var cursor: String?
+    
+    init() {
+        PermissionManager.shared.getNotificationAuthStatus { status in
+            DispatchQueue.main.async {
+                self.shouldRequestNotificationPermissions = status != .authorized
+            }
+        }
+    }
     
     func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
         cursor = nil

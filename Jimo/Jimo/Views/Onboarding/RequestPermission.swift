@@ -16,6 +16,7 @@ struct RequestPermission: View {
     var title: String
     var imageName: String
     var caption: String
+    var privacyCaption: String = ""
     
     func request() {
         action()
@@ -50,14 +51,7 @@ struct RequestPermission: View {
                     Button(action: {
                         request()
                     }) {
-                        LargeButton("Enable", fontSize: 20)
-                    }
-                    
-                    Button(action: {
-                        next()
-                    }) {
-                        Text("Not now")
-                            .font(.system(size: 20))
+                        LargeButton("Continue", fontSize: 20)
                     }
                 } else {
                     Button(action: {
@@ -73,11 +67,14 @@ struct RequestPermission: View {
                             .shadow(radius: 5)
                     }
                 }
-            }
-            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            .foregroundColor(Color("foreground"))
-            .padding(.horizontal, 80)
-            .padding(.bottom, 100)
+            }.padding(.horizontal, 80)
+            
+            Text(privacyCaption)
+                .font(.caption)
+                .padding(.horizontal, 50)
         }
+        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+        .foregroundColor(Color("foreground"))
+        .padding(.bottom, 100)
     }
 }

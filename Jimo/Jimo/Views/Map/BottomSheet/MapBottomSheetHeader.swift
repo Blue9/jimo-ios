@@ -14,8 +14,6 @@ struct MapBottomSheetHeader: View {
     @Binding var searchFieldActive: Bool
     @Binding var bottomSheetPosition: BottomSheetPosition
     
-    @Binding var showHelpAlert: Bool
-    
     var body: some View {
         HStack {
             MapSearchField(text: $mapViewModel.searchUsersQuery, isActive: $searchFieldActive, placeholder: "Filter by people", onCommit: {})
@@ -25,16 +23,6 @@ struct MapBottomSheetHeader: View {
                         bottomSheetPosition = .relative(isActive ? MapSheetPosition.top.rawValue : MapSheetPosition.middle.rawValue)
                     }
                 }
-            
-            if !searchFieldActive {
-                Button(action: { showHelpAlert.toggle() }) {
-                    Image(systemName: "info.circle")
-                        .opacity(0.8)
-                        .font(.system(size: 22))
-                        .frame(width: 40, height: 40)
-                        .contentShape(Rectangle())
-                }
-            }
         }
         .padding(.horizontal, 10)
     }

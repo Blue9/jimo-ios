@@ -18,6 +18,14 @@ extension PermissionManager {
         }
         UNUserNotificationCenter.current().requestAuthorization(
             options: [.alert, .badge, .sound],
-            completionHandler: {_, _ in })
+            completionHandler: { (success, error) in
+                Analytics.track(success ? .notificationPermissionsAllowed : .notificationPermissionsDenied)
+            })
+    }
+    
+    func getNotificationAuthStatus(callback: @escaping (UNAuthorizationStatus) -> ()) {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            callback(settings.authorizationStatus)
+        }
     }
 }

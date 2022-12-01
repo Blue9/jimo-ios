@@ -120,4 +120,13 @@ enum AnalyticsName: Equatable {
     case userUnfollowed
     case findFriendsTapped
     case feedFindFriendsTapped
+    
+    case notificationPermissionsAllowed
+    case notificationPermissionsDenied
+    
+    case locationPermissionsAllowed
+    case locationPermissionsDenied
+    
+    case contactsPermissionsAllowed
+    case contactsPermissionsDenied
 }
