@@ -17,6 +17,10 @@ struct NotificationFeed: View {
     
     var body: some View {
         RefreshableScrollView(spacing: 10) {
+            if notificationFeedVM.shouldRequestNotificationPermissions {
+                EnableNotificationsButton()
+            }
+            
             ForEach(notificationFeedVM.feedItems) { item in
                 NotificationFeedItem(item: item)
                     .environmentObject(appState)
@@ -133,5 +137,23 @@ fileprivate struct NotificationFeedItem: View {
             }
         }
         .buttonStyle(NoButtonStyle())
+    }
+}
+
+fileprivate struct EnableNotificationsButton: View {
+    var body: some View {
+        Button(action: {
+            PermissionManager.shared.requestNotifications()
+        }) {
+            Text("Tap to enable push notifications")
+                .padding(10)
+                .font(.system(size: 15))
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(10)
+                .foregroundColor(.white)
+                .frame(height: 50)
+        }
+        .padding(.horizontal, 20)
     }
 }

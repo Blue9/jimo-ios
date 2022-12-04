@@ -13,6 +13,7 @@ fileprivate enum FeedType: Equatable {
 }
 
 struct Feed: View {
+    @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var feedViewModel = ViewModel()
@@ -20,6 +21,7 @@ struct Feed: View {
     
     @State private var feedType: FeedType = .following
     @State private var showFindFriendsSheet = false
+    @State private var showEnableLocationButton = false
     
     var onCreatePostTap: () -> ()
     
@@ -89,6 +91,12 @@ struct Feed: View {
                 .environmentObject(appState)
                 .environmentObject(viewState)
         }
+        .onAppear {
+            showEnableLocationButton = PermissionManager.shared.getLocation() == nil
+        }
+        .onChange(of: scenePhase) { newPhase in
+            showEnableLocationButton = PermissionManager.shared.getLocation() == nil
+        }
     }
     
     var initializedFeed: some View {
@@ -108,6 +116,11 @@ struct Feed: View {
     
     var forYouFeed: some View {
         RefreshableScrollView {
+            if showEnableLocationButton {
+                EnableLocationButton()
+                    .padding(.bottom, 10)
+            }
+            
             ForEach(discoverViewModel.posts) { post in
                 FeedItem(post: post)
             }
@@ -227,6 +240,25 @@ fileprivate struct FindFriendsButton: View {
             showFindFriendsSheet = true
         }) {
             Text("Find more people to follow")
+                .padding(10)
+                .font(.system(size: 15))
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(10)
+                .foregroundColor(.white)
+                .frame(height: 50)
+        }
+        .padding(.horizontal, 20)
+    }
+}
+
+
+fileprivate struct EnableLocationButton: View {
+    var body: some View {
+        Button(action: {
+            PermissionManager.shared.requestLocation()
+        }) {
+            Text("Enable your location for better recs")
                 .padding(10)
                 .font(.system(size: 15))
                 .frame(maxWidth: .infinity)

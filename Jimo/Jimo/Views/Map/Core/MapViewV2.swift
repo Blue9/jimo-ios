@@ -28,8 +28,6 @@ class SheetPositionViewModel: ObservableObject {
 }
 
 struct MapViewV2: View {
-    @AppStorage("shouldShowHelpInfo") var shouldShowHelpInfo = true
-    
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     
@@ -49,9 +47,7 @@ struct MapViewV2: View {
     
     @State private var initialized = false
     @State private var firstLoad = true
-    
-    @State private var showHelpAlert = false
-    
+
     var quickViewDisplayed: Bool {
         mapViewModel.selectedPin != nil
     }
@@ -124,7 +120,6 @@ struct MapViewV2: View {
                 MapBottomSheetHeader(
                     locationSearch: locationSearch,
                     bottomSheetPosition: $sheetViewModel.bottomSheetPosition,
-                    showHelpAlert: $showHelpAlert,
                     searchFieldActive: $searchFieldActive
                 )
             }, mainContent: {
@@ -140,25 +135,6 @@ struct MapViewV2: View {
         .customBackground(AnyView(Color("background")).cornerRadius(10))
         .customAnimation(.spring(response: 0.24, dampingFraction: 0.75, blendDuration: 0.1))
         .ignoresSafeArea(.keyboard, edges: .bottom)
-    }
-    
-    /// This is a separate view because the map lags when initially showing the popup in a regular ZStack
-    var popupBody: some View {
-        ZStack {
-        }
-        .popup(
-            isPresented: $showHelpAlert,
-            type: .default,
-            position: .top,
-            animation: .interpolatingSpring(stiffness: 300.0, damping: 30.0, initialVelocity: 10.0),
-            autohideIn: nil,
-            dragToDismiss: false,
-            closeOnTap: false,
-            closeOnTapOutside: false,
-            backgroundColor: .black.opacity(0.3),
-            dismissCallback: {}) {
-                MapInfoView(presented: $showHelpAlert)
-            }
     }
     
     var body: some View {
@@ -216,14 +192,9 @@ struct MapViewV2: View {
             .onDismiss {
                 sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
             }
-            .overlay(popupBody)
             .appear {
                 if !initialized {
                     initialized = true
-                    if shouldShowHelpInfo {
-                        showHelpAlert = true
-                        shouldShowHelpInfo = false
-                    }
                     mapViewModel.initialize(
                         appState: appState,
                         viewState: globalViewState,

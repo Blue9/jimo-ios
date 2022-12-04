@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FeedTab: View {
+    @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     
@@ -18,7 +19,7 @@ struct FeedTab: View {
     @StateObject private var notificationFeedVM = NotificationFeedViewModel()
     
     var notificationBellBadgePresent: Bool {
-        appState.unreadNotifications > 0
+        appState.unreadNotifications > 0 || notificationFeedVM.shouldRequestNotificationPermissions
     }
     
     var onCreatePostTap: () -> ()
@@ -33,6 +34,13 @@ struct FeedTab: View {
                     .frame(width: 10, height: 10)
                     .foregroundColor(Color(UIColor.systemRed))
                     .offset(x: -1)
+            }
+        }
+        .onChange(of: scenePhase) { newPhase in
+            PermissionManager.shared.getNotificationAuthStatus { status in
+                DispatchQueue.main.async {
+                    notificationFeedVM.shouldRequestNotificationPermissions = status != .authorized
+                }
             }
         }
     }
