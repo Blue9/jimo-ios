@@ -368,45 +368,34 @@ class AppState: ObservableObject {
     
     // MARK: - Map endpoints
     
-    func getGlobalMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
-        self.apiClient.getGlobalMap(region: region, categories: categories)
+    func getMap(
+        region: RectangularRegion,
+        categories: [String],
+        mapType: MapType,
+        userIds: [UserId]
+    ) -> AnyPublisher<MapResponse, APIError> {
+        self.apiClient.getMap(
+            request: .init(
+                region: region,
+                categories: categories,
+                mapType: mapType,
+                userIds: userIds
+            )
+        )
     }
     
-    func getFollowingMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
-        self.apiClient.getFollowingMap(region: region, categories: categories)
+    // MARK: - Place endpoints
+    
+    func findPlace(
+        name: String,
+        latitude: Double,
+        longitude: Double
+    ) -> AnyPublisher<FindPlaceResponse, APIError> {
+        self.apiClient.findPlace(name: name, latitude: latitude, longitude: longitude)
     }
     
-    func getSavedPostsMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
-        self.apiClient.getSavedPostsMap(region: region, categories: categories)
-    }
-    
-    func getCustomMap(region: Region, userIds: [String], categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
-        self.apiClient.getCustomMap(region: region, userIds: userIds, categories: categories)
-    }
-    
-    func loadPlaceIcon(for place: Place) -> AnyPublisher<MapPlaceIcon, APIError> {
-        return self.apiClient.getPlaceIcon(placeId: place.placeId)
-    }
-    
-    @available(*, deprecated, message: "Use V3 endpoints")
-    func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
-        return self.apiClient.getMutualPosts(for: placeId)
-    }
-    
-    func getGlobalMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
-        return self.apiClient.getGlobalMutualPostsV3(for: placeId, categories: categories)
-    }
-    
-    func getFollowingMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
-        return self.apiClient.getFollowingMutualPostsV3(for: placeId, categories: categories)
-    }
-    
-    func getSavedPostsMapMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
-        return self.apiClient.getSavedPostsMapMutualPostsV3(for: placeId, categories: categories)
-    }
-    
-    func getCustomMutualPostsV3(for placeId: PlaceId, categories: [String], users: [UserId]) -> AnyPublisher<[Post], APIError> {
-        return self.apiClient.getCustomMutualPostsV3(for: placeId, categories: categories, users: users)
+    func getPlaceDetails(placeId: PlaceId) -> AnyPublisher<GetPlaceDetailsResponse, APIError> {
+        self.apiClient.getPlaceDetails(placeId: placeId)
     }
     
     // MARK: - Relation endpoints
@@ -591,14 +580,6 @@ class AppState: ObservableObject {
     }
     
     // MARK: - Discover
-    
-    @available(*, deprecated, message: "Use discoverFeedV2")
-    func discoverFeed() -> AnyPublisher<[Post], APIError> {
-        guard case .user = currentUser else {
-            return Fail(error: APIError.authError).eraseToAnyPublisher()
-        }
-        return self.apiClient.getDiscoverFeed()
-    }
     
     func discoverFeedV2(location: Location? = nil) -> AnyPublisher<FeedResponse, APIError> {
         guard case .user = currentUser else {

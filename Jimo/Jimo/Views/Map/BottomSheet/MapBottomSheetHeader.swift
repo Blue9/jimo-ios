@@ -10,7 +10,6 @@ import BottomSheet
 
 struct MapBottomSheetHeader: View {
     @ObservedObject var locationSearch: LocationSearch
-    @Binding var bottomSheetPosition: BottomSheetPosition
     var searchFieldActive: FocusState<Bool>.Binding
     
     var body: some View {

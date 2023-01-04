@@ -8,6 +8,9 @@
 import UIKit
 import MapKit
 
+/**
+ Utility class to make it easier for the MapPin type to interact with MapKit primitives.
+ */
 class MKJimoPinAnnotation: NSObject, MKAnnotation, Identifiable {
     
     var id: String {
@@ -30,7 +33,7 @@ class MKJimoPinAnnotation: NSObject, MKAnnotation, Identifiable {
         super.init()
     }
     
-    init(from pin: MapPinV3) {
+    init(from pin: MapPin) {
         self.coordinate = pin.location.coordinate()
         self.placeId = pin.placeId
         self.category = pin.icon.category

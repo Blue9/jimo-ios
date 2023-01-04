@@ -81,8 +81,8 @@ class CreatePostVM: ObservableObject {
     @Published var activeSheet: CreatePostActiveSheet?
     /// Post data
     @Published var name: String?
-    @Published var placeCoordinate: CLLocationCoordinate2D?
-    @Published var placeRegion: Region?
+    @Published var maybeCreatePlaceCoord: CLLocationCoordinate2D?
+    @Published var maybeCreatePlaceRegion: Region?
     @Published var previewRegion: MKCoordinateRegion?
     @Published var additionalPlaceData: AdditionalPlaceDataRequest?
     
@@ -138,13 +138,13 @@ class CreatePostVM: ObservableObject {
     }
     
     var maybeCreatePlaceRequest: MaybeCreatePlaceRequest? {
-        guard let name = name, let location = placeCoordinate else {
+        guard let name = name, let location = maybeCreatePlaceCoord else {
             return nil
         }
         return MaybeCreatePlaceRequest(
             name: name,
             location: Location(coord: location),
-            region: placeRegion,
+            region: maybeCreatePlaceRegion,
             additionalData: additionalPlaceData
         )
     }
@@ -152,17 +152,29 @@ class CreatePostVM: ObservableObject {
     func selectPlace(place: MKMapItem) {
         name = place.name
         placeId = nil
-        placeCoordinate = place.placemark.coordinate
-        placeRegion = CreatePostVM.toRegion(place)
-        previewRegion = CreatePostVM.toPreviewRegion(place)
+        maybeCreatePlaceCoord = place.placemark.coordinate
+        maybeCreatePlaceRegion = toRegion(place)
+        previewRegion = toPreviewRegion(place)
         additionalPlaceData = AdditionalPlaceDataRequest(place)
+    }
+    
+    func selectPlace(place: Place) {
+        name = place.name
+        placeId = place.id
+        previewRegion = MKCoordinateRegion(
+            center: place.location.coordinate(),
+            span: MKCoordinateSpan(latitudeDelta: 4, longitudeDelta: 4)
+        )
+        maybeCreatePlaceCoord = nil
+        maybeCreatePlaceRegion = nil
+        additionalPlaceData = nil
     }
     
     func resetPlace() {
         name = nil
         placeId = nil
-        placeCoordinate = nil
-        placeRegion = nil
+        maybeCreatePlaceCoord = nil
+        maybeCreatePlaceRegion = nil
         previewRegion = nil
         additionalPlaceData = nil
     }
@@ -183,7 +195,7 @@ class CreatePostVM: ObservableObject {
         buildRequest(
             appState: appState,
             placeId: placeId,
-            place: maybeCreatePlaceRequest,
+            place: placeId == nil ? maybeCreatePlaceRequest : nil,
             category: category,
             content: content,
             image: image
@@ -261,14 +273,14 @@ class CreatePostVM: ObservableObject {
             }).eraseToAnyPublisher()
     }
     
-    private static func toRegion(_ mapItem: MKMapItem) -> Region? {
+    private func toRegion(_ mapItem: MKMapItem) -> Region? {
         if let area = mapItem.placemark.region as? CLCircularRegion {
             return Region(coord: area.center, radius: area.radius.magnitude)
         }
         return nil
     }
     
-    private static func toPreviewRegion(_ mapItem: MKMapItem) -> MKCoordinateRegion {
+    private func toPreviewRegion(_ mapItem: MKMapItem) -> MKCoordinateRegion {
         var span: CLLocationDegrees = 4  // Default span = 4
         if let region = mapItem.placemark.region as? CLCircularRegion {
             span = min(region.radius * 10, 200000) / 111111

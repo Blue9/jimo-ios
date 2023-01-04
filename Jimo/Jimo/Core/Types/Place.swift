@@ -86,28 +86,13 @@ struct AdditionalPlaceDataRequest: Codable {
     }
 }
 
-struct MapResponse: Codable, Equatable {
-    var posts: [Post]
-    var postCursorsByUser: [UserId: PostId]
+struct FindPlaceResponse: Codable, Equatable {
+    var place: Place?
 }
 
-struct MapPlaceIcon: Codable, Equatable {
-    var category: String?
-    var iconUrl: String?
-    var numMutualPosts: Int
-}
-
-struct MapPlaceIconV3: Codable, Equatable {
-    var category: String?
-    var iconUrl: String?
-    var numPosts: Int
-}
-
-struct MapPlace: Identifiable, Codable, Equatable {
-    var id: String {
-        place.id
-    }
+struct GetPlaceDetailsResponse: Codable, Equatable {
     var place: Place
-    var icon: MapPlaceIcon
-    var posts: [PostId] = []
+    var communityPosts: [Post]
+    var featuredPosts: [Post]
+    var followingPosts: [Post]
 }
