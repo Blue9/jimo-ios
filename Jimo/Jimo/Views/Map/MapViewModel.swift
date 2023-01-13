@@ -270,7 +270,7 @@ class MapViewModel: RegionWrapper {
             self.isLoading = false
             if case let .failure(err) = completion {
                 print(err)
-                viewState.setError("Could not load map")
+                //viewState.setError("Could not load map")
             }
         } receiveValue: { response in
             // Instead of a simple self.pins = response.pins.map(...)
