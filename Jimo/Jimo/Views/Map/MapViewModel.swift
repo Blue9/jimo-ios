@@ -162,11 +162,15 @@ class MapViewModel: RegionWrapper {
             longitude: mapItem.placemark.coordinate.longitude
         ).flatMap { response in
             guard let place = response.place else {
+                // TODO kind of hacky
+                let fakePlace = Place(
+                    placeId: "",
+                    name: mapItem.placemark.name ?? "",
+                    location: Location(coord: mapItem.placemark.coordinate)
+                )
+                self.selectPinIfExistsFakeIt(fakePlace)
                 return Just(GetPlaceDetailsResponse(
-                    place: Place(
-                        placeId: "",
-                        name: placeName,
-                        location: Location(coord: mapItem.placemark.coordinate)),
+                    place: fakePlace,
                     communityPosts: [],
                     featuredPosts: [],
                     followingPosts: []
@@ -176,6 +180,7 @@ class MapViewModel: RegionWrapper {
             }
             self.selectPinIfExistsFakeIt(place)
             return appState.getPlaceDetails(placeId: place.id)
+                .eraseToAnyPublisher()
         }.sink { completion in
             if case let .failure(error) = completion {
                 print("Error when getting place details", error)

@@ -18,7 +18,6 @@ struct CustomUserFilter: View {
     @FocusState private var isSearchFocused: Bool
     
     var onSubmit: (Set<UserId>) -> ()
-    var onDismiss: () -> ()
     
     private func userMatchesFilter(user: PublicUser, text: String) -> Bool {
         user.firstName.lowercased().starts(with: text)
@@ -109,7 +108,6 @@ struct CustomUserFilter: View {
                 
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
-                        self.onDismiss()
                         self.dismiss()
                     } label: {
                         Image(systemName: "xmark").foregroundColor(Color("foreground"))

@@ -117,7 +117,8 @@ struct BaseMapViewV2: View {
                     mapViewModel: mapViewModel,
                     userFilterViewModel: userFilterViewModel,
                     locationSearch: locationSearch,
-                    businessSheetPosition: $sheetViewModel.businessSheetPosition
+                    sheetViewModel: sheetViewModel,
+                    searchFieldActive: $searchFieldActive
                 )
                 .onChange(of: searchFieldActive) { active in
                     DispatchQueue.main.async {

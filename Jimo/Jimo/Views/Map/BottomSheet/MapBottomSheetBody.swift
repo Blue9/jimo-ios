@@ -20,7 +20,8 @@ struct MapBottomSheetBody: View {
     @ObservedObject var mapViewModel: MapViewModel
     @ObservedObject var userFilterViewModel: UserFilterViewModel
     @ObservedObject var locationSearch: LocationSearch
-    @Binding var businessSheetPosition: BottomSheetPosition
+    @ObservedObject var sheetViewModel: SheetPositionViewModel
+    @FocusState.Binding var searchFieldActive: Bool
     
     var searching: Bool {
         locationSearch.searchQuery.count > 0
@@ -44,14 +45,19 @@ struct MapBottomSheetBody: View {
             
             if searching {
                 MapSearchResults(locationSearch: locationSearch) { selectedPlace in
-                    withAnimation {
-                        hideKeyboard()
-                        businessSheetPosition = .relative(0.6)
-                        mapViewModel.selectSearchResult(
-                            appState: appState,
-                            viewState: viewState,
-                            mapItem: selectedPlace
-                        )
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            searchFieldActive = false
+                            sheetViewModel.businessSheetPosition = .relative(0.6)
+                            sheetViewModel.bottomSheetPosition = .hidden
+                            //sheetViewModel.businessSheetPosition = .relative(0.6)
+                            mapViewModel.selectSearchResult(
+                                appState: appState,
+                                viewState: viewState,
+                                mapItem: selectedPlace
+                            )
+                            print("searchFieldActive \(searchFieldActive) :: \(sheetViewModel.bottomSheetPosition) \(sheetViewModel.businessSheetPosition)")
+                        }
                     }
                 }
             }
@@ -99,8 +105,7 @@ fileprivate struct MapUserFilter: View {
         .sheet(isPresented: $showMoreUsersSheet) {
             CustomUserFilter(
                 viewModel: userFilterViewModel,
-                onSubmit: { userIds in customUserFilter = userIds },
-                onDismiss: { mapType = .following }
+                onSubmit: { userIds in customUserFilter = userIds }
             )
             .environmentObject(appState)
             .environmentObject(viewState)
