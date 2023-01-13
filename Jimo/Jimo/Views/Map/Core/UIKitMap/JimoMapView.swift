@@ -78,7 +78,7 @@ struct JimoMapView: UIViewRepresentable {
             parent.mapViewModel
         }
         
-        func recomputeDots(_ mapView: MKMapView, completion: (() -> ())? = nil) {
+        func recomputeDots(_ mapView: MKMapView) {
             DispatchQueue.global(qos: .userInitiated).async {
                 let annotations: [MKJimoPinAnnotation] = mapView
                     .annotations(in: mapView.scaleVisibleMapRect(scale: 0.6))
@@ -96,8 +96,6 @@ struct JimoMapView: UIViewRepresentable {
                                 mapView.pinView(for: annotation)?.toDot()
                             }
                         }
-                    } completion: { _ in
-                        completion?()
                     }
                 }
             }
@@ -110,10 +108,9 @@ struct JimoMapView: UIViewRepresentable {
                     return
                 }
                 self.isRecomputingDots = true
-                self.recomputeDots(mapView) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        self.isRecomputingDots = false
-                    }
+                self.recomputeDots(mapView)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    self.isRecomputingDots = false
                 }
             }
         }

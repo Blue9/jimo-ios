@@ -34,6 +34,7 @@ class MapViewModel: RegionWrapper {
     @Published var selectedPin: MKJimoPinAnnotation?
     /// displayedPlaceDetails is set when you tap on a pin or select a search result
     @Published var displayedPlaceDetails: MapPlaceResult?
+    @Published var isLoading = false
     
     private var latestMapRequest: MapRequestState?
     
@@ -257,6 +258,7 @@ class MapViewModel: RegionWrapper {
     }
     
     private func loadMap(_ request: MapRequestState, appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
+        self.isLoading = true
         self.latestMapRequest = request
         // Note that re-assigning this cancels previous requests so we always use the latest request
         mapLoadCancellable = appState.getMap(
@@ -265,9 +267,10 @@ class MapViewModel: RegionWrapper {
             mapType: request.mapType,
             userIds: Array(request.userIds)
         ).sink { completion in
+            self.isLoading = false
             if case let .failure(err) = completion {
                 print(err)
-                // viewState.setError("Could not load map")
+                viewState.setError("Could not load map")
             }
         } receiveValue: { response in
             // Instead of a simple self.pins = response.pins.map(...)

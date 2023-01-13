@@ -71,6 +71,9 @@ struct BaseMapViewV2: View {
     @ViewBuilder var mapOverlay: some View {
         VStack(spacing: 0) {
             HStack {
+                if mapViewModel.isLoading {
+                    ProgressView()
+                }
                 Spacer()
                 CurrentLocationButton(region: mapViewModel._region, setRegion: mapViewModel.setRegion)
                     .padding(.horizontal)
