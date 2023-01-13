@@ -64,6 +64,8 @@ struct BaseMapViewV2: View {
     @ObservedObject var locationSearch: LocationSearch
     @ObservedObject var sheetViewModel: SheetPositionViewModel
     
+    @StateObject private var userFilterViewModel = UserFilterViewModel()
+    
     @FocusState private var searchFieldActive: Bool
     
     @ViewBuilder var mapOverlay: some View {
@@ -113,6 +115,7 @@ struct BaseMapViewV2: View {
             }, mainContent: {
                 MapBottomSheetBody(
                     mapViewModel: mapViewModel,
+                    userFilterViewModel: userFilterViewModel,
                     locationSearch: locationSearch,
                     businessSheetPosition: $sheetViewModel.businessSheetPosition
                 )

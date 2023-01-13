@@ -18,6 +18,7 @@ struct MapBottomSheetBody: View {
     @EnvironmentObject var viewState: GlobalViewState
     
     @ObservedObject var mapViewModel: MapViewModel
+    @ObservedObject var userFilterViewModel: UserFilterViewModel
     @ObservedObject var locationSearch: LocationSearch
     @Binding var businessSheetPosition: BottomSheetPosition
     
@@ -29,7 +30,11 @@ struct MapBottomSheetBody: View {
         ZStack {
             ScrollView(showsIndicators: false) {
                 VStack {
-                    MapUserFilter(mapType: $mapViewModel.mapType, customUserFilter: $mapViewModel.userIds)
+                    MapUserFilter(
+                        userFilterViewModel: userFilterViewModel,
+                        mapType: $mapViewModel.mapType,
+                        customUserFilter: $mapViewModel.userIds
+                    )
                     CategoryFilter(selected: $mapViewModel.categories)
                     Spacer()
                 }
@@ -60,6 +65,8 @@ fileprivate struct MapUserFilter: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     
+    @ObservedObject var userFilterViewModel: UserFilterViewModel
+    
     @Binding var mapType: MapType
     @Binding var customUserFilter: Set<UserId>
     
@@ -82,7 +89,7 @@ fileprivate struct MapUserFilter: View {
                 MapUserFilterButton(mapType: .saved, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .community, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .custom, selectedMapType: $mapType, onTap: {
-                    
+                    showMoreUsersSheet = true
                 })
             }
         }
@@ -90,7 +97,13 @@ fileprivate struct MapUserFilter: View {
         .background(Color("foreground").opacity(0.1))
         .cornerRadius(10)
         .sheet(isPresented: $showMoreUsersSheet) {
-            
+            CustomUserFilter(
+                viewModel: userFilterViewModel,
+                onSubmit: { userIds in customUserFilter = userIds },
+                onDismiss: { mapType = .following }
+            )
+            .environmentObject(appState)
+            .environmentObject(viewState)
         }
     }
 }
@@ -140,6 +153,7 @@ fileprivate struct MapUserFilterButton: View {
         .contentShape(Rectangle())
         .onTapGesture {
             selectedMapType = mapType
+            onTap?()
         }
         .cornerRadius(10)
     }

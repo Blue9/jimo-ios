@@ -13,7 +13,7 @@ struct MapBottomSheetHeader: View {
     var searchFieldActive: FocusState<Bool>.Binding
     
     var body: some View {
-        MapSearchField(text: $locationSearch.searchQuery, isActive: searchFieldActive, placeholder: "Search places", onCommit: {
+        MapSearchField(text: $locationSearch.searchQuery, isActive: searchFieldActive, placeholder: "Search a place", onCommit: {
             locationSearch.search()
         })
         .ignoresSafeArea(.keyboard, edges: .all)
