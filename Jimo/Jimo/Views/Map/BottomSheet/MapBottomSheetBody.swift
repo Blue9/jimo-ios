@@ -63,6 +63,8 @@ fileprivate struct MapUserFilter: View {
     @Binding var mapType: MapType
     @Binding var customUserFilter: Set<UserId>
     
+    @State private var showMoreUsersSheet = false
+    
     var body: some View {
         VStack {
             HStack {
@@ -79,12 +81,17 @@ fileprivate struct MapUserFilter: View {
                 MapUserFilterButton(mapType: .following, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .saved, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .community, selectedMapType: $mapType)
-                MapUserFilterButton(mapType: .custom, selectedMapType: $mapType)
+                MapUserFilterButton(mapType: .custom, selectedMapType: $mapType, onTap: {
+                    
+                })
             }
         }
         .padding(5)
         .background(Color("foreground").opacity(0.1))
         .cornerRadius(10)
+        .sheet(isPresented: $showMoreUsersSheet) {
+            
+        }
     }
 }
 
@@ -93,6 +100,8 @@ fileprivate struct MapUserFilterButton: View {
     
     var mapType: MapType
     @Binding var selectedMapType: MapType
+    
+    var onTap: (() -> ())?
     
     var selected: Bool {
         selectedMapType == mapType

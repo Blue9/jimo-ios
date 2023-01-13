@@ -11,18 +11,20 @@ import BottomSheet
 import SwiftUIPager
 
 class SheetPositionViewModel: ObservableObject {
-    @Published var bottomSheetPosition: BottomSheetPosition = .relative(MapSheetPosition.bottom.rawValue) {
-        didSet {
-            if bottomSheetPosition != .hidden {
-                businessSheetPosition = .hidden
-            }
+    @Published var bottomSheetPosition: BottomSheetPosition = .relative(MapSheetPosition.bottom.rawValue)
+    @Published var businessSheetPosition: BottomSheetPosition = .hidden
+    
+    func showBusinessSheet() {
+        DispatchQueue.main.async {
+            self.businessSheetPosition = .relative(0.6)
+            self.bottomSheetPosition = .hidden
         }
     }
-    @Published var businessSheetPosition: BottomSheetPosition = .hidden {
-        didSet {
-            if businessSheetPosition != .hidden {
-                bottomSheetPosition = .hidden
-            }
+    
+    func showSearchSheet(_ position: MapSheetPosition? = nil) {
+        DispatchQueue.main.async {
+            self.bottomSheetPosition = .relative(position?.rawValue ?? MapSheetPosition.middle.rawValue)
+            self.businessSheetPosition = .hidden
         }
     }
 }
@@ -40,9 +42,15 @@ struct MapViewV2: View {
     var body: some View {
         BaseMapViewV2(mapViewModel: mapViewModel, locationSearch: locationSearch, sheetViewModel: sheetViewModel)
             .appear {
-                if !initialized {
-                    initialized = true
-                    mapViewModel.initializeMap(appState: appState, viewState: globalViewState)
+                DispatchQueue.main.async {
+                    if !initialized {
+                        initialized = true
+                        mapViewModel.initializeMap(appState: appState, viewState: globalViewState, onLoad: { numPins in
+                            if numPins < 5 {
+                                sheetViewModel.showSearchSheet()
+                            }
+                        })
+                    }
                 }
             }
     }
@@ -62,7 +70,7 @@ struct BaseMapViewV2: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                CurrentLocationButton(region: mapViewModel.region)
+                CurrentLocationButton(region: mapViewModel._region, setRegion: mapViewModel.setRegion)
                     .padding(.horizontal)
             }
             Spacer()
@@ -71,16 +79,21 @@ struct BaseMapViewV2: View {
     
     @ViewBuilder var mapBody: some View {
         JimoMapView(
-            pins: $mapViewModel.pins,
-            selectedPin: $mapViewModel.selectedPin,
-            regionWrapper: mapViewModel,
-            selectPin: { pin in
-                sheetViewModel.businessSheetPosition = .relative(0.6)
-                mapViewModel.selectPin(
-                    appState: appState,
-                    viewState: globalViewState,
-                    pin: pin
-                )
+            mapViewModel: mapViewModel,
+            tappedPin: { pin in
+                if let pin = pin {
+                    mapViewModel.selectPin(
+                        appState: appState,
+                        viewState: globalViewState,
+                        pin: pin
+                    )
+                    print("Setting businessSheetPosition to mid")
+                    sheetViewModel.showBusinessSheet()
+                } else {
+                    mapViewModel.selectedPin = nil
+                    print("Setting filterSheetPosition to mid")
+                    sheetViewModel.showSearchSheet()
+                }
             }
         )
         .edgesIgnoringSafeArea(.top)
@@ -104,10 +117,12 @@ struct BaseMapViewV2: View {
                     businessSheetPosition: $sheetViewModel.businessSheetPosition
                 )
                 .onChange(of: searchFieldActive) { active in
-                    if active {
-                        sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.top.rawValue)
-                    } else {
-                        sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
+                    DispatchQueue.main.async {
+                        if active {
+                            sheetViewModel.showSearchSheet(.top)
+                        } else {
+                            sheetViewModel.showSearchSheet(.middle)
+                        }
                     }
                 }
                 .ignoresSafeArea(.keyboard, edges: .all)
@@ -148,8 +163,11 @@ struct BaseMapViewV2: View {
             .customBackground(AnyView(Color("background")).cornerRadius(10))
             .showCloseButton()
             .onDismiss {
-                mapViewModel.selectedPin = nil
-                sheetViewModel.bottomSheetPosition = .relative(MapSheetPosition.middle.rawValue)
+                DispatchQueue.main.async {
+                    mapViewModel.selectedPin = nil
+                    sheetViewModel.showSearchSheet()
+                }
             }
     }
 }
+ 

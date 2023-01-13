@@ -11,18 +11,15 @@ import Collections
 
 
 struct JimoMapView: UIViewRepresentable {
-    @Binding var pins: [MKJimoPinAnnotation]
-    @Binding var selectedPin: MKJimoPinAnnotation?
-
-    // RegionWrapper allows us to set the region binding without updating the view
-    @ObservedObject var regionWrapper: RegionWrapper
-    var selectPin: (MKJimoPinAnnotation) -> ()
+    @ObservedObject var mapViewModel: MapViewModel
+    
+    var tappedPin: (MKJimoPinAnnotation?) -> ()
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
         mapView.showsCompass = false
         mapView.pointOfInterestFilter = .excludingAll
-        mapView.addAnnotations(pins)
+        mapView.addAnnotations(mapViewModel.pins)
         mapView.tintAdjustmentMode = .normal
         mapView.tintColor = .systemBlue
         mapView.showsUserLocation = true
@@ -33,12 +30,12 @@ struct JimoMapView: UIViewRepresentable {
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
         // Handle region
-        if mapView.region != regionWrapper.region.wrappedValue {
-            mapView.setRegion(regionWrapper.region.wrappedValue, animated: true)
+        if mapView.region != mapViewModel.region.wrappedValue {
+            mapView.setRegion(mapViewModel.region.wrappedValue, animated: true)
         }
         
         // Handle pins
-        let annotations = Set(pins)
+        let annotations = Set(mapViewModel.pins)
         let uiViewAnnotations = Set(mapView.annotations.compactMap({ $0 as? MKJimoPinAnnotation }))
         let toAdd = annotations.subtracting(uiViewAnnotations)
         let toRemove = uiViewAnnotations.subtracting(annotations)
@@ -52,9 +49,12 @@ struct JimoMapView: UIViewRepresentable {
         
         // Handle selectedPin
         let uiViewSelectedAnnotation = mapView.selectedAnnotations.first as? MKJimoPinAnnotation
-        if selectedPin != uiViewSelectedAnnotation {
-            if let selectedPin = selectedPin {
-                mapView.selectAnnotation(selectedPin, animated: true)
+        if mapViewModel.selectedPin != uiViewSelectedAnnotation {
+            if let selectedPin = mapViewModel.selectedPin,
+               let pin = mapView.annotations.first(where: { $0 as? MKJimoPinAnnotation == selectedPin }) {
+                // We need to reference the object in the map view (even though equality is properly implemented)
+                // Assuming this is because MapKit is in Objective C and doing some pointer bs
+                mapView.selectAnnotation(pin, animated: true)
             } else if let uiViewSelectedAnnotation = uiViewSelectedAnnotation {
                 mapView.deselectAnnotation(uiViewSelectedAnnotation, animated: true)
             }
@@ -67,7 +67,6 @@ struct JimoMapView: UIViewRepresentable {
     
     class Coordinator: NSObject, MKMapViewDelegate {
         private var parent: JimoMapView
-        private var sortedVisibleAnnotations: OrderedSet<MKJimoPinAnnotation> = OrderedSet()
         private var regularPinsCapacity: Int = 25
         private var isRecomputingDots = false
         
@@ -75,35 +74,46 @@ struct JimoMapView: UIViewRepresentable {
             self.parent = parent
         }
         
+        var mapViewModel: MapViewModel {
+            parent.mapViewModel
+        }
+        
+        func recomputeDots(_ mapView: MKMapView, completion: (() -> ())? = nil) {
+            DispatchQueue.global(qos: .userInteractive).async {
+                let annotations: [MKJimoPinAnnotation] = mapView
+                    .annotations(in: mapView.visibleMapRect)
+                    .compactMap({ $0 as? MKJimoPinAnnotation })
+                    .sorted(by: { compare($0, isLargerThan: $1) })
+                guard mapView.selectedAnnotations.isEmpty else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    UIView.animate(withDuration: 0.25) {
+                        for (i, annotation) in annotations.enumerated() {
+                            if i < self.regularPinsCapacity {
+                                mapView.pinView(for: annotation)?.toPin()
+                            } else {
+                                mapView.pinView(for: annotation)?.toDot()
+                            }
+                        }
+                    } completion: { _ in
+                        completion?()
+                    }
+                }
+            }
+        }
+        
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
             DispatchQueue.main.async {
-                self.parent.regionWrapper._region = mapView.region
-            }
-            if isRecomputingDots {
-                return
-            }
-            isRecomputingDots = true
-            let newVisibleAnnotations = Set(mapView.annotations(in: mapView.scaleVisibleMapRect(scale: 0.8)).compactMap({ $0 as? MKJimoPinAnnotation }))
-            let changedToVisible = newVisibleAnnotations.subtracting(sortedVisibleAnnotations)
-            let changedToHidden = sortedVisibleAnnotations.subtracting(newVisibleAnnotations)
-            let oldRegularPins = sortedVisibleAnnotations.firstN(regularPinsCapacity)
-            for annotation in changedToHidden {
-                sortedVisibleAnnotations.remove(annotation)
-            }
-            for annotation in changedToVisible {
-                sortedVisibleAnnotations.insertFirstWhere(annotation, predicate: { compare(annotation, isLargerThan: $0) })
-            }
-            var newRegularPins = sortedVisibleAnnotations.firstN(regularPinsCapacity)
-            if let selectedPin = parent.selectedPin {
-                newRegularPins.insert(selectedPin)
-            }
-            UIView.animate(withDuration: 0.25) {
-                newRegularPins.subtracting(oldRegularPins).forEach({ mapView.pinView(for: $0)?.toPin() })
-                oldRegularPins.subtracting(newRegularPins).forEach({ mapView.pinView(for: $0)?.toDot() })
-            } completion: { _ in
-                /// Add delay to give the CPU some breathing room
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    self.isRecomputingDots = false
+                self.mapViewModel._region = mapView.region
+                if self.isRecomputingDots {
+                    return
+                }
+                self.isRecomputingDots = true
+                self.recomputeDots(mapView) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.isRecomputingDots = false
+                    }
                 }
             }
         }
@@ -122,62 +132,50 @@ struct JimoMapView: UIViewRepresentable {
                 return view
             }
             if let annotation = annotation as? MKJimoPinAnnotation {
-                let view = mapView.dequeueReusableAnnotationView(withIdentifier: NSStringFromClass(JimoPinView.self), for: annotation) as? JimoPinView
-                if !sortedVisibleAnnotations.firstN(regularPinsCapacity).contains(annotation) {
-                    view?.toDot()
-                }
+                let view = mapView.dequeueReusableAnnotationView(
+                    withIdentifier: NSStringFromClass(JimoPinView.self),
+                    for: annotation
+                ) as? JimoPinView
+                view?.toDot()
                 return view
             }
             return nil
         }
         
         func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
-            self.isRecomputingDots = true
-            let oldRegularPins = sortedVisibleAnnotations.firstN(regularPinsCapacity)
-            for view in views.compactMap({ $0 as? JimoPinView }) {
-                guard let annotation = view.annotation as? MKJimoPinAnnotation else {
-                    return
-                }
-                sortedVisibleAnnotations.insertFirstWhere(annotation, predicate: { compare(annotation, isLargerThan: $0) })
-            }
-            let newRegularPins = sortedVisibleAnnotations.firstN(regularPinsCapacity)
-            
-            // TODO: this can probably be moved to a function
-            UIView.animate(withDuration: 0.25) {
-                newRegularPins.subtracting(oldRegularPins).forEach({ mapView.pinView(for: $0)?.toPin() })
-                oldRegularPins.subtracting(newRegularPins).forEach({ mapView.pinView(for: $0)?.toDot() })
-            } completion: { _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    self.isRecomputingDots = false
-                }
-            }
+            self.recomputeDots(mapView)
         }
         
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-            if let annotation = view.annotation as? MKJimoPinAnnotation {
-                parent.selectPin(annotation)
-                UIView.animate(withDuration: 0.1) {
-                    self.highlight(view, annotation: annotation)
+            DispatchQueue.main.async {
+                if let annotation = view.annotation as? MKJimoPinAnnotation {
+                    print("Called tappedPin from didSelect")
+                    self.parent.tappedPin(annotation)
+                    UIView.animate(withDuration: 0.1) {
+                        self.highlight(view, annotation: annotation)
+                        for pin in mapView.annotations {
+                            if let pin = pin as? MKJimoPinAnnotation, pin != annotation {
+                                mapView.pinView(for: pin)?.toDot()
+                            }
+                        }
+                    }
                 }
             }
         }
         
         func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
-            guard let annotation = view.annotation as? MKJimoPinAnnotation else {
-                return
-            }
-            if parent.selectedPin == annotation {
-                parent.selectedPin = nil
-            }
-            // We don't set parent.selectedPin to nil here, that is only done when the quick view is dismissed
-            // (that ensures that if selectedPin is non-nil, then the quick view is visible)
-            UIView.animate(withDuration: 0.1) {
-                if !self.sortedVisibleAnnotations.firstN(self.regularPinsCapacity).contains(annotation) {
-                    (view as? JimoPinView)?.toDot()
-                } else {
-                    view.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            DispatchQueue.main.async {
+                guard let annotation = view.annotation as? MKJimoPinAnnotation else {
+                    return
                 }
-                self.removeHighlight(for: view)
+                if self.mapViewModel.selectedPin == annotation {
+                    print("Called tappedPin(nil) from didDeselect")
+                    self.parent.tappedPin(nil)
+                }
+                UIView.animate(withDuration: 0.1) {
+                    self.removeHighlight(for: view)
+                }
+                self.recomputeDots(mapView)
             }
         }
         
@@ -187,20 +185,15 @@ struct JimoMapView: UIViewRepresentable {
             view.layer.shadowOffset = .zero
             if let category = annotation.category, let color = UIColor(named: category) {
                 view.layer.shadowColor = color.cgColor
+                view.layer.shadowRadius = 20
+                view.layer.shadowOpacity = 0.75
+                view.layer.shadowPath = UIBezierPath(rect: view.bounds).cgPath
             }
-            view.layer.shadowRadius = 20
-            view.layer.shadowOpacity = 0.75
-            view.layer.shadowPath = UIBezierPath(rect: view.bounds).cgPath
         }
         
         private func removeHighlight(for view: MKAnnotationView) {
-            if let annotation = view.annotation as? MKJimoPinAnnotation {
-                if !sortedVisibleAnnotations.firstN(regularPinsCapacity).contains(annotation) {
-                    (view as? JimoPinView)?.toDot()
-                } else {
-                    view.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-                }
-            }
+            view.transform = .identity
+            view.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             view.layer.shadowRadius = 0
             view.layer.shadowColor = nil
             view.layer.shadowPath = nil
@@ -265,5 +258,5 @@ fileprivate extension OrderedSet {
 }
 
 fileprivate func compare(_ annotation: MKJimoPinAnnotation, isLargerThan annotation2: MKJimoPinAnnotation) -> Bool {
-    return annotation.numPosts > annotation2.numPosts || (annotation.numPosts == annotation2.numPosts && annotation.placeId! > annotation2.placeId!)
+    return annotation.numPosts > annotation2.numPosts || (annotation.numPosts == annotation2.numPosts && annotation.placeId ?? "" > annotation2.placeId ?? "")
 }

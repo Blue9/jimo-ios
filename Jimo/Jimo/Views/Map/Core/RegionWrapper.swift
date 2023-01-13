@@ -26,7 +26,9 @@ class RegionWrapper: ObservableObject {
     
     func setRegion(_ region: MKCoordinateRegion) {
         self._region = region
-        self.trigger.toggle()
+        DispatchQueue.main.async {
+            self.trigger.toggle()
+        }
     }
 }
 

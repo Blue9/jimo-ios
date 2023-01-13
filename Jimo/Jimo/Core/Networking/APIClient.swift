@@ -742,6 +742,10 @@ class APIClient: ObservableObject {
                     .mapError({ $0 as? APIError ?? APIError.unknownError })
                     .eraseToAnyPublisher()
             }
+            .mapError { err in
+                print("API error for \(httpMethod) \(url): \(err)")
+                return err
+            }
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }

@@ -151,6 +151,7 @@
 		C7EAD4D425ABBDCC004A9F53 /* PostVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D325ABBDCC004A9F53 /* PostVM.swift */; };
 		C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D825AC1D49004A9F53 /* APIClient.swift */; };
 		C7EAD4DE25AC1DD0004A9F53 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */; };
+		C7EF8E6A296E699E00892BA0 /* CustomUserFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
 		C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = C7FC69DF2790160100C41ED3 /* SwiftUIPager */; };
 /* End PBXBuildFile section */
@@ -313,6 +314,7 @@
 		C7EAD4D325ABBDCC004A9F53 /* PostVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostVM.swift; sourceTree = "<group>"; };
 		C7EAD4D825AC1D49004A9F53 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
+		C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUserFilter.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -633,6 +635,7 @@
 				C70647792797289800B9CCD2 /* MapSearchField.swift */,
 				84BE5D1D29275A9200240B01 /* MapSearchResults.swift */,
 				84952F322956326800C48DFC /* MapSearchResultBody.swift */,
+				C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */,
 			);
 			path = BottomSheet;
 			sourceTree = "<group>";
@@ -1108,6 +1111,7 @@
 				C7654E5C27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift in Sources */,
 				C7970A49282C682100823F39 /* SuggestedUsersCarousel.swift in Sources */,
 				C757F86F27F150DD00364EDB /* NotificationPermissions.swift in Sources */,
+				C7EF8E6A296E699E00892BA0 /* CustomUserFilter.swift in Sources */,
 				C757F87127F150F700364EDB /* LocationPermissions.swift in Sources */,
 				C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */,
 				C758BAB026FC148A007DFE30 /* MapSnapshotView.swift in Sources */,

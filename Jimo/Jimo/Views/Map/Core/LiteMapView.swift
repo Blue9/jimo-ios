@@ -30,14 +30,10 @@ struct LiteMapView: View {
     var body: some View {
         BaseMapViewV2(mapViewModel: mapViewModel, locationSearch: locationSearch, sheetViewModel: sheetViewModel)
             .onAppear {
-                mapViewModel._region.span = MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
-                mapViewModel.trigger.toggle()
-                mapViewModel.pins = [pin]
-                mapViewModel.selectPin(appState: appState, viewState: viewState, pin: pin)
-                sheetViewModel.businessSheetPosition = .relative(0.6)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    mapViewModel.isLoadingMap = false
-                    mapViewModel.selectedPin = pin
+                DispatchQueue.main.async {
+                    mapViewModel.pins = [pin]
+                    mapViewModel.selectPin(appState: appState, viewState: viewState, pin: pin)
+                    sheetViewModel.showBusinessSheet()
                     mapViewModel.listenToRegionChanges(appState: appState, viewState: viewState)
                 }
             }

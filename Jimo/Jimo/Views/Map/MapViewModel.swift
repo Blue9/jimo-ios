@@ -17,17 +17,17 @@ struct MapRequestState: Equatable, Hashable {
     var userIds: Set<UserId>
 }
 
+typealias OnMapLoadCallback = (_ numPins: Int) -> ()
+
 class MapViewModel: RegionWrapper {
     private var cancelBag: Set<AnyCancellable> = Set()
+    private var mapLoadCancellable: AnyCancellable? // One cancellable so we cancel when we re-assign
     
     /// Request types
     @Published var regionToLoad: RectangularRegion?
     @Published var categories: Set<Category> = Set(Categories.categories)
     @Published var mapType: MapType = .following
     @Published var userIds: Set<UserId> = Set()
-    
-    @Published var isLoadingMap = true
-    
     @Published var pins: [MKJimoPinAnnotation] = []
     
     /// selectedPin is set when you tap on a pin on the map
@@ -37,17 +37,31 @@ class MapViewModel: RegionWrapper {
     
     private var latestMapRequest: MapRequestState?
     
-    func initializeMap(appState: AppState, viewState: GlobalViewState) {
-        if let location = PermissionManager.shared.getLocation() {
+    override init() {
+        super.init()
+        if let data = UserDefaults.standard.object(forKey: "mapRegion") as? Data,
+           let region = try? JSONDecoder().decode(RectangularRegion.self, from: data) {
+            self.regionToLoad = region
+            self._region.center = region.center.coordinate()
+            self._region.span.latitudeDelta = region.latitudeDeltaDegrees
+            self._region.span.longitudeDelta = region.longitudeDeltaDegrees
+        }
+    }
+    
+    func initializeMap(appState: AppState, viewState: GlobalViewState, onLoad: @escaping OnMapLoadCallback) {
+        if self.regionToLoad == nil, let location = PermissionManager.shared.getLocation() {
             self.setRegion(
                 MKCoordinateRegion(
                     center: location.coordinate,
                     span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
                 )
             )
-            self.loadMap(appState: appState, viewState: viewState)
+        } else if self.regionToLoad != nil {
+            self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] numPins in
+                onLoad(numPins)
+                self?.listenToRegionChanges(appState: appState, viewState: viewState)
+            })
         }
-        listenToRegionChanges(appState: appState, viewState: viewState)
     }
     
     func listenToRegionChanges(appState: AppState, viewState: GlobalViewState) {
@@ -66,6 +80,9 @@ class MapViewModel: RegionWrapper {
                         longitudeDeltaDegrees: region.span.longitudeDelta,
                         latitudeDeltaDegrees: region.span.latitudeDelta
                     )
+                    if let data = try? JSONEncoder().encode(self.regionToLoad) {
+                        UserDefaults.standard.set(data, forKey: "mapRegion")
+                    }
                     previouslyLoadedRegion = region
                 }
                 previousRegion = region
@@ -75,7 +92,7 @@ class MapViewModel: RegionWrapper {
         Publishers.CombineLatest4($regionToLoad, $categories, $mapType, $userIds)
             .throttle(for: 0.25, scheduler: RunLoop.main, latest: true)
             .sink { [weak self] region, categories, mapType, userIds in
-                guard let self = self, let region = region, !self.isLoadingMap else {
+                guard let self = self, let region = region else {
                     return
                 }
                 let request = MapRequestState(
@@ -85,8 +102,8 @@ class MapViewModel: RegionWrapper {
                     mapType: mapType,
                     userIds: userIds
                 )
-                print("Created request with ID", request.requestId)
-                self.loadMap(request, appState: appState, viewState: viewState)
+                print("Created request with ID", request.requestId, mapType)
+                self.loadMap(request, appState: appState, viewState: viewState, onLoad: nil)
             }
             .store(in: &cancelBag)
     }
@@ -94,16 +111,26 @@ class MapViewModel: RegionWrapper {
     func selectPin(
         appState: AppState,
         viewState: GlobalViewState,
-        pin: MKJimoPinAnnotation
+        pin: MKJimoPinAnnotation?
     ) {
+        if self.selectedPin == pin {
+            return
+        }
         self.selectedPin = pin
+        guard let pin = pin else {
+            return
+        }
         guard let placeId = pin.placeId else {
             viewState.setError("Cannot load place details")
             return
         }
         var center = pin.coordinate
-        center.latitude -= 0.002
-        self.setRegion(MKCoordinateRegion(center: center, span: region.span.wrappedValue))
+        center.latitude -= 0.0015
+        self.setRegion(MKCoordinateRegion(center: center, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005)))
+        if let details = displayedPlaceDetails, details.place?.placeId == selectedPin?.placeId {
+            // Just use the last-loaded place details
+            return
+        }
         appState.getPlaceDetails(placeId: placeId)
             .sink { completion in
                 if case let .failure(error) = completion {
@@ -126,7 +153,9 @@ class MapViewModel: RegionWrapper {
         guard let placeName = mapItem.placemark.name else {
             return
         }
-        self.setRegion(MKCoordinateRegion(center: mapItem.placemark.coordinate, span: region.span.wrappedValue))
+        var center = mapItem.placemark.coordinate
+        center.latitude -= 0.0015
+        self.setRegion(MKCoordinateRegion(center: center, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005)))
         appState.findPlace(
             name: placeName,
             latitude: mapItem.placemark.coordinate.latitude,
@@ -145,7 +174,7 @@ class MapViewModel: RegionWrapper {
                 .setFailureType(to: APIError.self)
                 .eraseToAnyPublisher()
             }
-            self.selectPinIfExists(place.id)
+            self.selectPinIfExistsFakeIt(place)
             return appState.getPlaceDetails(placeId: place.id)
         }.sink { completion in
             if case let .failure(error) = completion {
@@ -188,12 +217,22 @@ class MapViewModel: RegionWrapper {
         }
     }
     
-    private func selectPinIfExists(_ placeId: PlaceId) {
-        let matching = self.pins.first(where: { $0.placeId == placeId })
-        self.selectedPin = matching
+    private func selectPinIfExistsFakeIt(_ place: Place) {
+        if let pin = self.pins.first(where: { $0.placeId == place.placeId }) {
+            self.selectedPin = pin
+            var center = pin.coordinate
+            center.latitude -= 0.0015
+            self._region.center = center
+            self.trigger.toggle()
+        } else {
+            let pin = MKJimoPinAnnotation(coordinate: place.location.coordinate())
+            pin.placeId = place.placeId
+            self.pins.append(pin)
+            self.selectedPin = pin
+        }
     }
     
-    private func loadMap(appState: AppState, viewState: GlobalViewState) {
+    private func loadMap(appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
         self.loadMap(
             MapRequestState(
                 requestId: UUID(),
@@ -207,31 +246,44 @@ class MapViewModel: RegionWrapper {
                 userIds: userIds
             ),
             appState: appState,
-            viewState: viewState
+            viewState: viewState,
+            onLoad: onLoad
         )
     }
     
-    private func loadMap(_ request: MapRequestState, appState: AppState, viewState: GlobalViewState) {
-        self.isLoadingMap = true
+    private func loadMap(_ request: MapRequestState, appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
         self.latestMapRequest = request
-        appState.getMap(
+        // Note that re-assigning this cancels previous requests so we always use the latest request
+        mapLoadCancellable = appState.getMap(
             region: request.region,
             categories: request.categories.map { $0.key },
             mapType: request.mapType,
             userIds: Array(request.userIds)
-        ).sink { [weak self] completion in
-            self?.isLoadingMap = false
-            if case .failure = completion {
-                viewState.setError("Could not load map")
+        ).sink { completion in
+            if case let .failure(err) = completion {
+                print(err)
+                // viewState.setError("Could not load map")
             }
-        } receiveValue: { [weak self] response in
-            guard let self = self,
-                  self.latestMapRequest?.requestId == request.requestId else {
-                print("Mismatched request ID not updating map")
-                return
+        } receiveValue: { response in
+            // Instead of a simple self.pins = response.pins.map(...)
+            // We diff the response with the current set of pins. This is because
+            // MapKit's internal representation of annotations uses memory addresses,
+            // but because isEquals is implemented for MKJimoPinAnnotation, it seems to
+            // end up in some sort of an inconsistent state.
+            let newPins = Set(response.pins.map({ MKJimoPinAnnotation(from: $0) }))
+            let oldPins = Set(self.pins)
+            self.pins.removeAll(where: { !newPins.contains($0) })
+            self.pins.append(contentsOf: newPins.subtracting(oldPins))
+            if let selectedPin = self.selectedPin {
+                if let replacement = self.pins.first(where: { $0.placeId == selectedPin.placeId }),
+                   self.selectedPin != replacement {
+                    self.selectedPin = replacement
+                } else {
+                    self.pins.append(selectedPin)
+                }
             }
-            self.pins = response.pins.map { MKJimoPinAnnotation(from: $0) }
-        }.store(in: &cancelBag)
+            onLoad?(self.pins.count)
+        }
     }
 }
 

@@ -9,7 +9,8 @@ import SwiftUI
 import MapKit
 
 struct CurrentLocationButton: View {
-    @Binding var region: MKCoordinateRegion
+    var region: MKCoordinateRegion
+    var setRegion: (MKCoordinateRegion) -> ()
     
     @State private var shouldRequestLocation = false
     
@@ -18,10 +19,10 @@ struct CurrentLocationButton: View {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             withAnimation {
                 if let location = PermissionManager.shared.getLocation() {
-                    region = MKCoordinateRegion(
+                    setRegion(MKCoordinateRegion(
                         center: location.coordinate,
                         span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-                    )
+                    ))
                 } else {
                     shouldRequestLocation.toggle()
                     print("Could not get location")
