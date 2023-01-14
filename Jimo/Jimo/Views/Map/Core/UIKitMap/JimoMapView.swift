@@ -79,14 +79,14 @@ struct JimoMapView: UIViewRepresentable {
         }
         
         func recomputeDots(_ mapView: MKMapView) {
+            guard mapView.selectedAnnotations.isEmpty else {
+                return
+            }
+            let annotations = mapView.annotations(in: mapView.visibleMapRect)
             DispatchQueue.global(qos: .userInitiated).async {
-                let annotations: [MKJimoPinAnnotation] = mapView
-                    .annotations(in: mapView.scaleVisibleMapRect(scale: 0.6))
+                let annotations: [MKJimoPinAnnotation] = annotations
                     .compactMap({ $0 as? MKJimoPinAnnotation })
                     .sorted(by: { compare($0, isLargerThan: $1) })
-                guard mapView.selectedAnnotations.isEmpty else {
-                    return
-                }
                 DispatchQueue.main.async {
                     UIView.animate(withDuration: 0.25) {
                         for (i, annotation) in annotations.enumerated() {

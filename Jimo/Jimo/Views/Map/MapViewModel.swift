@@ -81,6 +81,7 @@ class MapViewModel: RegionWrapperV2 {
            let cache = try? JSONDecoder().decode(RegionCache.self, from: data) {
             self.regionToLoad = cache.rectangularRegion
             self._mkCoordinateRegion = cache.mkCoordinateRegion
+            self.initializedFromCache = true
         }
     }
     
@@ -121,7 +122,7 @@ class MapViewModel: RegionWrapperV2 {
     func listenToRegionChanges(appState: AppState, viewState: GlobalViewState) {
         var previouslyLoadedRegion: RectangularRegion?
         var previousRegion: RectangularRegion?
-        Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+        Timer.publish(every: 0.33, on: .main, in: .common).autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else {
                     return
@@ -142,7 +143,7 @@ class MapViewModel: RegionWrapperV2 {
             .store(in: &cancelBag)
         // This continuously loads the map as the filters change
         Publishers.CombineLatest4($regionToLoad, $categories, $mapType, $userIds)
-            .throttle(for: 0.25, scheduler: RunLoop.main, latest: true)
+            .throttle(for: 0.33, scheduler: RunLoop.main, latest: true)
             .sink { [weak self] region, categories, mapType, userIds in
                 guard let self = self, let region = region else {
                     return
@@ -333,6 +334,8 @@ class MapViewModel: RegionWrapperV2 {
             if let selectedPin = self.selectedPin {
                 if let replacement = self.pins.first(where: { $0.placeId == selectedPin.placeId }),
                    self.selectedPin != replacement {
+                    // TODO when we do this this causes the bottom sheet to be displayed again because
+                    // updateUIView selects the annotation again.
                     self.selectedPin = replacement
                 } else {
                     self.pins.append(selectedPin)
