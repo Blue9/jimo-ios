@@ -29,9 +29,9 @@ struct JimoMapView: UIViewRepresentable {
     }
     
     func updateUIView(_ mapView: MKMapView, context: Context) {
-        // Handle region
-        if mapView.region != mapViewModel.region.wrappedValue {
-            mapView.setRegion(mapViewModel.region.wrappedValue, animated: true)
+        // Handle region, don't change if the region is already changing
+        if !context.coordinator.isRegionChanging && mapView.region != mapViewModel._mkCoordinateRegion {
+            mapView.setRegion(mapViewModel._mkCoordinateRegion, animated: true)
         }
         
         // Handle pins
@@ -43,7 +43,6 @@ struct JimoMapView: UIViewRepresentable {
             mapView.addAnnotations(Array(toAdd))
         }
         if toRemove.count > 0 {
-            // TODO: should remove from sortedVisibleAnnotations as well
             mapView.removeAnnotations(Array(toRemove))
         }
         
@@ -69,6 +68,7 @@ struct JimoMapView: UIViewRepresentable {
         private var parent: JimoMapView
         private var regularPinsCapacity: Int = 25
         private var isRecomputingDots = false
+        private(set) var isRegionChanging = false
         
         init(_ parent: JimoMapView) {
             self.parent = parent
@@ -103,7 +103,7 @@ struct JimoMapView: UIViewRepresentable {
         
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
             DispatchQueue.main.async {
-                self.mapViewModel._region = mapView.region
+                self.mapViewModel._mkCoordinateRegion = mapView.region
                 if self.isRecomputingDots {
                     return
                 }
@@ -113,6 +113,16 @@ struct JimoMapView: UIViewRepresentable {
                     self.isRecomputingDots = false
                 }
             }
+        }
+        
+        func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+            isRegionChanging = true
+        }
+        
+        func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+            isRegionChanging = false
+            // Does not need to be on main because it's not a published var
+            self.mapViewModel.visibleMapRect = mapView.rectangularRegion()
         }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {

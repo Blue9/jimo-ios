@@ -22,7 +22,7 @@
 		842B0F672923667700828F42 /* SearchUsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842B0F662923667700828F42 /* SearchUsers.swift */; };
 		8445C5FF29258F6A00282537 /* PhoneNumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8445C5FE29258F6A00282537 /* PhoneNumberKit */; };
 		84747AA3295BA44700327475 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84747AA2295BA44700327475 /* MapViewModel.swift */; };
-		84952F332956326800C48DFC /* MapSearchResultBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84952F322956326800C48DFC /* MapSearchResultBody.swift */; };
+		84952F332956326800C48DFC /* PlaceDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84952F322956326800C48DFC /* PlaceDetailsView.swift */; };
 		84BE5D1C292740DE00240B01 /* BottomSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 84BE5D1B292740DE00240B01 /* BottomSheet */; };
 		84BE5D1E29275A9200240B01 /* MapSearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE5D1D29275A9200240B01 /* MapSearchResults.swift */; };
 		C3573075281B396500E5D6C3 /* EmailLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3573074281B396500E5D6C3 /* EmailLogin.swift */; };
@@ -182,7 +182,7 @@
 		5AE22D8828245AA1004DA2AA /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		842B0F662923667700828F42 /* SearchUsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUsers.swift; sourceTree = "<group>"; };
 		84747AA2295BA44700327475 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MapViewModel.swift; path = Jimo/Views/Map/MapViewModel.swift; sourceTree = SOURCE_ROOT; };
-		84952F322956326800C48DFC /* MapSearchResultBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchResultBody.swift; sourceTree = "<group>"; };
+		84952F322956326800C48DFC /* PlaceDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailsView.swift; sourceTree = "<group>"; };
 		84BE5D1D29275A9200240B01 /* MapSearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchResults.swift; sourceTree = "<group>"; };
 		C3573074281B396500E5D6C3 /* EmailLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLogin.swift; sourceTree = "<group>"; };
 		C701233327F65C78008F3F21 /* NetworkConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionMonitor.swift; sourceTree = "<group>"; };
@@ -634,7 +634,7 @@
 				C7031A7427C5ABE900A90D24 /* MapBottomSheetHeader.swift */,
 				C70647792797289800B9CCD2 /* MapSearchField.swift */,
 				84BE5D1D29275A9200240B01 /* MapSearchResults.swift */,
-				84952F322956326800C48DFC /* MapSearchResultBody.swift */,
+				84952F322956326800C48DFC /* PlaceDetailsView.swift */,
 				C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */,
 			);
 			path = BottomSheet;
@@ -1063,7 +1063,7 @@
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
 				C7AB52852890BBAD0080DF73 /* RaisedButtonStyle.swift in Sources */,
 				C70367062557629900F970DE /* View+navigationBarColor.swift in Sources */,
-				84952F332956326800C48DFC /* MapSearchResultBody.swift in Sources */,
+				84952F332956326800C48DFC /* PlaceDetailsView.swift in Sources */,
 				C77078212879517700E5F596 /* JimoPinView.swift in Sources */,
 				C72BB2B328038F6D001997C1 /* View+navigation.swift in Sources */,
 				C73ED51D260EFDF4005CC0B4 /* View+appear.swift in Sources */,

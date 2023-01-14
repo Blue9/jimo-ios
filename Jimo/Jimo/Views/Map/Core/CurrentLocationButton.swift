@@ -9,7 +9,6 @@ import SwiftUI
 import MapKit
 
 struct CurrentLocationButton: View {
-    var region: MKCoordinateRegion
     var setRegion: (MKCoordinateRegion) -> ()
     
     @State private var shouldRequestLocation = false

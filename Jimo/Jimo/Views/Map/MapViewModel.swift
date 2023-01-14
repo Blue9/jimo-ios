@@ -19,12 +19,46 @@ struct MapRequestState: Equatable, Hashable {
 
 typealias OnMapLoadCallback = (_ numPins: Int) -> ()
 
-class MapViewModel: RegionWrapper {
+struct RegionCache: Codable, Equatable, Hashable {
+    // We store both because converting between the two region formats
+    // is non-trivial.
+    
+    var rectangularRegion: RectangularRegion
+    var mkCoordinateRegion: MKCoordinateRegion
+}
+
+class RegionWrapperV2: ObservableObject {
+    /// Used internally by MapKit. When we change this, JimoMapView will call updateUIView and update the region.
+    /// It will then call the regionDidChange delegate method which updates visibleMapRect.
+    var _mkCoordinateRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 37, longitude: -96),
+        span: MKCoordinateSpan(latitudeDelta: 85, longitudeDelta: 61))
+    var mkCoordinateRegion: Binding<MKCoordinateRegion> {
+        Binding(
+            get: { self._mkCoordinateRegion },
+            set: { self._mkCoordinateRegion = $0 }
+        )
+    }
+    @Published var trigger = false
+    
+    /// This is set by JimoMapView whenever the map region completes changing (in the didChange delegate method)
+    var visibleMapRect: RectangularRegion?
+    
+    /// This is set by us, we periodically check visibleMapRect and once it's stable (meaning the map has stopped moving we set this)
+    @Published var regionToLoad: RectangularRegion?
+    
+    func setRegion(_ region: MKCoordinateRegion) {
+        self._mkCoordinateRegion = region
+        self.trigger.toggle()
+    }
+}
+
+class MapViewModel: RegionWrapperV2 {
+    private var postListener = PostListener()
     private var cancelBag: Set<AnyCancellable> = Set()
     private var mapLoadCancellable: AnyCancellable? // One cancellable so we cancel when we re-assign
     
     /// Request types
-    @Published var regionToLoad: RectangularRegion?
     @Published var categories: Set<Category> = Set(Categories.categories)
     @Published var mapType: MapType = .following
     @Published var userIds: Set<UserId> = Set()
@@ -38,50 +72,67 @@ class MapViewModel: RegionWrapper {
     
     private var latestMapRequest: MapRequestState?
     
+    var initializedFromCache: Bool
+    
     override init() {
+        self.initializedFromCache = false
         super.init()
         if let data = UserDefaults.standard.object(forKey: "mapRegion") as? Data,
-           let region = try? JSONDecoder().decode(RectangularRegion.self, from: data) {
-            self.regionToLoad = region
-            self._region.center = region.center.coordinate()
-            self._region.span.latitudeDelta = region.latitudeDeltaDegrees
-            self._region.span.longitudeDelta = region.longitudeDeltaDegrees
+           let cache = try? JSONDecoder().decode(RegionCache.self, from: data) {
+            self.regionToLoad = cache.rectangularRegion
+            self._mkCoordinateRegion = cache.mkCoordinateRegion
         }
     }
     
     func initializeMap(appState: AppState, viewState: GlobalViewState, onLoad: @escaping OnMapLoadCallback) {
-        if self.regionToLoad == nil, let location = PermissionManager.shared.getLocation() {
-            self.setRegion(
-                MKCoordinateRegion(
-                    center: location.coordinate,
-                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-                )
-            )
-        } else if self.regionToLoad != nil {
+        if initializedFromCache && self.regionToLoad != nil {
             self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] numPins in
                 onLoad(numPins)
                 self?.listenToRegionChanges(appState: appState, viewState: viewState)
             })
+        } else {
+            if let location = PermissionManager.shared.getLocation() {
+                self.setRegion(
+                    MKCoordinateRegion(
+                        center: location.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                    )
+                )
+            }
+            self.listenToRegionChanges(appState: appState, viewState: viewState)
+        }
+        postListener.onPostCreated = { post in
+            DispatchQueue.main.async {
+                self.loadMap(appState: appState, viewState: viewState, onLoad: {_ in})
+                if self.displayedPlaceDetails?.place?.placeId == post.place.placeId {
+                    self.displayedPlaceDetails?.details?.followingPosts.insert(post, at: 0)
+                }
+            }
+        }
+        postListener.onPostDeleted = { postId in
+            DispatchQueue.main.async {
+                self.loadMap(appState: appState, viewState: viewState, onLoad: {_ in})
+                // Current user's posts will be in following posts so we only have to remove from there
+                self.displayedPlaceDetails?.details?.followingPosts.removeAll(where: { $0.postId == postId })
+            }
         }
     }
     
     func listenToRegionChanges(appState: AppState, viewState: GlobalViewState) {
-        var previouslyLoadedRegion: MKCoordinateRegion?
-        var previousRegion: MKCoordinateRegion?
-        Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
+        var previouslyLoadedRegion: RectangularRegion?
+        var previousRegion: RectangularRegion?
+        Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else {
                     return
                 }
-                let region = self._region
+                guard let region = self.visibleMapRect else {
+                    return
+                }
                 if region == previousRegion && region != previouslyLoadedRegion {
                     print("Region changed, updating regionToLoad")
-                    self.regionToLoad = RectangularRegion(
-                        center: Location(coord: region.center),
-                        longitudeDeltaDegrees: region.span.longitudeDelta,
-                        latitudeDeltaDegrees: region.span.latitudeDelta
-                    )
-                    if let data = try? JSONEncoder().encode(self.regionToLoad) {
+                    self.regionToLoad = region
+                    if let data = try? JSONEncoder().encode(RegionCache(rectangularRegion: region, mkCoordinateRegion: self._mkCoordinateRegion)) {
                         UserDefaults.standard.set(data, forKey: "mapRegion")
                     }
                     previouslyLoadedRegion = region
@@ -130,6 +181,7 @@ class MapViewModel: RegionWrapper {
         self.setRegion(MKCoordinateRegion(center: center, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005)))
         if let details = displayedPlaceDetails, details.place?.placeId == selectedPin?.placeId {
             // Just use the last-loaded place details
+            displayedPlaceDetails?.isStale = false
             return
         }
         appState.getPlaceDetails(placeId: placeId)
@@ -170,17 +222,13 @@ class MapViewModel: RegionWrapper {
                     location: Location(coord: mapItem.placemark.coordinate)
                 )
                 self.selectPinIfExistsFakeIt(fakePlace)
-                return Just(GetPlaceDetailsResponse(
-                    place: fakePlace,
-                    communityPosts: [],
-                    featuredPosts: [],
-                    followingPosts: []
-                ))
-                .setFailureType(to: APIError.self)
-                .eraseToAnyPublisher()
+                return Just<GetPlaceDetailsResponse?>(nil)
+                    .setFailureType(to: APIError.self)
+                    .eraseToAnyPublisher()
             }
             self.selectPinIfExistsFakeIt(place)
             return appState.getPlaceDetails(placeId: place.id)
+                .map { (response: GetPlaceDetailsResponse) in (response as GetPlaceDetailsResponse?) }
                 .eraseToAnyPublisher()
         }.sink { completion in
             if case let .failure(error) = completion {
@@ -228,7 +276,7 @@ class MapViewModel: RegionWrapper {
             self.selectedPin = pin
             var center = pin.coordinate
             center.latitude -= 0.0015
-            self._region.center = center
+            self._mkCoordinateRegion.center = center
             self.trigger.toggle()
         } else {
             let pin = MKJimoPinAnnotation(coordinate: place.location.coordinate())
@@ -239,14 +287,14 @@ class MapViewModel: RegionWrapper {
     }
     
     private func loadMap(appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
+        guard let region = self.regionToLoad else {
+            print("no region to load")
+            return
+        }
         self.loadMap(
             MapRequestState(
                 requestId: UUID(),
-                region: RectangularRegion(
-                    center: Location(coord: _region.center),
-                    longitudeDeltaDegrees: _region.span.longitudeDelta,
-                    latitudeDeltaDegrees: _region.span.latitudeDelta
-                ),
+                region: region,
                 categories: categories,
                 mapType: mapType,
                 userIds: userIds
@@ -296,6 +344,7 @@ class MapViewModel: RegionWrapper {
 }
 
 struct MapPlaceResult: Equatable {
+    var isStale = false
     /// Apple maps MapKit item
     var mkMapItem: MKMapItem?
     
@@ -346,5 +395,74 @@ struct MapPlaceResult: Equatable {
             placemark.administrativeArea
         ];
         return components.compactMap({ $0 }).joined(separator: ", ")
+    }
+}
+
+extension MKMapView {
+    func rectangularRegion() -> RectangularRegion {
+        let rect = self.convert(self.region, toRectTo: self)
+        let bl = self.convert(CGPoint(x: rect.minX, y: rect.minY), toCoordinateFrom: self)
+        let tr = self.convert(CGPoint(x: rect.maxX, y: rect.maxY), toCoordinateFrom: self)
+        return RectangularRegion(
+            xMin: bl.longitude,
+            yMin: bl.latitude,
+            xMax: tr.longitude,
+            yMax: tr.latitude
+        )
+    }
+}
+
+extension MKCoordinateRegion: Codable {
+    public func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(self.center.latitude, forKey: .centerLat)
+        try values.encode(self.center.longitude, forKey: .centerLong)
+        try values.encode(self.span.latitudeDelta, forKey: .latSpan)
+        try values.encode(self.span.longitudeDelta, forKey: .longSpan)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let centerLat = try values.decode(Double.self, forKey: .centerLat)
+        let centerLong = try values.decode(Double.self, forKey: .centerLong)
+        
+        let longSpan = try values.decode(Double.self, forKey: .longSpan)
+        let latSpan = try values.decode(Double.self, forKey: .latSpan)
+        self.init(
+            center: .init(latitude: centerLat, longitude:  centerLong),
+            span: .init(latitudeDelta: latSpan, longitudeDelta: longSpan)
+        )
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case centerLat
+        case centerLong
+        case longSpan
+        case latSpan
+    }
+}
+
+class PostListener {
+    typealias OnPostCreated = (Post) -> ()
+    typealias OnPostDeleted = (PostId) -> ()
+    
+    let nc = NotificationCenter.default
+    
+    var onPostCreated: OnPostCreated?
+    var onPostDeleted: OnPostDeleted?
+    
+    init() {
+        nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
+    }
+    
+    @objc private func postCreated(notification: Notification) {
+        let post = notification.object as! Post
+        onPostCreated?(post)
+    }
+    
+    @objc private func postDeleted(notification: Notification) {
+        let postId = notification.object as! PostId
+        onPostDeleted?(postId)
     }
 }

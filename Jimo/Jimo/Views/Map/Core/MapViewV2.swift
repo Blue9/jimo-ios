@@ -75,7 +75,7 @@ struct BaseMapViewV2: View {
                     ProgressView()
                 }
                 Spacer()
-                CurrentLocationButton(region: mapViewModel._region, setRegion: mapViewModel.setRegion)
+                CurrentLocationButton(setRegion: mapViewModel.setRegion)
                     .padding(.horizontal)
             }
             Spacer()
@@ -95,6 +95,7 @@ struct BaseMapViewV2: View {
                     print("Setting businessSheetPosition to mid")
                     sheetViewModel.showBusinessSheet()
                 } else {
+                    mapViewModel.displayedPlaceDetails?.isStale = true
                     mapViewModel.selectedPin = nil
                     print("Setting filterSheetPosition to mid")
                     sheetViewModel.showSearchSheet()
@@ -159,9 +160,12 @@ struct BaseMapViewV2: View {
                             .font(.caption)
                     }
                     .padding(.horizontal, 10)
+                    .opacity(mapViewModel.displayedPlaceDetails?.isStale ?? false ? 0.5 : 1.0)
+                    .renderAsPlaceholder(if: mapViewModel.displayedPlaceDetails?.isStale ?? true)
                 }, mainContent: {
                     if let result = mapViewModel.displayedPlaceDetails {
-                        MapSearchResultBody(result: result)
+                        PlaceDetailsView(result: result)
+                            .renderAsPlaceholder(if: mapViewModel.displayedPlaceDetails?.isStale ?? true)
                             .padding(.top, 10)
                     }
                 }
@@ -171,10 +175,21 @@ struct BaseMapViewV2: View {
             .showCloseButton()
             .onDismiss {
                 DispatchQueue.main.async {
+                    mapViewModel.displayedPlaceDetails?.isStale = true
                     mapViewModel.selectedPin = nil
                     sheetViewModel.showSearchSheet()
                 }
             }
     }
 }
- 
+
+fileprivate extension View {
+    @ViewBuilder
+    func renderAsPlaceholder(if condition: Bool) -> some View {
+        if condition {
+            self.redacted(reason: .placeholder)
+        } else {
+            self
+        }
+    }
+}

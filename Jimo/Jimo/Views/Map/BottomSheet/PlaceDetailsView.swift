@@ -10,7 +10,7 @@ import SwiftUIPager
 
 fileprivate var color = Color(red: 72.0 / 255, green: 159.0 / 255, blue: 240.0 / 255)
 
-struct MapSearchResultBody: View {
+struct PlaceDetailsView: View {
     var result: MapPlaceResult
 
     var body: some View {
@@ -70,7 +70,7 @@ fileprivate struct CreatePostButton: View {
         } label: {
             HStack {
                 Spacer()
-                Text("Make a post")
+                Text(result.details?.hasPosts ?? false ? "Make a post" : "Be the first to post")
                     .font(.system(size: 15))
                     .fontWeight(.medium)
                 Image(systemName: "plus.app")
@@ -87,7 +87,7 @@ fileprivate struct CreatePostButton: View {
         }.disabled(result.details == nil && result.mkMapItem == nil)
         
         .sheet(isPresented: $showCreatePost) {
-            CreatePost(createPostVM: createPostVM, presented: $showCreatePost)
+            CreatePostWithModel(createPostVM: createPostVM, presented: $showCreatePost)
         }
     }
 }

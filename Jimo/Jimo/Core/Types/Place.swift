@@ -95,4 +95,8 @@ struct GetPlaceDetailsResponse: Codable, Equatable {
     var communityPosts: [Post]
     var featuredPosts: [Post]
     var followingPosts: [Post]
+    
+    var hasPosts: Bool {
+        communityPosts.count + featuredPosts.count + followingPosts.count > 0
+    }
 }

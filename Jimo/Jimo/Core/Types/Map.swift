@@ -8,9 +8,10 @@
 import Foundation
 
 struct RectangularRegion: Codable, Equatable, Hashable {
-    var center: Location
-    var longitudeDeltaDegrees: Double
-    var latitudeDeltaDegrees: Double
+    var xMin: Double
+    var yMin: Double
+    var xMax: Double
+    var yMax: Double
 }
 
 enum MapType: String, Codable {
