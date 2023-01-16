@@ -122,7 +122,7 @@ class MapViewModel: RegionWrapperV2 {
     func listenToRegionChanges(appState: AppState, viewState: GlobalViewState) {
         var previouslyLoadedRegion: RectangularRegion?
         var previousRegion: RectangularRegion?
-        Timer.publish(every: 0.33, on: .main, in: .common).autoconnect()
+        Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else {
                     return
@@ -143,7 +143,7 @@ class MapViewModel: RegionWrapperV2 {
             .store(in: &cancelBag)
         // This continuously loads the map as the filters change
         Publishers.CombineLatest4($regionToLoad, $categories, $mapType, $userIds)
-            .throttle(for: 0.33, scheduler: RunLoop.main, latest: true)
+            .throttle(for: 0.25, scheduler: RunLoop.main, latest: true)
             .sink { [weak self] region, categories, mapType, userIds in
                 guard let self = self, let region = region else {
                     return
