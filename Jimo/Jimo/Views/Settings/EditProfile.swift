@@ -102,9 +102,9 @@ struct EditProfile: View {
 
 extension EditProfile {
     class ViewModel: ObservableObject {
-        @Published var username: String = "" { didSet { edited = true } }
-        @Published var firstName: String = "" { didSet { edited = true } }
-        @Published var lastName: String = "" { didSet { edited = true } }
+        @Published var username: String = "" { didSet { markEdited() } }
+        @Published var firstName: String = "" { didSet { markEdited() } }
+        @Published var lastName: String = "" { didSet { markEdited() } }
         @Published var profilePictureUrl: String? = nil
         
         @Published var showImagePicker = false
@@ -195,6 +195,12 @@ extension EditProfile {
                         viewState.setSuccess("Updated profile!")
                     }
                 })
+        }
+        
+        private func markEdited() {
+            DispatchQueue.main.async {
+                self.edited = true
+            }
         }
     }
 }

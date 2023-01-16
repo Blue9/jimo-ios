@@ -21,3 +21,4 @@ class UserPublisher {
         notificationCenter.post(name: UserPublisher.userRelationChanged, object: UserRelationPayload(username: username, relation: relation))
     }
 }
+

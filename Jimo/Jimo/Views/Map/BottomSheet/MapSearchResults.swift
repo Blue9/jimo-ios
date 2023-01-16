@@ -1,24 +1,17 @@
 //
-//  PlaceSearch.swift
+//  MapSearchResults.swift
 //  Jimo
 //
-//  Created by Gautam Mekkat on 11/10/20.
+//  Created by Gautam Mekkat on 11/18/22.
 //
-
 import SwiftUI
 import MapKit
 
-struct PlaceSearch: View {
-    @Environment(\.presentationMode) var presentationMode
-    @StateObject var locationSearch: LocationSearch = LocationSearch()
+struct MapSearchResults: View {
+    @ObservedObject var locationSearch: LocationSearch
     @State private var showAlert = false
-    @FocusState private var searchBarFocused: Bool
     
     var selectPlace: (MKMapItem) -> Void
-    
-    func setupLocationSearch() {
-        locationSearch.completer.resultTypes = [.address, .pointOfInterest]
-    }
     
     private func getAddress(mapItem: MKMapItem) -> String {
         let placemark = mapItem.placemark
@@ -59,7 +52,6 @@ struct PlaceSearch: View {
                             let places = response?.mapItems
                             if let places = places, places.count > 0 {
                                 if places.count == 1 {
-                                    presentationMode.wrappedValue.dismiss()
                                     self.selectPlace(places[0])
                                 } else {
                                     self.locationSearch.mkSearchResults = places
@@ -69,27 +61,24 @@ struct PlaceSearch: View {
                             }
                         }
                     }
-                    .listRowBackground(Color("background"))
                 }
             } footer: {
-                if locationSearch.startedSearching {
-                    HStack {
-                        Spacer()
-                        Text("Tap the Return key to view more results")
-                        Spacer()
-                    }
-                    .font(.system(size: 15))
-                    .foregroundColor(.gray)
-                    .listRowBackground(Color("background"))
+                HStack {
+                    Spacer()
+                    Text("Tap the Return key to view more results")
+                    Spacer()
                 }
+                .font(.system(size: 15))
+                .foregroundColor(.gray)
             }
         }
+        .listRowBackground(Color.red)
+        .listStyle(.plain)
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Something went wrong."),
                 message: Text("Try again or select another option."))
         }
-        .listStyle(.plain)
     }
     
     @ViewBuilder private var searchResults: some View {
@@ -107,52 +96,20 @@ struct PlaceSearch: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                presentationMode.wrappedValue.dismiss()
                 self.selectPlace(mapItem)
             }
-            .listRowBackground(Color("background"))
         }
+        .listRowBackground(Color.red)
         .listStyle(.plain)
     }
     
     var body: some View {
-        VStack {
-            ZStack(alignment: .center) {
-                HStack {
-                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                        Text("Cancel")
-                            .padding(.horizontal, 15)
-                    }
-                    Spacer()
-                }
-                
-                NavTitle("Name")
-            }
-            .padding(.top, 15)
-            .padding(.bottom, 10)
-            
-            SearchBar(
-                text: $locationSearch.searchQuery,
-                isActive: $searchBarFocused,
-                placeholder: "Search for a place",
-                onCommit: {
-                    locationSearch.search()
-                }
-            )
-            .padding(.horizontal)
-            
+        Group {
             if locationSearch.searchState == .search {
                 searchResults
             } else {
                 autocompleteResults
             }
-            
-            Spacer()
-        }
-        .foregroundColor(Color("foreground"))
-        .background(Color("background").edgesIgnoringSafeArea(.all))
-        .onAppear {
-            self.setupLocationSearch()
         }
     }
 }

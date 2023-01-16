@@ -90,7 +90,7 @@ class JimoPinView: MKAnnotationView {
         }
         
         if let url = pin.imageUrl {
-            let transformer = SDImageResizingTransformer(size: CGSize(width: 100, height: 100), scaleMode: .fill)
+            let transformer = SDImageResizingTransformer(size: CGSize(width: pinDiameter * 3, height: pinDiameter * 3), scaleMode: .fill)
             imageView.sd_setImage(
                 with: URL(string: url),
                 placeholderImage: UIImage(systemName: "person.crop.circle"),

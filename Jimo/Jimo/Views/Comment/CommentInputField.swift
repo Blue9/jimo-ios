@@ -17,9 +17,10 @@ struct CommentInputField: View {
     var onSubmit: () -> Void
     
     var inputBody: some View {
-        TextField("Add a comment", text: $text)
+        TextField("Add a comment", text: $text, onCommit: onSubmit)
             .focused(isFocused)
             .disabled(submitting)
+            .submitLabel(.send)
     }
     
     var body: some View {

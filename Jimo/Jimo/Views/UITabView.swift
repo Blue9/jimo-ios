@@ -32,8 +32,7 @@ struct UITabView: View {
             controllers: viewControllers,
             tabBarItems: tabBarItems,
             selectedIndex: $selectedIndex
-        )
-            .ignoresSafeArea()
+        ).ignoresSafeArea(.all, edges: .top)
     }
 }
 

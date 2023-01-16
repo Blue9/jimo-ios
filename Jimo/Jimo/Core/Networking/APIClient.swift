@@ -201,11 +201,6 @@ struct Endpoint {
     
     // MARK: - Discover endpoints
     
-    @available(*, deprecated, message: "Use discoverFeedV2")
-    static func discoverFeed() -> Endpoint {
-        return Endpoint(path: "/me/discover")
-    }
-    
     static func discoverFeedV2(location: Location? = nil) -> Endpoint {
         let path = "/me/discoverV2"
         if let location = location {
@@ -220,54 +215,23 @@ struct Endpoint {
     
     // MARK: - Map endpoints
     
-    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
     static func getMap() -> Endpoint {
-        return Endpoint(path: "/me/map")
+        return Endpoint(path: "/map/load")
     }
     
-    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
-    static func getMapV2() -> Endpoint {
-        return Endpoint(path: "/me/mapV2")
+    // MARK: Places endpoints
+    
+    static func findPlace(name: String, latitude: Double, longitude: Double) -> Endpoint {
+        let queryItems = [
+            URLQueryItem(name: "name", value: name),
+            URLQueryItem(name: "latitude", value: String(latitude)),
+            URLQueryItem(name: "longitude", value: String(longitude))
+        ]
+        return Endpoint(path: "/places/matching", queryItems: queryItems)
     }
     
-    static func getGlobalMap() -> Endpoint {
-        return Endpoint(path: "/map/global")
-    }
-    
-    static func getFollowingMap() -> Endpoint {
-        return Endpoint(path: "/map/following")
-    }
-
-    static func getSavedPostsMap() -> Endpoint {
-        return Endpoint(path: "/map/saved-posts")
-    }
-    
-    static func getCustomMap() -> Endpoint {
-        return Endpoint(path: "/map/custom")
-    }
-    
-    static func getPlaceIcon(placeId: PlaceId) -> Endpoint {
-        return Endpoint(path: "/places/\(placeId)/icon")
-    }
-    
-    static func getMutualPosts(placeId: PlaceId) -> Endpoint {
-        return Endpoint(path: "/places/\(placeId)/mutualPosts")
-    }
-    
-    static func getGlobalMutualPostsV3(placeId: PlaceId) -> Endpoint {
-        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/global")
-    }
-    
-    static func getFollowingMutualPostsV3(placeId: PlaceId) -> Endpoint {
-        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/following")
-    }
-    
-    static func getSavedPostsMapMutualPostsV3(placeId: PlaceId) -> Endpoint {
-        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/saved-posts")
-    }
-    
-    static func getCustomMutualPostsV3(placeId: PlaceId) -> Endpoint {
-        return Endpoint(path: "/places/\(placeId)/getMutualPostsV3/custom")
+    static func getPlaceDetails(id: PlaceId) -> Endpoint {
+        Endpoint(path: "/places/\(id)/details")
     }
     
     // MARK: Feedback endpoint
@@ -507,123 +471,15 @@ class APIClient: ObservableObject {
     /**
      Get the map for the given user.
      */
-    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
-    func getMap() -> AnyPublisher<[MapPlace], APIError> {
-        return doRequest(endpoint: Endpoint.getMap())
-    }
-    
-    /**
-     Get the map for the given user.
-     */
-    @available(*, deprecated, message: "Use getGlobalMap, getFollowingMap, or getCustomMap")
-    func getMapV2() -> AnyPublisher<MapResponse, APIError> {
-        return doRequest(endpoint: Endpoint.getMapV2())
-    }
-    
-    /**
-     Get the global map.
-     */
-    func getGlobalMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
+    func getMap(request: GetMapRequest) -> AnyPublisher<MapResponse, APIError> {
         return doRequest(
-            endpoint: Endpoint.getGlobalMap(),
+            endpoint: Endpoint.getMap(),
             httpMethod: "POST",
-            body: GetMapRequest(region: region, categories: categories)
-        )
-    }
-    
-    /**
-     Get the map of the current user's following list.
-     */
-    func getFollowingMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
-        return doRequest(
-            endpoint: Endpoint.getFollowingMap(),
-            httpMethod: "POST",
-            body: GetMapRequest(region: region, categories: categories)
-        )
-    }
-    
-    /**
-     Get the map of the current user's saved posts.
-     */
-    func getSavedPostsMap(region: Region, categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
-        return doRequest(
-            endpoint: Endpoint.getSavedPostsMap(),
-            httpMethod: "POST",
-            body: GetMapRequest(region: region, categories: categories)
-        )
-    }
-    
-    /**
-     Get the map of the given users.
-     */
-    func getCustomMap(region: Region, userIds: [String], categories: [String]) -> AnyPublisher<MapResponseV3, APIError> {
-        return doRequest(
-            endpoint: Endpoint.getCustomMap(),
-            httpMethod: "POST",
-            body: CustomMapRequest(region: region, categories: categories, users: userIds)
+            body: request
         )
     }
     
     // MARK: - Get mutual posts
-    
-    /**
-     Get the mutual posts for the given place
-     */
-    @available(*, deprecated, message: "Use V3 endpoint")
-    func getMutualPosts(for placeId: PlaceId) -> AnyPublisher<[Post], APIError> {
-        return doRequest(endpoint: Endpoint.getMutualPosts(placeId: placeId))
-    }
-    
-    /**
-     Get all posts for the given place
-     */
-    func getGlobalMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
-        return doRequest(
-            endpoint: Endpoint.getGlobalMutualPostsV3(placeId: placeId),
-            httpMethod: "POST",
-            body: PlaceLoadRequest(categories: categories)
-        )
-    }
-    
-    /**
-     Get friends' posts for the given place
-     */
-    func getFollowingMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
-        return doRequest(
-            endpoint: Endpoint.getFollowingMutualPostsV3(placeId: placeId),
-            httpMethod: "POST",
-            body: PlaceLoadRequest(categories: categories)
-        )
-    }
-    
-    /**
-     Get all saved posts for the given place
-     */
-    func getSavedPostsMapMutualPostsV3(for placeId: PlaceId, categories: [String]) -> AnyPublisher<[Post], APIError> {
-        return doRequest(
-            endpoint: Endpoint.getSavedPostsMapMutualPostsV3(placeId: placeId),
-            httpMethod: "POST",
-            body: PlaceLoadRequest(categories: categories)
-        )
-    }
-    
-    /**
-     Get the posts for the given place and list of users
-     */
-    func getCustomMutualPostsV3(for placeId: PlaceId, categories: [String], users: [UserId]) -> AnyPublisher<[Post], APIError> {
-        return doRequest(
-            endpoint: Endpoint.getCustomMutualPostsV3(placeId: placeId),
-            httpMethod: "POST",
-            body: CustomPlaceLoadRequest(categories: categories, users: users)
-        )
-    }
-    
-    /**
-     Get the place icon for the given place.
-     */
-    func getPlaceIcon(placeId: PlaceId) -> AnyPublisher<MapPlaceIcon, APIError> {
-        return doRequest(endpoint: Endpoint.getPlaceIcon(placeId: placeId))
-    }
     
     /**
      Get the posts by the given user.
@@ -644,6 +500,19 @@ class APIClient: ObservableObject {
      */
     func getFollowing(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
         doRequest(endpoint: Endpoint.following(username: username, cursor: cursor))
+    }
+    
+    // MARK: - Place endpoints
+    func findPlace(
+        name: String,
+        latitude: Double,
+        longitude: Double
+    ) -> AnyPublisher<FindPlaceResponse, APIError> {
+        doRequest(endpoint: .findPlace(name: name, latitude: latitude, longitude: longitude))
+    }
+    
+    func getPlaceDetails(placeId: PlaceId) -> AnyPublisher<GetPlaceDetailsResponse, APIError> {
+        doRequest(endpoint: .getPlaceDetails(id: placeId))
     }
     
     // MARK: - Relation endpoints
@@ -776,11 +645,6 @@ class APIClient: ObservableObject {
     
     // MARK: - Discover endpoints
     
-    @available(*, deprecated, message: "Use getDiscoverFeed")
-    func getDiscoverFeed() -> AnyPublisher<[Post], APIError> {
-        doRequest(endpoint: Endpoint.discoverFeed())
-    }
-    
     func getDiscoverFeedV2(location: Location? = nil) -> AnyPublisher<FeedResponse, APIError> {
         doRequest(endpoint: Endpoint.discoverFeedV2(location: location))
     }
@@ -877,6 +741,10 @@ class APIClient: ObservableObject {
                     .tryMap(self.urlSessionPublisherHandler)
                     .mapError({ $0 as? APIError ?? APIError.unknownError })
                     .eraseToAnyPublisher()
+            }
+            .mapError { err in
+                print("API error for \(httpMethod) \(url): \(err)")
+                return err
             }
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()

@@ -20,14 +20,18 @@ class GlobalViewState: ObservableObject {
     @Published var shareAction: ShareAction? {
         didSet {
             if shareAction != nil {
-                showShareOverlay = true
+                DispatchQueue.main.async {
+                    self.showShareOverlay = true
+                }
             }
         }
     }
     @Published var showShareOverlay = false {
         didSet {
             if !showShareOverlay {
-                shareAction = nil
+                DispatchQueue.main.async {
+                    self.shareAction = nil
+                }
             }
         }
     }

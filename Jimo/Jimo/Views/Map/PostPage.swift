@@ -56,7 +56,7 @@ struct PostPage: View {
                 Spacer()
                 
                 HStack(spacing: 5) {
-                    MiniPostLikeButton(postViewModel: postViewModel, post: post)
+                    MiniPostLikeButton(postViewModel: postViewModel, initialPost: post)
                         .font(.system(size: 15))
                     Text(String(post.likeCount)).font(.caption)
                     
@@ -69,11 +69,12 @@ struct PostPage: View {
                     
                     Spacer()
                     
-                    MiniPostSaveButton(postViewModel: postViewModel, post: post)
+                    MiniPostSaveButton(postViewModel: postViewModel, initialPost: post)
                         .font(.system(size: 15))
                 }
                 .foregroundColor(Color("foreground"))
             }
+            .frame(height: 120)
             Spacer()
         }
     }
@@ -93,13 +94,24 @@ fileprivate struct MiniPostLikeButton: View {
     
     @ObservedObject var postViewModel: PostVM
     
-    var post: Post
+    var initialPost: Post
+    
+    var post: Post {
+        postViewModel.post ?? initialPost
+    }
     
     private var showFilledHeart: Bool {
         (post.liked || postViewModel.liking) && !postViewModel.unliking
     }
     
     var body: some View {
+        mainBody.onAppear {
+            postViewModel.listen(post: post, onDelete: {})
+        }
+    }
+    
+    @ViewBuilder
+    var mainBody: some View {
         if showFilledHeart {
             Button(action: {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -126,9 +138,20 @@ fileprivate struct MiniPostSaveButton: View {
     
     @ObservedObject var postViewModel: PostVM
     
-    var post: Post
+    var initialPost: Post
+    
+    var post: Post {
+        postViewModel.post ?? initialPost
+    }
     
     var body: some View {
+        mainBody.onAppear {
+            postViewModel.listen(post: initialPost, onDelete: {})
+        }
+    }
+    
+    @ViewBuilder
+    var mainBody: some View {
         if post.saved {
             Button(action: {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
