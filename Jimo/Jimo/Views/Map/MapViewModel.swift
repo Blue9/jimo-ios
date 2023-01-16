@@ -318,6 +318,7 @@ class MapViewModel: RegionWrapperV2 {
         ).sink { completion in
             self.isLoading = false
             if case let .failure(err) = completion {
+                onLoad?(0)
                 print(err)
                 //viewState.setError("Could not load map")
             }
