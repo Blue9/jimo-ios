@@ -77,7 +77,22 @@ class MapViewModel: RegionWrapperV2 {
     override init() {
         self.initializedFromCache = false
         super.init()
-        if let data = UserDefaults.standard.object(forKey: "mapRegion") as? Data,
+        // Only want initialize from cache if we don't have the user's location
+        // If we do have their location we want to open to their location
+        if let location = PermissionManager.shared.getLocation() {
+            self._mkCoordinateRegion = MKCoordinateRegion(
+                center: location.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
+            // This isn't entirely accurate since we don't have the actual map rect available
+            // but it's close enough
+            self.regionToLoad = .init(
+                xMin: location.coordinate.longitude - 0.025,
+                yMin: location.coordinate.latitude - 0.025,
+                xMax: location.coordinate.longitude + 0.025,
+                yMax: location.coordinate.latitude + 0.025
+            )
+        } else if let data = UserDefaults.standard.object(forKey: "mapRegion") as? Data,
            let cache = try? JSONDecoder().decode(RegionCache.self, from: data) {
             self.regionToLoad = cache.rectangularRegion
             self._mkCoordinateRegion = cache.mkCoordinateRegion
@@ -86,20 +101,12 @@ class MapViewModel: RegionWrapperV2 {
     }
     
     func initializeMap(appState: AppState, viewState: GlobalViewState, onLoad: @escaping OnMapLoadCallback) {
-        if initializedFromCache && self.regionToLoad != nil {
+        if self.regionToLoad != nil {
             self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] numPins in
                 onLoad(numPins)
                 self?.listenToRegionChanges(appState: appState, viewState: viewState)
             })
         } else {
-            if let location = PermissionManager.shared.getLocation() {
-                self.setRegion(
-                    MKCoordinateRegion(
-                        center: location.coordinate,
-                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-                    )
-                )
-            }
             self.listenToRegionChanges(appState: appState, viewState: viewState)
         }
         postListener.onPostCreated = { post in
@@ -405,13 +412,13 @@ struct MapPlaceResult: Equatable {
 extension MKMapView {
     func rectangularRegion() -> RectangularRegion {
         let rect = self.convert(self.region, toRectTo: self)
-        let bl = self.convert(CGPoint(x: rect.minX, y: rect.minY), toCoordinateFrom: self)
-        let tr = self.convert(CGPoint(x: rect.maxX, y: rect.maxY), toCoordinateFrom: self)
+        let tl = self.convert(CGPoint(x: rect.minX, y: rect.minY), toCoordinateFrom: self)
+        let br = self.convert(CGPoint(x: rect.maxX, y: rect.maxY), toCoordinateFrom: self)
         return RectangularRegion(
-            xMin: bl.longitude,
-            yMin: bl.latitude,
-            xMax: tr.longitude,
-            yMax: tr.latitude
+            xMin: tl.longitude,
+            yMin: br.latitude,
+            xMax: br.longitude,
+            yMax: tl.latitude
         )
     }
 }

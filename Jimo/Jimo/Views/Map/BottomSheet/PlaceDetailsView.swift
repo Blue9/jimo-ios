@@ -35,15 +35,15 @@ struct PlaceDetailsView: View {
             .padding(.bottom, 10)
             VStack {
                 if result.followingPosts.count > 0 {
-                    PostCarousel(text: "Friends' Posts", posts: result.followingPosts)
+                    PostCarousel(text: "Friends' Posts (\(result.followingPosts.count))", posts: result.followingPosts)
                 }
                 
                 if result.featuredPosts.count > 0 {
-                    PostCarousel(text: "Featured", posts: result.featuredPosts)
+                    PostCarousel(text: "Featured (\(result.featuredPosts.count))", posts: result.featuredPosts)
                 }
                 
                 if result.communityPosts.count > 0 {
-                    PostCarousel(text: "Community", posts: result.communityPosts)
+                    PostCarousel(text: "Community (\(result.communityPosts.count))", posts: result.communityPosts)
                 }
             }
             .padding(.horizontal, 10)
@@ -61,6 +61,9 @@ fileprivate struct CreatePostButton: View {
     
     var body: some View {
         Button {
+            Analytics.track(.mapCreatePostTapped, parameters: [
+                "placeHasPosts": result.details?.hasPosts ?? false
+            ])
             if let place = result.details?.place {
                 createPostVM.selectPlace(place: place)
             } else if let mapItem = result.mkMapItem {

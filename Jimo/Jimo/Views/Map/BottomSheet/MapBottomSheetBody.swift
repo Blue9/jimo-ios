@@ -46,6 +46,7 @@ struct MapBottomSheetBody: View {
             if searching {
                 MapSearchResults(locationSearch: locationSearch) { selectedPlace in
                     DispatchQueue.main.async {
+                        Analytics.track(.mapSearchResultTapped)
                         withAnimation {
                             searchFieldActive = false
                             sheetViewModel.businessSheetPosition = .relative(0.6)
