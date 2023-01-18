@@ -44,7 +44,8 @@ class RegionWrapperV2: ObservableObject {
     /// This is set by JimoMapView whenever the map region completes changing (in the didChange delegate method)
     var visibleMapRect: RectangularRegion?
 
-    /// This is set by us, we periodically check visibleMapRect and once it's stable (meaning the map has stopped moving we set this)
+    /// This is set by us, we periodically check visibleMapRect
+    /// and once it's stable (meaning the map has stopped moving we set this)
     @Published var regionToLoad: RectangularRegion?
 
     func setRegion(_ region: MKCoordinateRegion) {
@@ -138,7 +139,7 @@ class MapViewModel: RegionWrapperV2 {
                     return
                 }
                 if region == previousRegion && region != previouslyLoadedRegion {
-                    print("Region changed, updating regionToLoad")
+                    print("Region changed, updating regionToLoad \(previouslyLoadedRegion) to \(previousRegion)")
                     self.regionToLoad = region
                     if let data = try? JSONEncoder().encode(RegionCache(rectangularRegion: region, mkCoordinateRegion: self._mkCoordinateRegion)) {
                         UserDefaults.standard.set(data, forKey: "mapRegion")

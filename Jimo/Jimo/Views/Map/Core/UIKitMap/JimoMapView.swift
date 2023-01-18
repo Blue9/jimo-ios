@@ -112,6 +112,8 @@ struct JimoMapView: UIViewRepresentable {
                     self.isRecomputingDots = false
                 }
             }
+            // Does not need to be on main because it's not a published var
+            self.mapViewModel.visibleMapRect = mapView.rectangularRegion()
         }
 
         func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
@@ -120,8 +122,6 @@ struct JimoMapView: UIViewRepresentable {
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
             isRegionChanging = false
-            // Does not need to be on main because it's not a published var
-            self.mapViewModel.visibleMapRect = mapView.rectangularRegion()
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -215,18 +215,6 @@ fileprivate extension MKMapView {
     func pinView(for annotation: MKJimoPinAnnotation) -> JimoPinView? {
         return self.view(for: annotation) as? JimoPinView
     }
-
-    func scaleVisibleMapRect(scale s: Double) -> MKMapRect {
-        let p = (1.0 - s) / 2.0
-        let origin = MKMapPoint(
-            x: visibleMapRect.origin.x + visibleMapRect.size.width * p,
-            y: visibleMapRect.origin.y + visibleMapRect.size.height * p
-        )
-        return MKMapRect(
-            origin: origin,
-            size: MKMapSize(width: visibleMapRect.size.width * s, height: visibleMapRect.size.height * s)
-        )
-    }
 }
 
 fileprivate extension RandomAccessCollection {
@@ -264,5 +252,6 @@ fileprivate extension OrderedSet {
 }
 
 private func compare(_ annotation: MKJimoPinAnnotation, isLargerThan annotation2: MKJimoPinAnnotation) -> Bool {
-    return annotation.numPosts > annotation2.numPosts || (annotation.numPosts == annotation2.numPosts && annotation.placeId ?? "" > annotation2.placeId ?? "")
+    return annotation.numPosts > annotation2.numPosts
+    || (annotation.numPosts == annotation2.numPosts && annotation.placeId ?? "" > annotation2.placeId ?? "")
 }

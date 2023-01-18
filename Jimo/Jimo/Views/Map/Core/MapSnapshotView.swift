@@ -29,15 +29,15 @@ class MapSnapshotCacheKey: NSObject {
     }
 
     override func isEqual(_ object: Any?) -> Bool {
-        guard let o = object as? MapSnapshotCacheKey else {
+        guard let key = object as? MapSnapshotCacheKey else {
             return false
         }
-        return place == o.place
-            && category == o.category
-            && profilePictureUrl == o.profilePictureUrl
-            && span == o.span
-            && width == o.width
-            && height == o.height
+        return place == key.place
+            && category == key.category
+            && profilePictureUrl == key.profilePictureUrl
+            && span == key.span
+            && width == key.width
+            && height == key.height
     }
 
     override var hash: Int {

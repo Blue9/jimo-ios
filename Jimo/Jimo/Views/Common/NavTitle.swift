@@ -7,8 +7,15 @@
 
 import SwiftUI
 
-func NavTitle(_ title: String) -> Text {
-    Text(title)
-        .fontWeight(.semibold)
-        .font(.system(size: 18))
+struct NavTitle: View {
+    let title: String
+    init(_ title: String) {
+        self.title = title
+    }
+
+    var body: some View {
+        Text(title)
+            .fontWeight(.semibold)
+            .font(.system(size: 18))
+    }
 }

@@ -91,32 +91,54 @@ struct EditPreferences: View {
 
             Section(header: Text("Danger Zone")) {
                 if #available(iOS 15.0, *) {
-                    Button(action: { showConfirmDelete = true }) {
+                    Button { showConfirmDelete = true } label: {
                         Text("Delete account")
                             .foregroundColor(.red)
                     }
                     .alert("Are you sure?", isPresented: $showConfirmDelete) {
-                        Button("Delete account", role: .destructive, action: { settingsViewModel.deleteAccount(appState: appState, viewState: globalViewState) })
+                        Button("Delete account", role: .destructive, action: {
+                            settingsViewModel.deleteAccount(
+                                appState: appState,
+                                viewState: globalViewState
+                            )
+                        })
+
                         Button("Submit feedback", action: {
                             showConfirmDelete = false
                             showSubmitFeedback = true
                         })
-                        Button("Cancel", role: .cancel, action: { showConfirmDelete = false }).keyboardShortcut(.defaultAction)
+
+                        Button("Cancel", role: .cancel, action: {
+                            showConfirmDelete = false
+                        }).keyboardShortcut(.defaultAction)
                     } message: {
-                        Text("Your account will be immediately deactivated, and all your personal data, including images and posts, will be permanently deleted within the next 24 hours.")
+                        Text("Your account will be immediately deactivated, "
+                             + "and all your personal data, including images and posts, "
+                             + "will be permanently deleted within the next 24 hours.")
                     }
                 } else {
-                    Button(action: { showConfirmDelete = true }) {
+                    Button {
+                        showConfirmDelete = true
+                    } label: {
                         Text("Delete account")
                             .foregroundColor(.red)
                     }
                     .alert(isPresented: $showConfirmDelete) {
                         Alert(
                             title: Text("Are you sure?"),
-                            message: Text("Your account will be immediately deactivated, and all your personal data, including images and posts, will be permanently deleted within the next 24 hours."),
+                            message: Text(
+                                "Your account will be immediately deactivated, "
+                                + "and all your personal data, including images and posts, "
+                                + "will be permanently deleted within the next 24 hours."
+                            ),
                             primaryButton: .destructive(
                                 Text("Delete account"),
-                                action: { settingsViewModel.deleteAccount(appState: appState, viewState: globalViewState) }
+                                action: {
+                                    settingsViewModel.deleteAccount(
+                                        appState: appState,
+                                        viewState: globalViewState
+                                    )
+                                }
                             ),
                             secondaryButton: .cancel())
                     }
@@ -131,9 +153,9 @@ struct EditPreferences: View {
 
     @ViewBuilder
     private func savePreferencesButton(_ type: String) -> some View {
-        Button(action: {
+        Button {
             settingsViewModel.updatePreferences(appState: appState, viewState: globalViewState)
-        }) {
+        } label: {
             Text("Save \(type) preferences").foregroundColor(.blue)
         }
     }

@@ -427,12 +427,12 @@ private struct ProfileButton: View {
     var action: () -> Void
 
     var body: some View {
-        Button(action: {
+        Button {
             if let analyticsEvent = textType.analyticsEvent {
                 Analytics.track(analyticsEvent)
             }
             action()
-        }) {
+        } label: {
             Text(textType.text)
                 .padding(Constants.TEXT_PADDING)
                 .font(Constants.TEXT_FONT)

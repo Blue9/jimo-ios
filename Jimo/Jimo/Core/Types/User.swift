@@ -7,12 +7,12 @@
 
 import Foundation
 
-typealias username = String
+typealias Username = String
 typealias UserId = String
 
 protocol User {
     var id: UserId { get }
-    var username: username { get set }
+    var username: Username { get set }
     var firstName: String { get set }
     var lastName: String { get set }
     var profilePictureUrl: String? { get set }
@@ -32,7 +32,7 @@ struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
         userId
     }
     var userId: UserId
-    var username: username
+    var username: Username
     var firstName: String
     var lastName: String
     var profilePictureUrl: String?

@@ -1,0 +1,11 @@
+identifier_name:
+  allowed_symbols: "_"
+  excluded:
+    - i
+    - id
+    - n
+    - nc
+    - s
+    - q
+disabled_rules:
+  - force_cast
