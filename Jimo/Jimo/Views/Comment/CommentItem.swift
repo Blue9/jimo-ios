@@ -11,15 +11,15 @@ import Combine
 struct CommentItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var commentsViewModel: ViewPostCommentsViewModel
     @StateObject var viewModel = ViewModel()
     @State private var confirmDelete = false
     @State private var relativeTime = ""
-    
+
     let comment: Comment
     let isMyPost: Bool
-    
+
     var canDeleteComment: Bool {
         // True if it is the current user's comment or on the current user's post
         guard case let .user(user) = appState.currentUser else {
@@ -27,15 +27,15 @@ struct CommentItem: View {
         }
         return comment.user.id == user.id || isMyPost
     }
-    
+
     var isHighlighted: Bool {
         comment.commentId == commentsViewModel.highlightedComment?.commentId
     }
-    
+
     var profileView: some View {
         ProfileScreen(initialUser: comment.user)
     }
-    
+
     var profilePicture: some View {
         URLImage(url: comment.user.profilePictureUrl,
                  loading: Image(systemName: "person.crop.circle").resizable())
@@ -47,17 +47,17 @@ struct CommentItem: View {
             .padding(.leading, 5)
             .padding(.top, 10)
     }
-    
+
     var body: some View {
         HStack(alignment: .center) {
             VStack {
                 NavigationLink(destination: profileView) {
                     profilePicture
                 }
-                
+
                 Spacer()
             }
-            
+
             VStack(alignment: .leading) {
                 NavigationLink(destination: profileView) {
                     Text(comment.user.username.lowercased())
@@ -65,15 +65,15 @@ struct CommentItem: View {
                         .bold()
                         .foregroundColor(Color("foreground"))
                 }
-                
+
                 Spacer().frame(height: 3)
-                
+
                 Text(comment.content)
                     .font(.system(size: 12))
                     .foregroundColor(Color("foreground"))
-                
+
                 Spacer().frame(height: 2)
-                
+
                 Text(relativeTime)
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -82,13 +82,13 @@ struct CommentItem: View {
                             relativeTime = appState.relativeTime(for: comment.createdAt)
                         }
                     })
-                
+
                 Spacer().frame(height: 2)
             }
             .padding(.vertical, 5)
-            
+
             Spacer()
-            
+
             VStack {
                 Spacer().frame(height: 18)
                 CommentItemLikeButton(viewModel: viewModel, comment: comment)
@@ -118,18 +118,18 @@ struct CommentItem: View {
     }
 }
 
-fileprivate struct CommentItemLikeButton: View {
+private struct CommentItemLikeButton: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var viewModel: CommentItem.ViewModel
-    
+
     let comment: Comment
-    
+
     private var likeCount: Int {
         comment.likeCount
     }
-    
+
     var body: some View {
         VStack {
             if comment.liked {
@@ -161,7 +161,7 @@ fileprivate struct CommentItemLikeButton: View {
                 }
                 .disabled(viewModel.likingComment)
             }
-            
+
             Text(String(likeCount))
                 .font(.system(size: 12))
                 .foregroundColor(Color("foreground"))
@@ -174,7 +174,7 @@ extension CommentItem {
     class ViewModel: ObservableObject {
         @Published var likingComment = false
         var cancellable: AnyCancellable?
-        
+
         func likeComment(
             appState: AppState,
             globalViewState: GlobalViewState,
@@ -184,12 +184,12 @@ extension CommentItem {
             cancellable = appState.likeComment(commentId: commentId)
                 .sink { [weak self] completion in
                     self?.likingComment = false
-                    if case .failure(_) = completion {
+                    if case .failure = completion {
                         globalViewState.setError("Could not like comment")
                     }
                 } receiveValue: { _ in }
         }
-        
+
         func unlikeComment(
             appState: AppState,
             globalViewState: GlobalViewState,
@@ -199,7 +199,7 @@ extension CommentItem {
             cancellable = appState.unlikeComment(commentId: commentId)
                 .sink { [weak self] completion in
                     self?.likingComment = false
-                    if case .failure(_) = completion {
+                    if case .failure = completion {
                         globalViewState.setError("Could not unlike comment")
                     }
                 } receiveValue: { _ in }

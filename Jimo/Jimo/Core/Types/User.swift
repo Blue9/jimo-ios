@@ -7,12 +7,12 @@
 
 import Foundation
 
-typealias username = String
+typealias Username = String
 typealias UserId = String
 
 protocol User {
     var id: UserId { get }
-    var username: username { get set }
+    var username: Username { get set }
     var firstName: String { get set }
     var lastName: String { get set }
     var profilePictureUrl: String? { get set }
@@ -32,19 +32,18 @@ struct PublicUser: User, Codable, Identifiable, Equatable, Hashable {
         userId
     }
     var userId: UserId
-    var username: username
+    var username: Username
     var firstName: String
     var lastName: String
     var profilePictureUrl: String?
     var postCount: Int
     var followerCount: Int
     var followingCount: Int
-    
+
     var fullName: String {
         "\(firstName) \(lastName)"
     }
 }
-
 
 struct UserPreferences: Codable {
     var followNotifications: Bool
@@ -55,19 +54,16 @@ struct UserPreferences: Codable {
     var searchableByPhoneNumber: Bool
 }
 
-
 struct CreateUserRequest: Codable {
     var username: String
     var firstName: String
     var lastName: String
 }
 
-
 struct CreateUserResponse: Codable {
     var created: PublicUser?
     var error: UserFieldError?
 }
-
 
 struct UpdateProfileRequest: Codable {
     var profilePictureId: ImageId?
@@ -76,12 +72,10 @@ struct UpdateProfileRequest: Codable {
     var lastName: String
 }
 
-
 struct UpdateProfileResponse: Codable {
     var user: PublicUser?
     var error: UserFieldError?
 }
-
 
 struct UserFieldError: Codable {
     var uid: String?
@@ -91,12 +85,10 @@ struct UserFieldError: Codable {
     var other: String?
 }
 
-
 struct FollowUserResponse: Codable {
     var followed: Bool
     var followers: Int?
 }
-
 
 struct FollowFeedItem: Identifiable, Codable, Hashable {
     var id: String {
@@ -106,12 +98,10 @@ struct FollowFeedItem: Identifiable, Codable, Hashable {
     var relation: UserRelation?
 }
 
-
 struct FollowFeedResponse: Codable {
     var users: [FollowFeedItem]
     var cursor: String?
 }
-
 
 struct SuggestedUserItem: Identifiable, Codable, Hashable {
     var id: String {
@@ -121,11 +111,9 @@ struct SuggestedUserItem: Identifiable, Codable, Hashable {
     var numMutualFriends: Int
 }
 
-
 struct SuggestedUsersResponse: Codable {
     var users: [SuggestedUserItem]
 }
-
 
 enum UserRelation: String, Codable {
     case following, blocked
@@ -135,23 +123,19 @@ struct RelationToUser: Codable {
     var relation: UserRelation?
 }
 
-
 struct InviteUserRequest: Codable {
     var phoneNumber: String
 }
-
 
 struct UserInviteStatus: Codable {
     var invited: Bool
     var message: String?
 }
 
-
 struct UserWaitlistStatus: Codable {
     var invited: Bool
     var waitlisted: Bool
 }
-
 
 struct PhoneNumbersRequest: Codable {
     var phoneNumbers: [String]

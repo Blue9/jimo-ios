@@ -14,17 +14,17 @@ struct CustomUserFilter: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @ObservedObject var viewModel: UserFilterViewModel
-    
+
     @FocusState private var isSearchFocused: Bool
-    
-    var onSubmit: (Set<UserId>) -> ()
-    
+
+    var onSubmit: (Set<UserId>) -> Void
+
     private func userMatchesFilter(user: PublicUser, text: String) -> Bool {
         user.firstName.lowercased().starts(with: text)
         || user.lastName.lowercased().starts(with: text)
         || user.username.lowercased().starts(with: text)
     }
-    
+
     var filteredUsers: [PublicUser] {
         guard case let .user(currentUser) = appState.currentUser else {
             return []
@@ -49,12 +49,12 @@ struct CustomUserFilter: View {
                 }
             }
     }
-    
+
     var userSearchResultsWithoutExistingUsers: [PublicUser] {
         let allUserIds = Set(viewModel.loadedUsers.keys)
         return viewModel.userSearchResults.filter({ !allUserIds.contains($0.id) })
     }
-    
+
     var userFilterBody: some View {
         VStack(spacing: 0) {
             VStack(spacing: 10) {
@@ -67,7 +67,7 @@ struct CustomUserFilter: View {
                     }
                     .padding(.bottom)
                 }
-                
+
                 if userSearchResultsWithoutExistingUsers.count > 0 {
                     Text(viewModel.loadedUsers.isEmpty ? "Suggested" : "More people")
                         .font(.system(size: 15, weight: .medium))
@@ -83,7 +83,7 @@ struct CustomUserFilter: View {
         }
         .font(.system(size: 15))
     }
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -92,7 +92,7 @@ struct CustomUserFilter: View {
                     isActive: $isSearchFocused,
                     onCommit: {}
                 ).padding(.horizontal, 10)
-                
+
                 userFilterBody
                     .padding(.horizontal, 10)
                     .onAppear {
@@ -105,7 +105,7 @@ struct CustomUserFilter: View {
                 ToolbarItem(placement: .principal) {
                     NavTitle("Custom")
                 }
-                
+
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         self.dismiss()
@@ -113,7 +113,7 @@ struct CustomUserFilter: View {
                         Image(systemName: "xmark").foregroundColor(Color("foreground"))
                     }
                 }
-                
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         self.onSubmit(self.viewModel.selectedUsers)
@@ -127,21 +127,21 @@ struct CustomUserFilter: View {
     }
 }
 
-fileprivate struct SelectableUser: View {
+private struct SelectableUser: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var viewModel: UserFilterViewModel
-    
+
     var user: PublicUser
-    
+
     var isCurrentUser: Bool {
         if case let .user(currentUser) = appState.currentUser {
             return currentUser.id == user.id
         }
         return false
     }
-    
+
     @ViewBuilder var profilePicture: some View {
         ZStack {
             URLImage(
@@ -154,11 +154,11 @@ fileprivate struct SelectableUser: View {
             .cornerRadius(20)
         }
     }
-    
+
     var body: some View {
         HStack {
             profilePicture
-            
+
             if isCurrentUser {
                 Text("Me")
                     .font(.system(size: 15))
@@ -172,16 +172,16 @@ fileprivate struct SelectableUser: View {
                         .bold()
                         .minimumScaleFactor(0.8)
                         .lineLimit(1)
-                    
+
                     Text("\(user.firstName) \(user.lastName)")
                         .font(.system(size: 15))
                         .minimumScaleFactor(0.8)
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
-            
+
             CircularCheckbox(selected: viewModel.isSelected(userId: user.id))
         }
         .contentShape(Rectangle())
@@ -193,20 +193,20 @@ fileprivate struct SelectableUser: View {
 
 class UserFilterViewModel: ObservableObject {
     private var cancelBag: Set<AnyCancellable> = []
-    
+
     @Published var query = ""
     @Published var loadedUsers: [UserId: PublicUser] = [:]
     @Published var selectedUsers: Set<UserId> = []
     @Published var userSearchResults: [PublicUser] = []
-    
+
     func isSelected(userId: UserId) -> Bool {
         selectedUsers.contains(userId)
     }
-    
+
     func sortUsersHelper(_ user1: PublicUser, _ user2: PublicUser) -> Bool {
         user1.username.caseInsensitiveCompare(user2.username) == .orderedAscending
     }
-    
+
     func toggleUser(user: PublicUser) {
         if selectedUsers.contains(user.id) {
             selectedUsers.remove(user.id)
@@ -214,7 +214,7 @@ class UserFilterViewModel: ObservableObject {
             selectedUsers.insert(user.id)
         }
     }
-    
+
     func listenToSearchQuery(appState: AppState, viewState: GlobalViewState) {
         $query
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
@@ -223,7 +223,7 @@ class UserFilterViewModel: ObservableObject {
             }
             .store(in: &cancelBag)
     }
-    
+
     private func search(appState: AppState, query: String) {
         appState.searchUsers(query: query)
             .catch { error -> AnyPublisher<[PublicUser], Never> in
@@ -240,13 +240,13 @@ class UserFilterViewModel: ObservableObject {
     }
 }
 
-fileprivate struct CircularCheckbox: View {
+private struct CircularCheckbox: View {
     var selected: Bool
-    
+
     var imageName: String {
         selected ? "checkmark.circle.fill" : "circle"
     }
-    
+
     var body: some View {
         Image(systemName: imageName)
             .font(.system(size: 30, weight: .light))

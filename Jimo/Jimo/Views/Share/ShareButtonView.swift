@@ -12,7 +12,7 @@ struct ShareButtonView: View {
     @EnvironmentObject var viewState: GlobalViewState
     var shareAction: ShareAction
     var size: CGFloat = 25
-    
+
     var body: some View {
         Button {
             viewState.showShareOverlay(for: shareAction)
@@ -33,7 +33,7 @@ struct ShareButtonView: View {
 
 enum ShareAction: Identifiable, Equatable {
     case profile(User), post(Post)
-    
+
     var id: String {
         switch self {
         case .profile(let user):
@@ -42,7 +42,7 @@ enum ShareAction: Identifiable, Equatable {
             return post.id
         }
     }
-    
+
     var url: URL {
         switch self {
         case .profile(let user):
@@ -51,7 +51,7 @@ enum ShareAction: Identifiable, Equatable {
             return post.postUrl
         }
     }
-    
+
     var name: String {
         switch self {
         case .profile(let user):
@@ -60,7 +60,7 @@ enum ShareAction: Identifiable, Equatable {
             return post.place.name
         }
     }
-    
+
     var presentedEvent: AnalyticsName {
         switch self {
         case .profile:
@@ -69,7 +69,7 @@ enum ShareAction: Identifiable, Equatable {
             return .sharePostPresented
         }
     }
-    
+
     var completedEvent: AnalyticsName {
         switch self {
         case .profile:
@@ -78,7 +78,7 @@ enum ShareAction: Identifiable, Equatable {
             return .sharePostCompleted
         }
     }
-    
+
     var cancelledEvent: AnalyticsName {
         switch self {
         case .profile:
@@ -87,7 +87,7 @@ enum ShareAction: Identifiable, Equatable {
             return .sharePostCancelled
         }
     }
-    
+
     static func == (lhs: ShareAction, rhs: ShareAction) -> Bool {
         lhs.id == rhs.id
     }

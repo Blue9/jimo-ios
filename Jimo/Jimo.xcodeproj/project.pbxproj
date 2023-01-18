@@ -823,6 +823,7 @@
 			buildConfigurationList = C75C2F0025561309009B6ADA /* Build configuration list for PBXNativeTarget "Jimo" */;
 			buildPhases = (
 				C75C2ED725561309009B6ADA /* Sources */,
+				C7F1EF3A2978675D009806F8 /* ShellScript */,
 				C75C2ED825561309009B6ADA /* Frameworks */,
 				C75C2ED925561309009B6ADA /* Resources */,
 				C750AB2225DA61FF00049D6D /* ShellScript */,
@@ -984,6 +985,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\n";
+		};
+		C7F1EF3A2978675D009806F8 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint --fix && swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

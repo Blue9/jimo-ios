@@ -15,17 +15,17 @@ enum FollowType {
 
 class FollowFeedVM: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published var feedItems: [FollowFeedItem] = []
     @Published var loadingMoreFollows = false
 
     private var cancellable: Cancellable?
     private var cursor: String?
-    
+
     init() {
         nc.addObserver(self, selector: #selector(userRelationChanged), name: UserPublisher.userRelationChanged, object: nil)
     }
-    
+
     @objc private func userRelationChanged(notification: Notification) {
         let payload = notification.object as! UserRelationPayload
         let feedIndex = feedItems.indices.first(where: { feedItems[$0].user.username == payload.username })
@@ -33,7 +33,7 @@ class FollowFeedVM: ObservableObject {
             feedItems[i].relation = payload.relation
         }
     }
-    
+
     func refreshFollows(
         type: FollowType,
         for username: String,
@@ -54,7 +54,7 @@ class FollowFeedVM: ObservableObject {
                 self?.cursor = response.cursor
             })
     }
-    
+
     func loadMoreFollows(type: FollowType, for username: String, appState: AppState, viewState: GlobalViewState) {
         guard cursor != nil else {
             return
@@ -73,7 +73,7 @@ class FollowFeedVM: ObservableObject {
                 self?.cursor = response.cursor
             })
     }
-    
+
     func callApi(
         appState: AppState,
         type: FollowType,
@@ -90,7 +90,7 @@ class FollowFeedVM: ObservableObject {
 
 class FollowFeedItemVM: ObservableObject {
     private var relationCancellable: AnyCancellable?
-    
+
     func followUser(appState: AppState, viewState: GlobalViewState, item: FollowFeedItem) {
         relationCancellable = appState.followUser(username: item.user.username)
             .sink(receiveCompletion: { completion in
@@ -110,7 +110,7 @@ class FollowFeedItemVM: ObservableObject {
                 }
             }, receiveValue: { _ in })
     }
-    
+
     func unblockUser(appState: AppState, viewState: GlobalViewState, item: FollowFeedItem) {
         relationCancellable = appState.unblockUser(username: item.user.username)
             .sink(receiveCompletion: { completion in
@@ -124,11 +124,11 @@ class FollowFeedItemVM: ObservableObject {
 
 struct FollowFeedItemButton: View {
     @Environment(\.colorScheme) var colorScheme
-    let action: () -> ()
+    let action: () -> Void
     let text: String
     let background: Color
     let foreground: Color
-    
+
     var body: some View {
         Button(action: {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -151,19 +151,19 @@ struct FollowFeedItemButton: View {
 struct FollowFeedItemView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @StateObject var followFeedItemVM = FollowFeedItemVM()
-    
+
     let item: FollowFeedItem
     let defaultProfileImage = Image(systemName: "person.crop.circle")
-    
+
     var isCurrentUser: Bool {
         guard case let .user(currentUser) = appState.currentUser else {
             return false
         }
         return item.user.username == currentUser.username
     }
-    
+
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultProfileImage)
             .frame(width: 40, height: 40, alignment: .center)
@@ -172,11 +172,11 @@ struct FollowFeedItemView: View {
             .background(Color.white)
             .cornerRadius(50)
     }
-    
+
     @ViewBuilder var destinationView: some View {
         ProfileScreen(initialUser: item.user)
     }
-    
+
     @ViewBuilder var followItemButton: some View {
         if item.relation == .following {
             FollowFeedItemButton(
@@ -212,7 +212,7 @@ struct FollowFeedItemView: View {
         NavigationLink(destination: destinationView) {
             HStack {
                 profilePicture(user: item.user)
-                
+
                 VStack(alignment: .leading) {
                     Text(item.user.username)
                         .font(.system(size: 14))
@@ -221,10 +221,10 @@ struct FollowFeedItemView: View {
                         .lineLimit(1)
                         .font(.system(size: 12))
                 }
-                
+
                 Spacer()
-                
-                if (!isCurrentUser) {
+
+                if !isCurrentUser {
                     followItemButton
                 }
             }
@@ -233,18 +233,17 @@ struct FollowFeedItemView: View {
     }
 }
 
-
 struct FollowFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @StateObject var followFeedVM = FollowFeedVM()
     @State private var initialized = false
-    
+
     let navTitle: String
     let type: FollowType
     let username: String
-    
+
     var body: some View {
         RefreshableScrollView {
             ForEach(followFeedVM.feedItems) { item in

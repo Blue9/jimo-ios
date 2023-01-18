@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-fileprivate enum FeedType: Equatable {
+private enum FeedType: Equatable {
     case following, forYou
 }
 
@@ -18,24 +18,24 @@ struct Feed: View {
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var feedViewModel = ViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
-    
+
     @State private var feedType: FeedType = .following
     @State private var showFindFriendsSheet = false
     @State private var showEnableLocationButton = false
-    
-    var onCreatePostTap: () -> ()
-    
+
+    var onCreatePostTap: () -> Void
+
     private let columns: [GridItem] = [
         GridItem(.fixed(UIScreen.main.bounds.width), spacing: 0)
     ]
-    
+
     private func loadMore() {
         if feedViewModel.loadingMorePosts {
             return
         }
         feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
     }
-    
+
     var body: some View {
         Group {
             if !feedViewModel.initialized {
@@ -94,16 +94,16 @@ struct Feed: View {
         .onAppear {
             showEnableLocationButton = PermissionManager.shared.getLocation() == nil
         }
-        .onChange(of: scenePhase) { newPhase in
+        .onChange(of: scenePhase) { _ in
             showEnableLocationButton = PermissionManager.shared.getLocation() == nil
         }
     }
-    
+
     var initializedFeed: some View {
         RefreshableScrollView {
             FindFriendsButton(showFindFriendsSheet: $showFindFriendsSheet)
                 .padding(.bottom, 10)
-            
+
             ForEach(feedViewModel.feed) { post in
                 FeedItem(post: post)
             }
@@ -113,14 +113,14 @@ struct Feed: View {
             feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
         }
     }
-    
+
     var forYouFeed: some View {
         RefreshableScrollView {
             if showEnableLocationButton {
                 EnableLocationButton()
                     .padding(.bottom, 10)
             }
-            
+
             ForEach(discoverViewModel.posts) { post in
                 FeedItem(post: post)
             }
@@ -133,16 +133,16 @@ struct Feed: View {
 extension Feed {
     class ViewModel: ObservableObject {
         let nc = NotificationCenter.default
-        
+
         @Published var feed: [Post] = []
         @Published var initialized = false
         @Published var loadingMorePosts = false
-        
+
         var cursor: String?
-        
+
         var refreshFeedCancellable: AnyCancellable?
         var listenToFeedCancellable: AnyCancellable?
-        
+
         init() {
             nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
             nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
@@ -150,19 +150,19 @@ extension Feed {
             nc.addObserver(self, selector: #selector(postSaved), name: PostPublisher.postSaved, object: nil)
             nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
         }
-        
+
         @objc private func postCreated(notification: Notification) {
             let post = notification.object as! Post
             feed.insert(post, at: 0)
         }
-        
+
         @objc private func postUpdated(notification: Notification) {
             let post = notification.object as! Post
             if let i = feed.indices.first(where: { feed[$0].postId == post.postId }) {
                 feed[i] = post
             }
         }
-        
+
         @objc private func postLiked(notification: Notification) {
             let like = notification.object as! PostLikePayload
             let postIndex = feed.indices.first(where: { feed[$0].postId == like.postId })
@@ -171,7 +171,7 @@ extension Feed {
                 feed[i].liked = like.liked
             }
         }
-        
+
         @objc private func postSaved(notification: Notification) {
             let save = notification.object as! PostSavePayload
             let postIndex = feed.indices.first(where: { feed[$0].postId == save.postId })
@@ -179,12 +179,12 @@ extension Feed {
                 feed[i].saved = save.saved
             }
         }
-        
+
         @objc private func postDeleted(notification: Notification) {
             let postId = notification.object as! PostId
             feed.removeAll(where: { $0.postId == postId })
         }
-        
+
         func refreshFeed(appState: AppState, globalViewState: GlobalViewState, onFinish: OnFinish? = nil) {
             refreshFeedCancellable = appState.refreshFeed()
                 .sink(receiveCompletion: { [weak self] completion in
@@ -205,7 +205,7 @@ extension Feed {
                     self?.initialized = true
                 })
         }
-        
+
         func loadMorePosts(appState: AppState, globalViewState: GlobalViewState) {
             guard let cursor = cursor, !loadingMorePosts else {
                 return
@@ -231,9 +231,9 @@ extension Feed {
 
 }
 
-fileprivate struct FindFriendsButton: View {
+private struct FindFriendsButton: View {
     @Binding var showFindFriendsSheet: Bool
-    
+
     var body: some View {
         Button(action: {
             Analytics.track(.feedFindFriendsTapped)
@@ -252,8 +252,7 @@ fileprivate struct FindFriendsButton: View {
     }
 }
 
-
-fileprivate struct EnableLocationButton: View {
+private struct EnableLocationButton: View {
     var body: some View {
         Button(action: {
             PermissionManager.shared.requestLocation()

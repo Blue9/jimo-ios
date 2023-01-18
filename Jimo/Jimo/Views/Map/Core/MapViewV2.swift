@@ -13,14 +13,14 @@ import SwiftUIPager
 class SheetPositionViewModel: ObservableObject {
     @Published var bottomSheetPosition: BottomSheetPosition = .relative(MapSheetPosition.bottom.rawValue)
     @Published var businessSheetPosition: BottomSheetPosition = .hidden
-    
+
     func showBusinessSheet() {
         DispatchQueue.main.async {
             self.businessSheetPosition = .relative(0.6)
             self.bottomSheetPosition = .hidden
         }
     }
-    
+
     func showSearchSheet(_ position: MapSheetPosition? = nil) {
         DispatchQueue.main.async {
             self.bottomSheetPosition = .relative(position?.rawValue ?? MapSheetPosition.middle.rawValue)
@@ -32,13 +32,13 @@ class SheetPositionViewModel: ObservableObject {
 struct MapViewV2: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @StateObject var mapViewModel = MapViewModel()
     @StateObject var locationSearch = LocationSearch()
     @StateObject var sheetViewModel = SheetPositionViewModel()
-    
+
     @State private var initialized = false
-    
+
     var body: some View {
         BaseMapViewV2(mapViewModel: mapViewModel, locationSearch: locationSearch, sheetViewModel: sheetViewModel)
             .appear {
@@ -59,15 +59,15 @@ struct MapViewV2: View {
 struct BaseMapViewV2: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @ObservedObject var mapViewModel: MapViewModel
     @ObservedObject var locationSearch: LocationSearch
     @ObservedObject var sheetViewModel: SheetPositionViewModel
-    
+
     @StateObject private var userFilterViewModel = UserFilterViewModel()
-    
+
     @FocusState private var searchFieldActive: Bool
-    
+
     @ViewBuilder var mapOverlay: some View {
         VStack(spacing: 0) {
             HStack {
@@ -81,7 +81,7 @@ struct BaseMapViewV2: View {
             Spacer()
         }
     }
-    
+
     @ViewBuilder var mapBody: some View {
         JimoMapView(
             mapViewModel: mapViewModel,
@@ -142,7 +142,7 @@ struct BaseMapViewV2: View {
         .customAnimation(.spring(response: 0.24, dampingFraction: 0.75, blendDuration: 0.1))
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
-    
+
     var body: some View {
         mapBody
             .bottomSheet(

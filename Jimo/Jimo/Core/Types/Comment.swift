@@ -22,12 +22,10 @@ struct Comment: Codable, Hashable, Equatable, Identifiable {
     var liked: Bool
 }
 
-
 struct CommentPage: Codable {
     var comments: [Comment]
     var cursor: String?
 }
-
 
 struct CreateCommentRequest: Codable {
     var postId: PostId

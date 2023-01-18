@@ -7,26 +7,23 @@
 
 import Foundation
 
-typealias OnFinish = () -> ()
-typealias OnRefresh = (@escaping OnFinish) -> ()
-typealias OnLoadMore = () -> ()
+typealias OnFinish = () -> Void
+typealias OnRefresh = (@escaping OnFinish) -> Void
+typealias OnLoadMore = () -> Void
 
 struct FirebaseUser {
     var uid: String
     var phoneNumber: String?
 }
 
-
 struct NotificationTokenRequest: Codable {
     var token: String
 }
-
 
 struct FeedbackRequest: Codable {
     var contents: String
     var followUp: Bool
 }
-
 
 struct SimpleResponse: Codable {
     var success: Bool

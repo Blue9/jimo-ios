@@ -11,9 +11,9 @@ struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.colorScheme) var colorScheme
-    
+
     @StateObject var networkMonitor = NetworkConnectionMonitor()
-    
+
     var body: some View {
         ZStack {
             if case .loading = appState.firebaseSession {

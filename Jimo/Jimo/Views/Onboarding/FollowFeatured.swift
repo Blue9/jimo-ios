@@ -9,15 +9,15 @@ import SwiftUI
 
 struct FollowFeatured: View {
     @EnvironmentObject var appState: AppState
-    
+
     @ObservedObject var onboardingModel: OnboardingModel
     @StateObject private var featuredUserStore = FeaturedUserStore()
-    
+
     @ViewBuilder var viewBody: some View {
         VStack {
             HStack {
                 Spacer()
-                
+
                 Text("Skip")
                     .foregroundColor(.gray)
                     .onTapGesture {
@@ -26,12 +26,12 @@ struct FollowFeatured: View {
             }
             .padding(.vertical, 10)
             .padding(.horizontal, 30)
-            
+
             Text("Featured Jimo Users")
                 .font(.system(size: 24))
-            
+
             Spacer()
-            
+
             if featuredUserStore.loadingSuggestedUsers {
                 ProgressView()
             } else if featuredUserStore.loadingSuggestedUsersError != nil {
@@ -47,7 +47,7 @@ struct FollowFeatured: View {
             } else {
                 UserList(userStore: featuredUserStore)
             }
-            
+
             Spacer()
         }
         .padding(.bottom, 100)
@@ -56,7 +56,7 @@ struct FollowFeatured: View {
         }
         .background(Color("background").edgesIgnoringSafeArea(.all))
     }
-    
+
     var body: some View {
         VStack {
             ZStack {

@@ -29,12 +29,12 @@ class LocationSearch: NSObject, ObservableObject, MKLocalSearchCompleterDelegate
     @Published var completions: [MKLocalSearchCompletion] = []
     @Published var startedSearching = false
     @Published var mkSearchResults: [MKMapItem] = []
-    
+
     @Published var searchState: SearchState = .autocomplete
-    
+
     var completer: MKLocalSearchCompleter
     var cancellable: AnyCancellable?
-    
+
     override init() {
         self.completer = MKLocalSearchCompleter()
         super.init()
@@ -42,18 +42,18 @@ class LocationSearch: NSObject, ObservableObject, MKLocalSearchCompleterDelegate
         completer.delegate = self
         cancellable = $searchQuery.assign(to: \.queryFragment, on: self.completer)
     }
-    
+
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         self.completions = completer.results
         self.startedSearching = true
     }
-    
+
     func search() {
         self.searchState = .search
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = searchQuery
         let search = MKLocalSearch(request: request)
-        search.start { (response, _error) in
+        search.start { (response, _) in
             let places = response?.mapItems
             if let places = places {
                 self.mkSearchResults = places

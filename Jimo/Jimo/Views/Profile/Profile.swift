@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-fileprivate enum NavigationDestination: Identifiable {
+private enum NavigationDestination: Identifiable {
     case savedPosts, editProfile, submitFeedback
-    
+
     var id: String {
         switch self {
         case .savedPosts:
@@ -20,7 +20,7 @@ fileprivate enum NavigationDestination: Identifiable {
             return "submitFeedback"
         }
     }
-    
+
     @ViewBuilder
     func destinationView() -> some View {
         switch self {
@@ -38,22 +38,22 @@ struct Profile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var profileVM = ProfileVM()
-    
+
     let initialUser: User
     private let columns: [GridItem] = [
         GridItem(.flexible(minimum: 50), spacing: 2),
         GridItem(.flexible(minimum: 50), spacing: 2),
         GridItem(.flexible(minimum: 50), spacing: 2)
     ]
-    
+
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
     @State private var navigationDestination: NavigationDestination?
-    
+
     var username: String {
         initialUser.username
     }
-    
+
     @ViewBuilder
     private func destinationView(for destination: NavigationDestination?) -> some View {
         if let destination = destination {
@@ -62,7 +62,7 @@ struct Profile: View {
             EmptyView().onAppear { self.navigationDestination = nil }
         }
     }
-    
+
     var profileGrid: some View {
         RefreshableScrollView(spacing: 0) {
             ProfileHeaderView(
@@ -70,7 +70,7 @@ struct Profile: View {
                 navigationDestination: $navigationDestination,
                 initialUser: initialUser
             ).padding(.bottom, 10)
-            
+
             LazyVGrid(columns: columns, spacing: 2) {
                 ForEach(profileVM.posts) { post in
                     NavigationLink(destination: ViewPost(initialPost: post)) {
@@ -86,7 +86,7 @@ struct Profile: View {
         .font(.system(size: 15))
         .navigation(item: $navigationDestination, destination: destinationView)
     }
-    
+
     var body: some View {
         profileGrid
             .appear {
@@ -145,7 +145,7 @@ struct Profile: View {
 
 struct ProfileScreen: View {
     var initialUser: User
-    
+
     var body: some View {
         Profile(initialUser: initialUser)
             .background(Color("background"))
@@ -159,25 +159,25 @@ struct ProfileScreen: View {
 struct ProfileHeaderView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var profileVM: ProfileVM
-    
+
     @State private var showCreatePostView = false
-    
+
     @Binding fileprivate var navigationDestination: NavigationDestination?
-    
+
     let initialUser: User
-    
+
     var user: User {
         profileVM.user ?? initialUser
     }
-    
+
     let defaultImage: Image = Image(systemName: "person.crop.circle")
-    
+
     var name: String {
         user.firstName + " " + user.lastName
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
@@ -191,7 +191,7 @@ struct ProfileHeaderView: View {
                     .padding(.trailing)
                 ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
             }.padding(.leading, 20)
-            
+
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(user.username)
@@ -207,11 +207,11 @@ struct ProfileHeaderView: View {
                 .foregroundColor(Color("foreground"))
                 .frame(width: 120, alignment: .topLeading)
                 .frame(minHeight: 40)
-                
+
                 Spacer()
-                
+
                 ProfileActionButtonView(profileVM: profileVM, initialUser: initialUser)
-                
+
                 // Cannot share blocked user profile
                 if profileVM.relationToUser != .blocked {
                     ShareButtonView(shareAction: .profile(user))
@@ -219,7 +219,7 @@ struct ProfileHeaderView: View {
                         .padding(.horizontal)
                 }
             }.padding(.leading, 20)
-            
+
             if profileVM.isCurrentUser(appState: appState, username: user.username) {
                 currentUserHeader
                     .padding(.top)
@@ -227,7 +227,7 @@ struct ProfileHeaderView: View {
         }
         .background(Color("background"))
     }
-    
+
     @ViewBuilder
     fileprivate func headerButtonText(
         _ dest: NavigationDestination,
@@ -253,7 +253,7 @@ struct ProfileHeaderView: View {
             .cornerRadius(2)
         }
     }
-    
+
     @ViewBuilder
     var currentUserHeader: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -270,18 +270,18 @@ struct ProfileHeaderView: View {
 struct ProfileStatsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @ObservedObject var profileVM: ProfileVM
-    
+
     let initialUser: User
-    
+
     @State private var showFollowers = false
     @State private var showFollowing = false
-    
+
     var user: User {
         profileVM.user ?? initialUser
     }
-    
+
     var body: some View {
         HStack {
             VStack {
@@ -291,7 +291,7 @@ struct ProfileStatsView: View {
             .padding(.leading, 15)
             .padding(.trailing, 10)
             Spacer()
-            
+
             Button(action: { showFollowers.toggle() }) {
                 VStack {
                     Text(user.followerCount.kFormatted).bold()
@@ -300,8 +300,8 @@ struct ProfileStatsView: View {
             }
             .padding(.trailing, 10)
             Spacer()
-            
-            Button(action: { showFollowing.toggle()} ) {
+
+            Button(action: { showFollowing.toggle()}) {
                 VStack {
                     Text(user.followingCount.kFormatted).bold()
                     Text("Following")
@@ -328,20 +328,20 @@ struct ProfileActionButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
-    
+
     let initialUser: User
-    
+
     var user: User {
         profileVM.user ?? initialUser
     }
-    
+
     var isCurrentUser: Bool {
         guard case let .user(currentUser) = appState.currentUser else {
             return false
         }
         return user.username == currentUser.username
     }
-    
+
     var body: some View {
         VStack {
             if isCurrentUser {
@@ -382,9 +382,9 @@ struct ProfileActionButtonView: View {
     }
 }
 
-fileprivate enum TextType {
+private enum TextType {
     case follow, unfollow, unblock, loading, search
-    
+
     var text: String {
         switch self {
         case .follow: return "Follow"
@@ -394,7 +394,7 @@ fileprivate enum TextType {
         case .search: return "Find People"
         }
     }
-    
+
     var analyticsEvent: AnalyticsName? {
         switch self {
         case .follow: return .userFollowed
@@ -404,7 +404,7 @@ fileprivate enum TextType {
         case .search: return .findFriendsTapped
         }
     }
-    
+
     var backgroundColor: Color {
         switch self {
         case .loading, .unfollow: return .white
@@ -412,27 +412,27 @@ fileprivate enum TextType {
         case .follow, .search: return .blue
         }
     }
-    
+
     var foregroundColor: Color {
         return buttonHasBorder ? .gray : .white
     }
-    
+
     var buttonHasBorder: Bool {
         return backgroundColor == .white
     }
 }
 
-fileprivate struct ProfileButton: View {
+private struct ProfileButton: View {
     var textType: TextType
     var action: () -> Void
-    
+
     var body: some View {
-        Button(action: {
+        Button {
             if let analyticsEvent = textType.analyticsEvent {
                 Analytics.track(analyticsEvent)
             }
             action()
-        }) {
+        } label: {
             Text(textType.text)
                 .padding(Constants.TEXT_PADDING)
                 .font(Constants.TEXT_FONT)

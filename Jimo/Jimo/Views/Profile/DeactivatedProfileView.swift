@@ -10,7 +10,7 @@ import SwiftUI
 struct DeactivatedProfileView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     var body: some View {
         NavigationView {
             deactivatedProfileView
@@ -19,14 +19,14 @@ struct DeactivatedProfileView: View {
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
-    
+
     @ViewBuilder
     var deactivatedProfileView: some View {
         VStack(spacing: 50) {
             Text("Your account is marked for permanent deletion. Your data is not visible to anyone and will be permanently deleted in the next 24 hours.")
                 .bold()
                 .multilineTextAlignment(.center)
-            
+
             Button {
                 appState.signOut()
             } label: {
@@ -36,9 +36,9 @@ struct DeactivatedProfileView: View {
                     .background(Color.blue)
                     .cornerRadius(10)
             }
-            
+
             Spacer()
-            
+
             Text("Contact us at help@jimoapp.com")
         }
         .padding(.vertical, 100)

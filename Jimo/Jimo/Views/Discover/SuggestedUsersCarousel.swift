@@ -8,13 +8,13 @@
 import SwiftUI
 import Combine
 
-fileprivate enum LoadStatus {
+private enum LoadStatus {
     case notInitialized, loaded, failed
 }
 
-fileprivate enum FollowButtonType: Equatable {
+private enum FollowButtonType: Equatable {
     case follow, unfollow
-    
+
     var text: String {
         switch self {
         case .follow:
@@ -23,7 +23,7 @@ fileprivate enum FollowButtonType: Equatable {
             return "Unfollow"
         }
     }
-    
+
     var backgroundColor: Color {
         switch self {
         case .follow:
@@ -32,11 +32,11 @@ fileprivate enum FollowButtonType: Equatable {
             return .white
         }
     }
-    
+
     var hasBorder: Bool {
         self == .unfollow
     }
-    
+
     var foregroundColor: Color {
         switch self {
         case .follow:
@@ -51,7 +51,7 @@ struct SuggestedUsersCarousel: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var viewModel: SuggestedUserCarouselViewModel
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
@@ -65,17 +65,17 @@ struct SuggestedUsersCarousel: View {
 
 class SuggestedUserCarouselViewModel: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published fileprivate var loadStatus: LoadStatus = .notInitialized
     @Published var users: [SuggestedUserItem] = []
     @Published var followedUsernames: Set<String> = []
-    
+
     var cancelBag: Set<AnyCancellable> = .init()
-    
+
     init() {
         nc.addObserver(self, selector: #selector(userRelationChanged), name: UserPublisher.userRelationChanged, object: nil)
     }
-    
+
     @objc private func userRelationChanged(notification: Notification) {
         let payload = notification.object as! UserRelationPayload
         if users.contains(where: { $0.user.username == payload.username }) {
@@ -87,15 +87,15 @@ class SuggestedUserCarouselViewModel: ObservableObject {
             }
         }
     }
-    
+
     func isFollowed(_ username: String) -> Bool {
         return followedUsernames.contains(username)
     }
-    
+
     func shouldPresent() -> Bool {
         users.count > 0
     }
-    
+
     func load(appState: AppState, viewState: GlobalViewState) {
         appState.getSuggestedUsers()
             .sink { [weak self] completion in
@@ -107,7 +107,7 @@ class SuggestedUserCarouselViewModel: ObservableObject {
                 self?.loadStatus = .loaded
             }.store(in: &cancelBag)
     }
-    
+
     func follow(username: String, appState: AppState, viewState: GlobalViewState) {
         appState.followUser(username: username)
             .sink { completion in
@@ -118,7 +118,7 @@ class SuggestedUserCarouselViewModel: ObservableObject {
                 self?.handleFollowResponse(for: username, response: response)
             }.store(in: &cancelBag)
     }
-    
+
     func unfollow(username: String, appState: AppState, viewState: GlobalViewState) {
         appState.unfollowUser(username: username)
             .sink { completion in
@@ -129,7 +129,7 @@ class SuggestedUserCarouselViewModel: ObservableObject {
                 self?.handleFollowResponse(for: username, response: response)
             }.store(in: &cancelBag)
     }
-    
+
     private func handleFollowResponse(for username: String, response: FollowUserResponse) {
         if response.followed {
             followedUsernames.insert(username)
@@ -143,28 +143,28 @@ class SuggestedUserCarouselViewModel: ObservableObject {
     }
 }
 
-fileprivate struct SuggestedUserCard: View {
+private struct SuggestedUserCard: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var viewModel: SuggestedUserCarouselViewModel
     var item: SuggestedUserItem
-    
+
     var user: PublicUser {
         item.user
     }
-    
+
     var isFollowed: Bool {
         viewModel.isFollowed(user.username)
     }
-    
+
     var followType: FollowButtonType {
         isFollowed ? .unfollow : .follow
     }
-    
+
     var width: CGFloat {
         (UIScreen.main.bounds.width - 8) / 3
     }
-    
+
     @ViewBuilder var profilePicture: some View {
         URLImage(
             url: user.profilePictureUrl,
@@ -175,7 +175,7 @@ fileprivate struct SuggestedUserCard: View {
         .frame(width: 60, height: 60)
         .cornerRadius(30)
     }
-    
+
     @ViewBuilder var followButton: some View {
         Button {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -200,7 +200,7 @@ fileprivate struct SuggestedUserCard: View {
             )
         }
     }
-    
+
     var body: some View {
         NavigationLink(destination: LazyView {
             Profile(initialUser: user)

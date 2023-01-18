@@ -9,10 +9,10 @@ import SwiftUI
 import MapKit
 
 struct CurrentLocationButton: View {
-    var setRegion: (MKCoordinateRegion) -> ()
-    
+    var setRegion: (MKCoordinateRegion) -> Void
+
     @State private var shouldRequestLocation = false
-    
+
     var body: some View {
         Button(action: {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()

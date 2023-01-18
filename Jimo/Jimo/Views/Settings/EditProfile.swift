@@ -12,18 +12,18 @@ struct EditProfile: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @StateObject private var viewModel = ViewModel()
-    
+
     var buttonDisabled: Bool {
         !viewModel.initialized || !viewModel.edited || viewModel.updating
     }
-    
+
     var body: some View {
         Form {
-            
+
             ZStack(alignment: .trailing) {
                 HStack {
                     Spacer()
-                    
+
                     Group {
                         if let image = viewModel.image {
                             Image(uiImage: image)
@@ -41,10 +41,10 @@ struct EditProfile: View {
                     .onTapGesture {
                         viewModel.showImagePicker = true
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 if viewModel.image != nil {
                     Text("Reset")
                         .foregroundColor(.white)
@@ -56,23 +56,23 @@ struct EditProfile: View {
                         }
                 }
             }
-            
+
             HStack(spacing: 10) {
                 Text("Username").bold()
                 TextField("Username", text: $viewModel.username)
                     .autocapitalization(.none)
             }
-            
+
             HStack(spacing: 10) {
                 Text("First name").bold()
                 TextField("First name", text: $viewModel.firstName)
             }
-            
+
             HStack(spacing: 10) {
                 Text("Last name").bold()
                 TextField("Last name", text: $viewModel.lastName)
             }
-            
+
             Section {
                 Button(action: { viewModel.updateProfile(
                         appState: appState, viewState: globalViewState)}) {
@@ -105,25 +105,25 @@ extension EditProfile {
         @Published var username: String = "" { didSet { markEdited() } }
         @Published var firstName: String = "" { didSet { markEdited() } }
         @Published var lastName: String = "" { didSet { markEdited() } }
-        @Published var profilePictureUrl: String? = nil
-        
+        @Published var profilePictureUrl: String?
+
         @Published var showImagePicker = false
-        @Published var image: UIImage? = nil {
+        @Published var image: UIImage? {
             didSet {
                 if image != nil {
                     edited = true
                 }
             }
         }
-        
+
         @Published var edited = false
         @Published var initialized = false
-        
+
         @Published var updating = false
-        
-        private var cancellable: Cancellable? = nil
-        private var uploadImageCancellable: Cancellable? = nil
-        
+
+        private var cancellable: Cancellable?
+        private var uploadImageCancellable: Cancellable?
+
         func initialize(appState: AppState) {
             guard case let .user(user) = appState.currentUser else {
                 return
@@ -135,7 +135,7 @@ extension EditProfile {
             initialized = true
             edited = false
         }
-        
+
         func updateProfile(appState: AppState, viewState: GlobalViewState) {
             DispatchQueue.main.async {
                 self.updating = true
@@ -156,7 +156,7 @@ extension EditProfile {
                 self.updateProfile(appState: appState, viewState: viewState, profilePictureId: nil)
             }
         }
-        
+
         private func updateProfile(appState: AppState, viewState: GlobalViewState, profilePictureId: String?) {
             cancellable = appState.updateProfile(
                 UpdateProfileRequest(
@@ -196,7 +196,7 @@ extension EditProfile {
                     }
                 })
         }
-        
+
         private func markEdited() {
             DispatchQueue.main.async {
                 self.edited = true

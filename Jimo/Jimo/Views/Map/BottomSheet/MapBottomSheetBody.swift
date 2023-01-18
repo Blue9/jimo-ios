@@ -16,17 +16,17 @@ enum MapSheetPosition: CGFloat, CaseIterable {
 struct MapBottomSheetBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var mapViewModel: MapViewModel
     @ObservedObject var userFilterViewModel: UserFilterViewModel
     @ObservedObject var locationSearch: LocationSearch
     @ObservedObject var sheetViewModel: SheetPositionViewModel
     @FocusState.Binding var searchFieldActive: Bool
-    
+
     var searching: Bool {
         locationSearch.searchQuery.count > 0
     }
-    
+
     var body: some View {
         ZStack {
             ScrollView(showsIndicators: false) {
@@ -42,7 +42,7 @@ struct MapBottomSheetBody: View {
             }
             .padding(.horizontal, 10)
             .opacity(searching ? 0 : 1)
-            
+
             if searching {
                 MapSearchResults(locationSearch: locationSearch) { selectedPlace in
                     DispatchQueue.main.async {
@@ -51,7 +51,7 @@ struct MapBottomSheetBody: View {
                             searchFieldActive = false
                             sheetViewModel.businessSheetPosition = .relative(0.6)
                             sheetViewModel.bottomSheetPosition = .hidden
-                            //sheetViewModel.businessSheetPosition = .relative(0.6)
+                            // sheetViewModel.businessSheetPosition = .relative(0.6)
                             mapViewModel.selectSearchResult(
                                 appState: appState,
                                 viewState: viewState,
@@ -68,17 +68,17 @@ struct MapBottomSheetBody: View {
     }
 }
 
-fileprivate struct MapUserFilter: View {
+private struct MapUserFilter: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    
+
     @ObservedObject var userFilterViewModel: UserFilterViewModel
-    
+
     @Binding var mapType: MapType
     @Binding var customUserFilter: Set<UserId>
-    
+
     @State private var showMoreUsersSheet = false
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -89,7 +89,7 @@ fileprivate struct MapUserFilter: View {
             }
             .padding(.top, 5)
             .padding(.leading, 5)
-            
+
             HStack(spacing: 0) {
                 MapUserFilterButton(mapType: .me, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .following, selectedMapType: $mapType)
@@ -114,25 +114,25 @@ fileprivate struct MapUserFilter: View {
     }
 }
 
-fileprivate struct MapUserFilterButton: View {
+private struct MapUserFilterButton: View {
     @EnvironmentObject var appState: AppState
-    
+
     var mapType: MapType
     @Binding var selectedMapType: MapType
-    
-    var onTap: (() -> ())?
-    
+
+    var onTap: (() -> Void)?
+
     var selected: Bool {
         selectedMapType == mapType
     }
-    
+
     var profilePicture: some View {
         URLImage(
             url: appState.me?.profilePictureUrl,
             loading: Image(systemName: "person.crop.circle.fill").renderingMode(.original).resizable()
         ).font(.system(size: 14, weight: .thin))
     }
-    
+
     var body: some View {
         VStack {
             if let systemName = mapType.systemImage {
@@ -165,7 +165,7 @@ fileprivate struct MapUserFilterButton: View {
     }
 }
 
-fileprivate struct GlobalViewButton: View {
+private struct GlobalViewButton: View {
     var body: some View {
         ZStack {
             Image("logo")
@@ -190,7 +190,7 @@ fileprivate extension MapType {
         case .custom: return "More"
         }
     }
-    
+
     var systemImage: String? {
         switch self {
         case .following: return "person.2.circle.fill"

@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftUIPager
 
-fileprivate var color = Color(red: 72.0 / 255, green: 159.0 / 255, blue: 240.0 / 255)
+private var color = Color(red: 72.0 / 255, green: 159.0 / 255, blue: 240.0 / 255)
 
 struct PlaceDetailsView: View {
     var result: MapPlaceResult
@@ -18,7 +18,7 @@ struct PlaceDetailsView: View {
             HStack {
                 CreatePostButton(result: result)
             }
-            
+
             HStack {
                 if let phoneNumber = result.mkMapItem?.phoneNumber {
                     PhoneNumberButton(phoneNumber: phoneNumber)
@@ -27,7 +27,7 @@ struct PlaceDetailsView: View {
                     WebsiteButton(url: url)
                 }
                 OpenInMapsButton(result: result)
-                
+
                 Spacer()
             }
             .padding(.horizontal, 10)
@@ -37,11 +37,11 @@ struct PlaceDetailsView: View {
                 if result.followingPosts.count > 0 {
                     PostCarousel(text: "Friends' Posts (\(result.followingPosts.count))", posts: result.followingPosts)
                 }
-                
+
                 if result.featuredPosts.count > 0 {
                     PostCarousel(text: "Featured (\(result.featuredPosts.count))", posts: result.featuredPosts)
                 }
-                
+
                 if result.communityPosts.count > 0 {
                     PostCarousel(text: "Community (\(result.communityPosts.count))", posts: result.communityPosts)
                 }
@@ -53,12 +53,12 @@ struct PlaceDetailsView: View {
     }
 }
 
-fileprivate struct CreatePostButton: View {
+private struct CreatePostButton: View {
     @StateObject var createPostVM = CreatePostVM()
     @State private var showCreatePost = false
 
     var result: MapPlaceResult
-    
+
     var body: some View {
         Button {
             Analytics.track(.mapCreatePostTapped, parameters: [
@@ -88,16 +88,16 @@ fileprivate struct CreatePostButton: View {
             .cornerRadius(5)
             .padding(.horizontal, 10)
         }.disabled(result.details == nil && result.mkMapItem == nil)
-        
+
         .sheet(isPresented: $showCreatePost) {
             CreatePostWithModel(createPostVM: createPostVM, presented: $showCreatePost)
         }
     }
 }
 
-fileprivate struct PhoneNumberButton: View {
+private struct PhoneNumberButton: View {
     var phoneNumber: String
-    
+
     var body: some View {
         Button {
             if let url = URL(string: "tel://\(phoneNumber.replacingOccurrences(of: " ", with: ""))") {
@@ -121,9 +121,9 @@ fileprivate struct PhoneNumberButton: View {
     }
 }
 
-fileprivate struct WebsiteButton: View {
+private struct WebsiteButton: View {
     var url: URL
-    
+
     var body: some View {
         Button {
             UIApplication.shared.open(url)
@@ -145,9 +145,9 @@ fileprivate struct WebsiteButton: View {
     }
 }
 
-fileprivate struct OpenInMapsButton: View {
+private struct OpenInMapsButton: View {
     var result: MapPlaceResult
-    
+
     var body: some View {
         Button {
             openInMaps(place: result)
@@ -167,22 +167,22 @@ fileprivate struct OpenInMapsButton: View {
             .cornerRadius(5)
         }
     }
-    
+
     private func openInMaps(place: MapPlaceResult) {
-        if (UIApplication.shared.canOpenURL(URL(string: "comgooglemaps://")!)) {
+        if UIApplication.shared.canOpenURL(URL(string: "comgooglemaps://")!) {
             openInGoogleMaps(place: place)
         } else {
             openInAppleMaps(place: place)
         }
     }
-    
+
     private func openInGoogleMaps(place: MapPlaceResult) {
         let scheme = "comgooglemaps://"
         let query = place.name.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? place.name
         let url = "\(scheme)?q=\(query)&center=\(place.latitude),\(place.longitude)"
         UIApplication.shared.open(URL(string: url)!)
     }
-    
+
     private func openInAppleMaps(place: MapPlaceResult) {
         let q = place.name.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? place.name
         let sll = "\(place.latitude),\(place.longitude)"
@@ -196,12 +196,12 @@ fileprivate struct OpenInMapsButton: View {
     }
 }
 
-fileprivate struct PostCarousel: View {
+private struct PostCarousel: View {
     @StateObject var page: Page = .first()
-    
+
     var text: String
     var posts: [Post]
-    
+
     var body: some View {
         HStack {
             Text(text)
@@ -209,7 +209,7 @@ fileprivate struct PostCarousel: View {
                 .bold()
             Spacer()
         }
-        
+
         Pager(page: page, data: posts) { post in
             PostPage(post: post)
                 .contentShape(Rectangle())

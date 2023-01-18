@@ -11,7 +11,7 @@ struct RoundedButton: View {
     let text: Text
     let action: () -> Void
     let backgroundColor: Color
-    
+
     var body: some View {
         Button(action: action) {
             text

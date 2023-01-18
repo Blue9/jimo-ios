@@ -9,19 +9,14 @@ import SwiftUI
 import Firebase
 import FirebaseAnalytics
 
-#if DEBUG
-fileprivate let ANALYTICS_ENABLED = false
-#else
-fileprivate let ANALYTICS_ENABLED = true
-#endif
-
 extension View {
     /// Mark the given view as a screen and track when it appears.
     func trackScreen(_ screen: Screen) -> some View {
         self.appear { Analytics.currentScreen = screen }
     }
-    
-    /// Track the given sheet as a screen, screenAfterDismiss is necessary because the previous screen's isn't called when the sheet is dismissed.
+
+    /// Track the given sheet as a screen, screenAfterDismiss is necessary
+    /// because the previous screen's appear isn't called when the sheet is dismissed.
     func trackSheet(_ screen: Screen, screenAfterDismiss: @escaping () -> Screen) -> some View {
         self
             .appear { Analytics.currentScreen = screen }
@@ -30,6 +25,12 @@ extension View {
 }
 
 class Analytics {
+    #if DEBUG
+    static let analyticsEnabled = false
+    #else
+    static let analyticsEnabled = true
+    #endif
+
     static var currentScreen: Screen? {
         didSet {
             guard currentScreen != oldValue else {
@@ -41,11 +42,11 @@ class Analytics {
             ])
         }
     }
-    
+
     static func initialize() {
-        print("ANALYTICS_ENABLED == \(ANALYTICS_ENABLED)")
-        FirebaseAnalytics.Analytics.setAnalyticsCollectionEnabled(ANALYTICS_ENABLED)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(ANALYTICS_ENABLED)
+        print("ANALYTICS_ENABLED == \(analyticsEnabled)")
+        FirebaseAnalytics.Analytics.setAnalyticsCollectionEnabled(analyticsEnabled)
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(analyticsEnabled)
     }
 
     /// Used to track a given event.
@@ -53,7 +54,7 @@ class Analytics {
     ///   - event: The type of analytic we want to track.
     ///   - parameters: Any additional properties we want to associate with the event.
     static func track(_ event: AnalyticsName, parameters: [String: Any?]? = nil) {
-        guard ANALYTICS_ENABLED else {
+        guard analyticsEnabled else {
             print("event \(event.eventName) parameters \(String(describing: parameters))")
             return
         }
@@ -77,7 +78,7 @@ enum AnalyticsName: Equatable {
         }
         return name
     }
-    
+
     // MARK: Push Notifications
 
     /// Track when new screen is viewed
@@ -95,41 +96,41 @@ enum AnalyticsName: Equatable {
     case shareProfileCancelled
     /// Share sheet completed
     case shareProfileCompleted
-    
+
     /// Share sheet presented
     case sharePostPresented
     /// Share sheet cancelled
     case sharePostCancelled
     /// Share sheet completed
     case sharePostCompleted
-    
+
     case postCreated
     case postUpdated
     case postDeleted
-    
+
     case postLiked
     case postUnliked
-    
+
     case commentCreated
     case commentDeleted
-    
+
     case postSaved
     case postUnsaved
-    
+
     case userFollowed
     case userUnfollowed
     case findFriendsTapped
     case feedFindFriendsTapped
-    
+
     case notificationPermissionsAllowed
     case notificationPermissionsDenied
-    
+
     case locationPermissionsAllowed
     case locationPermissionsDenied
-    
+
     case contactsPermissionsAllowed
     case contactsPermissionsDenied
-    
+
     case mapCreatePostTapped
     case mapPinTapped
     case mapSearchResultTapped

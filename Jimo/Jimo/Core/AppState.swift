@@ -5,12 +5,13 @@
 //  Created by Gautam Mekkat on 1/13/21.
 //
 
+// swiftlint:disable type_body_length
+// swiftlint:disable file_length
 import SwiftUI
 import Combine
 import MapKit
 import Firebase
 import SDWebImage
-
 
 enum CurrentUser {
     case user(PublicUser)
@@ -26,7 +27,6 @@ enum FirebaseSession {
     case doesNotExist
     case loading
 }
-
 
 class LocalSettings: ObservableObject {
     @Published var clusteringEnabled = false
@@ -47,16 +47,16 @@ class OnboardingModel: ObservableObject {
             objectWillChange.send() // Required for iOS 14.4 and lower
         }
     }
-    
+
     init() {
         // Uncomment to reset onboarding view
         // onboardingStep = .requestLocation
     }
-    
+
     var isUserOnboarded: Bool {
         onboardingStep == .completed
     }
-    
+
     func step() {
         withAnimation {
             if self.onboardingStep == .requestContacts && PermissionManager.shared.contactsAuthStatus() != .authorized {
@@ -74,39 +74,39 @@ class AppState: ObservableObject {
     private var apiClient: APIClient
     private var cancelBag: Set<AnyCancellable> = .init()
     private var dateTimeFormatter = RelativeDateTimeFormatter()
-    
+
     @Published var currentUser: CurrentUser = .empty
     @Published var firebaseSession: FirebaseSession = .loading
-    
+
     @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
         didSet {
             UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
         }
     }
-    
+
     let onboardingModel = OnboardingModel()
     var localSettings = LocalSettings()
-    
+
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()
     let commentPublisher = CommentPublisher()
-    
+
     // If we're signing out don't register any new FCM tokens
     var signingOut = false
     var registeringToken = false
-    
+
     var me: PublicUser? {
         if case let .user(user) = currentUser {
             return user
         }
         return nil
     }
-    
+
     init(apiClient: APIClient) {
         // Uncomment the two lines below to clear the image cache
         // SDImageCache.shared.clearMemory()
         // SDImageCache.shared.clearDisk()
-        
+
         self.apiClient = apiClient
         updateTokenOnUserChange()
         NotificationCenter.default.addObserver(
@@ -115,31 +115,31 @@ class AppState: ObservableObject {
             name: Notification.Name(rawValue: "FCMToken"),
             object: nil)
     }
-    
+
     func relativeTime(for date: Date) -> String {
         if Date().timeIntervalSince(date) < 1 {
             return "just now"
         }
         return dateTimeFormatter.localizedString(for: date, relativeTo: Date())
     }
-    
+
     // MARK: - User onboarding
-    
+
     func getUsersInContacts(phoneNumbers: [String]) -> AnyPublisher<[PublicUser], APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return apiClient.getUsersInContacts(phoneNumbers: phoneNumbers)
     }
-    
+
     func getFeaturedUsers() -> AnyPublisher<[PublicUser], APIError> {
         return apiClient.getFeaturedUsers()
     }
-    
+
     func getSuggestedUsers() -> AnyPublisher<SuggestedUsersResponse, APIError> {
         return apiClient.getSuggestedUsers()
     }
-    
+
     func followMany(usernames: [String]) -> AnyPublisher<SimpleResponse, APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
@@ -153,21 +153,21 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Auth
-    
+
     func listen() {
         self.apiClient.setAuthHandler(handle: self.authHandler)
     }
-    
+
     func signUp(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
         return apiClient.authClient.signUp(email: email, password: password)
     }
-    
+
     func signIn(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
         return apiClient.authClient.signIn(email: email, password: password)
     }
-    
+
     func verifyPhoneNumber(phoneNumber: String) -> AnyPublisher<String, Error> {
         return apiClient.authClient.verifyPhoneNumber(phoneNumber: phoneNumber)
             .map({ verificationID in
@@ -176,22 +176,22 @@ class AppState: ObservableObject {
             })
             .eraseToAnyPublisher()
     }
-    
+
     func getPhoneVerificationID() -> String? {
         return UserDefaults.standard.string(forKey: "authVerificationID")
     }
-    
+
     func signInPhone(verificationCode: String) -> AnyPublisher<AuthDataResult, Error> {
         guard let verificationID = getPhoneVerificationID() else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return apiClient.authClient.signInPhone(verificationID: verificationID, verificationCode: verificationCode)
     }
-    
+
     func forgotPassword(email: String) -> AnyPublisher<Void, Error> {
         return apiClient.authClient.forgotPassword(email: email)
     }
-    
+
     /**
      Sign the current user out and remove the notification token. Does nothing if the user was already signed out.
      Returns whether the user could be successfully signed out.
@@ -208,7 +208,7 @@ class AppState: ObservableObject {
             self.signOutFirebase()
             return
         }
-        if case .user(_) = currentUser {
+        if case .user = currentUser {
             // Logged in, that means we must have registered the token
             self.apiClient.removeNotificationToken(token: token)
                 .sink(receiveCompletion: { completion in
@@ -227,7 +227,7 @@ class AppState: ObservableObject {
             self.signOutFirebase()
         }
     }
-    
+
     func signOutFirebase() {
         do {
             try Auth.auth().signOut()
@@ -235,23 +235,23 @@ class AppState: ObservableObject {
             print("Already logged out")
         }
     }
-    
+
     // MARK: - Invite + waitlist
-    
+
     func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
         return self.apiClient.getWaitlistStatus()
     }
-    
+
     func joinWaitlist() -> AnyPublisher<UserWaitlistStatus, APIError> {
         return self.apiClient.joinWaitlist()
     }
-    
+
     func inviteUser(phoneNumber: String) -> AnyPublisher<UserInviteStatus, APIError> {
         return self.apiClient.inviteUser(phoneNumber: phoneNumber)
     }
-    
+
     // MARK: - User
-    
+
     func createUser(_ request: CreateUserRequest) -> AnyPublisher<UserFieldError?, APIError> {
         return self.apiClient.createUser(request)
             .map { response in
@@ -262,7 +262,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func createUser(
         _ request: CreateUserRequest,
         profilePicture: UIImage
@@ -291,11 +291,11 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func deleteUser() -> AnyPublisher<SimpleResponse, APIError> {
         self.apiClient.deleteUser()
     }
-    
+
     func updateProfile(_ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
@@ -309,25 +309,25 @@ class AppState: ObservableObject {
             })
             .eraseToAnyPublisher()
     }
-    
+
     func getPreferences() -> AnyPublisher<UserPreferences, APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return self.apiClient.getPreferences()
     }
-    
+
     func updatePreferences(_ request: UserPreferences) -> AnyPublisher<UserPreferences, APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return self.apiClient.updatePreferences(request)
     }
-    
+
     func getUser(username: String) -> AnyPublisher<PublicUser, APIError> {
         return self.apiClient.getUser(username: username)
     }
-    
+
     func refreshCurrentUser() {
         self.currentUser = .loading
         self.apiClient.getMe()
@@ -345,29 +345,29 @@ class AppState: ObservableObject {
             .assign(to: \.currentUser, on: self)
             .store(in: &self.cancelBag)
     }
-    
+
     func getSavedPosts(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getSavedPosts(cursor: cursor)
     }
-    
+
     func refreshFeed() -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getFeed()
     }
-    
+
     func loadMoreFeedItems(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getFeed(cursor: cursor)
     }
-    
+
     func getFollowers(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
         return self.apiClient.getFollowers(username: username, cursor: cursor)
     }
-    
+
     func getFollowing(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
         return self.apiClient.getFollowing(username: username, cursor: cursor)
     }
-    
+
     // MARK: - Map endpoints
-    
+
     func getMap(
         region: RectangularRegion,
         categories: [String],
@@ -383,9 +383,9 @@ class AppState: ObservableObject {
             )
         )
     }
-    
+
     // MARK: - Place endpoints
-    
+
     func findPlace(
         name: String,
         latitude: Double,
@@ -393,13 +393,13 @@ class AppState: ObservableObject {
     ) -> AnyPublisher<FindPlaceResponse, APIError> {
         self.apiClient.findPlace(name: name, latitude: latitude, longitude: longitude)
     }
-    
+
     func getPlaceDetails(placeId: PlaceId) -> AnyPublisher<GetPlaceDetailsResponse, APIError> {
         self.apiClient.getPlaceDetails(placeId: placeId)
     }
-    
+
     // MARK: - Relation endpoints
-    
+
     func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         return self.apiClient.followUser(username: username)
             .map { response in
@@ -408,7 +408,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func unfollowUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         return self.apiClient.unfollowUser(username: username)
             .map { response in
@@ -417,7 +417,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func blockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.blockUser(username: username)
             .map { response in
@@ -426,7 +426,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func unblockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.unblockUser(username: username)
             .map { response in
@@ -435,13 +435,13 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func relation(to username: String) -> AnyPublisher<RelationToUser, APIError> {
         return self.apiClient.relation(to: username)
     }
-    
+
     // MARK: - Post
-    
+
     func createPost(_ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
         return self.apiClient.createPost(request)
             .map { post in
@@ -454,11 +454,11 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func getPost(_ postId: PostId) -> AnyPublisher<Post, APIError> {
         return self.apiClient.getPost(postId)
     }
-    
+
     func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
         return self.apiClient.updatePost(postId, request)
             .map { post in
@@ -471,7 +471,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func deletePost(postId: PostId) -> AnyPublisher<Void, APIError> {
         return self.apiClient.deletePost(postId: postId)
             .map { _ in
@@ -480,11 +480,11 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func getPosts(username: String, cursor: String? = nil, limit: Int? = nil) -> AnyPublisher<FeedResponse, APIError> {
         return self.apiClient.getPosts(username: username, cursor: cursor, limit: limit)
     }
-    
+
     func likePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         return self.apiClient.likePost(postId: postId)
             .map { like in
@@ -494,7 +494,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         return self.apiClient.unlikePost(postId: postId)
             .map { like in
@@ -504,7 +504,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func savePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.savePost(postId: postId)
             .map {
@@ -514,7 +514,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func unsavePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.unsavePost(postId: postId)
             .map {
@@ -524,17 +524,17 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func reportPost(postId: PostId, details: String) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.reportPost(postId: postId, details: details)
     }
-    
+
     // MARK: - Comment
-    
+
     func getComments(for postId: PostId, cursor: String? = nil) -> AnyPublisher<CommentPage, APIError> {
         apiClient.getComments(for: postId, cursor: cursor)
     }
-    
+
     func createComment(for postId: PostId, content: String) -> AnyPublisher<Comment, APIError> {
         apiClient.createComment(for: postId, content: content)
             .map { comment in
@@ -544,7 +544,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func deleteComment(commentId: CommentId) -> AnyPublisher<SimpleResponse, APIError> {
         apiClient.deleteComment(commentId: commentId)
             .map { response in
@@ -554,7 +554,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func likeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
         apiClient.likeComment(commentId: commentId)
             .map { response in
@@ -563,7 +563,7 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func unlikeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
         apiClient.unlikeComment(commentId: commentId)
             .map { response in
@@ -572,42 +572,42 @@ class AppState: ObservableObject {
             }
             .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Search
-    
+
     func searchUsers(query: String) -> AnyPublisher<[PublicUser], APIError> {
         return self.apiClient.searchUsers(query: query)
     }
-    
+
     // MARK: - Discover
-    
+
     func discoverFeedV2(location: Location? = nil) -> AnyPublisher<FeedResponse, APIError> {
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         return self.apiClient.getDiscoverFeedV2(location: location)
     }
-    
+
     // MARK: - Feedback
-    
+
     func submitFeedback(_ request: FeedbackRequest) -> AnyPublisher<SimpleResponse, APIError> {
         return self.apiClient.submitFeedback(request)
     }
-    
+
     // MARK: - Notifications
-    
+
     func getNotificationsFeed(token: String?) -> AnyPublisher<NotificationFeedResponse, APIError> {
         return self.apiClient.getNotificationsFeed(token: token)
             .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Image upload
-    
+
     func uploadImageAndGetId(image: UIImage) -> AnyPublisher<ImageId, APIError> {
         guard apiClient.authClient.currentUser != nil else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        guard case .user(_) = currentUser else {
+        guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
         guard let jpeg = getImageData(for: image) else {
@@ -617,24 +617,24 @@ class AppState: ObservableObject {
             .map({ $0.imageId })
             .eraseToAnyPublisher()
     }
-    
+
     // MARK: - Helpers
-    
+
     private func getImageData(for image: UIImage) -> Data? {
         image.jpegData(compressionQuality: 0.67)
     }
-    
+
     // MARK: - Notification logic
-    
+
     private func updateTokenOnUserChange() {
         $currentUser.sink(receiveValue: { [weak self] user in
-            if case .user(_) = user {
+            if case .user = user {
                 self?.registerNotificationToken()
             }
         })
         .store(in: &cancelBag)
     }
-    
+
     @objc private func didReceiveTokenUpdate(_ notification: Notification) {
         guard let dataDict = notification.userInfo else {
             return
@@ -646,17 +646,17 @@ class AppState: ObservableObject {
         // print("Received notification for new token", token)
         registerNewNotificationToken(token: token)
     }
-    
+
     private func getNotificationToken() -> String? {
         let key = "registeredFCMToken"
         return UserDefaults.standard.string(forKey: key)
     }
-    
+
     private func setNotificationToken(token: String) {
         let key = "registeredFCMToken"
         UserDefaults.standard.set(token, forKey: key)
     }
-    
+
     private func registerNotificationToken() {
         print("Registering token")
         Messaging.messaging().token { [weak self] token, error in
@@ -671,14 +671,14 @@ class AppState: ObservableObject {
             }
         }
     }
-    
+
     private func registerNewNotificationToken(token: String) {
         registeringToken = true
         if signingOut {
             registeringToken = false
             return
         }
-        guard case .user(_) = currentUser else {
+        guard case .user = currentUser else {
             registeringToken = false
             return
         }
@@ -699,7 +699,7 @@ class AppState: ObservableObject {
             })
             .store(in: &self.cancelBag)
     }
-    
+
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         if let user = user {
             self.refreshCurrentUser()
@@ -713,3 +713,5 @@ class AppState: ObservableObject {
         }
     }
 }
+// swiftlint:enable type_body_length
+// swiftlint:enable file_length

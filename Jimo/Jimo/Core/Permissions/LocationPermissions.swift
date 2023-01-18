@@ -12,20 +12,20 @@ extension PermissionManager: CLLocationManagerDelegate {
     func requestLocation() {
         self.locationManager.delegate = self
         if self.locationManager.authorizationStatus == .denied {
-            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (success) in })
+            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (_) in })
         }
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.startUpdatingLocation()
     }
-    
+
     func getLocation() -> CLLocation? {
         return self.locationManager.location
     }
-    
+
     func hasRequestedLocation() -> Bool {
         return self.locationManager.authorizationStatus != .notDetermined
     }
-    
+
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         if manager.authorizationStatus == .denied {
             Analytics.track(.locationPermissionsDenied)

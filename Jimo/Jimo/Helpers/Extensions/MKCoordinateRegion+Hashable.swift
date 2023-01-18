@@ -8,7 +8,6 @@
 import Foundation
 import MapKit
 
-
 extension MKCoordinateRegion: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(center.latitude)

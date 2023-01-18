@@ -17,12 +17,12 @@ struct MapRequestState: Equatable, Hashable {
     var userIds: Set<UserId>
 }
 
-typealias OnMapLoadCallback = (_ numPins: Int) -> ()
+typealias OnMapLoadCallback = (_ numPins: Int) -> Void
 
 struct RegionCache: Codable, Equatable, Hashable {
     // We store both because converting between the two region formats
     // is non-trivial.
-    
+
     var rectangularRegion: RectangularRegion
     var mkCoordinateRegion: MKCoordinateRegion
 }
@@ -40,13 +40,14 @@ class RegionWrapperV2: ObservableObject {
         )
     }
     @Published var trigger = false
-    
+
     /// This is set by JimoMapView whenever the map region completes changing (in the didChange delegate method)
     var visibleMapRect: RectangularRegion?
-    
-    /// This is set by us, we periodically check visibleMapRect and once it's stable (meaning the map has stopped moving we set this)
+
+    /// This is set by us, we periodically check visibleMapRect
+    /// and once it's stable (meaning the map has stopped moving we set this)
     @Published var regionToLoad: RectangularRegion?
-    
+
     func setRegion(_ region: MKCoordinateRegion) {
         self._mkCoordinateRegion = region
         self.trigger.toggle()
@@ -57,23 +58,23 @@ class MapViewModel: RegionWrapperV2 {
     private var postListener = PostListener()
     private var cancelBag: Set<AnyCancellable> = Set()
     private var mapLoadCancellable: AnyCancellable? // One cancellable so we cancel when we re-assign
-    
+
     /// Request types
     @Published var categories: Set<Category> = Set(Categories.categories)
     @Published var mapType: MapType = .following
     @Published var userIds: Set<UserId> = Set()
     @Published var pins: [MKJimoPinAnnotation] = []
-    
+
     /// selectedPin is set when you tap on a pin on the map
     @Published var selectedPin: MKJimoPinAnnotation?
     /// displayedPlaceDetails is set when you tap on a pin or select a search result
     @Published var displayedPlaceDetails: MapPlaceResult?
     @Published var isLoading = false
-    
+
     private var latestMapRequest: MapRequestState?
-    
+
     var initializedFromCache: Bool
-    
+
     override init() {
         self.initializedFromCache = false
         super.init()
@@ -99,7 +100,7 @@ class MapViewModel: RegionWrapperV2 {
             self.initializedFromCache = true
         }
     }
-    
+
     func initializeMap(appState: AppState, viewState: GlobalViewState, onLoad: @escaping OnMapLoadCallback) {
         if self.regionToLoad != nil {
             self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] numPins in
@@ -125,7 +126,7 @@ class MapViewModel: RegionWrapperV2 {
             }
         }
     }
-    
+
     func listenToRegionChanges(appState: AppState, viewState: GlobalViewState) {
         var previouslyLoadedRegion: RectangularRegion?
         var previousRegion: RectangularRegion?
@@ -138,7 +139,7 @@ class MapViewModel: RegionWrapperV2 {
                     return
                 }
                 if region == previousRegion && region != previouslyLoadedRegion {
-                    print("Region changed, updating regionToLoad")
+                    print("Region changed, updating regionToLoad \(previouslyLoadedRegion) to \(previousRegion)")
                     self.regionToLoad = region
                     if let data = try? JSONEncoder().encode(RegionCache(rectangularRegion: region, mkCoordinateRegion: self._mkCoordinateRegion)) {
                         UserDefaults.standard.set(data, forKey: "mapRegion")
@@ -167,7 +168,7 @@ class MapViewModel: RegionWrapperV2 {
             }
             .store(in: &cancelBag)
     }
-    
+
     func selectPin(
         appState: AppState,
         viewState: GlobalViewState,
@@ -204,7 +205,7 @@ class MapViewModel: RegionWrapperV2 {
             }
             .store(in: &cancelBag)
     }
-    
+
     func selectSearchResult(
         appState: AppState,
         viewState: GlobalViewState,
@@ -252,19 +253,19 @@ class MapViewModel: RegionWrapperV2 {
         }
         .store(in: &cancelBag)
     }
-    
+
     private func loadMapItemForPlaceDetails() {
         guard let place = displayedPlaceDetails?.place else {
             return
         }
         let location = CLLocation(latitude: place.location.latitude, longitude: place.location.longitude)
-        CLGeocoder().reverseGeocodeLocation(location) { response, error in
+        CLGeocoder().reverseGeocodeLocation(location) { response, _ in
             if let response = response, let placemark = response.first {
                 // Got the CLPlacemark, now try to get the MKMapItem to get the business details
                 let searchRequest = MKLocalSearch.Request()
                 searchRequest.region = .init(center: place.location.coordinate(), span: .init(latitudeDelta: 0, longitudeDelta: 0))
                 searchRequest.naturalLanguageQuery = place.name
-                MKLocalSearch(request: searchRequest).start { (response, error) in
+                MKLocalSearch(request: searchRequest).start { (response, _) in
                     if let response = response {
                         for mapItem in response.mapItems {
                             if let placemarkLocation = placemark.location,
@@ -278,7 +279,7 @@ class MapViewModel: RegionWrapperV2 {
             }
         }
     }
-    
+
     private func selectPinIfExistsFakeIt(_ place: Place) {
         if let pin = self.pins.first(where: { $0.placeId == place.placeId }) {
             self.selectedPin = pin
@@ -293,7 +294,7 @@ class MapViewModel: RegionWrapperV2 {
             self.selectedPin = pin
         }
     }
-    
+
     private func loadMap(appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
         guard let region = self.regionToLoad else {
             print("no region to load")
@@ -312,7 +313,7 @@ class MapViewModel: RegionWrapperV2 {
             onLoad: onLoad
         )
     }
-    
+
     private func loadMap(_ request: MapRequestState, appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
         self.isLoading = true
         self.latestMapRequest = request
@@ -327,7 +328,7 @@ class MapViewModel: RegionWrapperV2 {
             if case let .failure(err) = completion {
                 onLoad?(0)
                 print(err)
-                //viewState.setError("Could not load map")
+                // viewState.setError("Could not load map")
             }
         } receiveValue: { response in
             // Instead of a simple self.pins = response.pins.map(...)
@@ -358,44 +359,44 @@ struct MapPlaceResult: Equatable {
     var isStale = false
     /// Apple maps MapKit item
     var mkMapItem: MKMapItem?
-    
+
     /// Jimo place details
     var details: GetPlaceDetailsResponse?
-    
+
     var place: Place? {
         details?.place
     }
-    
+
     var name: String {
         place?.name ?? mkMapItem?.name ?? ""
     }
-    
+
     var latitude: Double {
         place?.location.latitude ?? mkMapItem?.placemark.coordinate.latitude ?? 0
     }
-    
+
     var longitude: Double {
         place?.location.longitude ?? mkMapItem?.placemark.coordinate.longitude ?? 0
     }
-    
+
     var communityPosts: [Post] {
         details?.communityPosts ?? []
     }
-    
+
     var featuredPosts: [Post] {
         details?.featuredPosts ?? []
     }
-    
+
     var followingPosts: [Post] {
         details?.followingPosts ?? []
     }
-    
+
     var address: String {
         guard let mkMapItem = mkMapItem else {
             return ""
         }
         let placemark = mkMapItem.placemark
-        var streetAddress: String? = nil
+        var streetAddress: String?
         if let subThoroughfare = placemark.subThoroughfare,
            let thoroughfare = placemark.thoroughfare {
             streetAddress = subThoroughfare + " " + thoroughfare
@@ -404,7 +405,7 @@ struct MapPlaceResult: Equatable {
             streetAddress,
             placemark.locality,
             placemark.administrativeArea
-        ];
+        ]
         return components.compactMap({ $0 }).joined(separator: ", ")
     }
 }
@@ -431,20 +432,20 @@ extension MKCoordinateRegion: Codable {
         try values.encode(self.span.latitudeDelta, forKey: .latSpan)
         try values.encode(self.span.longitudeDelta, forKey: .longSpan)
     }
-    
+
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let centerLat = try values.decode(Double.self, forKey: .centerLat)
         let centerLong = try values.decode(Double.self, forKey: .centerLong)
-        
+
         let longSpan = try values.decode(Double.self, forKey: .longSpan)
         let latSpan = try values.decode(Double.self, forKey: .latSpan)
         self.init(
-            center: .init(latitude: centerLat, longitude:  centerLong),
+            center: .init(latitude: centerLat, longitude: centerLong),
             span: .init(latitudeDelta: latSpan, longitudeDelta: longSpan)
         )
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case centerLat
         case centerLong
@@ -454,24 +455,24 @@ extension MKCoordinateRegion: Codable {
 }
 
 class PostListener {
-    typealias OnPostCreated = (Post) -> ()
-    typealias OnPostDeleted = (PostId) -> ()
-    
+    typealias OnPostCreated = (Post) -> Void
+    typealias OnPostDeleted = (PostId) -> Void
+
     let nc = NotificationCenter.default
-    
+
     var onPostCreated: OnPostCreated?
     var onPostDeleted: OnPostDeleted?
-    
+
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
-    
+
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
         onPostCreated?(post)
     }
-    
+
     @objc private func postDeleted(notification: Notification) {
         let postId = notification.object as! PostId
         onPostDeleted?(postId)

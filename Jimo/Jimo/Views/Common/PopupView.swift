@@ -22,7 +22,7 @@ extension View {
         closeOnTap: Bool = true,
         closeOnTapOutside: Bool = true, // Originally false
         backgroundColor: Color = Color.clear,
-        dismissCallback: @escaping () -> () = {},
+        dismissCallback: @escaping () -> Void = {},
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
         self.modifier(
             Popup(
@@ -50,7 +50,7 @@ extension View {
     }
 
     @ViewBuilder
-    fileprivate func addTapIfNotTV(if condition: Bool, onTap: @escaping ()->()) -> some View {
+    fileprivate func addTapIfNotTV(if condition: Bool, onTap: @escaping () -> Void) -> some View {
         #if os(tvOS)
         self
         #else
@@ -68,7 +68,7 @@ extension View {
 }
 
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
-    
+
     init(isPresented: Binding<Bool>,
          type: PopupType,
          position: Position,
@@ -78,7 +78,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
          closeOnTap: Bool,
          closeOnTapOutside: Bool,
          backgroundColor: Color,
-         dismissCallback: @escaping () -> (),
+         dismissCallback: @escaping () -> Void,
          view: @escaping () -> PopupContent) {
         self._isPresented = isPresented
         self.type = type
@@ -93,7 +93,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         self.view = view
         self.isPresentedRef = ClassReference(self.$isPresented)
     }
-    
+
     public enum PopupType {
 
         case `default`
@@ -159,12 +159,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
-    
+
     /// Background color for outside area - default is `Color.clear`
     var backgroundColor: Color
 
     /// is called on any close action
-    var dismissCallback: () -> ()
+    var dismissCallback: () -> Void
 
     var view: () -> PopupContent
 
@@ -172,7 +172,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     var dispatchWorkHolder = DispatchWorkHolder()
 
     // MARK: - Private Properties
-    
+
     /// Class reference for capturing a weak reference later in dispatch work holder.
     private var isPresentedRef: ClassReference<Binding<Bool>>?
 
@@ -187,13 +187,13 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Last position for drag gesture
     @State private var lastDragPosition: CGFloat = 0
-    
+
     /// Show content for lazy loading
     @State private var showContent: Bool = false
-    
+
     /// Should present the animated part of popup (sliding background)
     @State private var animatedContentIsPresented: Bool = false
-    
+
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
         switch type {
@@ -233,7 +233,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     private var currentOffset: CGFloat {
         return animatedContentIsPresented ? displayedOffset : hiddenOffset
     }
-    
+
     /// The current background opacity, based on the **presented** property
     private var currentBackgroundOpacity: Double {
         return animatedContentIsPresented ? 1.0 : 0.0
@@ -265,12 +265,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                 appearAction(isPresented: isPresented)
             }
     }
-    
+
     private func main(content: Content) -> some View {
         ZStack {
             content
                 .frameGetter($presenterContentRect)
-            
+
             if showContent {
                 backgroundColor
                     .applyIf(closeOnTapOutside) { view in
@@ -293,10 +293,10 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         // if needed, dispatch autohide and cancel previous one
         if let autohideIn = autohideIn {
             dispatchWorkHolder.work?.cancel()
-            
+
             // Weak reference to avoid the work item capturing the struct,
             // which would create a retain cycle with the work holder itself.
-            
+
             let block = dismissCallback
             dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef] in
                 isPresentedRef?.value.wrappedValue = false
@@ -356,7 +356,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         }
     }
     #endif
-    
+
     private func appearAction(isPresented: Bool) {
         if isPresented {
             showContent = true
@@ -367,7 +367,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             animatedContentIsPresented = false
         }
     }
-    
+
     private func dismiss() {
         dispatchWorkHolder.work?.cancel()
         isPresented = false
@@ -381,15 +381,14 @@ final class DispatchWorkHolder {
 
 private final class ClassReference<T> {
     var value: T
-    
+
     init(_ value: T) {
         self.value = value
     }
 }
 
-
 extension View {
-    
+
     @ViewBuilder
     fileprivate func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
         if #available(iOS 14.0, tvOS 14.0, macOS 11.0, watchOS 7.0, *) {

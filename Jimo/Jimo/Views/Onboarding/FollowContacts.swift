@@ -7,18 +7,17 @@
 
 import SwiftUI
 
-
 struct FollowContacts: View {
     @EnvironmentObject var appState: AppState
-    
+
     @ObservedObject var onboardingModel: OnboardingModel
     @StateObject private var contactStore = ExistingContactStore()
-    
+
     @ViewBuilder var viewBody: some View {
         VStack {
             HStack {
                 Spacer()
-                
+
                 Text("Skip")
                     .foregroundColor(.gray)
                     .onTapGesture {
@@ -27,12 +26,12 @@ struct FollowContacts: View {
             }
             .padding(.vertical, 10)
             .padding(.horizontal, 30)
-            
+
             Text("Friends Already Here")
                 .font(.system(size: 24))
-            
+
             Spacer()
-            
+
             if contactStore.loadingExistingUsers {
                 ProgressView()
             } else if let error = contactStore.loadingExistingUsersError {
@@ -70,7 +69,7 @@ struct FollowContacts: View {
                         .foregroundColor(Color("foreground"))
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 15)
-                    
+
                     Button(action: {
                         onboardingModel.step()
                     }) {
@@ -79,7 +78,7 @@ struct FollowContacts: View {
                 }
                 .padding(.horizontal, 40)
             }
-            
+
             Spacer()
         }
         .padding(.bottom, 100)
@@ -89,7 +88,7 @@ struct FollowContacts: View {
         .foregroundColor(Color("foreground"))
         .background(Color("background").edgesIgnoringSafeArea(.all))
     }
-    
+
     var body: some View {
         ZStack {
             viewBody

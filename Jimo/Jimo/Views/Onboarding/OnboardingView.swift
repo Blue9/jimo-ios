@@ -10,7 +10,7 @@ import SwiftUI
 struct OnboardingView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var onboardingModel: OnboardingModel
-    
+
     var body: some View {
         NavigationView {
             VStack {

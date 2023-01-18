@@ -23,12 +23,12 @@ struct Place: Identifiable, Codable, Equatable, Hashable {
 struct Location: Codable, Equatable, Hashable {
     var latitude: Double
     var longitude: Double
-    
+
     init(coord: CLLocationCoordinate2D) {
         self.latitude = coord.latitude
         self.longitude = coord.longitude
     }
-    
+
     func coordinate() -> CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
@@ -38,7 +38,7 @@ struct Region: Codable, Equatable {
     var latitude: Double
     var longitude: Double
     var radius: Double
-    
+
     init(coord: CLLocationCoordinate2D, radius: Double) {
         self.latitude = coord.latitude
         self.longitude = coord.longitude
@@ -67,7 +67,7 @@ struct AdditionalPlaceDataRequest: Codable {
     var phoneNumber: String?
     var url: String?
     var timeZone: String?
-    
+
     init(_ mapItem: MKMapItem) {
         let placemark = mapItem.placemark
         countryCode = placemark.countryCode
@@ -95,7 +95,7 @@ struct GetPlaceDetailsResponse: Codable, Equatable {
     var communityPosts: [Post]
     var featuredPosts: [Post]
     var followingPosts: [Post]
-    
+
     var hasPosts: Bool {
         communityPosts.count + featuredPosts.count + followingPosts.count > 0
     }

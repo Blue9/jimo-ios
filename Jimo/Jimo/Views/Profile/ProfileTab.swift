@@ -10,11 +10,11 @@ import SwiftUI
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     let currentUser: PublicUser
-    
+
     @State private var showSettings = false
-    
+
     var body: some View {
         NavigationView {
             Profile(initialUser: currentUser)

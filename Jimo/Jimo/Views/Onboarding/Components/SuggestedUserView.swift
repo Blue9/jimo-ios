@@ -10,12 +10,12 @@ import SwiftUI
 struct SuggestedUserView<T: SuggestedUserStore>: View {
     @ObservedObject var userStore: T
     let user: PublicUser
-    
+
     var profilePicture: URLImage {
         return URLImage(url: user.profilePictureUrl,
                         loading: Image(systemName: "person.crop.circle").resizable())
     }
-    
+
     var body: some View {
         VStack {
             ZStack(alignment: .topTrailing) {
@@ -25,7 +25,7 @@ struct SuggestedUserView<T: SuggestedUserStore>: View {
                     .scaledToFill()
                     .frame(width: 80, height: 80)
                     .cornerRadius(40)
-                
+
                 if userStore.selectedUsernames.contains(user.username) {
                     Image("selectedContact")
                         .resizable()
@@ -33,7 +33,7 @@ struct SuggestedUserView<T: SuggestedUserStore>: View {
                         .shadow(radius: 5)
                 }
             }
-            
+
             Text(user.firstName + " " + user.lastName)
                 .font(.system(size: 12))
         }

@@ -15,19 +15,19 @@ struct CommentLikePayload {
 
 class CommentPublisher {
     let notificationCenter = NotificationCenter.default
-    
+
     static let commentCreated = Notification.Name("comment:created")
     static let commentLikes = Notification.Name("comment:likes")
     static let commentDeleted = Notification.Name("comment:deleted")
-    
+
     func commentCreated(comment: Comment) {
         notificationCenter.post(name: CommentPublisher.commentCreated, object: comment)
     }
-    
+
     func commentLikes(commentId: CommentId, likeCount: Int, liked: Bool) {
         notificationCenter.post(name: CommentPublisher.commentLikes, object: CommentLikePayload(commentId: commentId, likeCount: likeCount, liked: liked))
     }
-    
+
     func commentDeleted(commentId: CommentId) {
         notificationCenter.post(name: CommentPublisher.commentDeleted, object: commentId)
     }
