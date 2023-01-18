@@ -8,36 +8,36 @@
 import SwiftUI
 import BottomSheet
 
-fileprivate struct CategoryView: View {
+private struct CategoryView: View {
     @Binding var selected: Set<Category>
-    
+
     var category: Category
-    
+
     var key: String {
         category.key
     }
-    
+
     var isSelected: Bool {
         selected.contains(category)
     }
-    
+
     var allSelected: Bool {
         selected.count == Categories.categories.count
     }
-    
+
     var onlySelected: Bool {
         isSelected && selected.count == 1
     }
-    
+
     var body: some View {
         HStack {
             Image(key)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 35, maxHeight: 35)
-            
+
             Spacer()
-            
+
             Text(category.name)
                 .font(.system(size: 15))
                 .foregroundColor(.black)
@@ -62,10 +62,9 @@ fileprivate struct CategoryView: View {
     }
 }
 
-
 struct CategoryFilter: View {
     @Binding var selected: Set<Category>
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -74,18 +73,18 @@ struct CategoryFilter: View {
                     .bold()
                 Spacer()
             }
-            
+
             VStack {
                 HStack {
                     CategoryView(selected: $selected, category: Categories.categories[0])
                     CategoryView(selected: $selected, category: Categories.categories[1])
                 }
-                
+
                 HStack {
                     CategoryView(selected: $selected, category: Categories.categories[2])
                     CategoryView(selected: $selected, category: Categories.categories[3])
                 }
-                
+
                 HStack {
                     CategoryView(selected: $selected, category: Categories.categories[4])
                     CategoryView(selected: $selected, category: Categories.categories[5])
@@ -94,4 +93,3 @@ struct CategoryFilter: View {
         }
     }
 }
-

@@ -10,16 +10,16 @@ import SwiftUI
 struct FeedItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @StateObject var postVM = PostVM()
-    
+
     var post: Post
     @State var showFullPost = false
-    
+
     var body: some View {
         VStack {
             PostHeader(postVM: postVM, post: post)
-            
+
             PostImage(post: post)
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
                 .contentShape(Rectangle())
@@ -27,7 +27,7 @@ struct FeedItem: View {
                 .onTapGesture {
                     showFullPost = true
                 }
-            
+
             VStack(spacing: 5) {
                 PostPlaceName(post: post)
                 PostCaption(post: post)
@@ -37,7 +37,7 @@ struct FeedItem: View {
                     }
             }
             PostFooter(viewModel: postVM, post: post, showZeroCommentCount: false, onCommentTap: { showFullPost = true })
-            
+
             Rectangle()
                 .frame(maxWidth: .infinity)
                 .frame(height: 8)

@@ -9,10 +9,10 @@ import SwiftUI
 
 struct ActivityView: UIViewControllerRepresentable {
     var shareAction: ShareAction
-    var applicationActivities: [UIActivity]? = nil
-    
+    var applicationActivities: [UIActivity]?
+
     @Binding var isPresented: Bool
-    
+
     func makeUIViewController(context: Context) -> ActivityViewWrapper {
         ActivityViewWrapper(
             shareAction: shareAction,
@@ -20,7 +20,7 @@ struct ActivityView: UIViewControllerRepresentable {
             isPresented: $isPresented
         )
     }
-    
+
     func updateUIViewController(_ uiViewController: ActivityViewWrapper, context: Context) {
         uiViewController.isPresented = $isPresented
         uiViewController.updateState()
@@ -30,13 +30,13 @@ struct ActivityView: UIViewControllerRepresentable {
 class ActivityViewWrapper: UIViewController, UIActivityItemSource {
     var shareAction: ShareAction
     var applicationActivities: [UIActivity]?
-    
+
     var isPresented: Binding<Bool>
-    
+
     var shareTitle: String {
         "Check \(shareAction.name) out on Jimo"
     }
-    
+
     init(
         shareAction: ShareAction,
         applicationActivities: [UIActivity]? = nil,
@@ -47,16 +47,16 @@ class ActivityViewWrapper: UIViewController, UIActivityItemSource {
         self.isPresented = isPresented
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func didMove(toParent parent: UIViewController?) {
         super.didMove(toParent: parent)
         updateState()
     }
-    
+
     fileprivate func updateState() {
         guard parent != nil else { return }
         let isActivityPresented = presentedViewController != nil
@@ -73,17 +73,16 @@ class ActivityViewWrapper: UIViewController, UIActivityItemSource {
                     self.isPresented.wrappedValue = false
                 }
                 self.present(controller, animated: true, completion: nil)
-            }
-            else {
+            } else {
                 self.presentedViewController?.dismiss(animated: true, completion: nil)
             }
         }
     }
-    
+
     func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
         return shareTitle
     }
-    
+
     func activityViewController(
         _ activityViewController: UIActivityViewController,
         itemForActivityType activityType: UIActivity.ActivityType?

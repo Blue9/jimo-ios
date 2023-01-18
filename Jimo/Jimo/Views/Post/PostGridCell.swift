@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PostGridCell: View {
     var post: Post
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             GeometryReader { geometry in
@@ -27,12 +27,12 @@ struct PostGridCell: View {
             .background(Color(post.category))
             .cornerRadius(2)
             .padding(.bottom, 5)
-            
+
             Text(post.place.name)
                 .font(.system(size: 12))
                 .bold()
                 .lineLimit(1)
-            
+
             Text(post.place.regionName ?? "")
                 .font(.system(size: 12))
                 .lineLimit(1)

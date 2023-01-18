@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct TextAlert: UIViewControllerRepresentable {
     @State private var text = ""
     @Binding var isPresented: Bool
@@ -73,4 +72,3 @@ extension View {
         }
     }
 }
-

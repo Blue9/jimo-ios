@@ -11,11 +11,10 @@ import Combine
 import MapKit
 import Firebase
 
-
 struct Endpoint {
     let path: String
     var queryItems: [URLQueryItem] = []
-    
+
     var url: URL? {
         var apiURL = URLComponents()
         apiURL.scheme = "https"
@@ -25,45 +24,45 @@ struct Endpoint {
         apiURL.queryItems = queryItems
         return apiURL.url
     }
-    
+
     // MARK: - Invite + waitlist endpoints
-    
+
     static func waitlistStatus() -> Endpoint {
         return Endpoint(path: "/waitlist/status")
     }
-    
+
     static func joinWaitlist() -> Endpoint {
         return Endpoint(path: "/waitlist")
     }
-    
+
     static func inviteUser() -> Endpoint {
         return Endpoint(path: "/waitlist/invites")
     }
-    
+
     // MARK: - Onboarding endpoints
-    
+
     static func contacts() -> Endpoint {
         return Endpoint(path: "/me/contacts")
     }
-    
+
     static func featuredUsers() -> Endpoint {
         return Endpoint(path: "/me/suggested")
     }
-    
+
     static func suggestedUsers() -> Endpoint {
         return Endpoint(path: "/me/suggested-users")
     }
-    
+
     static func followMany() -> Endpoint {
         return Endpoint(path: "/me/following")
     }
-    
+
     // MARK: - User endpoints
-    
+
     static func me() -> Endpoint {
         return Endpoint(path: "/me")
     }
-    
+
     static func savedPosts(cursor: String? = nil) -> Endpoint {
         let path = "/me/saved-posts"
         var queryItems: [URLQueryItem] = []
@@ -72,27 +71,27 @@ struct Endpoint {
         }
         return Endpoint(path: path, queryItems: queryItems)
     }
-    
+
     static func profilePicture() -> Endpoint {
         return Endpoint(path: "/me/photo")
     }
-    
+
     static func createUser() -> Endpoint {
         return Endpoint(path: "/users")
     }
-    
+
     static func deleteUser() -> Endpoint {
         return Endpoint(path: "/me/delete")
     }
-    
+
     static func user(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)")
     }
-    
+
     static func preferences() -> Endpoint {
         return Endpoint(path: "/me/preferences")
     }
-    
+
     static func feed(cursor: String? = nil) -> Endpoint {
         let path = "/me/feed"
         if let cursor = cursor {
@@ -100,7 +99,7 @@ struct Endpoint {
         }
         return Endpoint(path: path)
     }
-    
+
     static func posts(username: String, cursor: String? = nil, limit: Int? = nil) -> Endpoint {
         let path = "/users/\(username)/posts"
         var queryItems: [URLQueryItem] = []
@@ -112,67 +111,67 @@ struct Endpoint {
         }
         return Endpoint(path: path, queryItems: queryItems)
     }
-    
+
     static func followers(username: String, cursor: String? = nil) -> Endpoint {
         let queryItems = [URLQueryItem(name: "cursor", value: cursor)]
         return Endpoint(path: "/users/\(username)/followers", queryItems: cursor != nil ? queryItems : [])
     }
-    
+
     static func following(username: String, cursor: String? = nil) -> Endpoint {
         let queryItems = [URLQueryItem(name: "cursor", value: cursor)]
         return Endpoint(path: "/users/\(username)/following", queryItems: cursor != nil ? queryItems : [])
     }
-    
+
     // MARK: - Relation endpoints
-    
+
     static func follow(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/follow")
     }
-    
+
     static func unfollow(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/unfollow")
     }
-    
+
     static func block(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/block")
     }
-    
+
     static func unblock(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/unblock")
     }
-    
+
     static func relation(username: String) -> Endpoint {
         return Endpoint(path: "/users/\(username)/relation")
     }
-    
+
     // MARK: - Post endpoints
-    
+
     static func createPost() -> Endpoint {
         return Endpoint(path: "/posts")
     }
-    
+
     static func post(postId: PostId) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)")
     }
-    
+
     static func reportPost(postId: PostId) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/report")
     }
-    
+
     static func postLikes(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
     }
-    
+
     static func savePost(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/save")
     }
-    
+
     static func unsavePost(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/unsave")
     }
-    
+
     // MARK: - Comment endpoints
-    
+
     static func comments(for postId: PostId, cursor: String? = nil) -> Endpoint {
         let path = "/posts/\(postId)/comments"
         if let cursor = cursor {
@@ -180,27 +179,27 @@ struct Endpoint {
         }
         return Endpoint(path: path)
     }
-    
+
     static func createComment() -> Endpoint {
         return Endpoint(path: "/comments")
     }
-    
+
     static func comment(commentId: CommentId) -> Endpoint {
         return Endpoint(path: "/comments/\(commentId)")
     }
-    
+
     static func commentLikes(commentId: CommentId) -> Endpoint {
         return Endpoint(path: "/comments/\(commentId)/likes")
     }
-    
+
     // MARK: - Search endpoints
-    
+
     static func searchUsers(query: String) -> Endpoint {
         return Endpoint(path: "/search/users", queryItems: [URLQueryItem(name: "q", value: query)])
     }
-    
+
     // MARK: - Discover endpoints
-    
+
     static func discoverFeedV2(location: Location? = nil) -> Endpoint {
         let path = "/me/discoverV2"
         if let location = location {
@@ -212,15 +211,15 @@ struct Endpoint {
         }
         return Endpoint(path: path)
     }
-    
+
     // MARK: - Map endpoints
-    
+
     static func getMap() -> Endpoint {
         return Endpoint(path: "/map/load")
     }
-    
+
     // MARK: Places endpoints
-    
+
     static func findPlace(name: String, latitude: Double, longitude: Double) -> Endpoint {
         let queryItems = [
             URLQueryItem(name: "name", value: name),
@@ -229,31 +228,30 @@ struct Endpoint {
         ]
         return Endpoint(path: "/places/matching", queryItems: queryItems)
     }
-    
+
     static func getPlaceDetails(id: PlaceId) -> Endpoint {
         Endpoint(path: "/places/\(id)/details")
     }
-    
+
     // MARK: Feedback endpoint
-    
+
     static func submitFeedback() -> Endpoint {
         return Endpoint(path: "/feedback")
     }
-    
+
     static func notificationToken() -> Endpoint {
         return Endpoint(path: "/notifications/token")
     }
-    
+
     static func getNotificationsFeed(token: String?) -> Endpoint {
         let queryItems = [URLQueryItem(name: "cursor", value: token)]
         return Endpoint(path: "/notifications/feed", queryItems: token != nil ? queryItems : [])
     }
-    
+
     static func uploadImage() -> Endpoint {
         return Endpoint(path: "/images")
     }
 }
-
 
 enum APIError: Error, Equatable {
     case requestError([String: String]?)
@@ -269,7 +267,7 @@ enum APIError: Error, Equatable {
     case rateLimitError
     case serverError
     case unknownError
-    
+
     var message: String? {
         if case let .requestError(maybeErrors) = self,
            let errors = maybeErrors,
@@ -285,37 +283,37 @@ struct EmptyBody: Encodable {
 
 class APIClient: ObservableObject {
     var authClient: AuthClient
-    
+
     /**
      Create a new API client. This creates the auth client as well.
      */
     init() {
         self.authClient = .init()
     }
-    
+
     /**
      Listen to Firebase auth changes.
      */
     func setAuthHandler(handle: @escaping (Firebase.Auth, Firebase.User?) -> Void) {
         self.authClient.handle = Auth.auth().addStateDidChangeListener(handle)
     }
-    
+
     // MARK: - Invite + waitlist endpoints
-    
+
     /**
      Check if the current user is on the waitlist.
      */
     func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
         return doRequest(endpoint: Endpoint.waitlistStatus())
     }
-    
+
     /**
      Add the current user to the waitlist.
      */
     func joinWaitlist() -> AnyPublisher<UserWaitlistStatus, APIError> {
         return doRequest(endpoint: Endpoint.joinWaitlist(), httpMethod: "POST")
     }
-    
+
     /**
      Invite another user.
      */
@@ -324,9 +322,9 @@ class APIClient: ObservableObject {
                          httpMethod: "POST",
                          body: InviteUserRequest(phoneNumber: phoneNumber))
     }
-    
+
     // MARK: - Onboarding endpoints
-    
+
     /**
      Get users with any of the given phone numbers.
      */
@@ -335,21 +333,21 @@ class APIClient: ObservableObject {
                          httpMethod: "POST",
                          body: PhoneNumbersRequest(phoneNumbers: phoneNumbers))
     }
-    
+
     /**
      Get the list of featured users.
      */
     func getFeaturedUsers() -> AnyPublisher<[PublicUser], APIError> {
         return doRequest(endpoint: Endpoint.featuredUsers())
     }
-    
+
     /**
      Get the list of suggested users.
      */
     func getSuggestedUsers() -> AnyPublisher<SuggestedUsersResponse, APIError> {
         return doRequest(endpoint: Endpoint.suggestedUsers())
     }
-    
+
     /**
      Follow the list of usernames.
      */
@@ -358,9 +356,9 @@ class APIClient: ObservableObject {
                          httpMethod: "POST",
                          body: FollowManyRequest(usernames: usernames))
     }
-    
+
     // MARK: - Notification endpoints
-    
+
     /**
      Register the notification token.
      */
@@ -369,7 +367,7 @@ class APIClient: ObservableObject {
                          httpMethod: "POST",
                          body: NotificationTokenRequest(token: token))
     }
-    
+
     /**
      Remove the notification token.
      */
@@ -378,51 +376,51 @@ class APIClient: ObservableObject {
                          httpMethod: "DELETE",
                          body: NotificationTokenRequest(token: token))
     }
-    
+
     /**
      Get the notification feed.
      */
     func getNotificationsFeed(token: String?) -> AnyPublisher<NotificationFeedResponse, APIError> {
         return doRequest(endpoint: Endpoint.getNotificationsFeed(token: token))
     }
-    
+
     // MARK: - User endpoints
-    
+
     /**
      Get the current user profile.
      */
     func getMe() -> AnyPublisher<PublicUser, APIError> {
         return doRequest(endpoint: Endpoint.me())
     }
-    
+
     /**
      Get the saved posts by the current user.
      */
     func getSavedPosts(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
         doRequest(endpoint: Endpoint.savedPosts(cursor: cursor))
     }
-    
+
     /**
      Create a new user profile.
      */
     func createUser(_ request: CreateUserRequest) -> AnyPublisher<CreateUserResponse, APIError> {
         return doRequest(endpoint: Endpoint.createUser(), httpMethod: "POST", body: request)
     }
-    
+
     /**
      Delete the current user's account.
      */
     func deleteUser() -> AnyPublisher<SimpleResponse, APIError> {
         return doRequest(endpoint: Endpoint.deleteUser(), httpMethod: "POST")
     }
-    
+
     /**
      Update the given user's profile.
      */
     func updateProfile(_ request: UpdateProfileRequest) -> AnyPublisher<UpdateProfileResponse, APIError> {
         return doRequest(endpoint: Endpoint.me(), httpMethod: "POST", body: request)
     }
-    
+
     /**
      Set the current user's profile picture.
      */
@@ -439,35 +437,35 @@ class APIClient: ObservableObject {
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
-    
+
     /**
      Get the given user's preferences.
      */
     func getPreferences() -> AnyPublisher<UserPreferences, APIError> {
         return doRequest(endpoint: Endpoint.preferences())
     }
-    
+
     /**
      Update the given user's preferences.
      */
     func updatePreferences(_ request: UserPreferences) -> AnyPublisher<UserPreferences, APIError> {
         return doRequest(endpoint: Endpoint.preferences(), httpMethod: "POST", body: request)
     }
-    
+
     /**
      Get the user with the given username and pass the result into the given handler.
      */
     func getUser(username: String) -> AnyPublisher<PublicUser, APIError> {
         return doRequest(endpoint: Endpoint.user(username: username))
     }
-    
+
     /**
      Get the feed for the given user.
      */
     func getFeed(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
         return doRequest(endpoint: Endpoint.feed(cursor: cursor))
     }
-    
+
     /**
      Get the map for the given user.
      */
@@ -478,30 +476,30 @@ class APIClient: ObservableObject {
             body: request
         )
     }
-    
+
     // MARK: - Get mutual posts
-    
+
     /**
      Get the posts by the given user.
      */
     func getPosts(username: String, cursor: String? = nil, limit: Int? = nil) -> AnyPublisher<FeedResponse, APIError> {
         doRequest(endpoint: Endpoint.posts(username: username, cursor: cursor, limit: limit))
     }
-    
+
     /**
      Get list of followers for given user.
      */
     func getFollowers(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
         doRequest(endpoint: Endpoint.followers(username: username, cursor: cursor))
     }
-    
+
     /**
      Get list of followed users for given user.
      */
     func getFollowing(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
         doRequest(endpoint: Endpoint.following(username: username, cursor: cursor))
     }
-    
+
     // MARK: - Place endpoints
     func findPlace(
         name: String,
@@ -510,100 +508,100 @@ class APIClient: ObservableObject {
     ) -> AnyPublisher<FindPlaceResponse, APIError> {
         doRequest(endpoint: .findPlace(name: name, latitude: latitude, longitude: longitude))
     }
-    
+
     func getPlaceDetails(placeId: PlaceId) -> AnyPublisher<GetPlaceDetailsResponse, APIError> {
         doRequest(endpoint: .getPlaceDetails(id: placeId))
     }
-    
+
     // MARK: - Relation endpoints
-    
+
     /**
      Follow user.
      */
     func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         doRequest(endpoint: Endpoint.follow(username: username), httpMethod: "POST")
     }
-    
+
     /**
      Unfollow user.
      */
     func unfollowUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
         doRequest(endpoint: Endpoint.unfollow(username: username), httpMethod: "POST")
     }
-    
+
     func blockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
         doRequest(endpoint: Endpoint.block(username: username), httpMethod: "POST")
     }
-    
+
     func unblockUser(username: String) -> AnyPublisher<SimpleResponse, APIError> {
         doRequest(endpoint: Endpoint.unblock(username: username), httpMethod: "POST")
     }
-    
+
     /**
      Get follow status.
      */
     func relation(to username: String) -> AnyPublisher<RelationToUser, APIError> {
         doRequest(endpoint: Endpoint.relation(username: username))
     }
-    
+
     // MARK: - Post endpoints
-    
+
     /**
      Create a new post.
      */
     func createPost(_ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
         return doRequest(endpoint: Endpoint.createPost(), httpMethod: "POST", body: request)
     }
-    
+
     /**
      Get the given post.
      */
     func getPost(_ postId: PostId) -> AnyPublisher<Post, APIError> {
         return doRequest(endpoint: Endpoint.post(postId: postId))
     }
-    
+
     /**
      Edit a post.
      */
     func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
         return doRequest(endpoint: Endpoint.post(postId: postId), httpMethod: "PUT", body: request)
     }
-    
+
     /**
      Delete a post.
      */
     func deletePost(postId: PostId) -> AnyPublisher<DeletePostResponse, APIError> {
         return doRequest(endpoint: Endpoint.post(postId: postId), httpMethod: "DELETE")
     }
-    
+
     /**
      Like the given post.
      */
     func likePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         doRequest(endpoint: Endpoint.postLikes(postId: postId), httpMethod: "POST")
     }
-    
+
     /**
      Unlike the given post.
      */
     func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         doRequest(endpoint: Endpoint.postLikes(postId: postId), httpMethod: "DELETE")
     }
-    
+
     /**
      Save the given post.
      */
     func savePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
         doRequest(endpoint: Endpoint.savePost(postId: postId), httpMethod: "POST")
     }
-    
+
     /**
      Unsave the given post.
      */
     func unsavePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
         doRequest(endpoint: Endpoint.unsavePost(postId: postId), httpMethod: "POST")
     }
-    
+
     /**
      Report the given post.
      */
@@ -612,43 +610,43 @@ class APIClient: ObservableObject {
                   httpMethod: "POST",
                   body: ReportPostRequest(details: details))
     }
-    
+
     // MARK: - Comment endpoints
-    
+
     func getComments(for postId: PostId, cursor: String? = nil) -> AnyPublisher<CommentPage, APIError> {
         doRequest(endpoint: Endpoint.comments(for: postId, cursor: cursor))
     }
-    
+
     func createComment(for postId: PostId, content: String) -> AnyPublisher<Comment, APIError> {
         doRequest(endpoint: Endpoint.createComment(),
                   httpMethod: "POST",
                   body: CreateCommentRequest(postId: postId, content: content))
     }
-    
+
     func deleteComment(commentId: CommentId) -> AnyPublisher<SimpleResponse, APIError> {
         doRequest(endpoint: Endpoint.comment(commentId: commentId), httpMethod: "DELETE")
     }
-    
+
     func likeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
         doRequest(endpoint: Endpoint.commentLikes(commentId: commentId), httpMethod: "POST")
     }
-    
+
     func unlikeComment(commentId: CommentId) -> AnyPublisher<LikeCommentResponse, APIError> {
         doRequest(endpoint: Endpoint.commentLikes(commentId: commentId), httpMethod: "DELETE")
     }
-    
+
     // MARK: - Search endpoints
-    
+
     func searchUsers(query: String) -> AnyPublisher<[PublicUser], APIError> {
         doRequest(endpoint: Endpoint.searchUsers(query: query))
     }
-    
+
     // MARK: - Discover endpoints
-    
+
     func getDiscoverFeedV2(location: Location? = nil) -> AnyPublisher<FeedResponse, APIError> {
         doRequest(endpoint: Endpoint.discoverFeedV2(location: location))
     }
-    
+
     func uploadImage(imageData: Data) -> AnyPublisher<ImageUploadResponse, APIError> {
         guard let url = Endpoint.uploadImage().url else {
             return Fail(error: APIError.endpointError).eraseToAnyPublisher()
@@ -662,15 +660,15 @@ class APIClient: ObservableObject {
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
-    
+
     // MARK: Feedback
-    
+
     func submitFeedback(_ request: FeedbackRequest) -> AnyPublisher<SimpleResponse, APIError> {
         doRequest(endpoint: Endpoint.submitFeedback(), httpMethod: "POST", body: request)
     }
-    
+
     // MARK: - Helpers
-    
+
     /**
      Get an auth token for the logged in user if possible.
      */
@@ -684,7 +682,7 @@ class APIClient: ObservableObject {
             .mapError({ _ in APIError.tokenError })
             .eraseToAnyPublisher()
     }
-    
+
     /**
      Build a URLRequest object given the url, auth token, and http method, which defaults to GET.
      
@@ -704,7 +702,7 @@ class APIClient: ObservableObject {
         request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Accept")
         return request
     }
-    
+
     /**
      Make a request to the given endpoint and pass the result to the given handler.
      
@@ -713,7 +711,7 @@ class APIClient: ObservableObject {
     private func doRequest<Response: Decodable>(endpoint: Endpoint, httpMethod: String = "GET") -> AnyPublisher<Response, APIError> {
         return doRequest(endpoint: endpoint, httpMethod: httpMethod, body: nil as EmptyBody?)
     }
-    
+
     /**
      Make a request to the given endpoint and pass the result to the given handler.
      
@@ -726,7 +724,7 @@ class APIClient: ObservableObject {
             return Fail(error: APIError.endpointError)
                 .eraseToAnyPublisher()
         }
-        var jsonBody: Data? = nil
+        var jsonBody: Data?
         if let body = body {
             jsonBody = try? JSONEncoder().encode(body)
             if jsonBody == nil {
@@ -749,7 +747,7 @@ class APIClient: ObservableObject {
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
-    
+
     private func urlSessionPublisherHandler<Response: Decodable>(result: URLSession.DataTaskPublisher.Output) throws -> Response {
         guard let response = result.response as? HTTPURLResponse else {
             print("Did not get response from server")
@@ -793,4 +791,3 @@ class APIClient: ObservableObject {
         throw APIError.decodeError
     }
 }
-

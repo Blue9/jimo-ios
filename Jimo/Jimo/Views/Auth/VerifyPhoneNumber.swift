@@ -12,12 +12,12 @@ struct VerifyPhoneNumber: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
     @FocusState private var isFocused: Bool
-    
+
     var body: some View {
         ZStack {
             VStack(spacing: 20) {
                 Text("Enter your six-digit verification code")
-                
+
                 TextField("Verification code", text: $viewModel.verificationCode)
                     .focused($isFocused)
                     .keyboardType(.numberPad)
@@ -28,7 +28,7 @@ struct VerifyPhoneNumber: View {
                     .appear {
                         isFocused = true
                     }
-                
+
                 Button(action: {
                     viewModel.verifyPhoneNumber(appState: appState)
                 }) {
@@ -57,14 +57,14 @@ extension VerifyPhoneNumber {
         @Published var verificationCode = ""
         @Published var error = ""
         @Published var showError = false
-        
+
         private var cancelBag: Set<AnyCancellable> = .init()
-        
+
         func setError(_ error: String) {
             self.showError = true
             self.error = error
         }
-        
+
         func verifyPhoneNumber(appState: AppState) {
             hideKeyboard()
             appState.signInPhone(verificationCode: verificationCode)
@@ -73,7 +73,7 @@ extension VerifyPhoneNumber {
                         print("Error", error)
                         self?.setError("Invalid code. Try again.")
                     }
-                }, receiveValue: { [weak self] result in
+                }, receiveValue: { [weak self] _ in
                     self?.verificationCode = ""
                     self?.error = ""
                 })

@@ -16,9 +16,9 @@ struct MainAppView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @EnvironmentObject var deepLinkManager: DeepLinkManager
     @StateObject private var viewModel = ViewModel()
-    
+
     let currentUser: PublicUser
-    
+
     var mainBody: some View {
         UITabView(selection: viewModel.selectionIndex) {
             FeedTab(onCreatePostTap: { viewModel.createPostPresented = true })
@@ -29,13 +29,13 @@ struct MainAppView: View {
                     image: UIImage(named: "feedIcon"),
                     badgeValue: appState.unreadNotifications > 0 ? String(appState.unreadNotifications) : nil
                 )
-            
+
             MapTab()
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .environmentObject(deepLinkManager)
                 .tabItem("", image: UIImage(named: "mapIcon"))
-            
+
             ProfileTab(currentUser: currentUser)
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
@@ -61,7 +61,7 @@ struct MainAppView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     var newPostButton: some View {
         ZStack {
@@ -82,11 +82,11 @@ struct MainAppView: View {
             }
         }
     }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             mainBody
-            
+
             newPostButton
                 .opacity(viewModel.selection == .map ? 1 : 0) // sadly not clean
         }
@@ -97,14 +97,14 @@ fileprivate extension MainAppView {
     class ViewModel: ObservableObject {
         @Published var createPostPresented: Bool = false
         @Published var selection: Tab = Tab.map
-        
+
         var selectionIndex: Binding<Int> {
             Binding<Int>(
                 get: { self.selection.rawValue },
                 set: { self.selection = Tab(rawValue: $0)! }
             )
         }
-        
+
         var currentTab: Screen {
             switch selection {
             case .feed:

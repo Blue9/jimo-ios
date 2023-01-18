@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct RequestLocation: View {
-    var onCompleteRequest: () -> ()
-    
+    var onCompleteRequest: () -> Void
+
     var body: some View {
         RequestPermission(
             onCompleteRequest: onCompleteRequest,

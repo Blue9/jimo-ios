@@ -26,22 +26,20 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var commentCount: Int
     var liked: Bool
     var saved: Bool
-    
+
     var location: CLLocationCoordinate2D {
         place.location.coordinate()
     }
-    
+
     var postUrl: URL {
         URL(string: "https://go.jimoapp.com/view-post?id=\(id)")!
     }
 }
 
-
 struct FeedResponse: Codable {
     var posts: [Post]
     var cursor: String?
 }
-
 
 struct CreatePostRequest: Codable {
     /// One of placeId and place must be specified

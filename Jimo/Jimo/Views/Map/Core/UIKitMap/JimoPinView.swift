@@ -17,21 +17,21 @@ class JimoPinView: MKAnnotationView {
     private var pinState = PinState.regular
     private var pinDiameter: CGFloat = 25
     private var pinBorderWidth: CGFloat = 2
-    
+
     private var width: CGFloat {
         pinDiameter + pinBorderWidth * 2
     }
-    
+
     private var height: CGFloat {
         width
     }
-    
+
     private lazy var view: UIView = {
         let view = UIView()
         view.frame = self.bounds
         return view
     }()
-    
+
     private lazy var imageView: UIImageView = {
         let image = UIImageView()
         image.frame = CGRect(x: 0, y: 0, width: pinDiameter, height: pinDiameter)
@@ -41,7 +41,7 @@ class JimoPinView: MKAnnotationView {
         image.backgroundColor = .white
         return image
     }()
-    
+
     private lazy var badgeView: UITextView = {
         let badge = UITextView()
         badge.isEditable = false
@@ -54,7 +54,7 @@ class JimoPinView: MKAnnotationView {
         badge.font = .systemFont(ofSize: 9, weight: .bold)
         return badge
     }()
-    
+
     private lazy var overlay: UIView = {
         let overlay = UIView()
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -63,7 +63,7 @@ class JimoPinView: MKAnnotationView {
         overlay.layer.cornerRadius = overlay.frame.width / 2.0
         return overlay
     }()
-    
+
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         backgroundColor = UIColor.clear
@@ -72,23 +72,23 @@ class JimoPinView: MKAnnotationView {
         view.addSubview(imageView)
         view.addSubview(overlay)
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
         badgeView.removeFromSuperview()
         toPin()
     }
-    
+
     override func prepareForDisplay() {
         super.prepareForDisplay()
         guard let pin = annotation as? MKJimoPinAnnotation else {
             return
         }
-        
+
         if let url = pin.imageUrl {
             let transformer = SDImageResizingTransformer(size: CGSize(width: pinDiameter * 3, height: pinDiameter * 3), scaleMode: .fill)
             imageView.sd_setImage(
@@ -104,7 +104,7 @@ class JimoPinView: MKAnnotationView {
         if let color = UIColor(named: pin.category?.lowercased() ?? "lightgray") {
             imageView.layer.borderColor = color.cgColor
         }
-        
+
         if pin.numPosts > 1 {
             badgeView.text = String(pin.numPosts)
             badgeView.sizeToFit()
@@ -114,7 +114,7 @@ class JimoPinView: MKAnnotationView {
             badgeView.center = CGPoint(x: view.frame.width - badgeView.frame.width / 2, y: badgeView.frame.height / 2)
         }
     }
-    
+
     func toDot() {
         if self.pinState == .dot {
             return
@@ -126,7 +126,7 @@ class JimoPinView: MKAnnotationView {
         self.zPriority = .init(2.0)
         self.pinState = .dot
     }
-    
+
     func toPin() {
         if self.pinState == .regular {
             return

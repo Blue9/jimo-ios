@@ -16,18 +16,17 @@ struct Colors {
         Color("nightlife"),
         Color("shopping")
     ]
-    
+
     static let gradientColors = Gradient(colors: colors)
-    
+
     static let linearGradient = LinearGradient(
         gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
-    
+
     static let angularGradient = AngularGradient(colors: colors + [Color("food")], center: .center)
-    
+
     static let linearGradientReversed = LinearGradient(
         gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
 }
-
 
 struct Category: Identifiable, Hashable {
     var id: String {
@@ -43,7 +42,6 @@ struct Category: Identifiable, Hashable {
     }
 }
 
-
 struct Categories {
     static let categories = [
         Category(name: "Food", key: "food"),
@@ -51,6 +49,6 @@ struct Categories {
         Category(name: "Nightlife", key: "nightlife"),
         Category(name: "Things to see", key: "attraction"),
         Category(name: "Lodging", key: "lodging"),
-        Category(name: "Shopping", key: "shopping"),
+        Category(name: "Shopping", key: "shopping")
     ]
 }

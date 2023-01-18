@@ -12,9 +12,9 @@ import Network
 class NetworkConnectionMonitor: ObservableObject {
     let monitor = NWPathMonitor()
     var cancelBag: Set<AnyCancellable> = Set()
-    
+
     @Published var connected = true
-    
+
     func listen() {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {

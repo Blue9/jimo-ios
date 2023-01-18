@@ -12,21 +12,21 @@ import PhoneNumberKit
 struct EnterPhoneNumber: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
-    
+
     var body: some View {
         ZStack {
             VStack {
                 Text("Enter your phone #")
                     .font(.system(size: 32))
                     .padding(.bottom, 20)
-                
+
                 PhoneNumberTextFieldView(phoneNumber: $viewModel.phoneNumber)
                     .frame(height: 40, alignment: .center)
                     .padding(10)
                     .background(RoundedRectangle(cornerRadius: 10)
                                     .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
                     .padding(.bottom, 20)
-                
+
                 Button(action: {
                     viewModel.getCode(appState: appState)
                 }) {
@@ -51,7 +51,7 @@ struct EnterPhoneNumber: View {
                 .disabled(viewModel.loading)
                 .shadow(radius: 5)
                 .padding(.bottom, 10)
-                
+
                 VStack {
                     Text("By proceeding, you’re agreeing to our")
                     HStack(spacing: 0) {
@@ -65,11 +65,11 @@ struct EnterPhoneNumber: View {
                 }
                 .font(.caption)
                 .foregroundColor(.gray)
-                
+
                 NavigationLink(destination: VerifyPhoneNumber(), isActive: $viewModel.nextStep) {
                     EmptyView()
                 }
-                
+
                 NavigationLink(destination: EmailLogin(), isActive: $viewModel.showSecretEmailPage) {
                     EmptyView()
                 }
@@ -92,27 +92,27 @@ extension EnterPhoneNumber {
     class ViewModel: ObservableObject {
         var cancelBag: Set<AnyCancellable> = .init()
         let phoneNumberKit = PhoneNumberKit()
-        
+
         @Published var phoneNumber: JimoPhoneNumberInput?
         @Published var showError = false
         @Published var nextStep: Bool = false
-        
+
         @Published private(set) var error = ""
         @Published private(set) var loading = false
-        
+
         /// Hack to allow logging in with emails
         @Published var showSecretEmailPage = false
-        
+
         func setError(_ error: String) {
             withAnimation {
                 self.error = error
                 self.showError = true
             }
         }
-        
+
         func getCode(appState: AppState) {
             hideKeyboard()
-            
+
             if case .secretMenu = phoneNumber {
                 showSecretEmailPage = true
                 return

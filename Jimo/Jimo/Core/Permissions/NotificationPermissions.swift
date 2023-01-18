@@ -12,18 +12,18 @@ extension PermissionManager {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             if settings.authorizationStatus == .denied {
                 DispatchQueue.main.async {
-                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (success) in })
+                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (_) in })
                 }
             }
         }
         UNUserNotificationCenter.current().requestAuthorization(
             options: [.alert, .badge, .sound],
-            completionHandler: { (success, error) in
+            completionHandler: { (success, _) in
                 Analytics.track(success ? .notificationPermissionsAllowed : .notificationPermissionsDenied)
             })
     }
-    
-    func getNotificationAuthStatus(callback: @escaping (UNAuthorizationStatus) -> ()) {
+
+    func getNotificationAuthStatus(callback: @escaping (UNAuthorizationStatus) -> Void) {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             callback(settings.authorizationStatus)
         }

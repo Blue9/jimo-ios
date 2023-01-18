@@ -11,7 +11,7 @@ import BottomSheet
 struct MapBottomSheetHeader: View {
     @ObservedObject var locationSearch: LocationSearch
     var searchFieldActive: FocusState<Bool>.Binding
-    
+
     var body: some View {
         MapSearchField(text: $locationSearch.searchQuery, isActive: searchFieldActive, placeholder: "Search a place", onCommit: {
             locationSearch.search()

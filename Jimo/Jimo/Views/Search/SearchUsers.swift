@@ -15,9 +15,9 @@ struct SearchUsers: View {
     @StateObject var suggestedViewModel = SuggestedUserCarouselViewModel()
     @State private var initialized = false
     @FocusState private var searchBarFocused: Bool
-    
+
     let defaultImage: Image = Image(systemName: "person.crop.circle")
-    
+
     func profilePicture(user: User) -> some View {
         URLImage(url: user.profilePictureUrl, loading: defaultImage)
             .frame(width: 40, height: 40, alignment: .center)
@@ -27,11 +27,11 @@ struct SearchUsers: View {
             .cornerRadius(50)
             .padding(.trailing)
     }
-    
+
     func profileView(user: User) -> some View {
         ProfileScreen(initialUser: user)
     }
-    
+
     var body: some View {
         NavigationView {
             mainBody
@@ -43,13 +43,13 @@ struct SearchUsers: View {
             suggestedViewModel.load(appState: appState, viewState: viewState)
         }
     }
-    
+
     var suggestedUsersCarousel: some View {
         SuggestedUsersCarousel(viewModel: suggestedViewModel)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width / 3 * 1.3)
             .fixedSize(horizontal: true, vertical: true)
     }
-    
+
     var mainBody: some View {
         VStack(spacing: 0) {
             SearchBar(
@@ -61,9 +61,9 @@ struct SearchUsers: View {
             )
             .padding(.horizontal)
             .padding(.bottom, 10)
-            
+
             userResults
-            
+
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -85,21 +85,21 @@ struct SearchUsers: View {
         }
         .trackScreen(.searchUsers)
     }
-    
+
     var userResults: some View {
         ScrollView(showsIndicators: false) {
             if searchViewModel.query.isEmpty && suggestedViewModel.shouldPresent() {
                 suggestedUsersCarousel
                     .padding(.bottom, 10)
             }
-            
+
             LazyVStack(alignment: .leading) {
                 Divider()
                 ForEach(searchViewModel.userResults, id: \.username) { (user: PublicUser) in
                     NavigationLink(destination: profileView(user: user)) {
                         HStack {
                             profilePicture(user: user)
-                            
+
                             VStack(alignment: .leading) {
                                 Text(user.username)
                                     .font(.system(size: 15))
@@ -109,7 +109,7 @@ struct SearchUsers: View {
                             }
                             .foregroundColor(Color("foreground"))
                             Spacer()
-                            
+
                             Image(systemName: "arrow.right.circle")
                         }
                         .contentShape(Rectangle())

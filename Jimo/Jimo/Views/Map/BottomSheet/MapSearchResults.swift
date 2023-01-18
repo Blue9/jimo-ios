@@ -10,12 +10,12 @@ import MapKit
 struct MapSearchResults: View {
     @ObservedObject var locationSearch: LocationSearch
     @State private var showAlert = false
-    
+
     var selectPlace: (MKMapItem) -> Void
-    
+
     private func getAddress(mapItem: MKMapItem) -> String {
         let placemark = mapItem.placemark
-        var streetAddress: String? = nil
+        var streetAddress: String?
         if let subThoroughfare = placemark.subThoroughfare,
            let thoroughfare = placemark.thoroughfare {
             streetAddress = subThoroughfare + " " + thoroughfare
@@ -24,10 +24,10 @@ struct MapSearchResults: View {
             streetAddress,
             placemark.locality,
             placemark.administrativeArea
-        ];
+        ]
         return components.compactMap({ $0 }).joined(separator: ", ")
     }
-    
+
     @ViewBuilder private var autocompleteResults: some View {
         List {
             Section {
@@ -80,7 +80,7 @@ struct MapSearchResults: View {
                 message: Text("Try again or select another option."))
         }
     }
-    
+
     @ViewBuilder private var searchResults: some View {
         List(locationSearch.mkSearchResults, id: \.self) { (mapItem: MKMapItem) in
             HStack {
@@ -102,7 +102,7 @@ struct MapSearchResults: View {
         .listRowBackground(Color.red)
         .listStyle(.plain)
     }
-    
+
     var body: some View {
         Group {
             if locationSearch.searchState == .search {

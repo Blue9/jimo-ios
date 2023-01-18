@@ -8,13 +8,13 @@
 import SwiftUI
 import Combine
 
-fileprivate let usernameRegex = #"[a-zA-Z0-9_]+"#;
+private let usernameRegex = #"[a-zA-Z0-9_]+"#
 
 struct CreateProfileView: View {
     @EnvironmentObject var appState: AppState
-    
+
     @StateObject private var viewModel = ViewModel()
-    
+
     var body: some View {
         ZStack {
             VStack(spacing: 20) {
@@ -68,17 +68,17 @@ struct CreateProfileView: View {
                         return ""
                       },
                       autocapitalization: .none)
-                
+
                 Field(value: $viewModel.firstName, placeholder: "First name",
                       errorMessage: ViewModel.nameReq,
                       isValid: viewModel.validName)
-                
+
                 Field(value: $viewModel.lastName, placeholder: "Last name",
                       errorMessage: ViewModel.nameReq,
                       isValid: viewModel.validName)
 
                 Spacer()
-                
+
                 Button(action: {
                     viewModel.createProfile(appState: appState)
                 }) {
@@ -125,18 +125,18 @@ struct CreateProfileView: View {
     }
 }
 
-fileprivate struct Field: View {
+private struct Field: View {
     static let checkmarkSize: CGFloat = 25
 
     @Binding var value: String
-    
+
     let placeholder: String
     let errorMessage: String
     let isValid: (String) -> Bool
-    
-    var inputFilter: ((String) -> String)? = nil
+
+    var inputFilter: ((String) -> String)?
     var autocapitalization: UITextAutocapitalizationType = .words
-    
+
     var valid: Bool {
         isValid(value)
     }
@@ -178,9 +178,9 @@ extension CreateProfileView {
         static let usernameReq = "Usernames should be 3-20 characters"
         static let nameReq = "Required field"
         static let serverError = "Unknown server error, try again later"
-        
+
         private var cancelBag: Set<AnyCancellable> = .init()
-        
+
         @Published var requestError = ""
 
         @Published var profilePicture: UIImage?
@@ -192,23 +192,23 @@ extension CreateProfileView {
         @Published var showImagePicker = false
         @Published var showServerError = false
         @Published var showRequestError = false
-        
+
         @Published var creatingProfile = false
-        
+
         var allValid: Bool {
             validUsername(username: username) &&
                 validName(name: firstName) &&
                 validName(name: lastName)
         }
-        
+
         func validUsername(username: String) -> Bool {
             return username.count >= 3 && username.count <= 20
         }
-        
+
         func validName(name: String) -> Bool {
             return name.count > 0 && name.count < 120
         }
-        
+
         func createProfile(appState: AppState) {
             creatingProfile = true
             hideKeyboard()

@@ -9,12 +9,11 @@ import SwiftUI
 import MapKit
 import Collections
 
-
 struct JimoMapView: UIViewRepresentable {
     @ObservedObject var mapViewModel: MapViewModel
-    
-    var tappedPin: (MKJimoPinAnnotation?) -> ()
-    
+
+    var tappedPin: (MKJimoPinAnnotation?) -> Void
+
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
         mapView.showsCompass = false
@@ -27,13 +26,13 @@ struct JimoMapView: UIViewRepresentable {
         mapView.delegate = context.coordinator
         return mapView
     }
-    
+
     func updateUIView(_ mapView: MKMapView, context: Context) {
         // Handle region, don't change if the region is already changing
         if !context.coordinator.isRegionChanging && mapView.region != mapViewModel._mkCoordinateRegion {
             mapView.setRegion(mapViewModel._mkCoordinateRegion, animated: true)
         }
-        
+
         // Handle pins
         let annotations = Set(mapViewModel.pins)
         let uiViewAnnotations = Set(mapView.annotations.compactMap({ $0 as? MKJimoPinAnnotation }))
@@ -45,7 +44,7 @@ struct JimoMapView: UIViewRepresentable {
         if toRemove.count > 0 {
             mapView.removeAnnotations(Array(toRemove))
         }
-        
+
         // Handle selectedPin
         let uiViewSelectedAnnotation = mapView.selectedAnnotations.first as? MKJimoPinAnnotation
         if mapViewModel.selectedPin != uiViewSelectedAnnotation {
@@ -59,25 +58,25 @@ struct JimoMapView: UIViewRepresentable {
             }
         }
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     class Coordinator: NSObject, MKMapViewDelegate {
         private var parent: JimoMapView
         private var regularPinsCapacity: Int = 25
         private var isRecomputingDots = false
         private(set) var isRegionChanging = false
-        
+
         init(_ parent: JimoMapView) {
             self.parent = parent
         }
-        
+
         var mapViewModel: MapViewModel {
             parent.mapViewModel
         }
-        
+
         func recomputeDots(_ mapView: MKMapView) {
             guard mapView.selectedAnnotations.isEmpty else {
                 return
@@ -100,7 +99,7 @@ struct JimoMapView: UIViewRepresentable {
                 }
             }
         }
-        
+
         func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
             DispatchQueue.main.async {
                 self.mapViewModel._mkCoordinateRegion = mapView.region
@@ -114,17 +113,17 @@ struct JimoMapView: UIViewRepresentable {
                 }
             }
         }
-        
+
         func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
             isRegionChanging = true
         }
-        
+
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
             isRegionChanging = false
             // Does not need to be on main because it's not a published var
             self.mapViewModel.visibleMapRect = mapView.rectangularRegion()
         }
-        
+
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             // Alter the MKUserLocationView (iOS 14+)
             if #available(iOS 14.0, *), annotation is MKUserLocation {
@@ -133,7 +132,7 @@ struct JimoMapView: UIViewRepresentable {
                     return view
                 }
                 let view = MKUserLocationView(annotation: annotation, reuseIdentifier: reuse)
-                
+
                 view.zPriority = .max  // Show user location above other annotations
                 view.isEnabled = false // Ignore touch events and do not show callout
                 return view
@@ -148,11 +147,11 @@ struct JimoMapView: UIViewRepresentable {
             }
             return nil
         }
-        
+
         func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
             self.recomputeDots(mapView)
         }
-        
+
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
             DispatchQueue.main.async {
                 if let annotation = view.annotation as? MKJimoPinAnnotation {
@@ -169,7 +168,7 @@ struct JimoMapView: UIViewRepresentable {
                 }
             }
         }
-        
+
         func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
             DispatchQueue.main.async {
                 guard let annotation = view.annotation as? MKJimoPinAnnotation else {
@@ -185,7 +184,7 @@ struct JimoMapView: UIViewRepresentable {
                 self.recomputeDots(mapView)
             }
         }
-        
+
         private func highlight(_ view: MKAnnotationView, annotation: MKJimoPinAnnotation) {
             (view as? JimoPinView)?.toPin()
             view.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
@@ -197,7 +196,7 @@ struct JimoMapView: UIViewRepresentable {
                 view.layer.shadowPath = UIBezierPath(rect: view.bounds).cgPath
             }
         }
-        
+
         private func removeHighlight(for view: MKAnnotationView) {
             view.transform = .identity
             view.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
@@ -212,11 +211,11 @@ fileprivate extension MKMapView {
     var pinAnnotations: [MKJimoPinAnnotation] {
         annotations.compactMap { $0 as? MKJimoPinAnnotation }
     }
-    
+
     func pinView(for annotation: MKJimoPinAnnotation) -> JimoPinView? {
         return self.view(for: annotation) as? JimoPinView
     }
-    
+
     func scaleVisibleMapRect(scale s: Double) -> MKMapRect {
         let p = (1.0 - s) / 2.0
         let origin = MKMapPoint(
@@ -253,7 +252,7 @@ fileprivate extension OrderedSet {
         }
         return Set(self)
     }
-    
+
     mutating func insertFirstWhere(_ element: Iterator.Element, predicate: (Iterator.Element) -> Bool) {
         let index = self.binarySearchFirstIndex(where: predicate)
         if index < self.count {
@@ -264,6 +263,6 @@ fileprivate extension OrderedSet {
     }
 }
 
-fileprivate func compare(_ annotation: MKJimoPinAnnotation, isLargerThan annotation2: MKJimoPinAnnotation) -> Bool {
+private func compare(_ annotation: MKJimoPinAnnotation, isLargerThan annotation2: MKJimoPinAnnotation) -> Bool {
     return annotation.numPosts > annotation2.numPosts || (annotation.numPosts == annotation2.numPosts && annotation.placeId ?? "" > annotation2.placeId ?? "")
 }

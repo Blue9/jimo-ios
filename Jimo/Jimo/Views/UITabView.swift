@@ -12,10 +12,10 @@ struct UITabView: View {
     private let viewControllers: [UIHostingController<AnyView>]
     private let tabBarItems: [TabBarItem]
     @Binding private var selectedIndex: Int
-    
+
     init(selection: Binding<Int>, @TabBuilder _ content: () -> [TabBarItem]) {
         _selectedIndex = selection
-        
+
         (viewControllers, tabBarItems) = content().reduce(into: ([], [])) { result, next in
             let tabController = UIHostingController(rootView: next.view)
             tabController.tabBarItem = next.barItem
@@ -26,7 +26,7 @@ struct UITabView: View {
             result.1.append(next)
         }
     }
-    
+
     var body: some View {
         TabBarController(
             controllers: viewControllers,
@@ -41,7 +41,7 @@ extension UITabView {
         let view: AnyView
         let barItem: UITabBarItem
         let badgeValue: String?
-        
+
         init<T>(
             title: String,
             image: UIImage?,
@@ -54,12 +54,12 @@ extension UITabView {
             self.badgeValue = badgeValue
         }
     }
-    
+
     struct TabBarController: UIViewControllerRepresentable {
         let controllers: [UIViewController]
         let tabBarItems: [TabBarItem]
         @Binding var selectedIndex: Int
-        
+
         func makeUIViewController(context: Context) -> UITabBarController {
             let tabBarController = UITabBarController()
             tabBarController.viewControllers = controllers
@@ -67,35 +67,35 @@ extension UITabView {
             tabBarController.selectedIndex = selectedIndex
             return tabBarController
         }
-        
+
         func updateUIViewController(_ tabBarController: UITabBarController, context: Context) {
             tabBarController.selectedIndex = selectedIndex
-            
+
             tabBarItems.forEach { tab in
                 guard let index = tabBarItems.firstIndex(where: { $0.barItem == tab.barItem }),
                       let controllers = tabBarController.viewControllers
                 else {
                     return
                 }
-                
+
                 guard controllers.indices.contains(index) else { return }
                 controllers[index].tabBarItem.badgeValue = tab.badgeValue
             }
         }
-        
+
         func makeCoordinator() -> TabBarCoordinator {
             TabBarCoordinator(self)
         }
     }
-    
+
     class TabBarCoordinator: NSObject, UITabBarControllerDelegate {
         private static let inlineTitleRect = CGRect(x: 0, y: 0, width: 1, height: 1)
         private var parent: TabBarController
-        
+
         init(_ tabBarController: TabBarController) {
             self.parent = tabBarController
         }
-        
+
         func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
             if parent.selectedIndex == tabBarController.selectedIndex {
                 if let navigationController = navigationController(in: viewController) {
@@ -108,12 +108,12 @@ extension UITabView {
             }
             parent.selectedIndex = tabBarController.selectedIndex
         }
-        
+
         func scrollToTop(in viewController: UIViewController) {
             guard let scrollView = scrollView(in: viewController.view) else { return }
             scrollView.scrollRectToVisible(Self.inlineTitleRect, animated: true)
         }
-        
+
         func scrollView(in view: UIView) -> UIScrollView? {
             if let collectionView = view as? UICollectionView {
                 // Hack to handle paging tab view in feed tab
@@ -132,7 +132,7 @@ extension UITabView {
             }
             return nil
         }
-        
+
         func navigationController(in viewController: UIViewController) -> UINavigationController? {
             var controller: UINavigationController?
             if let navigationController = viewController as? UINavigationController {

@@ -10,17 +10,17 @@ import SwiftUI
 struct NotificationFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @ObservedObject var notificationFeedVM: NotificationFeedViewModel
-    
+
     @State private var initialized = false
-    
+
     var body: some View {
         RefreshableScrollView(spacing: 10) {
             if notificationFeedVM.shouldRequestNotificationPermissions {
                 EnableNotificationsButton()
             }
-            
+
             ForEach(notificationFeedVM.feedItems) { item in
                 NotificationFeedItem(item: item)
                     .environmentObject(appState)
@@ -52,19 +52,19 @@ struct NotificationFeed: View {
     }
 }
 
-fileprivate struct NotificationFeedItem: View {
+private struct NotificationFeedItem: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @State private var relativeTime: String = ""
-    
+
     let item: NotificationItem
     let defaultProfileImage: Image = Image(systemName: "person.crop.circle")
-    
+
     var user: PublicUser {
         item.user
     }
-    
+
     @ViewBuilder var profilePicture: some View {
         URLImage(url: user.profilePictureUrl, loading: defaultProfileImage)
             .frame(width: 40, height: 40, alignment: .center)
@@ -74,7 +74,7 @@ fileprivate struct NotificationFeedItem: View {
             .cornerRadius(50)
             .padding(.trailing, 5)
     }
-    
+
     @ViewBuilder var postPreview: some View {
         if let url = item.post?.imageUrl {
             URLImage(url: url)
@@ -84,7 +84,7 @@ fileprivate struct NotificationFeedItem: View {
                 .padding(.trailing)
         }
     }
-    
+
     @ViewBuilder var destinationView: some View {
         if item.type == ItemType.like || item.type == ItemType.save {
             if let post = item.post {
@@ -105,7 +105,7 @@ fileprivate struct NotificationFeedItem: View {
                 NavigationLink(destination: ProfileScreen(initialUser: user)) {
                     profilePicture
                 }
-                
+
                 VStack(alignment: .leading) {
                     switch item.type {
                     case .follow:
@@ -119,7 +119,7 @@ fileprivate struct NotificationFeedItem: View {
                     case .unknown:
                         EmptyView()
                     }
-                    
+
                     Text(relativeTime)
                         .font(.caption)
                         .foregroundColor(.gray)
@@ -130,9 +130,9 @@ fileprivate struct NotificationFeedItem: View {
                         }
                 }
                 .font(.system(size: 14))
-                
+
                 Spacer()
-                
+
                 postPreview.cornerRadius(2)
             }
         }
@@ -140,7 +140,7 @@ fileprivate struct NotificationFeedItem: View {
     }
 }
 
-fileprivate struct EnableNotificationsButton: View {
+private struct EnableNotificationsButton: View {
     var body: some View {
         Button(action: {
             PermissionManager.shared.requestNotifications()

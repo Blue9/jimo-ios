@@ -10,7 +10,7 @@ import SwiftUI
 struct ImagePicker: UIViewControllerRepresentable {
     @Environment(\.presentationMode) var presentationMode
     @Binding var image: UIImage?
-    
+
     var allowsEditing: Bool = false
 
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
@@ -19,7 +19,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         init(_ parent: ImagePicker) {
             self.parent = parent
         }
-        
+
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if parent.allowsEditing {
                 if let uiImage = info[.editedImage] as? UIImage {
@@ -31,17 +31,17 @@ struct ImagePicker: UIViewControllerRepresentable {
             hideKeyboard()
             parent.presentationMode.wrappedValue.dismiss()
         }
-        
+
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             hideKeyboard()
             parent.presentationMode.wrappedValue.dismiss()
         }
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
@@ -53,10 +53,9 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 }
 
-
 struct ImagePicker_Previews: PreviewProvider {
-    @State static var image: UIImage? = nil
-    
+    @State static var image: UIImage?
+
     static var previews: some View {
         ImagePicker(image: $image)
     }

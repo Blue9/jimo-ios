@@ -10,18 +10,18 @@ import Combine
 
 class PostVM: ObservableObject {
     let nc = NotificationCenter.default
-    
+
     @Published var post: Post?
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false
-    
+
     var cancelBag: Set<AnyCancellable> = .init()
-    
-    var onDelete: (() -> ())?
-    
+
+    var onDelete: (() -> Void)?
+
     /// Listen for post updates and update the current post (optional to call this, only necessary if you want to listen to updates)
-    func listen(post: Post, onDelete: @escaping () -> ()) {
+    func listen(post: Post, onDelete: @escaping () -> Void) {
         guard self.post == nil else {
             return
         }
@@ -32,7 +32,7 @@ class PostVM: ObservableObject {
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
-    
+
     @objc func postLiked(notification: Notification) {
         guard let postId = post?.id else {
             return
@@ -43,7 +43,7 @@ class PostVM: ObservableObject {
             self.post?.likeCount = like.likeCount
         }
     }
-    
+
     @objc func postSaved(notification: Notification) {
         guard let postId = post?.id else {
             return
@@ -53,11 +53,11 @@ class PostVM: ObservableObject {
             self.post?.saved = save.saved
         }
     }
-    
+
     @objc func postUpdated(notification: Notification) {
         self.post = notification.object as? Post
     }
-    
+
     @objc func postDeleted(notification: Notification) {
         guard let post = post, let onDelete = onDelete else {
             return
@@ -67,7 +67,7 @@ class PostVM: ObservableObject {
             onDelete()
         }
     }
-    
+
     func likePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         liking = true
         appState.likePost(postId: postId)
@@ -77,11 +77,11 @@ class PostVM: ObservableObject {
                     print("Error when liking", error)
                     viewState.setError("Failed to like post")
                 }
-            }, receiveValue: { response in
+            }, receiveValue: { _ in
                 print("Liked post")
             }).store(in: &cancelBag)
     }
-    
+
     func unlikePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         unliking = true
         appState.unlikePost(postId: postId)
@@ -91,11 +91,11 @@ class PostVM: ObservableObject {
                     print("Error when unliking", error)
                     viewState.setError("Failed to unlike post")
                 }
-            }, receiveValue: { response in
+            }, receiveValue: { _ in
                 print("Unliked post")
             }).store(in: &cancelBag)
     }
-    
+
     func savePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         appState.savePost(postId: postId)
             .sink(receiveCompletion: { completion in
@@ -103,11 +103,11 @@ class PostVM: ObservableObject {
                     print("Error when saving post", error)
                     viewState.setError("Could not save post")
                 }
-            }, receiveValue: { response in
+            }, receiveValue: { _ in
                 print("Saved post")
             }).store(in: &cancelBag)
     }
-    
+
     func unsavePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         appState.unsavePost(postId: postId)
             .sink(receiveCompletion: { completion in
@@ -115,11 +115,11 @@ class PostVM: ObservableObject {
                     print("Error when unsaving post", error)
                     viewState.setError("Could not unsave post")
                 }
-            }, receiveValue: { response in
+            }, receiveValue: { _ in
                 print("Unsaved post")
             }).store(in: &cancelBag)
     }
-    
+
     func deletePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
         deleting = true
         appState.deletePost(postId: postId)
@@ -131,7 +131,7 @@ class PostVM: ObservableObject {
                 }
             }, receiveValue: {}).store(in: &cancelBag)
     }
-    
+
     func reportPost(postId: PostId, details: String, appState: AppState, viewState: GlobalViewState) {
         appState.reportPost(postId: postId, details: details)
             .sink(receiveCompletion: { completion in

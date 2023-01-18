@@ -10,57 +10,57 @@ import SwiftUI
 struct EditPreferences: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @ObservedObject var settingsViewModel: SettingsViewModel
     @State private var showSubmitFeedback = false
     @State private var showConfirmDelete = false
-    
+
     var notificationSection: some View {
         Group {
             Toggle(isOn: $settingsViewModel.followNotifications) {
                 VStack(alignment: .leading) {
                     Text("Followers")
-                    
+
                     Text("Get notified when someone follows you")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }
             }
-            
+
             Toggle(isOn: $settingsViewModel.postNotifications) {
                 VStack(alignment: .leading) {
                     Text("Posts")
-                    
+
                     Text("Get notified when someone you follow makes a new post")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }
             }
-            
+
             Toggle(isOn: $settingsViewModel.postLikedNotifications) {
                 VStack(alignment: .leading) {
                     Text("Post likes and saves")
-                    
+
                     Text("Get notified when someone likes or saves your post")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }
             }
-            
+
             Toggle(isOn: $settingsViewModel.commentNotifications) {
                 VStack(alignment: .leading) {
                     Text("Comments")
-                    
+
                     Text("Get notified when someone comments on your post or replies to your comment")
                         .foregroundColor(.gray)
                         .font(.caption)
                 }
             }
-            
+
             Toggle(isOn: $settingsViewModel.commentLikedNotifications) {
                 VStack(alignment: .leading) {
                     Text("Comment likes")
-                    
+
                     Text("Get notified when someone likes your comment")
                         .foregroundColor(.gray)
                         .font(.caption)
@@ -68,19 +68,19 @@ struct EditPreferences: View {
             }
         }
     }
-    
+
     var body: some View {
         Form {
             Section(header: Text("Notifications")) {
                 notificationSection
                 savePreferencesButton("notification")
             }
-            
+
             Section(header: Text("Privacy")) {
                 Toggle(isOn: $settingsViewModel.searchableByPhoneNumber) {
                     VStack(alignment: .leading) {
                         Text("Searchable by phone number")
-                        
+
                         Text("Allow other users to find you using your phone number")
                             .foregroundColor(.gray)
                             .font(.caption)
@@ -88,7 +88,7 @@ struct EditPreferences: View {
                 }
                 savePreferencesButton("privacy")
             }
-            
+
             Section(header: Text("Danger Zone")) {
                 if #available(iOS 15.0, *) {
                     Button(action: { showConfirmDelete = true }) {
@@ -128,7 +128,7 @@ struct EditPreferences: View {
         .navigationBarColor(UIColor(Color("background")))
         .navigationTitle(Text("Preferences"))
     }
-    
+
     @ViewBuilder
     private func savePreferencesButton(_ type: String) -> some View {
         Button(action: {
@@ -138,4 +138,3 @@ struct EditPreferences: View {
         }
     }
 }
-

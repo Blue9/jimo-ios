@@ -10,11 +10,11 @@ import SwiftUI
 struct SearchBar: View {
     @Binding var text: String
     var isActive: FocusState<Bool>.Binding
-    
+
     var placeholder: String = "Search"
     var disableAutocorrection: Bool = false
-    var onCommit: () -> ()
-    
+    var onCommit: () -> Void
+
     var body: some View {
         HStack {
             TextField(placeholder, text: $text, onCommit: onCommit)
@@ -31,7 +31,7 @@ struct SearchBar: View {
                             .foregroundColor(.gray)
                             .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 8)
-                        
+
                         if isActive.wrappedValue {
                             Button(action: {
                                 withAnimation {
@@ -45,7 +45,7 @@ struct SearchBar: View {
                         }
                     }
                 )
-            
+
             if isActive.wrappedValue {
                 Button(action: {
                     withAnimation {

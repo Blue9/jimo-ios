@@ -11,7 +11,7 @@ struct Checkbox: View {
     let label: String
     let boxSize: CGFloat
     @Binding var selected: Bool
-    
+
     var body: some View {
         Button(action: {
             selected.toggle()

@@ -16,13 +16,13 @@ class SettingsViewModel: ObservableObject {
     @Published var commentLikedNotifications: Bool = false
     @Published var searchableByPhoneNumber: Bool = false
     @Published var loading = true
-    
+
     @Published var confirmSignOut = false
-    
+
     var getPreferencesCancellable: Cancellable?
     var setPreferencesCancellable: Cancellable?
     var deleteAccountCancellable: Cancellable?
-    
+
     func loadPreferences(appState: AppState, viewState: GlobalViewState) {
         loading = true
         getPreferencesCancellable = appState.getPreferences()
@@ -39,7 +39,7 @@ class SettingsViewModel: ObservableObject {
                 self.loading = false
             })
     }
-    
+
     func updatePreferences(appState: AppState, viewState: GlobalViewState) {
         loading = true
         setPreferencesCancellable = appState.updatePreferences(
@@ -64,7 +64,7 @@ class SettingsViewModel: ObservableObject {
                 self.loading = false
             })
     }
-    
+
     func deleteAccount(appState: AppState, viewState: GlobalViewState) {
         deleteAccountCancellable = appState.deleteUser()
             .sink { completion in
@@ -79,7 +79,7 @@ class SettingsViewModel: ObservableObject {
                 }
             }
     }
-    
+
     private func setPreferences(_ preferences: UserPreferences) {
         self.postLikedNotifications = preferences.postLikedNotifications
         self.postNotifications = preferences.postNotifications
@@ -88,19 +88,18 @@ class SettingsViewModel: ObservableObject {
         self.commentLikedNotifications = preferences.commentLikedNotifications
         self.searchableByPhoneNumber = preferences.searchableByPhoneNumber
     }
-    
+
     func signOut() {
         confirmSignOut = true
     }
 }
 
-
 struct Settings: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @StateObject private var settingsViewModel = SettingsViewModel()
-    
+
     var body: some View {
         Form {
             Section(header: Text("Profile")) {
@@ -108,24 +107,24 @@ struct Settings: View {
                     Text("Edit profile")
                 }
             }
-            
+
             Section(header: Text("Preferences")) {
                 NavigationLink(destination: EditPreferences(settingsViewModel: settingsViewModel)) {
                     Text("Edit preferences")
                 }
             }
             .disabled(settingsViewModel.loading)
-            
+
             Section(header: Text("Account")) {
                 NavigationLink(destination: Feedback()) {
                     Text("Submit feedback")
                 }
-                
+
                 Button(action: { settingsViewModel.signOut() }) {
                     Text("Sign out")
                         .foregroundColor(.red)
                 }
-                
+
                 Text("For additional support, please email support@jimoapp.com")
                     .foregroundColor(.gray)
                     .font(.caption)

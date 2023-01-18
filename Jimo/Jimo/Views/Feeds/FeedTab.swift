@@ -11,18 +11,18 @@ struct FeedTab: View {
     @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    
+
     @State private var showFeedback = false
     @State private var showInvite = false
     @State private var showNotifications = false
-    
+
     @StateObject private var notificationFeedVM = NotificationFeedViewModel()
-    
+
     var notificationBellBadgePresent: Bool {
         appState.unreadNotifications > 0 || notificationFeedVM.shouldRequestNotificationPermissions
     }
-    
-    var onCreatePostTap: () -> ()
+
+    var onCreatePostTap: () -> Void
 
     var notificationFeedIcon: some View {
         ZStack(alignment: .topTrailing) {
@@ -36,7 +36,7 @@ struct FeedTab: View {
                     .offset(x: -1)
             }
         }
-        .onChange(of: scenePhase) { newPhase in
+        .onChange(of: scenePhase) { _ in
             PermissionManager.shared.getNotificationAuthStatus { status in
                 DispatchQueue.main.async {
                     notificationFeedVM.shouldRequestNotificationPermissions = status != .authorized
@@ -44,7 +44,7 @@ struct FeedTab: View {
             }
         }
     }
-    
+
     var body: some View {
         NavigationView {
             Feed(onCreatePostTap: onCreatePostTap)

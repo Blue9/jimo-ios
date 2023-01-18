@@ -12,7 +12,7 @@ struct RefreshableScrollView<Content: View>: View {
     var content: () -> Content
     var onRefresh: OnRefresh
     var onLoadMore: OnLoadMore?
-    
+
     init(
         spacing: CGFloat? = nil,
         @ViewBuilder content: @escaping () -> Content,
@@ -24,7 +24,7 @@ struct RefreshableScrollView<Content: View>: View {
         self.onRefresh = onRefresh
         self.onLoadMore = onLoadMore
     }
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: spacing) {

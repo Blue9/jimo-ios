@@ -13,9 +13,9 @@ struct DeepLinkProfileLoadingScreen: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
-    
+
     var username: String
-    
+
     var body: some View {
         Group {
             if let user = viewModel.initialUser {

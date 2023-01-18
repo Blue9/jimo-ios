@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 class ImageUploadService {
-    
+
     /// Upload the image to the given URL with content type `image/jpeg`, field name `file`, and file name `upload.jpg`.
     static func uploadImage(url: URL, imageData: Data, token: String) -> URLSession.DataTaskPublisher {
         let boundary = "Boundary-\(UUID().uuidString)"
@@ -28,6 +28,6 @@ class ImageUploadService {
     }
 }
 
-fileprivate func toData(_ s: String) -> Data {
+private func toData(_ s: String) -> Data {
     s.data(using: .utf8)!
 }

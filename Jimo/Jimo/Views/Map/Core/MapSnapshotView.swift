@@ -10,14 +10,14 @@ import MapKit
 
 class MapSnapshotCacheKey: NSObject {
     var colorScheme: ColorScheme
-    
+
     var place: Place
     var category: String
     var profilePictureUrl: String?
     var span: CLLocationDegrees
     var width: CGFloat
     var height: CGFloat?
-    
+
     init(_ colorScheme: ColorScheme, _ post: Post, _ span: CLLocationDegrees, _ width: CGFloat, _ height: CGFloat?) {
         self.colorScheme = colorScheme
         self.place = post.place
@@ -27,7 +27,7 @@ class MapSnapshotCacheKey: NSObject {
         self.width = width
         self.height = height
     }
-    
+
     override func isEqual(_ object: Any?) -> Bool {
         guard let o = object as? MapSnapshotCacheKey else {
             return false
@@ -39,7 +39,7 @@ class MapSnapshotCacheKey: NSObject {
             && width == o.width
             && height == o.height
     }
-    
+
     override var hash: Int {
         var hasher = Hasher()
         hasher.combine(place)
@@ -52,23 +52,23 @@ class MapSnapshotCacheKey: NSObject {
     }
 }
 
-fileprivate let cache = NSCache<MapSnapshotCacheKey, UIImage>()
+private let cache = NSCache<MapSnapshotCacheKey, UIImage>()
 
 // From https://codakuma.com/swiftui-static-maps/
 struct MapSnapshotView: View {
     @Environment(\.colorScheme) var colorScheme
-    
+
     let post: Post
     var span: CLLocationDegrees = 0.005
     var width: CGFloat
     var height: CGFloat?
-    
-    @State private var snapshotImage: UIImage? = nil
-    
+
+    @State private var snapshotImage: UIImage?
+
     var cacheKey: MapSnapshotCacheKey {
         MapSnapshotCacheKey(colorScheme, post, span, width, height)
     }
-    
+
     func generateSnapshot(width: CGFloat, height: CGFloat) {
         guard snapshotImage == nil else {
             return
@@ -85,13 +85,13 @@ struct MapSnapshotView: View {
                 longitudeDelta: self.span
             )
         )
-        
+
         // Map options.
         let mapOptions = MKMapSnapshotter.Options()
         mapOptions.region = region
         mapOptions.size = CGSize(width: width, height: height)
         mapOptions.showsBuildings = false
-        
+
         // Create the snapshotter and run it.
         let snapshotter = MKMapSnapshotter(options: mapOptions)
         snapshotter.start { (snapshotOrNil, errorOrNil) in
@@ -105,7 +105,7 @@ struct MapSnapshotView: View {
             }
         }
     }
-    
+
     var body: some View {
         ZStack {
             Group {
@@ -115,12 +115,12 @@ struct MapSnapshotView: View {
                     Color("secondary")
                 }
             }
-            
+
             Circle()
                 .fill()
                 .frame(width: 40, height: 40)
                 .foregroundColor(Color(post.category))
-            
+
             URLImage(
                 url: post.user.profilePictureUrl,
                 loading: Image(systemName: "person.crop.circle"),
@@ -134,7 +134,7 @@ struct MapSnapshotView: View {
         .onAppear {
             generateSnapshot(width: width, height: height ?? width)
         }
-        .onChange(of: colorScheme) { colorScheme in
+        .onChange(of: colorScheme) { _ in
             self.snapshotImage = nil
             generateSnapshot(width: width, height: height ?? width)
         }

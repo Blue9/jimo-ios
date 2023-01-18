@@ -13,9 +13,9 @@ struct DeepLinkViewPost: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
-    
+
     let postId: PostId
-    
+
     var body: some View {
         Group {
             switch viewModel.loadStatus {
@@ -40,9 +40,9 @@ struct DeepLinkViewPost: View {
 extension DeepLinkViewPost {
     class ViewModel: ObservableObject {
         @Published var loadStatus: Status = .loading
-        
+
         var cancelBag: Set<AnyCancellable> = .init()
-        
+
         func load(_ postId: PostId, appState: AppState, viewState: GlobalViewState) {
             self.loadStatus = .loading
             appState.getPost(postId)
@@ -56,7 +56,7 @@ extension DeepLinkViewPost {
                     self?.loadStatus = .success(post)
                 }.store(in: &cancelBag)
         }
-        
+
         enum Status: Equatable {
             case loading, success(Post), failed
         }

@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-fileprivate enum LoadStatus {
+private enum LoadStatus {
     case notInitialized, loaded, failed
 }
 
@@ -17,13 +17,13 @@ struct SavedPostsFeed: View {
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
     @State private var showFullPost: PostId?
-    
+
     private var columns: [GridItem] = [
         GridItem(.flexible(minimum: 50), spacing: 2),
         GridItem(.flexible(minimum: 50), spacing: 2),
         GridItem(.flexible(minimum: 50), spacing: 2)
     ]
-    
+
     @ViewBuilder
     private func postView(for postId: PostId?) -> some View {
         if let post = viewModel.posts.first(where: { $0.id == postId }) {
@@ -32,7 +32,7 @@ struct SavedPostsFeed: View {
             EmptyView().onAppear { showFullPost = nil }
         }
     }
-    
+
     var initializedView: some View {
         RefreshableScrollView {
             LazyVGrid(columns: columns, spacing: 2) {
@@ -48,7 +48,7 @@ struct SavedPostsFeed: View {
             viewModel.loadMore(appState: appState, globalViewState: viewState)
         }
     }
-    
+
     var body: some View {
         Group {
             switch viewModel.status {
@@ -79,14 +79,14 @@ struct SavedPostsFeed: View {
 extension SavedPostsFeed {
     class ViewModel: ObservableObject {
         let nc = NotificationCenter.default
-        
+
         @Published fileprivate var status: LoadStatus = .notInitialized
         @Published var posts: [Post] = []
         @Published var loadingMore = false
         var cursor: PostId?
-        
+
         var cancelBag: Set<AnyCancellable> = .init()
-        
+
         init() {
             nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
             nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
@@ -94,19 +94,19 @@ extension SavedPostsFeed {
             nc.addObserver(self, selector: #selector(postSaved), name: PostPublisher.postSaved, object: nil)
             nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
         }
-        
+
         @objc private func postCreated(notification: Notification) {
             let post = notification.object as! Post
             posts.insert(post, at: 0)
         }
-        
+
         @objc private func postUpdated(notification: Notification) {
             let post = notification.object as! Post
             if let i = posts.indices.first(where: { posts[$0].postId == post.postId }) {
                 posts[i] = post
             }
         }
-        
+
         @objc private func postLiked(notification: Notification) {
             let like = notification.object as! PostLikePayload
             let postIndex = posts.indices.first(where: { posts[$0].postId == like.postId })
@@ -115,7 +115,7 @@ extension SavedPostsFeed {
                 posts[i].liked = like.liked
             }
         }
-        
+
         @objc private func postSaved(notification: Notification) {
             let save = notification.object as! PostSavePayload
             let postIndex = posts.indices.first(where: { posts[$0].postId == save.postId })
@@ -123,12 +123,12 @@ extension SavedPostsFeed {
                 posts[i].saved = save.saved
             }
         }
-        
+
         @objc private func postDeleted(notification: Notification) {
             let postId = notification.object as! PostId
             posts.removeAll(where: { $0.postId == postId })
         }
-        
+
         func refresh(appState: AppState, globalViewState: GlobalViewState, onFinish: OnFinish? = nil) {
             self.cursor = nil
             appState.getSavedPosts().sink { [weak self] completion in
@@ -144,7 +144,7 @@ extension SavedPostsFeed {
                 onFinish?()
             }.store(in: &cancelBag)
         }
-        
+
         func loadMore(appState: AppState, globalViewState: GlobalViewState) {
             guard cursor != nil else {
                 return

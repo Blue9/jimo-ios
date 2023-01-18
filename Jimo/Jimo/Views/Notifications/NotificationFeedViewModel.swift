@@ -15,7 +15,7 @@ class NotificationFeedViewModel: ObservableObject {
 
     private var cancellable: Cancellable?
     private var cursor: String?
-    
+
     init() {
         PermissionManager.shared.getNotificationAuthStatus { status in
             DispatchQueue.main.async {
@@ -23,7 +23,7 @@ class NotificationFeedViewModel: ObservableObject {
             }
         }
     }
-    
+
     func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
         cursor = nil
         loading = true
@@ -36,11 +36,11 @@ class NotificationFeedViewModel: ObservableObject {
                     viewState.setError("Could not load activity feed.")
                 }
             }, receiveValue: { [weak self] response in
-                self?.feedItems = response.notifications.filter{ item in item.type != .unknown }
+                self?.feedItems = response.notifications.filter { item in item.type != .unknown }
                 self?.cursor = response.cursor
             })
     }
-    
+
     func loadMoreNotifications(appState: AppState, viewState: GlobalViewState) {
         guard cursor != nil else {
             return
@@ -58,7 +58,7 @@ class NotificationFeedViewModel: ObservableObject {
                     viewState.setError("Could not load more items.")
                 }
             }, receiveValue: { [weak self] response in
-                self?.feedItems.append(contentsOf: response.notifications.filter{ item in item.type != .unknown })
+                self?.feedItems.append(contentsOf: response.notifications.filter { item in item.type != .unknown })
                 self?.cursor = response.cursor
             })
     }

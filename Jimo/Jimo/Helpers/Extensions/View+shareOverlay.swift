@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 extension View {
     func shareOverlay(_ shareAction: ShareAction?, isPresented: Binding<Bool>) -> some View {
         return self.background(

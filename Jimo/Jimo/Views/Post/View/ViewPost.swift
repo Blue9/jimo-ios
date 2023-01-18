@@ -11,26 +11,26 @@ struct ViewPost: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.presentationMode) var presentationMode
-    
+
     @StateObject private var postVM = PostVM()
     @StateObject private var commentsViewModel = ViewPostCommentsViewModel()
     @State private var initializedComments = false
-    
+
     @State private var imageSize: CGSize?
     @FocusState private var commentFieldFocused: Bool
     var focusOnAppear = false
-    
+
     let initialPost: Post
-    var highlightedComment: Comment? = nil
-    
+    var highlightedComment: Comment?
+
     var post: Post {
         postVM.post ?? initialPost
     }
-    
+
     var colorTheme: Color {
         return Color(post.category)
     }
-    
+
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
             return user.username == post.user.username
@@ -38,7 +38,7 @@ struct ViewPost: View {
         // Should never be here since user should be logged in
         return false
     }
-    
+
     @ViewBuilder
     private func postItem(post: Post) -> some View {
         VStack {
@@ -57,7 +57,7 @@ struct ViewPost: View {
             postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })
         }
     }
-    
+
     var commentField: some View {
         CommentInputField(
             text: $commentsViewModel.newCommentText,
@@ -75,11 +75,11 @@ struct ViewPost: View {
             }
         }
     }
-    
+
     @ViewBuilder var mainBody: some View {
         RefreshableScrollView {
             postItem(post: post)
-            
+
             LazyVStack(spacing: 0) {
                 ForEach(commentsViewModel.comments) { comment in
                     ZStack(alignment: .bottom) {
@@ -111,7 +111,7 @@ struct ViewPost: View {
             }
         }
     }
-    
+
     var body: some View {
         ZStack {
             mainBody

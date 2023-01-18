@@ -9,16 +9,16 @@ import SwiftUI
 import Contacts
 
 extension PermissionManager {
-    func requestContacts(_ callback: @escaping (Bool, Error?) -> ()) {
+    func requestContacts(_ callback: @escaping (Bool, Error?) -> Void) {
         if contactsAuthStatus() == .denied {
-            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (success) in })
+            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (_) in })
         }
         contactStore.requestAccess(for: .contacts) { (success, error) in
             Analytics.track(success ? .contactsPermissionsAllowed : .contactsPermissionsDenied)
             callback(success, error)
         }
     }
-    
+
     func contactsAuthStatus() -> PermissionStatus {
         switch CNContactStore.authorizationStatus(for: .contacts) {
         case .notDetermined:

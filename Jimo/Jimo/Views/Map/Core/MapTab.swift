@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MapTab: View {
     @EnvironmentObject var deepLinkManager: DeepLinkManager
-    
+
     var body: some View {
         NavigationView {
             MapViewV2()
