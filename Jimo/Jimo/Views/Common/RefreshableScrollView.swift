@@ -29,12 +29,15 @@ struct RefreshableScrollView<Content: View>: View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: spacing) {
                 content()
-                Color("background").onAppear {
-                    onLoadMore?()
-                }
+                Color("background")
+                    .frame(height: UIScreen.main.bounds.height)
+                    .appear {
+                        onLoadMore?()
+                    }
                 Spacer()
             }
-        }.refreshable {
+        }
+        .refreshable {
             onRefresh({})
         }
     }

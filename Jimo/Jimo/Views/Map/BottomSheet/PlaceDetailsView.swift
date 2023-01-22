@@ -1,79 +1,116 @@
 //
-//  MapSearchResultBody.swift
+//  MapSearchdetailsBody.swift
 //  Jimo
 //
 //  Created by admin on 12/23/22.
 //
 
+import Combine
+import MapKit
 import SwiftUI
 import SwiftUIPager
 
-private var color = Color(red: 72.0 / 255, green: 159.0 / 255, blue: 240.0 / 255)
-
 struct PlaceDetailsView: View {
-    var result: MapPlaceResult
+    @ObservedObject var viewModel: PlaceDetailsViewModel
+
+    var body: some View {
+        BasePlaceDetailsView(viewModel: viewModel)
+    }
+}
+
+private struct BasePlaceDetailsView: View {
+    @EnvironmentObject var appState: AppState
+    @ObservedObject var viewModel: PlaceDetailsViewModel
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            HStack {
-                CreatePostButton(result: result)
-            }
+            HStack(spacing: 10) {
+                CreatePostButton(viewModel: viewModel)
+                SavePlaceButton(viewModel: viewModel)
+            }.padding(.horizontal, 10)
 
             HStack {
-                if let phoneNumber = result.mkMapItem?.phoneNumber {
+                if let phoneNumber = viewModel.phoneNumber {
                     PhoneNumberButton(phoneNumber: phoneNumber)
                 }
-                if let url = result.mkMapItem?.url {
+                if let url = viewModel.website {
                     WebsiteButton(url: url)
                 }
-                OpenInMapsButton(result: result)
+                OpenInMapsButton(viewModel: viewModel)
 
                 Spacer()
             }
             .padding(.horizontal, 10)
             .foregroundColor(.white)
             .padding(.bottom, 10)
-            VStack {
-                if result.followingPosts.count > 0 {
-                    PostCarousel(text: "Friends' Posts (\(result.followingPosts.count))", posts: result.followingPosts)
+
+            VStack(alignment: .leading) {
+                if let save = viewModel.details?.mySave {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Divider()
+                        HStack {
+                            Text("Saved \(appState.relativeTime(for: save.createdAt)) - ")
+                                .italic()
+                            +
+                            Text(save.note.isEmpty ? "No note" : save.note)
+                        }.font(.caption)
+                        Divider()
+                    }
                 }
 
-                if result.featuredPosts.count > 0 {
-                    PostCarousel(text: "Featured (\(result.featuredPosts.count))", posts: result.featuredPosts)
+                if let post = viewModel.details?.myPost {
+                    HStack {
+                        Text("Me")
+                            .font(.system(size: 15))
+                            .bold()
+                        Spacer()
+                    }
+                    PostPage(post: post).contentShape(Rectangle())
                 }
 
-                if result.communityPosts.count > 0 {
-                    PostCarousel(text: "Community (\(result.communityPosts.count))", posts: result.communityPosts)
+                if viewModel.followingPosts.count > 0 {
+                    PostCarousel(
+                        text: "Friends' Posts (\(viewModel.followingPosts.count))",
+                        posts: viewModel.followingPosts
+                    )
+                }
+
+                if viewModel.featuredPosts.count > 0 {
+                    PostCarousel(
+                        text: "Featured (\(viewModel.featuredPosts.count))",
+                        posts: viewModel.featuredPosts
+                    )
+                }
+
+                if viewModel.communityPosts.count > 0 {
+                    PostCarousel(
+                        text: "Community (\(viewModel.communityPosts.count))",
+                        posts: viewModel.communityPosts
+                    )
                 }
             }
             .padding(.horizontal, 10)
             .padding(.bottom, 20)
+
+            Spacer()
         }
         .padding(.bottom, 49)
     }
 }
 
 private struct CreatePostButton: View {
-    @StateObject var createPostVM = CreatePostVM()
-    @State private var showCreatePost = false
-
-    var result: MapPlaceResult
+    @ObservedObject var viewModel: PlaceDetailsViewModel
 
     var body: some View {
         Button {
-            Analytics.track(.mapCreatePostTapped, parameters: [
-                "placeHasPosts": result.details?.hasPosts ?? false
-            ])
-            if let place = result.details?.place {
-                createPostVM.selectPlace(place: place)
-            } else if let mapItem = result.mkMapItem {
-                createPostVM.selectPlace(place: mapItem)
+            DispatchQueue.main.async {
+                Analytics.track(.mapCreatePostTapped)
+                viewModel.showCreateOrEditPostSheet()
             }
-            showCreatePost = true
         } label: {
             HStack {
                 Spacer()
-                Text(result.details?.hasPosts ?? false ? "Make a post" : "Be the first to post")
+                Text(viewModel.isPosted ? "Update" : "Rate")
                     .font(.system(size: 15))
                     .fontWeight(.medium)
                 Image(systemName: "plus.app")
@@ -84,14 +121,58 @@ private struct CreatePostButton: View {
             }
             .padding(.vertical, 10)
             .foregroundColor(.white)
-            .background(color)
+            .background(.blue)
             .cornerRadius(5)
-            .padding(.horizontal, 10)
-        }.disabled(result.details == nil && result.mkMapItem == nil)
-
-        .sheet(isPresented: $showCreatePost) {
-            CreatePostWithModel(createPostVM: createPostVM, presented: $showCreatePost)
         }
+
+        .sheet(isPresented: $viewModel.showCreatePost) {
+            CreatePostWithModel(createPostVM: viewModel.createPostVM, presented: $viewModel.showCreatePost)
+        }
+    }
+}
+
+private struct SavePlaceButton: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    @ObservedObject var viewModel: PlaceDetailsViewModel
+
+    @State private var showSaveNoteAlert = false
+
+    var body: some View {
+        Button {
+            DispatchQueue.main.async {
+                if viewModel.isSaved {
+                    viewModel.unsavePlace(appState: appState, viewState: viewState)
+                } else {
+                    showSaveNoteAlert = true
+                }
+            }
+        } label: {
+            HStack {
+                Spacer()
+                Text(viewModel.isSaved ? "Saved" : "Save")
+                    .font(.system(size: 15))
+                    .fontWeight(.medium)
+                Image(systemName: viewModel.isSaved ? "bookmark.fill" : "bookmark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 20)
+                Spacer()
+            }
+            .padding(.vertical, 10)
+            .foregroundColor(.white)
+            .background(.orange)
+            .cornerRadius(5)
+        }
+        .textAlert(
+            isPresented: $showSaveNoteAlert,
+            title: "Save \(viewModel.name)",
+            message: "Add a note (Optional)",
+            submitText: "Save",
+            action: { note in
+                viewModel.savePlace(note: note, appState: appState, viewState: viewState)
+            }
+        )
     }
 }
 
@@ -114,7 +195,7 @@ private struct PhoneNumberButton: View {
                     .fontWeight(.medium)
             }
             .frame(width: 70, height: 75)
-            .foregroundColor(color)
+            .foregroundColor(.blue)
             .background(Color("foreground").opacity(0.1))
             .cornerRadius(5)
         }
@@ -138,7 +219,7 @@ private struct WebsiteButton: View {
                     .fontWeight(.medium)
             }
             .frame(width: 70, height: 75)
-            .foregroundColor(color)
+            .foregroundColor(.blue)
             .background(Color("foreground").opacity(0.1))
             .cornerRadius(5)
         }
@@ -146,11 +227,11 @@ private struct WebsiteButton: View {
 }
 
 private struct OpenInMapsButton: View {
-    var result: MapPlaceResult
+    @ObservedObject var viewModel: PlaceDetailsViewModel
 
     var body: some View {
         Button {
-            openInMaps(place: result)
+            viewModel.openInMaps()
         } label: {
             VStack {
                 Image(systemName: "arrow.up.right.square")
@@ -162,36 +243,9 @@ private struct OpenInMapsButton: View {
                     .fontWeight(.medium)
             }
             .frame(width: 70, height: 75)
-            .foregroundColor(color)
+            .foregroundColor(.blue)
             .background(Color("foreground").opacity(0.1))
             .cornerRadius(5)
-        }
-    }
-
-    private func openInMaps(place: MapPlaceResult) {
-        if UIApplication.shared.canOpenURL(URL(string: "comgooglemaps://")!) {
-            openInGoogleMaps(place: place)
-        } else {
-            openInAppleMaps(place: place)
-        }
-    }
-
-    private func openInGoogleMaps(place: MapPlaceResult) {
-        let scheme = "comgooglemaps://"
-        let query = place.name.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? place.name
-        let url = "\(scheme)?q=\(query)&center=\(place.latitude),\(place.longitude)"
-        UIApplication.shared.open(URL(string: url)!)
-    }
-
-    private func openInAppleMaps(place: MapPlaceResult) {
-        let q = place.name.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? place.name
-        let sll = "\(place.latitude),\(place.longitude)"
-        let url = "http://maps.apple.com/?q=\(q)&sll=\(sll)&z=10"
-        if let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
-           let url = URL(string: encoded) {
-            UIApplication.shared.open(url)
-        } else {
-            print("URL not valid", url)
         }
     }
 }
@@ -219,5 +273,291 @@ private struct PostCarousel: View {
         .sensitivity(.custom(0.10))
         .pagingPriority(.high)
         .frame(height: 120)
+    }
+}
+
+class PlaceDetailsViewModel: ObservableObject {
+    private var cancelBag: Set<AnyCancellable> = .init()
+
+    struct MuxedPlaceDetails: Equatable {
+        fileprivate var mkMapItem: MKMapItem?
+
+        /// Jimo place details
+        fileprivate var details: GetPlaceDetailsResponse?
+
+        init(mkMapItem: MKMapItem? = nil, details: GetPlaceDetailsResponse? = nil) {
+            self.mkMapItem = mkMapItem
+            self.details = details
+        }
+    }
+
+    var cancellable: AnyCancellable?
+    var createPostVM = CreatePostVM()
+
+    @Published var showCreatePost = false
+
+    @Published var isStale = false
+
+    @Published var muxedPlaceDetails: MuxedPlaceDetails? {
+        didSet {
+            DispatchQueue.main.async {
+                self.isStale = false
+            }
+        }
+    }
+
+    var mkMapItem: MKMapItem? { muxedPlaceDetails?.mkMapItem }
+    var details: GetPlaceDetailsResponse? { muxedPlaceDetails?.details }
+
+    var isSaved: Bool {
+        details?.mySave != nil
+    }
+
+    var isPosted: Bool {
+        details?.myPost != nil
+    }
+
+    var phoneNumber: String? {
+        mkMapItem?.phoneNumber
+    }
+
+    var website: URL? {
+        mkMapItem?.url
+    }
+
+    // MARK: - Initialization
+    private var postListener = PostListener()
+
+    private func initialize(appState: AppState, viewState: GlobalViewState) {
+        postListener.onPostCreated = { [weak self] post in
+            DispatchQueue.main.async {
+                if self?.place?.placeId == post.place.placeId {
+                    self?.muxedPlaceDetails?.details?.myPost = post
+                }
+            }
+        }
+        postListener.onPostDeleted = { [weak self] postId in
+            DispatchQueue.main.async {
+                if self?.muxedPlaceDetails?.details?.myPost?.postId == postId {
+                    self?.muxedPlaceDetails?.details?.myPost = nil
+                }
+            }
+        }
+    }
+
+    // MARK: - Map view model integration
+
+    func selectPlace(_ placeId: PlaceId?, appState: AppState, viewState: GlobalViewState) {
+        if self.place?.placeId == placeId {
+            // Just use the last-loaded place details
+            self.isStale = false
+            return
+        }
+        guard let placeId = placeId else {
+            // User tapped on a "fake" pin
+            viewState.setError("Cannot load place details")
+            return
+        }
+        appState.getPlaceDetails(placeId: placeId)
+            .sink { completion in
+                if case let .failure(error) = completion {
+                    print("Error when getting place details", error)
+                    viewState.setError("Could not load place details")
+                }
+            } receiveValue: { [weak self] placeDetails in
+                self?.muxedPlaceDetails = .init(mkMapItem: nil, details: placeDetails)
+                self?.loadMapItemForPlaceDetails()
+            }
+            .store(in: &cancelBag)
+    }
+
+    func selectMapItem(
+        _ mapItem: MKMapItem,
+        appState: AppState,
+        viewState: GlobalViewState,
+        onPlaceFound: @escaping (PlaceId?, CLLocationCoordinate2D) -> Void
+    ) {
+        let placeName = mapItem.placemark.name ?? ""
+        self.muxedPlaceDetails = .init(mkMapItem: mapItem, details: nil)
+        appState.findPlace(
+            name: placeName,
+            latitude: mapItem.placemark.coordinate.latitude,
+            longitude: mapItem.placemark.coordinate.longitude
+        ).flatMap { response in
+            guard let place = response.place else {
+                onPlaceFound(nil, mapItem.placemark.coordinate)
+                return Just<GetPlaceDetailsResponse?>(nil)
+                    .setFailureType(to: APIError.self)
+                    .eraseToAnyPublisher()
+            }
+            onPlaceFound(place.placeId, place.location.coordinate())
+            return appState.getPlaceDetails(placeId: place.id)
+                .map { (response: GetPlaceDetailsResponse) in (response as GetPlaceDetailsResponse?) }
+                .eraseToAnyPublisher()
+        }.sink { completion in
+            if case let .failure(error) = completion {
+                print("Error when getting place details", error)
+                viewState.setError("Could not load place details")
+            }
+        } receiveValue: { [weak self] placeDetails in
+            print("setting map search result")
+            self?.muxedPlaceDetails = .init(
+                mkMapItem: mapItem,
+                details: placeDetails
+            )
+        }
+        .store(in: &cancelBag)
+    }
+
+    private func loadMapItemForPlaceDetails() {
+        guard let place = place else {
+            return
+        }
+        let location = CLLocation(latitude: place.location.latitude, longitude: place.location.longitude)
+        CLGeocoder().reverseGeocodeLocation(location) { response, _ in
+            if let response = response, let placemark = response.first {
+                // Got the CLPlacemark, now try to get the MKMapItem to get the business details
+                let searchRequest = MKLocalSearch.Request()
+                searchRequest.region = .init(center: place.location.coordinate(), span: .init(latitudeDelta: 0, longitudeDelta: 0))
+                searchRequest.naturalLanguageQuery = place.name
+                MKLocalSearch(request: searchRequest).start { (response, _) in
+                    if let response = response {
+                        for mapItem in response.mapItems {
+                            if let placemarkLocation = placemark.location,
+                               let mapItemLocation = mapItem.placemark.location,
+                               mapItemLocation.distance(from: placemarkLocation) < 10 {
+                                self.muxedPlaceDetails?.mkMapItem = mapItem
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - API functions
+
+    func savePlace(note: String, appState: AppState, viewState: GlobalViewState) {
+        print("Saving place")
+        cancellable = appState.savePlace(
+            placeId: place?.placeId,
+            maybeCreatePlaceRequest: mkMapItem?.maybeCreatePlaceRequest,
+            note: note
+        ).sink { completion in
+            if case .failure = completion {
+                viewState.setError("Could not save place.")
+            }
+        } receiveValue: { [weak self] save in
+            DispatchQueue.main.async {
+                self?.muxedPlaceDetails?.details?.mySave = save
+            }
+        }
+    }
+
+    func unsavePlace(appState: AppState, viewState: GlobalViewState) {
+        guard let place = details?.place else {
+            return
+        }
+        cancellable = appState.unsavePlace(place.placeId).sink { completion in
+            if case .failure = completion {
+                viewState.setError("Could not unsave place.")
+            }
+        } receiveValue: { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.muxedPlaceDetails?.details?.mySave = nil
+            }
+        }
+    }
+
+    // MARK: - View only functions
+
+    func showCreateOrEditPostSheet() {
+        if let post = details?.myPost {
+            createPostVM.initAsEditor(post)
+        } else if let place = place {
+            createPostVM.selectPlace(place: place)
+        } else if let mapItem = mkMapItem {
+            createPostVM.selectPlace(place: mapItem)
+        }
+        showCreatePost = true
+    }
+
+    func openInMaps() {
+        if UIApplication.shared.canOpenURL(URL(string: "comgooglemaps://")!) {
+            openInGoogleMaps()
+        } else {
+            openInAppleMaps()
+        }
+    }
+
+    private func openInGoogleMaps() {
+        let scheme = "comgooglemaps://"
+        let query = self.name.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? self.name
+        let url = "\(scheme)?q=\(query)&center=\(self.latitude),\(self.longitude)"
+        UIApplication.shared.open(URL(string: url)!)
+    }
+
+    private func openInAppleMaps() {
+        if let mapItem = mkMapItem {
+            mapItem.openInMaps()
+        } else {
+            let q = self.name.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? self.name
+            let sll = "\(self.latitude),\(self.longitude)"
+            let url = "http://maps.apple.com/?q=\(q)&sll=\(sll)&z=10"
+            if let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
+               let url = URL(string: encoded) {
+                UIApplication.shared.open(url)
+            } else {
+                print("URL not valid", url)
+            }
+        }
+    }
+}
+
+extension PlaceDetailsViewModel {
+    var place: Place? {
+        details?.place
+    }
+
+    var name: String {
+        place?.name ?? mkMapItem?.name ?? ""
+    }
+
+    var latitude: Double {
+        place?.location.latitude ?? mkMapItem?.placemark.coordinate.latitude ?? 0
+    }
+
+    var longitude: Double {
+        place?.location.longitude ?? mkMapItem?.placemark.coordinate.longitude ?? 0
+    }
+
+    var communityPosts: [Post] {
+        details?.communityPosts ?? []
+    }
+
+    var featuredPosts: [Post] {
+        details?.featuredPosts ?? []
+    }
+
+    var followingPosts: [Post] {
+        details?.followingPosts ?? []
+    }
+
+    var address: String {
+        guard let mkMapItem = mkMapItem else {
+            return ""
+        }
+        let placemark = mkMapItem.placemark
+        var streetAddress: String?
+        if let subThoroughfare = placemark.subThoroughfare,
+           let thoroughfare = placemark.thoroughfare {
+            streetAddress = subThoroughfare + " " + thoroughfare
+        }
+        let components = [
+            streetAddress,
+            placemark.locality,
+            placemark.administrativeArea
+        ]
+        return components.compactMap({ $0 }).joined(separator: ", ")
     }
 }

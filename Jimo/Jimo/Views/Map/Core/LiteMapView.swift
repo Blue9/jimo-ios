@@ -13,6 +13,7 @@ struct LiteMapView: View {
     @EnvironmentObject var viewState: GlobalViewState
 
     @StateObject var mapViewModel = MapViewModel()
+    @StateObject var placeViewModel = PlaceDetailsViewModel()
     @StateObject var locationSearch = LocationSearch()
     @StateObject var sheetViewModel = SheetPositionViewModel()
 
@@ -27,14 +28,24 @@ struct LiteMapView: View {
     }
 
     var body: some View {
-        BaseMapViewV2(mapViewModel: mapViewModel, locationSearch: locationSearch, sheetViewModel: sheetViewModel)
-            .onAppear {
-                DispatchQueue.main.async {
-                    mapViewModel.pins = [pin]
-                    mapViewModel.selectPin(appState: appState, viewState: viewState, pin: pin)
-                    sheetViewModel.showBusinessSheet()
-                    mapViewModel.listenToRegionChanges(appState: appState, viewState: viewState)
-                }
+        BaseMapViewV2(
+            placeViewModel: placeViewModel,
+            mapViewModel: mapViewModel,
+            locationSearch: locationSearch,
+            sheetViewModel: sheetViewModel
+        )
+        .onAppear {
+            DispatchQueue.main.async {
+                mapViewModel.pins = [pin]
+                mapViewModel.tappedPin(
+                    placeViewModel: placeViewModel,
+                    appState: appState,
+                    viewState: viewState,
+                    pin: pin
+                )
+                sheetViewModel.showBusinessSheet()
+                mapViewModel.listenToRegionChanges(appState: appState, viewState: viewState)
             }
+        }
     }
 }

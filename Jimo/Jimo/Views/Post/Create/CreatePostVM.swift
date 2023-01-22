@@ -153,7 +153,7 @@ class CreatePostVM: ObservableObject {
         name = place.name
         placeId = nil
         maybeCreatePlaceCoord = place.placemark.coordinate
-        maybeCreatePlaceRegion = toRegion(place)
+        maybeCreatePlaceRegion = place.circularRegion
         previewRegion = toPreviewRegion(place)
         additionalPlaceData = AdditionalPlaceDataRequest(place)
     }
@@ -271,13 +271,6 @@ class CreatePostVM: ObservableObject {
             }).flatMap({ imageId -> AnyPublisher<R, APIError> in
                 then(imageId)
             }).eraseToAnyPublisher()
-    }
-
-    private func toRegion(_ mapItem: MKMapItem) -> Region? {
-        if let area = mapItem.placemark.region as? CLCircularRegion {
-            return Region(coord: area.center, radius: area.radius.magnitude)
-        }
-        return nil
     }
 
     private func toPreviewRegion(_ mapItem: MKMapItem) -> MKCoordinateRegion {

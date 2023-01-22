@@ -17,9 +17,12 @@ struct Endpoint {
 
     var url: URL? {
         var apiURL = URLComponents()
-        apiURL.scheme = "https"
-        apiURL.host = "api.jimoapp.com"
-        apiURL.port = 443
+//        apiURL.scheme = "https"
+//        apiURL.host = "api.jimoapp.com"
+//        apiURL.port = 443
+        apiURL.scheme = "http"
+        apiURL.host = "192.168.1.108"
+        apiURL.port = 80
         apiURL.path = path
         apiURL.queryItems = queryItems
         return apiURL.url
@@ -231,6 +234,14 @@ struct Endpoint {
 
     static func getPlaceDetails(id: PlaceId) -> Endpoint {
         Endpoint(path: "/places/\(id)/details")
+    }
+
+    static func placeSaves(_ placeId: PlaceId? = nil) -> Endpoint {
+        if let placeId = placeId {
+            return Endpoint(path: "/me/saved-places/\(placeId)")
+        } else {
+            return Endpoint(path: "/me/saved-places")
+        }
     }
 
     // MARK: Feedback endpoint
@@ -513,6 +524,18 @@ class APIClient: ObservableObject {
         doRequest(endpoint: .getPlaceDetails(id: placeId))
     }
 
+    func getSavedPlaces() -> AnyPublisher<SavedPlacesResponse, APIError> {
+        doRequest(endpoint: .placeSaves())
+    }
+
+    func savePlace(_ request: SavePlaceRequest) -> AnyPublisher<SavedPlace, APIError> {
+        doRequest(endpoint: .placeSaves(), httpMethod: "POST", body: request)
+    }
+
+    func unsavePlace(_ placeId: PlaceId) -> AnyPublisher<SimpleResponse, APIError> {
+        doRequest(endpoint: .placeSaves(placeId), httpMethod: "DELETE")
+    }
+
     // MARK: - Relation endpoints
 
     /**
@@ -708,7 +731,10 @@ class APIClient: ObservableObject {
      
      - Parameter endpoint: The endpoint.
      */
-    private func doRequest<Response: Decodable>(endpoint: Endpoint, httpMethod: String = "GET") -> AnyPublisher<Response, APIError> {
+    private func doRequest<Response: Decodable>(
+        endpoint: Endpoint,
+        httpMethod: String = "GET"
+    ) -> AnyPublisher<Response, APIError> {
         return doRequest(endpoint: endpoint, httpMethod: httpMethod, body: nil as EmptyBody?)
     }
 
@@ -717,9 +743,11 @@ class APIClient: ObservableObject {
      
      - Parameter endpoint: The endpoint.
      */
-    private func doRequest<Request: Encodable, Response: Decodable>(endpoint: Endpoint,
-                                                          httpMethod: String = "GET",
-                                                          body: Request? = nil) -> AnyPublisher<Response, APIError> {
+    private func doRequest<Request: Encodable, Response: Decodable>(
+        endpoint: Endpoint,
+        httpMethod: String = "GET",
+        body: Request? = nil
+    ) -> AnyPublisher<Response, APIError> {
         guard let url = endpoint.url else {
             return Fail(error: APIError.endpointError)
                 .eraseToAnyPublisher()
@@ -748,7 +776,9 @@ class APIClient: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    private func urlSessionPublisherHandler<Response: Decodable>(result: URLSession.DataTaskPublisher.Output) throws -> Response {
+    private func urlSessionPublisherHandler<Response: Decodable>(
+        result: URLSession.DataTaskPublisher.Output
+    ) throws -> Response {
         guard let response = result.response as? HTTPURLResponse else {
             print("Did not get response from server")
             throw APIError.noResponse
