@@ -10,7 +10,7 @@ import MapKit
 import SwiftUI
 import SwiftUIPager
 
-private struct PlaceDetailsView: View {
+struct PlaceDetailsView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var viewModel: PlaceDetailsViewModel
 
