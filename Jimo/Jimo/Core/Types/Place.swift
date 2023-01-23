@@ -94,9 +94,9 @@ struct GetPlaceDetailsResponse: Codable, Equatable {
     var place: Place
     var myPost: Post?
     var mySave: SavedPlace?
-    var followingPosts: [Post]
-    var featuredPosts: [Post]
-    var communityPosts: [Post]
+    var followingPosts: [Post] = []
+    var featuredPosts: [Post] = []
+    var communityPosts: [Post] = []
 }
 
 struct SavedPlace: Identifiable, Codable, Equatable {

@@ -12,6 +12,27 @@ import SwiftUIPager
 
 struct PlaceDetailsView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+
+    @ObservedObject var viewModel: PlaceDetailsViewModel
+
+    @State private var initialized = false
+
+    var body: some View {
+        BasePlaceDetailsView(viewModel: viewModel)
+            .onAppear {
+                DispatchQueue.main.async {
+                    if !initialized {
+                        initialized = true
+                        viewModel.initialize(appState: appState, viewState: viewState)
+                    }
+                }
+            }
+    }
+}
+
+private struct BasePlaceDetailsView: View {
+    @EnvironmentObject var appState: AppState
     @ObservedObject var viewModel: PlaceDetailsViewModel
 
     var body: some View {
@@ -118,7 +139,10 @@ private struct CreatePostButton: View {
         }
 
         .sheet(isPresented: $viewModel.showCreatePost) {
-            CreatePostWithModel(createPostVM: viewModel.createPostVM, presented: $viewModel.showCreatePost)
+            CreatePostWithModel(
+                createPostVM: viewModel.createPostVM,
+                presented: $viewModel.showCreatePost
+            )
         }
     }
 }
@@ -320,12 +344,12 @@ class PlaceDetailsViewModel: ObservableObject {
     // MARK: - Initialization
     private var postListener = PostListener()
 
-    private func initialize(appState: AppState, viewState: GlobalViewState) {
-        postListener.onPostCreated = { [weak self] post in
-            DispatchQueue.main.async {
-                if self?.place?.placeId == post.place.placeId {
-                    self?.muxedPlaceDetails?.details?.myPost = post
-                }
+    func initialize(appState: AppState, viewState: GlobalViewState) {
+        createPostVM.onCreate = { [weak self] post in
+            if self?.muxedPlaceDetails?.details != nil {
+                self?.muxedPlaceDetails?.details?.myPost = post
+            } else {
+                self?.muxedPlaceDetails?.details = .init(place: post.place, myPost: post)
             }
         }
         postListener.onPostDeleted = { [weak self] postId in
@@ -441,7 +465,17 @@ class PlaceDetailsViewModel: ObservableObject {
             }
         } receiveValue: { [weak self] save in
             DispatchQueue.main.async {
-                self?.muxedPlaceDetails?.details?.mySave = save
+                guard self?.muxedPlaceDetails != nil else {
+                    return
+                }
+                if self?.muxedPlaceDetails?.details == nil {
+                    self?.muxedPlaceDetails?.details = .init(
+                        place: save.place,
+                        mySave: save
+                    )
+                } else {
+                    self?.muxedPlaceDetails?.details?.mySave = save
+                }
             }
         }
     }

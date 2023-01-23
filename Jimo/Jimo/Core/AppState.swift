@@ -472,7 +472,7 @@ class AppState: ObservableObject {
 
     // MARK: - Post
 
-    func createPost(_ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
+    func createPost(_ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
         return self.apiClient.createPost(request)
             .map { post in
                 self.postPublisher.postCreated(post: post)
@@ -481,6 +481,7 @@ class AppState: ObservableObject {
                     "hasCaption": request.content.count > 0,
                     "hasPhoto": request.imageId != nil
                 ])
+                return post
             }
             .eraseToAnyPublisher()
     }
@@ -489,7 +490,7 @@ class AppState: ObservableObject {
         return self.apiClient.getPost(postId)
     }
 
-    func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
+    func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
         return self.apiClient.updatePost(postId, request)
             .map { post in
                 self.postPublisher.postUpdated(post: post)
@@ -498,6 +499,7 @@ class AppState: ObservableObject {
                     "hasCaption": request.content.count > 0,
                     "hasPhoto": request.imageId != nil
                 ])
+                return post
             }
             .eraseToAnyPublisher()
     }

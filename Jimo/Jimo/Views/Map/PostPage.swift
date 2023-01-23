@@ -68,9 +68,6 @@ struct PostPage: View {
                     Text(String(post.commentCount)).font(.caption)
 
                     Spacer()
-
-                    MiniPostSaveButton(postViewModel: postViewModel, initialPost: post)
-                        .font(.system(size: 15))
                 }
                 .foregroundColor(Color("foreground"))
             }
@@ -126,46 +123,6 @@ private struct MiniPostLikeButton: View {
                 postViewModel.likePost(postId: post.id, appState: appState, viewState: viewState)
             }) {
                 Image(systemName: "heart")
-            }
-            .foregroundColor(Color("foreground"))
-        }
-    }
-}
-
-private struct MiniPostSaveButton: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var viewState: GlobalViewState
-
-    @ObservedObject var postViewModel: PostVM
-
-    var initialPost: Post
-
-    var post: Post {
-        postViewModel.post ?? initialPost
-    }
-
-    var body: some View {
-        mainBody.onAppear {
-            postViewModel.listen(post: initialPost, onDelete: {})
-        }
-    }
-
-    @ViewBuilder
-    var mainBody: some View {
-        if post.saved {
-            Button(action: {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                postViewModel.unsavePost(postId: post.id, appState: appState, viewState: viewState)
-            }) {
-                Image(systemName: "bookmark.fill")
-            }
-            .foregroundColor(Color("foreground"))
-        } else {
-            Button(action: {
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                postViewModel.savePost(postId: post.id, appState: appState, viewState: viewState)
-            }) {
-                Image(systemName: "bookmark")
             }
             .foregroundColor(Color("foreground"))
         }
