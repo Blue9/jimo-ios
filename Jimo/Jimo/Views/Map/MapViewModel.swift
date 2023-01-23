@@ -151,7 +151,7 @@ class MapViewModel: RegionWrapperV2 {
             .store(in: &cancelBag)
     }
 
-    func tappedPin(
+    func selectPin(
         placeViewModel: PlaceDetailsViewModel,
         appState: AppState,
         viewState: GlobalViewState,

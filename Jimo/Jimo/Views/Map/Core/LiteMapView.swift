@@ -37,7 +37,7 @@ struct LiteMapView: View {
         .onAppear {
             DispatchQueue.main.async {
                 mapViewModel.pins = [pin]
-                mapViewModel.tappedPin(
+                mapViewModel.selectPin(
                     placeViewModel: placeViewModel,
                     appState: appState,
                     viewState: viewState,

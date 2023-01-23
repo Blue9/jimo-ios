@@ -1,5 +1,5 @@
 //
-//  MapSearchdetailsBody.swift
+//  PlaceDetailsView.swift
 //  Jimo
 //
 //  Created by admin on 12/23/22.
@@ -10,15 +10,7 @@ import MapKit
 import SwiftUI
 import SwiftUIPager
 
-struct PlaceDetailsView: View {
-    @ObservedObject var viewModel: PlaceDetailsViewModel
-
-    var body: some View {
-        BasePlaceDetailsView(viewModel: viewModel)
-    }
-}
-
-private struct BasePlaceDetailsView: View {
+private struct PlaceDetailsView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var viewModel: PlaceDetailsViewModel
 

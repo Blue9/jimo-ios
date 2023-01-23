@@ -93,7 +93,7 @@ struct BaseMapViewV2: View {
             tappedPin: { pin in
                 if let pin = pin {
                     Analytics.track(.mapPinTapped)
-                    mapViewModel.tappedPin(
+                    mapViewModel.selectPin(
                         placeViewModel: placeViewModel,
                         appState: appState,
                         viewState: globalViewState,
