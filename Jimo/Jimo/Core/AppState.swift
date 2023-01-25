@@ -726,11 +726,11 @@ class AppState: ObservableObject {
                 self.firebaseSession = .user(FirebaseUser(uid: user.uid, phoneNumber: user.phoneNumber))
                 self.refreshCurrentUser()
             } else {
-                self.firebaseSession = .doesNotExist
                 if self.signingOut {
-                    self.currentUser = .empty
                     self.signingOut = false
                 }
+                self.firebaseSession = .doesNotExist
+                self.currentUser = .empty
             }
         }
     }

@@ -169,8 +169,8 @@ class MapViewModel: ObservableObject {
         }
         // Move map to pin
         var center = pin.coordinate
-        center.latitude -= 0.0015
-        self.setRegion(MKCoordinateRegion(center: center, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005)))
+        center.latitude -= self._mkCoordinateRegion.span.latitudeDelta * 0.25
+        self.setRegion(MKCoordinateRegion(center: center, span: self._mkCoordinateRegion.span))
         placeViewModel.selectPlace(pin.placeId, appState: appState, viewState: viewState)
     }
 
