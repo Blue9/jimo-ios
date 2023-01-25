@@ -8,12 +8,10 @@
 import SwiftUI
 
 private enum NavigationDestination: Identifiable {
-    case savedPosts, editProfile, submitFeedback
+    case editProfile, submitFeedback
 
     var id: String {
         switch self {
-        case .savedPosts:
-            return "savedPosts"
         case .editProfile:
             return "editProfile"
         case .submitFeedback:
@@ -24,8 +22,6 @@ private enum NavigationDestination: Identifiable {
     @ViewBuilder
     func destinationView() -> some View {
         switch self {
-        case .savedPosts:
-            SavedPostsFeed()
         case .editProfile:
             EditProfile()
         case .submitFeedback:
@@ -258,7 +254,6 @@ struct ProfileHeaderView: View {
     var currentUserHeader: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-                headerButtonText(.savedPosts, "Saved posts", "bookmark")
                 headerButtonText(.editProfile, "Edit profile", "square.and.pencil")
                 headerButtonText(.submitFeedback, "Submit feedback", nil)
             }
