@@ -16,6 +16,12 @@ struct CreateProfileView: View {
     @StateObject private var viewModel = ViewModel()
 
     var body: some View {
+        NavigationView {
+            mainBody
+        }.navigationViewStyle(.stack)
+    }
+
+    var mainBody: some View {
         ZStack {
             VStack(spacing: 20) {
                 Spacer()

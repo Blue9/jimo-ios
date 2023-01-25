@@ -71,9 +71,10 @@ class OnboardingModel: ObservableObject {
 }
 
 class AppState: ObservableObject {
-    private var apiClient: APIClient
     private var cancelBag: Set<AnyCancellable> = .init()
-    private var dateTimeFormatter = RelativeDateTimeFormatter()
+
+    var apiClient: APIClient
+    var dateTimeFormatter = RelativeDateTimeFormatter()
 
     @Published var currentUser: CurrentUser = .loading
     @Published var firebaseSession: FirebaseSession = .loading
@@ -342,6 +343,7 @@ class AppState: ObservableObject {
         self.apiClient.getMe()
             .map({ CurrentUser.user($0) })
             .catch({ error -> Just<CurrentUser> in
+                print("catching error when getting Me: \(error.localizedDescription)")
                 switch error {
                 case .notFound:
                     return Just(CurrentUser.doesNotExist)
@@ -730,7 +732,7 @@ class AppState: ObservableObject {
                     self.signingOut = false
                 }
                 self.firebaseSession = .doesNotExist
-                self.currentUser = .empty
+                self.currentUser = .loading
             }
         }
     }

@@ -750,7 +750,7 @@ class APIClient: ObservableObject {
                 print("API error for \(httpMethod) \(url): \(err)")
                 return err
             }
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
