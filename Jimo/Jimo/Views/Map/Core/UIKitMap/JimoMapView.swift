@@ -48,11 +48,12 @@ struct JimoMapView: UIViewRepresentable {
         // Handle selectedPin
         let uiViewSelectedAnnotation = mapView.selectedAnnotations.first as? MKJimoPinAnnotation
         if mapViewModel.selectedPin != uiViewSelectedAnnotation {
-            if let selectedPin = mapViewModel.selectedPin,
-               let pin = mapView.annotations.first(where: { $0 as? MKJimoPinAnnotation == selectedPin }) {
+            if let selectedPin = mapViewModel.selectedPin {
                 // We need to reference the object in the map view (even though equality is properly implemented)
                 // Assuming this is because MapKit is in Objective C and doing some pointer bs
-                mapView.selectAnnotation(pin, animated: true)
+                if let pin = mapView.annotations.first(where: { $0 as? MKJimoPinAnnotation == selectedPin }) {
+                    mapView.selectAnnotation(pin, animated: true)
+                }
             } else if let uiViewSelectedAnnotation = uiViewSelectedAnnotation {
                 mapView.deselectAnnotation(uiViewSelectedAnnotation, animated: true)
             }
@@ -65,7 +66,7 @@ struct JimoMapView: UIViewRepresentable {
 
     class Coordinator: NSObject, MKMapViewDelegate {
         private var parent: JimoMapView
-        private var regularPinsCapacity: Int = 25
+        private var regularPinsCapacity: Int = 20
         private var isRecomputingDots = false
         private(set) var isRegionChanging = false
 
@@ -149,7 +150,9 @@ struct JimoMapView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
-            self.recomputeDots(mapView)
+            DispatchQueue.main.async {
+                self.recomputeDots(mapView)
+            }
         }
 
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {

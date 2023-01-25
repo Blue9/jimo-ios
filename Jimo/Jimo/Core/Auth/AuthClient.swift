@@ -87,7 +87,8 @@ class AuthClient: ObservableObject {
 
     func getAuthJWT(user: FirebaseAuth.User) -> AnyPublisher<Token, Error> {
         Future<Token, Error> { promise in
-            user.getIDToken { token, error in
+            // print("Seems like it crashes here when signing in!!!!!")
+            return user.getIDToken { token, error in
                 if let error = error {
                     promise(.failure(error))
                 } else if let token = token {

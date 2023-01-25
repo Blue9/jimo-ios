@@ -68,7 +68,7 @@ struct CategoryFilter: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Filter by category")
+                Text("Filter pins by category")
                     .font(.system(size: 15))
                     .bold()
                 Spacer()

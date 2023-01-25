@@ -17,6 +17,7 @@ struct MapBottomSheetBody: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
 
+    @ObservedObject var placeViewModel: PlaceDetailsViewModel
     @ObservedObject var mapViewModel: MapViewModel
     @ObservedObject var userFilterViewModel: UserFilterViewModel
     @ObservedObject var locationSearch: LocationSearch
@@ -37,6 +38,7 @@ struct MapBottomSheetBody: View {
                         customUserFilter: $mapViewModel.userIds
                     )
                     CategoryFilter(selected: $mapViewModel.categories)
+                        .opacity(mapViewModel.mapType != .saved ? 1 : 0)
                     Spacer()
                 }
             }
@@ -53,11 +55,11 @@ struct MapBottomSheetBody: View {
                             sheetViewModel.bottomSheetPosition = .hidden
                             // sheetViewModel.businessSheetPosition = .relative(0.6)
                             mapViewModel.selectSearchResult(
+                                placeViewModel: placeViewModel,
                                 appState: appState,
                                 viewState: viewState,
                                 mapItem: selectedPlace
                             )
-                            print("searchFieldActive \(searchFieldActive) :: \(sheetViewModel.bottomSheetPosition) \(sheetViewModel.businessSheetPosition)")
                         }
                     }
                 }
@@ -82,7 +84,7 @@ private struct MapUserFilter: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Filter by people")
+                Text("Filter pins")
                     .font(.system(size: 15))
                     .bold()
                 Spacer()
@@ -91,9 +93,9 @@ private struct MapUserFilter: View {
             .padding(.leading, 5)
 
             HStack(spacing: 0) {
+                MapUserFilterButton(mapType: .saved, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .me, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .following, selectedMapType: $mapType)
-                MapUserFilterButton(mapType: .saved, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .community, selectedMapType: $mapType)
                 MapUserFilterButton(mapType: .custom, selectedMapType: $mapType, onTap: {
                     showMoreUsersSheet = true
@@ -103,7 +105,13 @@ private struct MapUserFilter: View {
         .padding(5)
         .background(Color("foreground").opacity(0.1))
         .cornerRadius(10)
-        .sheet(isPresented: $showMoreUsersSheet) {
+        .sheet(isPresented: $showMoreUsersSheet, onDismiss: {
+            if userFilterViewModel.selectedUsers.isEmpty {
+                DispatchQueue.main.async {
+                    mapType = .following
+                }
+            }
+        }) {
             CustomUserFilter(
                 viewModel: userFilterViewModel,
                 onSubmit: { userIds in customUserFilter = userIds }
@@ -183,9 +191,9 @@ private struct GlobalViewButton: View {
 fileprivate extension MapType {
     var buttonName: String {
         switch self {
-        case .me: return "Me"
-        case .following: return "Friends"
         case .saved: return "Saved"
+        case .me: return "My Posts"
+        case .following: return "Friends"
         case .community: return "Everyone"
         case .custom: return "More"
         }

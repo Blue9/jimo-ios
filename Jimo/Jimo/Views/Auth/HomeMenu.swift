@@ -13,6 +13,12 @@ struct HomeMenu: View {
     let height = UIScreen.main.bounds.height
 
     var body: some View {
+        NavigationView {
+            mainBody.navigationBarHidden(true)
+        }.navigationViewStyle(.stack)
+    }
+
+    var mainBody: some View {
         VStack(spacing: 0) {
             Spacer().frame(maxHeight: height * 0.22)
 

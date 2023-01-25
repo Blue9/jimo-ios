@@ -71,11 +71,12 @@ class OnboardingModel: ObservableObject {
 }
 
 class AppState: ObservableObject {
-    private var apiClient: APIClient
     private var cancelBag: Set<AnyCancellable> = .init()
-    private var dateTimeFormatter = RelativeDateTimeFormatter()
 
-    @Published var currentUser: CurrentUser = .empty
+    var apiClient: APIClient
+    var dateTimeFormatter = RelativeDateTimeFormatter()
+
+    @Published var currentUser: CurrentUser = .loading
     @Published var firebaseSession: FirebaseSession = .loading
 
     @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
@@ -89,6 +90,7 @@ class AppState: ObservableObject {
 
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()
+    let placePublisher = PlacePublisher()
     let commentPublisher = CommentPublisher()
 
     // If we're signing out don't register any new FCM tokens
@@ -256,7 +258,9 @@ class AppState: ObservableObject {
         return self.apiClient.createUser(request)
             .map { response in
                 if let user = response.created {
-                    self.currentUser = .user(user)
+                    DispatchQueue.main.async {
+                        self.currentUser = .user(user)
+                    }
                 }
                 return response.error
             }
@@ -275,14 +279,18 @@ class AppState: ObservableObject {
                 if let user = response.created {
                     return self.apiClient.uploadProfilePicture(imageData: jpeg)
                         .map { userWithPhoto in
-                            self.currentUser = .user(userWithPhoto)
+                            DispatchQueue.main.async {
+                                self.currentUser = .user(userWithPhoto)
+                            }
                             return response.error
                         }
                         .catch { error -> AnyPublisher<UserFieldError?, Never> in
                             print("Error when setting profile picture", error)
                             // This will still create the user without the profile picture
                             // Minor inconvenience for the user but it's fine
-                            self.currentUser = .user(user)
+                            DispatchQueue.main.async {
+                                self.currentUser = .user(user)
+                            }
                             return Just(response.error).eraseToAnyPublisher()
                         }
                         .eraseToAnyPublisher()
@@ -303,7 +311,9 @@ class AppState: ObservableObject {
         return self.apiClient.updateProfile(request)
             .map({ response in
                 if let user = response.user {
-                    self.currentUser = .user(user)
+                    DispatchQueue.main.async {
+                        self.currentUser = .user(user)
+                    }
                 }
                 return response
             })
@@ -333,6 +343,7 @@ class AppState: ObservableObject {
         self.apiClient.getMe()
             .map({ CurrentUser.user($0) })
             .catch({ error -> Just<CurrentUser> in
+                print("catching error when getting Me: \(error.localizedDescription)")
                 switch error {
                 case .notFound:
                     return Just(CurrentUser.doesNotExist)
@@ -398,6 +409,35 @@ class AppState: ObservableObject {
         self.apiClient.getPlaceDetails(placeId: placeId)
     }
 
+    func getSavedPlaces() -> AnyPublisher<SavedPlacesResponse, APIError> {
+        apiClient.getSavedPlaces()
+    }
+
+    func savePlace(
+        placeId: PlaceId? = nil,
+        maybeCreatePlaceRequest: MaybeCreatePlaceRequest? = nil,
+        note: String
+    ) -> AnyPublisher<SavePlaceResponse, APIError> {
+        apiClient.savePlace(
+            SavePlaceRequest(
+                place: maybeCreatePlaceRequest,
+                placeId: placeId,
+                note: note
+            )
+        ).map {
+            self.placePublisher.placeSaved(.init(placeId: $0.save.place.placeId, save: $0.save, createPlaceRequest: maybeCreatePlaceRequest))
+            return $0
+        }.eraseToAnyPublisher()
+    }
+
+    func unsavePlace(_ placeId: PlaceId) -> AnyPublisher<SimpleResponse, APIError> {
+        apiClient.unsavePlace(placeId)
+            .map {
+                self.placePublisher.placeUnsaved(placeId)
+                return $0
+            }.eraseToAnyPublisher()
+    }
+
     // MARK: - Relation endpoints
 
     func followUser(username: String) -> AnyPublisher<FollowUserResponse, APIError> {
@@ -442,7 +482,7 @@ class AppState: ObservableObject {
 
     // MARK: - Post
 
-    func createPost(_ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
+    func createPost(_ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
         return self.apiClient.createPost(request)
             .map { post in
                 self.postPublisher.postCreated(post: post)
@@ -451,6 +491,7 @@ class AppState: ObservableObject {
                     "hasCaption": request.content.count > 0,
                     "hasPhoto": request.imageId != nil
                 ])
+                return post
             }
             .eraseToAnyPublisher()
     }
@@ -459,7 +500,7 @@ class AppState: ObservableObject {
         return self.apiClient.getPost(postId)
     }
 
-    func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Void, APIError> {
+    func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
         return self.apiClient.updatePost(postId, request)
             .map { post in
                 self.postPublisher.postUpdated(post: post)
@@ -468,6 +509,7 @@ class AppState: ObservableObject {
                     "hasCaption": request.content.count > 0,
                     "hasPhoto": request.imageId != nil
                 ])
+                return post
             }
             .eraseToAnyPublisher()
     }
@@ -501,26 +543,6 @@ class AppState: ObservableObject {
                 self.postPublisher.postUnliked(postId: postId, likeCount: like.likes)
                 Analytics.track(.postUnliked)
                 return like
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func savePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
-        return self.apiClient.savePost(postId: postId)
-            .map {
-                self.postPublisher.postSaved(postId: postId)
-                Analytics.track(.postSaved)
-                return $0
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func unsavePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
-        return self.apiClient.unsavePost(postId: postId)
-            .map {
-                self.postPublisher.postUnsaved(postId: postId)
-                Analytics.track(.postUnsaved)
-                return $0
             }
             .eraseToAnyPublisher()
     }
@@ -701,14 +723,16 @@ class AppState: ObservableObject {
     }
 
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
-        if let user = user {
-            self.refreshCurrentUser()
-            self.firebaseSession = .user(FirebaseUser(uid: user.uid, phoneNumber: user.phoneNumber))
-        } else {
-            self.firebaseSession = .doesNotExist
-            if signingOut {
-                self.currentUser = .empty
-                self.signingOut = false
+        DispatchQueue.main.async {
+            if let user = user {
+                self.firebaseSession = .user(FirebaseUser(uid: user.uid, phoneNumber: user.phoneNumber))
+                self.refreshCurrentUser()
+            } else {
+                if self.signingOut {
+                    self.signingOut = false
+                }
+                self.firebaseSession = .doesNotExist
+                self.currentUser = .loading
             }
         }
     }

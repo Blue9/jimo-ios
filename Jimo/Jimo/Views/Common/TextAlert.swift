@@ -12,6 +12,7 @@ struct TextAlert: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
     var title: String
     var message: String
+    var submitText = "Submit"
     var action: (String) -> Void
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<TextAlert>) -> UIViewController {
@@ -29,7 +30,7 @@ struct TextAlert: UIViewControllerRepresentable {
                 textField.delegate = context.coordinator
             }
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in })
-            alert.addAction(UIAlertAction(title: "Submit", style: .default) { _ in
+            alert.addAction(UIAlertAction(title: submitText, style: .default) { _ in
                 action(text)
                 text = ""
             })
@@ -65,9 +66,15 @@ struct TextAlert: UIViewControllerRepresentable {
 }
 
 extension View {
-    func textAlert(isPresented: Binding<Bool>, title: String, message: String, action: @escaping (String) -> Void) -> some View {
+    func textAlert(
+        isPresented: Binding<Bool>,
+        title: String,
+        message: String,
+        submitText: String = "Submit",
+        action: @escaping (String) -> Void
+    ) -> some View {
         ZStack {
-            TextAlert(isPresented: isPresented, title: title, message: message, action: action)
+            TextAlert(isPresented: isPresented, title: title, message: message, submitText: submitText, action: action)
             self
         }
     }

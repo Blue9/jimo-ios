@@ -91,7 +91,7 @@ extension SavedPostsFeed {
             nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
             nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
             nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
-            nc.addObserver(self, selector: #selector(postSaved), name: PostPublisher.postSaved, object: nil)
+            nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
             nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
         }
 
@@ -116,11 +116,11 @@ extension SavedPostsFeed {
             }
         }
 
-        @objc private func postSaved(notification: Notification) {
-            let save = notification.object as! PostSavePayload
-            let postIndex = posts.indices.first(where: { posts[$0].postId == save.postId })
+        @objc private func placeSaved(notification: Notification) {
+            let payload = notification.object as! PlaceSavePayload
+            let postIndex = posts.indices.first(where: { posts[$0].place.placeId == payload.placeId })
             if let i = postIndex {
-                posts[i].saved = save.saved
+                posts[i].saved = payload.save != nil
             }
         }
 

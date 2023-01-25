@@ -101,6 +101,7 @@
 		C764145025D0FD4100CBDE3F /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C764144F25D0FD4100CBDE3F /* SearchViewModel.swift */; };
 		C764145525D0FD6000CBDE3F /* DiscoverViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C764145425D0FD6000CBDE3F /* DiscoverViewModel.swift */; };
 		C7654E5C27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */; };
+		C766903B298094CF0083357D /* PlacePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C766903A298094CF0083357D /* PlacePublisher.swift */; };
 		C76A8AFF2596DDD700623DA2 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */; };
 		C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913725D20F6E00762803 /* FollowContacts.swift */; };
 		C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913D25D21E2800762803 /* OnboardingView.swift */; };
@@ -152,6 +153,7 @@
 		C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D825AC1D49004A9F53 /* APIClient.swift */; };
 		C7EAD4DE25AC1DD0004A9F53 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */; };
 		C7EF8E6A296E699E00892BA0 /* CustomUserFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */; };
+		C7F1EF3F29792488009806F8 /* MKMapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F1EF3E29792488009806F8 /* MKMapItem.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
 		C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = C7FC69DF2790160100C41ED3 /* SwiftUIPager */; };
 /* End PBXBuildFile section */
@@ -267,6 +269,7 @@
 		C764144F25D0FD4100CBDE3F /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		C764145425D0FD6000CBDE3F /* DiscoverViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverViewModel.swift; sourceTree = "<group>"; };
 		C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKCoordinateRegion+Hashable.swift"; sourceTree = "<group>"; };
+		C766903A298094CF0083357D /* PlacePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacePublisher.swift; sourceTree = "<group>"; };
 		C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		C76E913725D20F6E00762803 /* FollowContacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowContacts.swift; sourceTree = "<group>"; };
 		C76E913D25D21E2800762803 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -315,6 +318,7 @@
 		C7EAD4D825AC1D49004A9F53 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
 		C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUserFilter.swift; sourceTree = "<group>"; };
+		C7F1EF3E29792488009806F8 /* MKMapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKMapItem.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -381,6 +385,7 @@
 				C72BB2B228038F6D001997C1 /* View+navigation.swift */,
 				C70367052557629900F970DE /* View+navigationBarColor.swift */,
 				C70AF05B282490C700FC7A20 /* View+shareOverlay.swift */,
+				C7F1EF3E29792488009806F8 /* MKMapItem.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -407,6 +412,7 @@
 				C7959C7626AFCDE500EB9FD2 /* UserPublisher.swift */,
 				C74D020626A667E000381C1B /* PostPublisher.swift */,
 				C7DE07B326AE5FEE006048E4 /* CommentPublisher.swift */,
+				C766903A298094CF0083357D /* PlacePublisher.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -969,7 +975,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		C750AB2225DA61FF00049D6D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -1057,6 +1063,7 @@
 				C7D2D85225CE6DD500246BD0 /* MKCoordinateRegion+Equatable.swift in Sources */,
 				C773DFBD25DF90FA00E40102 /* TextAlert.swift in Sources */,
 				C764145025D0FD4100CBDE3F /* SearchViewModel.swift in Sources */,
+				C7F1EF3F29792488009806F8 /* MKMapItem.swift in Sources */,
 				C7DE07B426AE5FEE006048E4 /* CommentPublisher.swift in Sources */,
 				842B0F672923667700828F42 /* SearchUsers.swift in Sources */,
 				C7106B0C2560C9F800C10EFF /* ProfileViewModel.swift in Sources */,
@@ -1100,6 +1107,7 @@
 				C707E02227EE565C0077B8DA /* NoButtonStyle.swift in Sources */,
 				C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */,
 				C757F87327F1579500364EDB /* RequestPermission.swift in Sources */,
+				C766903B298094CF0083357D /* PlacePublisher.swift in Sources */,
 				C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */,
 				C72BB2B128038DEA001997C1 /* PostDestination.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
@@ -1308,7 +1316,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.0.0;
+				MARKETING_VERSION = 8.1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1333,7 +1342,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.0.0;
+				MARKETING_VERSION = 8.1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1472,7 +1482,7 @@
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.0;
+				minimumVersion = 10.0.0;
 			};
 		};
 		841D18612923510800A3DC86 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {

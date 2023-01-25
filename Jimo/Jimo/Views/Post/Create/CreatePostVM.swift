@@ -61,7 +61,7 @@ enum CreateOrEdit: Equatable {
         }
     }
 
-    func action(appState: AppState) -> ((CreatePostRequest) -> AnyPublisher<Void, APIError>) {
+    func action(appState: AppState) -> ((CreatePostRequest) -> AnyPublisher<Post, APIError>) {
         switch self {
         case .create:
             return appState.createPost
@@ -98,6 +98,8 @@ class CreatePostVM: ObservableObject {
     @Published var errorMessage = ""
 
     @Published var postingStatus = Status.drafting
+
+    var onCreate: ((Post) -> Void)?
 
     var uiImageBinding: Binding<UIImage?> {
         Binding<UIImage?>(
@@ -153,7 +155,7 @@ class CreatePostVM: ObservableObject {
         name = place.name
         placeId = nil
         maybeCreatePlaceCoord = place.placemark.coordinate
-        maybeCreatePlaceRegion = toRegion(place)
+        maybeCreatePlaceRegion = place.circularRegion
         previewRegion = toPreviewRegion(place)
         additionalPlaceData = AdditionalPlaceDataRequest(place)
     }
@@ -213,8 +215,9 @@ class CreatePostVM: ObservableObject {
                 self.showError = true
                 self.postingStatus = .drafting
             }
-        } receiveValue: {
+        } receiveValue: { post in
             self.postingStatus = .success
+            self.onCreate?(post)
         }.store(in: &cancelBag)
     }
 
@@ -225,7 +228,7 @@ class CreatePostVM: ObservableObject {
         category: String,
         content: String,
         image: CreatePostImage?
-    ) -> AnyPublisher<Void, APIError> {
+    ) -> AnyPublisher<Post, APIError> {
         let action = self.createOrEdit.action(appState: appState)
         guard case let .uiImage(imageToUpload) = image else {
             return action(
@@ -271,13 +274,6 @@ class CreatePostVM: ObservableObject {
             }).flatMap({ imageId -> AnyPublisher<R, APIError> in
                 then(imageId)
             }).eraseToAnyPublisher()
-    }
-
-    private func toRegion(_ mapItem: MKMapItem) -> Region? {
-        if let area = mapItem.placemark.region as? CLCircularRegion {
-            return Region(coord: area.center, radius: area.radius.magnitude)
-        }
-        return nil
     }
 
     private func toPreviewRegion(_ mapItem: MKMapItem) -> MKCoordinateRegion {

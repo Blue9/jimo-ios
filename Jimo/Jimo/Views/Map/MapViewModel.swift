@@ -27,7 +27,11 @@ struct RegionCache: Codable, Equatable, Hashable {
     var mkCoordinateRegion: MKCoordinateRegion
 }
 
-class RegionWrapperV2: ObservableObject {
+class MapViewModel: ObservableObject {
+    // MARK: - RegionWrapper
+    // This used to be `class RegionWrapper: ObservableObject` and MapViewModel extended it,
+    // but that was leading to crashes (https://developer.apple.com/forums/thread/722650),
+    // so now it's part of the class.
     /// Used internally by MapKit. When we change this, JimoMapView will call updateUIView and update the region.
     /// It will then call the regionDidChange delegate method which updates visibleMapRect.
     var _mkCoordinateRegion = MKCoordinateRegion(
@@ -52,10 +56,9 @@ class RegionWrapperV2: ObservableObject {
         self._mkCoordinateRegion = region
         self.trigger.toggle()
     }
-}
 
-class MapViewModel: RegionWrapperV2 {
-    private var postListener = PostListener()
+    // MARK: - Actual MapViewModel
+
     private var cancelBag: Set<AnyCancellable> = Set()
     private var mapLoadCancellable: AnyCancellable? // One cancellable so we cancel when we re-assign
 
@@ -67,17 +70,14 @@ class MapViewModel: RegionWrapperV2 {
 
     /// selectedPin is set when you tap on a pin on the map
     @Published var selectedPin: MKJimoPinAnnotation?
-    /// displayedPlaceDetails is set when you tap on a pin or select a search result
-    @Published var displayedPlaceDetails: MapPlaceResult?
     @Published var isLoading = false
 
     private var latestMapRequest: MapRequestState?
 
     var initializedFromCache: Bool
 
-    override init() {
+    init() {
         self.initializedFromCache = false
-        super.init()
         // Only want initialize from cache if we don't have the user's location
         // If we do have their location we want to open to their location
         if let location = PermissionManager.shared.getLocation() {
@@ -109,21 +109,6 @@ class MapViewModel: RegionWrapperV2 {
             })
         } else {
             self.listenToRegionChanges(appState: appState, viewState: viewState)
-        }
-        postListener.onPostCreated = { post in
-            DispatchQueue.main.async {
-                self.loadMap(appState: appState, viewState: viewState, onLoad: {_ in})
-                if self.displayedPlaceDetails?.place?.placeId == post.place.placeId {
-                    self.displayedPlaceDetails?.details?.followingPosts.insert(post, at: 0)
-                }
-            }
-        }
-        postListener.onPostDeleted = { postId in
-            DispatchQueue.main.async {
-                self.loadMap(appState: appState, viewState: viewState, onLoad: {_ in})
-                // Current user's posts will be in following posts so we only have to remove from there
-                self.displayedPlaceDetails?.details?.followingPosts.removeAll(where: { $0.postId == postId })
-            }
         }
     }
 
@@ -170,6 +155,7 @@ class MapViewModel: RegionWrapperV2 {
     }
 
     func selectPin(
+        placeViewModel: PlaceDetailsViewModel,
         appState: AppState,
         viewState: GlobalViewState,
         pin: MKJimoPinAnnotation?
@@ -181,118 +167,45 @@ class MapViewModel: RegionWrapperV2 {
         guard let pin = pin else {
             return
         }
-        guard let placeId = pin.placeId else {
-            viewState.setError("Cannot load place details")
-            return
-        }
+        // Move map to pin
         var center = pin.coordinate
-        center.latitude -= 0.0015
-        self.setRegion(MKCoordinateRegion(center: center, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005)))
-        if let details = displayedPlaceDetails, details.place?.placeId == selectedPin?.placeId {
-            // Just use the last-loaded place details
-            displayedPlaceDetails?.isStale = false
-            return
-        }
-        appState.getPlaceDetails(placeId: placeId)
-            .sink { completion in
-                if case let .failure(error) = completion {
-                    print("Error when getting place details", error)
-                    viewState.setError("Could not load place details")
-                }
-            } receiveValue: { [weak self] placeDetails in
-                self?.displayedPlaceDetails = MapPlaceResult(details: placeDetails)
-                self?.loadMapItemForPlaceDetails()
-            }
-            .store(in: &cancelBag)
+        center.latitude -= self._mkCoordinateRegion.span.latitudeDelta * 0.25
+        self.setRegion(MKCoordinateRegion(center: center, span: self._mkCoordinateRegion.span))
+        placeViewModel.selectPlace(pin.placeId, appState: appState, viewState: viewState)
     }
 
     func selectSearchResult(
+        placeViewModel: PlaceDetailsViewModel,
         appState: AppState,
         viewState: GlobalViewState,
         mapItem: MKMapItem
     ) {
-        self.displayedPlaceDetails = MapPlaceResult(mkMapItem: mapItem)
-        guard let placeName = mapItem.placemark.name else {
-            return
-        }
-        var center = mapItem.placemark.coordinate
-        center.latitude -= 0.0015
-        self.setRegion(MKCoordinateRegion(center: center, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005)))
-        appState.findPlace(
-            name: placeName,
-            latitude: mapItem.placemark.coordinate.latitude,
-            longitude: mapItem.placemark.coordinate.longitude
-        ).flatMap { response in
-            guard let place = response.place else {
-                // TODO kind of hacky
-                let fakePlace = Place(
-                    placeId: "",
-                    name: mapItem.placemark.name ?? "",
-                    location: Location(coord: mapItem.placemark.coordinate)
+        placeViewModel.selectMapItem(mapItem, appState: appState, viewState: viewState) { (placeId, coord) in
+            self.selectPinIfExistsFakeIt(placeId: placeId, coordinate: coord)
+            var center = mapItem.placemark.coordinate
+            center.latitude -= 0.0015
+            self.setRegion(
+                MKCoordinateRegion(
+                    center: center,
+                    span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005)
                 )
-                self.selectPinIfExistsFakeIt(fakePlace)
-                return Just<GetPlaceDetailsResponse?>(nil)
-                    .setFailureType(to: APIError.self)
-                    .eraseToAnyPublisher()
-            }
-            self.selectPinIfExistsFakeIt(place)
-            return appState.getPlaceDetails(placeId: place.id)
-                .map { (response: GetPlaceDetailsResponse) in (response as GetPlaceDetailsResponse?) }
-                .eraseToAnyPublisher()
-        }.sink { completion in
-            if case let .failure(error) = completion {
-                print("Error when getting place details", error)
-                viewState.setError("Could not load place details")
-            }
-        } receiveValue: { [weak self] placeDetails in
-            print("setting map search result")
-            self?.displayedPlaceDetails = MapPlaceResult(
-                mkMapItem: mapItem,
-                details: placeDetails
             )
         }
-        .store(in: &cancelBag)
     }
 
-    private func loadMapItemForPlaceDetails() {
-        guard let place = displayedPlaceDetails?.place else {
-            return
-        }
-        let location = CLLocation(latitude: place.location.latitude, longitude: place.location.longitude)
-        CLGeocoder().reverseGeocodeLocation(location) { response, _ in
-            if let response = response, let placemark = response.first {
-                // Got the CLPlacemark, now try to get the MKMapItem to get the business details
-                let searchRequest = MKLocalSearch.Request()
-                searchRequest.region = .init(center: place.location.coordinate(), span: .init(latitudeDelta: 0, longitudeDelta: 0))
-                searchRequest.naturalLanguageQuery = place.name
-                MKLocalSearch(request: searchRequest).start { (response, _) in
-                    if let response = response {
-                        for mapItem in response.mapItems {
-                            if let placemarkLocation = placemark.location,
-                               let mapItemLocation = mapItem.placemark.location,
-                               mapItemLocation.distance(from: placemarkLocation) < 10 {
-                                self.displayedPlaceDetails?.mkMapItem = mapItem
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func selectPinIfExistsFakeIt(_ place: Place) {
-        if let pin = self.pins.first(where: { $0.placeId == place.placeId }) {
-            self.selectedPin = pin
-            var center = pin.coordinate
-            center.latitude -= 0.0015
-            self._mkCoordinateRegion.center = center
-            self.trigger.toggle()
-        } else {
-            let pin = MKJimoPinAnnotation(coordinate: place.location.coordinate())
-            pin.placeId = place.placeId
+    private func selectPinIfExistsFakeIt(placeId: PlaceId?, coordinate: CLLocationCoordinate2D) {
+        guard let placeId = placeId, let pin = self.pins.first(where: { $0.placeId == placeId }) else {
+            let pin = MKJimoPinAnnotation(coordinate: coordinate)
+            pin.placeId = placeId
             self.pins.append(pin)
             self.selectedPin = pin
+            return
         }
+        self.selectedPin = pin
+        var center = pin.coordinate
+        center.latitude -= 0.0015
+        self._mkCoordinateRegion.center = center
+        self.trigger.toggle()
     }
 
     private func loadMap(appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
@@ -355,61 +268,6 @@ class MapViewModel: RegionWrapperV2 {
     }
 }
 
-struct MapPlaceResult: Equatable {
-    var isStale = false
-    /// Apple maps MapKit item
-    var mkMapItem: MKMapItem?
-
-    /// Jimo place details
-    var details: GetPlaceDetailsResponse?
-
-    var place: Place? {
-        details?.place
-    }
-
-    var name: String {
-        place?.name ?? mkMapItem?.name ?? ""
-    }
-
-    var latitude: Double {
-        place?.location.latitude ?? mkMapItem?.placemark.coordinate.latitude ?? 0
-    }
-
-    var longitude: Double {
-        place?.location.longitude ?? mkMapItem?.placemark.coordinate.longitude ?? 0
-    }
-
-    var communityPosts: [Post] {
-        details?.communityPosts ?? []
-    }
-
-    var featuredPosts: [Post] {
-        details?.featuredPosts ?? []
-    }
-
-    var followingPosts: [Post] {
-        details?.followingPosts ?? []
-    }
-
-    var address: String {
-        guard let mkMapItem = mkMapItem else {
-            return ""
-        }
-        let placemark = mkMapItem.placemark
-        var streetAddress: String?
-        if let subThoroughfare = placemark.subThoroughfare,
-           let thoroughfare = placemark.thoroughfare {
-            streetAddress = subThoroughfare + " " + thoroughfare
-        }
-        let components = [
-            streetAddress,
-            placemark.locality,
-            placemark.administrativeArea
-        ]
-        return components.compactMap({ $0 }).joined(separator: ", ")
-    }
-}
-
 extension MKMapView {
     func rectangularRegion() -> RectangularRegion {
         let rect = self.convert(self.region, toRectTo: self)
@@ -454,23 +312,31 @@ extension MKCoordinateRegion: Codable {
     }
 }
 
-class PostListener {
+class PostPlaceListener {
     typealias OnPostCreated = (Post) -> Void
     typealias OnPostDeleted = (PostId) -> Void
+    typealias OnPlaceSave = (PlaceSavePayload) -> Void
 
     let nc = NotificationCenter.default
 
     var onPostCreated: OnPostCreated?
+    var onPlaceSave: OnPlaceSave?
     var onPostDeleted: OnPostDeleted?
 
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
 
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
         onPostCreated?(post)
+    }
+
+    @objc private func placeSaved(notification: Notification) {
+        let payload = notification.object as! PlaceSavePayload
+        onPlaceSave?(payload)
     }
 
     @objc private func postDeleted(notification: Notification) {

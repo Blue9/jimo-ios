@@ -15,8 +15,12 @@ struct ContentView: View {
     @StateObject var networkMonitor = NetworkConnectionMonitor()
 
     var body: some View {
-        ZStack {
-            if case .loading = appState.firebaseSession {
+        VStack {
+            if case .doesNotExist = appState.firebaseSession {
+                HomeMenu()
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+            } else if case .loading = appState.firebaseSession {
                 Image("icon")
                     .resizable()
                     .scaledToFit()
@@ -29,49 +33,26 @@ struct ContentView: View {
                     .scaledToFit()
                     .frame(height: 120)
                     .offset(y: -5)
-            } else if case .doesNotExist = appState.firebaseSession {
-                NavigationView {
-                    HomeMenu().navigationBarHidden(true)
-                }
-                .navigationViewStyle(StackNavigationViewStyle())
             } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile
-                NavigationView {
-                    VStack {
-                        Spacer()
-                        Button("Could not connect. Tap to try again.") {
-                            appState.refreshCurrentUser()
-                        }
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .transition(.opacity)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(Text("Loading profile"))
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Sign out") {
-                                appState.signOut()
-                            }
-                        }
-                    }
-                }
-                .navigationViewStyle(StackNavigationViewStyle())
-            } else if case let .user(user) = appState.currentUser {
+                FailedToLoadView()
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+            } else if appState.me != nil {
                 // Both exist
-                LoggedInView(
-                    onboardingModel: appState.onboardingModel,
-                    currentUser: user
-                )
-                .id(user) // Force view reset when current user changes (i.e., when updating profile)
+                LoggedInView(onboardingModel: appState.onboardingModel, currentUser: appState.me!)
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+                    .id(appState.me) // Force view reset when current user changes (i.e., when updating profile)
             } else if case .deactivated = appState.currentUser {
                 DeactivatedProfileView()
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
             } else { // appState.currentUser == .empty
                 // Firebase user exists, user profile does not exist
-                NavigationView {
-                    CreateProfileView()
-                }
-                .navigationViewStyle(StackNavigationViewStyle())
+                CreateProfileView()
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -96,5 +77,32 @@ struct ContentView: View {
             appState.listen()
             networkMonitor.listen()
         }
+    }
+}
+
+private struct FailedToLoadView: View {
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        NavigationView {
+            VStack {
+                Spacer()
+                Button("Could not connect. Tap to try again.") {
+                    appState.refreshCurrentUser()
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(Text("Loading profile"))
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Sign out") {
+                        appState.signOut()
+                    }
+                }
+            }
+        }
+        .navigationViewStyle(.stack)
     }
 }

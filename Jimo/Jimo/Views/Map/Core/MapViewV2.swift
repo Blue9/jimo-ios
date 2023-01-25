@@ -36,23 +36,27 @@ struct MapViewV2: View {
     @StateObject var mapViewModel = MapViewModel()
     @StateObject var locationSearch = LocationSearch()
     @StateObject var sheetViewModel = SheetPositionViewModel()
+    @StateObject var placeDetailsViewModel = PlaceDetailsViewModel()
 
     @State private var initialized = false
 
     var body: some View {
-        BaseMapViewV2(mapViewModel: mapViewModel, locationSearch: locationSearch, sheetViewModel: sheetViewModel)
-            .appear {
-                DispatchQueue.main.async {
-                    if !initialized {
-                        initialized = true
-                        mapViewModel.initializeMap(appState: appState, viewState: globalViewState, onLoad: { numPins in
-                            if numPins < 5 {
-                                sheetViewModel.showSearchSheet()
-                            }
-                        })
-                    }
+        BaseMapViewV2(
+            placeViewModel: placeDetailsViewModel,
+            mapViewModel: mapViewModel,
+            locationSearch: locationSearch,
+            sheetViewModel: sheetViewModel
+        )
+        .appear {
+            DispatchQueue.main.async {
+                if !initialized {
+                    initialized = true
+                    mapViewModel.initializeMap(appState: appState, viewState: globalViewState, onLoad: { _ in
+                        sheetViewModel.showSearchSheet()
+                    })
                 }
             }
+        }
     }
 }
 
@@ -60,6 +64,7 @@ struct BaseMapViewV2: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
 
+    @ObservedObject var placeViewModel: PlaceDetailsViewModel
     @ObservedObject var mapViewModel: MapViewModel
     @ObservedObject var locationSearch: LocationSearch
     @ObservedObject var sheetViewModel: SheetPositionViewModel
@@ -89,6 +94,7 @@ struct BaseMapViewV2: View {
                 if let pin = pin {
                     Analytics.track(.mapPinTapped)
                     mapViewModel.selectPin(
+                        placeViewModel: placeViewModel,
                         appState: appState,
                         viewState: globalViewState,
                         pin: pin
@@ -96,9 +102,10 @@ struct BaseMapViewV2: View {
                     print("Setting businessSheetPosition to mid")
                     sheetViewModel.showBusinessSheet()
                 } else {
-                    mapViewModel.displayedPlaceDetails?.isStale = true
+                    placeViewModel.isStale = true
                     mapViewModel.selectedPin = nil
                     print("Setting filterSheetPosition to mid")
+                    locationSearch.searchQuery = ""
                     sheetViewModel.showSearchSheet()
                 }
             }
@@ -119,6 +126,7 @@ struct BaseMapViewV2: View {
                 )
             }, mainContent: {
                 MapBottomSheetBody(
+                    placeViewModel: placeViewModel,
                     mapViewModel: mapViewModel,
                     userFilterViewModel: userFilterViewModel,
                     locationSearch: locationSearch,
@@ -154,21 +162,21 @@ struct BaseMapViewV2: View {
                 ],
                 headerContent: {
                     VStack(alignment: .leading) {
-                        Text(mapViewModel.displayedPlaceDetails?.name ?? "")
+                        Text(placeViewModel.name)
                             .font(.title2)
                             .bold()
-                        Text(mapViewModel.displayedPlaceDetails?.address ?? "")
+                        Text(placeViewModel.address)
                             .font(.caption)
                     }
                     .padding(.horizontal, 10)
-                    .opacity(mapViewModel.displayedPlaceDetails?.isStale ?? false ? 0.5 : 1.0)
-                    .renderAsPlaceholder(if: mapViewModel.displayedPlaceDetails?.isStale ?? true)
+                    .opacity(placeViewModel.isStale ? 0.5 : 1.0)
+                    .renderAsPlaceholder(if: placeViewModel.isStale)
                 }, mainContent: {
-                    if let result = mapViewModel.displayedPlaceDetails {
-                        PlaceDetailsView(result: result)
-                            .renderAsPlaceholder(if: mapViewModel.displayedPlaceDetails?.isStale ?? true)
-                            .padding(.top, 10)
-                    }
+                    PlaceDetailsView(viewModel: placeViewModel)
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                        .renderAsPlaceholder(if: placeViewModel.isStale)
+                        .padding(.top, 10)
                 }
             )
             .customAnimation(.spring(response: 0.24, dampingFraction: 0.75, blendDuration: 0.1))
@@ -176,8 +184,9 @@ struct BaseMapViewV2: View {
             .showCloseButton()
             .onDismiss {
                 DispatchQueue.main.async {
-                    mapViewModel.displayedPlaceDetails?.isStale = true
+                    placeViewModel.isStale = true
                     mapViewModel.selectedPin = nil
+                    locationSearch.searchQuery = ""
                     sheetViewModel.showSearchSheet()
                 }
             }

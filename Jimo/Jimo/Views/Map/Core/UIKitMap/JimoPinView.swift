@@ -42,19 +42,6 @@ class JimoPinView: MKAnnotationView {
         return image
     }()
 
-    private lazy var badgeView: UITextView = {
-        let badge = UITextView()
-        badge.isEditable = false
-        badge.textContainerInset = UIEdgeInsets(top: 0.5, left: 3, bottom: 0, right: 3)
-        badge.textContainer.lineFragmentPadding = 0
-        badge.backgroundColor = UIColor(red: 0.11, green: 0.51, blue: 0.95, alpha: 1)
-        badge.layer.masksToBounds = true
-        badge.textColor = .white
-        badge.textAlignment = .center
-        badge.font = .systemFont(ofSize: 9, weight: .bold)
-        return badge
-    }()
-
     private lazy var overlay: UIView = {
         let overlay = UIView()
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -79,7 +66,6 @@ class JimoPinView: MKAnnotationView {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        badgeView.removeFromSuperview()
         toPin()
     }
 
@@ -104,15 +90,6 @@ class JimoPinView: MKAnnotationView {
         if let color = UIColor(named: pin.category?.lowercased() ?? "lightgray") {
             imageView.layer.borderColor = color.cgColor
         }
-
-        if pin.numPosts > 1 {
-            badgeView.text = String(pin.numPosts)
-            badgeView.sizeToFit()
-            badgeView.frame = CGRect(x: 0, y: 0, width: badgeView.frame.width + 1, height: badgeView.frame.height + 1)
-            badgeView.layer.cornerRadius = min(badgeView.frame.height, badgeView.frame.width) / 2
-            view.addSubview(badgeView)
-            badgeView.center = CGPoint(x: view.frame.width - badgeView.frame.width / 2, y: badgeView.frame.height / 2)
-        }
     }
 
     func toDot() {
@@ -121,7 +98,6 @@ class JimoPinView: MKAnnotationView {
         }
         overlay.backgroundColor = UIColor(named: (annotation as? MKJimoPinAnnotation)?.category ?? "lightgray")
         overlay.alpha = 1.0
-        badgeView.alpha = 0.0
         self.transform = CGAffineTransform(scaleX: 0.2, y: 0.2)
         self.zPriority = .init(2.0)
         self.pinState = .dot
@@ -132,7 +108,6 @@ class JimoPinView: MKAnnotationView {
             return
         }
         overlay.alpha = 0.0
-        badgeView.alpha = 1.0
         self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
         self.zPriority = .init(3.0 + Float((annotation as? MKJimoPinAnnotation)?.numPosts ?? 0))
         self.pinState = .regular

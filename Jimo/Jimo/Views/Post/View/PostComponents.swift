@@ -84,14 +84,14 @@ struct PostSaveButton: View {
         Button {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             if post.saved {
-                postVM.unsavePost(postId: post.id, appState: appState, viewState: globalViewState)
+                postVM.unsavePlace(placeId: post.place.placeId, appState: appState, viewState: globalViewState)
             } else {
-                postVM.savePost(postId: post.id, appState: appState, viewState: globalViewState)
+                postVM.savePlace(placeId: post.place.id, appState: appState, viewState: globalViewState)
             }
         } label: {
             HStack {
                 icon
-                Text("Save").font(.system(size: 12))
+                Text("Save Place").font(.system(size: 12))
             }
             .frame(height: 40)
             .frame(maxWidth: .infinity)
@@ -340,6 +340,7 @@ struct PostFooter: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var viewModel: PostVM
     var post: Post
+    var showSaveButton = true
     var showZeroCommentCount: Bool
 
     var onCommentTap: (() -> Void)?
@@ -361,8 +362,10 @@ struct PostFooter: View {
                 PostLikeButton(postVM: viewModel, post: post)
                 Divider().padding(.vertical, 5)
                 PostCommentsIcon(post: post, showZeroCommentCount: showZeroCommentCount, onTap: onCommentTap)
-                Divider().padding(.vertical, 5)
-                PostSaveButton(postVM: viewModel, post: post)
+                if showSaveButton {
+                    Divider().padding(.vertical, 5)
+                    PostSaveButton(postVM: viewModel, post: post)
+                }
             }
         }
     }
