@@ -132,7 +132,7 @@ enum AnalyticsName: Equatable {
     case contactsPermissionsDenied
 
     case mapCreatePostTapped
-    case mapSavePlaceTapped
+    case mapSavePlace
     case mapPinTapped
     case mapSearchResultTapped
 }

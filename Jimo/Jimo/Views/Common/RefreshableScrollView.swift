@@ -30,8 +30,8 @@ struct RefreshableScrollView<Content: View>: View {
             LazyVStack(spacing: spacing) {
                 content()
                 Color("background")
-                    .frame(height: UIScreen.main.bounds.height)
-                    .appear {
+                    .frame(height: UIScreen.main.bounds.height * 0.2)
+                    .onAppear {
                         onLoadMore?()
                     }
                 Spacer()

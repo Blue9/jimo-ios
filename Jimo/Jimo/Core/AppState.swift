@@ -75,7 +75,7 @@ class AppState: ObservableObject {
     private var cancelBag: Set<AnyCancellable> = .init()
     private var dateTimeFormatter = RelativeDateTimeFormatter()
 
-    @Published var currentUser: CurrentUser = .empty
+    @Published var currentUser: CurrentUser = .loading
     @Published var firebaseSession: FirebaseSession = .loading
 
     @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
@@ -89,6 +89,7 @@ class AppState: ObservableObject {
 
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()
+    let placePublisher = PlacePublisher()
     let commentPublisher = CommentPublisher()
 
     // If we're signing out don't register any new FCM tokens
@@ -414,18 +415,25 @@ class AppState: ObservableObject {
         placeId: PlaceId? = nil,
         maybeCreatePlaceRequest: MaybeCreatePlaceRequest? = nil,
         note: String
-    ) -> AnyPublisher<SavedPlace, APIError> {
+    ) -> AnyPublisher<SavePlaceResponse, APIError> {
         apiClient.savePlace(
             SavePlaceRequest(
                 place: maybeCreatePlaceRequest,
                 placeId: placeId,
                 note: note
             )
-        )
+        ).map {
+            self.placePublisher.placeSaved(.init(placeId: $0.save.place.placeId, save: $0.save, createPlaceRequest: maybeCreatePlaceRequest))
+            return $0
+        }.eraseToAnyPublisher()
     }
 
     func unsavePlace(_ placeId: PlaceId) -> AnyPublisher<SimpleResponse, APIError> {
         apiClient.unsavePlace(placeId)
+            .map {
+                self.placePublisher.placeUnsaved(placeId)
+                return $0
+            }.eraseToAnyPublisher()
     }
 
     // MARK: - Relation endpoints
@@ -533,26 +541,6 @@ class AppState: ObservableObject {
                 self.postPublisher.postUnliked(postId: postId, likeCount: like.likes)
                 Analytics.track(.postUnliked)
                 return like
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func savePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
-        return self.apiClient.savePost(postId: postId)
-            .map {
-                self.postPublisher.postSaved(postId: postId)
-                Analytics.track(.postSaved)
-                return $0
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func unsavePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
-        return self.apiClient.unsavePost(postId: postId)
-            .map {
-                self.postPublisher.postUnsaved(postId: postId)
-                Analytics.track(.postUnsaved)
-                return $0
             }
             .eraseToAnyPublisher()
     }
@@ -735,8 +723,8 @@ class AppState: ObservableObject {
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         DispatchQueue.main.async {
             if let user = user {
-                self.refreshCurrentUser()
                 self.firebaseSession = .user(FirebaseUser(uid: user.uid, phoneNumber: user.phoneNumber))
+                self.refreshCurrentUser()
             } else {
                 self.firebaseSession = .doesNotExist
                 if self.signingOut {

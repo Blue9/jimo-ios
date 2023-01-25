@@ -27,7 +27,11 @@ struct RegionCache: Codable, Equatable, Hashable {
     var mkCoordinateRegion: MKCoordinateRegion
 }
 
-class RegionWrapperV2: ObservableObject {
+class MapViewModel: ObservableObject {
+    // MARK: - RegionWrapper
+    // This used to be `class RegionWrapper: ObservableObject` and MapViewModel extended it,
+    // but that was leading to crashes (https://developer.apple.com/forums/thread/722650),
+    // so now it's part of the class.
     /// Used internally by MapKit. When we change this, JimoMapView will call updateUIView and update the region.
     /// It will then call the regionDidChange delegate method which updates visibleMapRect.
     var _mkCoordinateRegion = MKCoordinateRegion(
@@ -52,9 +56,9 @@ class RegionWrapperV2: ObservableObject {
         self._mkCoordinateRegion = region
         self.trigger.toggle()
     }
-}
 
-class MapViewModel: RegionWrapperV2 {
+    // MARK: - Actual MapViewModel
+
     private var cancelBag: Set<AnyCancellable> = Set()
     private var mapLoadCancellable: AnyCancellable? // One cancellable so we cancel when we re-assign
 
@@ -72,9 +76,8 @@ class MapViewModel: RegionWrapperV2 {
 
     var initializedFromCache: Bool
 
-    override init() {
+    init() {
         self.initializedFromCache = false
-        super.init()
         // Only want initialize from cache if we don't have the user's location
         // If we do have their location we want to open to their location
         if let location = PermissionManager.shared.getLocation() {
@@ -309,23 +312,31 @@ extension MKCoordinateRegion: Codable {
     }
 }
 
-class PostListener {
+class PostPlaceListener {
     typealias OnPostCreated = (Post) -> Void
     typealias OnPostDeleted = (PostId) -> Void
+    typealias OnPlaceSave = (PlaceSavePayload) -> Void
 
     let nc = NotificationCenter.default
 
     var onPostCreated: OnPostCreated?
+    var onPlaceSave: OnPlaceSave?
     var onPostDeleted: OnPostDeleted?
 
     init() {
         nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
+        nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
 
     @objc private func postCreated(notification: Notification) {
         let post = notification.object as! Post
         onPostCreated?(post)
+    }
+
+    @objc private func placeSaved(notification: Notification) {
+        let payload = notification.object as! PlaceSavePayload
+        onPlaceSave?(payload)
     }
 
     @objc private func postDeleted(notification: Notification) {

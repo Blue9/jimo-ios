@@ -28,7 +28,7 @@ class PostVM: ObservableObject {
         self.post = post
         self.onDelete = onDelete
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
-        nc.addObserver(self, selector: #selector(postSaved), name: PostPublisher.postSaved, object: nil)
+        nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
@@ -44,13 +44,13 @@ class PostVM: ObservableObject {
         }
     }
 
-    @objc func postSaved(notification: Notification) {
-        guard let postId = post?.id else {
+    @objc func placeSaved(notification: Notification) {
+        guard let placeId = post?.place.id else {
             return
         }
-        let save = notification.object as! PostSavePayload
-        if postId == save.postId {
-            self.post?.saved = save.saved
+        let payload = notification.object as! PlaceSavePayload
+        if placeId == payload.placeId {
+            self.post?.saved = payload.save != nil
         }
     }
 
@@ -96,28 +96,26 @@ class PostVM: ObservableObject {
             }).store(in: &cancelBag)
     }
 
-    func savePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
-        appState.savePost(postId: postId)
+    func savePlace(placeId: PlaceId, appState: AppState, viewState: GlobalViewState) {
+        appState.savePlace(placeId: placeId, note: "Want to go")
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
-                    print("Error when saving post", error)
-                    viewState.setError("Could not save post")
+                    print("Error when saving place", error)
+                    viewState.setError("Could not save place")
                 }
-            }, receiveValue: { _ in
-                print("Saved post")
-            }).store(in: &cancelBag)
+            }, receiveValue: { _ in })
+            .store(in: &cancelBag)
     }
 
-    func unsavePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {
-        appState.unsavePost(postId: postId)
+    func unsavePlace(placeId: PlaceId, appState: AppState, viewState: GlobalViewState) {
+        appState.unsavePlace(placeId)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print("Error when unsaving post", error)
                     viewState.setError("Could not unsave post")
                 }
-            }, receiveValue: { _ in
-                print("Unsaved post")
-            }).store(in: &cancelBag)
+            }, receiveValue: { _ in })
+            .store(in: &cancelBag)
     }
 
     func deletePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {

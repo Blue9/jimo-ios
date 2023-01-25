@@ -38,6 +38,7 @@ struct MapBottomSheetBody: View {
                         customUserFilter: $mapViewModel.userIds
                     )
                     CategoryFilter(selected: $mapViewModel.categories)
+                        .opacity(mapViewModel.mapType != .saved ? 1 : 0)
                     Spacer()
                 }
             }
@@ -104,7 +105,13 @@ private struct MapUserFilter: View {
         .padding(5)
         .background(Color("foreground").opacity(0.1))
         .cornerRadius(10)
-        .sheet(isPresented: $showMoreUsersSheet) {
+        .sheet(isPresented: $showMoreUsersSheet, onDismiss: {
+            if userFilterViewModel.selectedUsers.isEmpty {
+                DispatchQueue.main.async {
+                    mapType = .following
+                }
+            }
+        }) {
             CustomUserFilter(
                 viewModel: userFilterViewModel,
                 onSubmit: { userIds in customUserFilter = userIds }
@@ -185,7 +192,7 @@ fileprivate extension MapType {
     var buttonName: String {
         switch self {
         case .saved: return "Saved"
-        case .me: return "Posts"
+        case .me: return "My Posts"
         case .following: return "Friends"
         case .community: return "Everyone"
         case .custom: return "More"

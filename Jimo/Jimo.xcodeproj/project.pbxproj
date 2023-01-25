@@ -101,6 +101,7 @@
 		C764145025D0FD4100CBDE3F /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C764144F25D0FD4100CBDE3F /* SearchViewModel.swift */; };
 		C764145525D0FD6000CBDE3F /* DiscoverViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C764145425D0FD6000CBDE3F /* DiscoverViewModel.swift */; };
 		C7654E5C27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */; };
+		C766903B298094CF0083357D /* PlacePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C766903A298094CF0083357D /* PlacePublisher.swift */; };
 		C76A8AFF2596DDD700623DA2 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */; };
 		C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913725D20F6E00762803 /* FollowContacts.swift */; };
 		C76E913E25D21E2800762803 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76E913D25D21E2800762803 /* OnboardingView.swift */; };
@@ -268,6 +269,7 @@
 		C764144F25D0FD4100CBDE3F /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		C764145425D0FD6000CBDE3F /* DiscoverViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverViewModel.swift; sourceTree = "<group>"; };
 		C7654E5B27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKCoordinateRegion+Hashable.swift"; sourceTree = "<group>"; };
+		C766903A298094CF0083357D /* PlacePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacePublisher.swift; sourceTree = "<group>"; };
 		C76A8AFE2596DDD700623DA2 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		C76E913725D20F6E00762803 /* FollowContacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowContacts.swift; sourceTree = "<group>"; };
 		C76E913D25D21E2800762803 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -410,6 +412,7 @@
 				C7959C7626AFCDE500EB9FD2 /* UserPublisher.swift */,
 				C74D020626A667E000381C1B /* PostPublisher.swift */,
 				C7DE07B326AE5FEE006048E4 /* CommentPublisher.swift */,
+				C766903A298094CF0083357D /* PlacePublisher.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -1104,6 +1107,7 @@
 				C707E02227EE565C0077B8DA /* NoButtonStyle.swift in Sources */,
 				C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */,
 				C757F87327F1579500364EDB /* RequestPermission.swift in Sources */,
+				C766903B298094CF0083357D /* PlacePublisher.swift in Sources */,
 				C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */,
 				C72BB2B128038DEA001997C1 /* PostDestination.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,

@@ -186,6 +186,7 @@ private struct SavePlaceButton: View {
             message: "Add a note (Optional)",
             submitText: "Save",
             action: { note in
+                Analytics.track(.mapSavePlace)
                 viewModel.savePlace(note: note, appState: appState, viewState: viewState)
             }
         )
@@ -342,7 +343,7 @@ class PlaceDetailsViewModel: ObservableObject {
     }
 
     // MARK: - Initialization
-    private var postListener = PostListener()
+    private var mapListener = PostPlaceListener()
 
     func initialize(appState: AppState, viewState: GlobalViewState) {
         createPostVM.onCreate = { [weak self] post in
@@ -352,10 +353,35 @@ class PlaceDetailsViewModel: ObservableObject {
                 self?.muxedPlaceDetails?.details = .init(place: post.place, myPost: post)
             }
         }
-        postListener.onPostDeleted = { [weak self] postId in
+        mapListener.onPostDeleted = { [weak self] postId in
             DispatchQueue.main.async {
                 if self?.muxedPlaceDetails?.details?.myPost?.postId == postId {
                     self?.muxedPlaceDetails?.details?.myPost = nil
+                }
+            }
+        }
+        mapListener.onPlaceSave = { [weak self] payload in
+            guard let self = self else {
+                return
+            }
+            DispatchQueue.main.async {
+                /// Either we have a place ID or a MKMapItem to compare
+                if let place = self.details?.place, place.id == payload.placeId {
+                    /// Place was saved, details is non-nil
+                    if let save = payload.save {
+                        // Saved
+                        self.muxedPlaceDetails?.details?.mySave = save
+                    } else {
+                        // Unsaved
+                        self.muxedPlaceDetails?.details?.mySave = nil
+                    }
+                } else if self.details == nil,
+                          let mapItem = self.mkMapItem, mapItem.maybeCreatePlaceRequest == payload.createPlaceRequest {
+                    /// Place was saved, details is nil
+                    if let save = payload.save {
+                        // Saved
+                        self.muxedPlaceDetails?.details = .init(place: save.place, mySave: save)
+                    }
                 }
             }
         }
@@ -463,20 +489,8 @@ class PlaceDetailsViewModel: ObservableObject {
             if case .failure = completion {
                 viewState.setError("Could not save place.")
             }
-        } receiveValue: { [weak self] save in
-            DispatchQueue.main.async {
-                guard self?.muxedPlaceDetails != nil else {
-                    return
-                }
-                if self?.muxedPlaceDetails?.details == nil {
-                    self?.muxedPlaceDetails?.details = .init(
-                        place: save.place,
-                        mySave: save
-                    )
-                } else {
-                    self?.muxedPlaceDetails?.details?.mySave = save
-                }
-            }
+        } receiveValue: { _ in
+            // maplistener.onPlaceSaved will handle this
         }
     }
 
@@ -488,10 +502,8 @@ class PlaceDetailsViewModel: ObservableObject {
             if case .failure = completion {
                 viewState.setError("Could not unsave place.")
             }
-        } receiveValue: { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.muxedPlaceDetails?.details?.mySave = nil
-            }
+        } receiveValue: { _ in
+            // maplistener.onPlaceSaved will handle this
         }
     }
 

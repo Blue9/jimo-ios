@@ -46,14 +46,14 @@ struct Region: Codable, Equatable {
     }
 }
 
-struct MaybeCreatePlaceRequest: Codable {
+struct MaybeCreatePlaceRequest: Codable, Equatable {
     var name: String
     var location: Location
     var region: Region?
     var additionalData: AdditionalPlaceDataRequest?
 }
 
-struct AdditionalPlaceDataRequest: Codable {
+struct AdditionalPlaceDataRequest: Codable, Equatable {
     var countryCode: String?
     var country: String?
     var postalCode: String?
@@ -115,4 +115,9 @@ struct SavePlaceRequest: Codable {
     var place: MaybeCreatePlaceRequest?
     var placeId: PlaceId?
     var note: String
+}
+
+struct SavePlaceResponse: Codable {
+    var save: SavedPlace
+    var createPlaceRequest: MaybeCreatePlaceRequest?
 }

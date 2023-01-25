@@ -22,6 +22,7 @@ struct ViewPost: View {
 
     let initialPost: Post
     var highlightedComment: Comment?
+    var showSaveButton = true
 
     var post: Post {
         postVM.post ?? initialPost
@@ -49,9 +50,13 @@ struct ViewPost: View {
                 PostPlaceName(post: post)
                 PostCaption(post: post)
             }
-            PostFooter(viewModel: postVM, post: post, showZeroCommentCount: true, onCommentTap: {
-                commentFieldFocused = true
-            }).padding(.bottom, 10)
+            PostFooter(
+                viewModel: postVM,
+                post: post,
+                showSaveButton: showSaveButton,
+                showZeroCommentCount: true,
+                onCommentTap: { commentFieldFocused = true }
+            ).padding(.bottom, 10)
         }
         .onAppear {
             postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })

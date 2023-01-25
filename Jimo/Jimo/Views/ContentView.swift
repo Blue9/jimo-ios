@@ -33,7 +33,7 @@ struct ContentView: View {
                 NavigationView {
                     HomeMenu().navigationBarHidden(true)
                 }
-                .navigationViewStyle(StackNavigationViewStyle())
+                .navigationViewStyle(.stack)
             } else if case .failed = appState.currentUser {
                 // Firebase user exists, failed while loading user profile
                 NavigationView {
@@ -45,7 +45,6 @@ struct ContentView: View {
                         Spacer()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .transition(.opacity)
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationTitle(Text("Loading profile"))
                     .toolbar {
@@ -71,7 +70,7 @@ struct ContentView: View {
                 NavigationView {
                     CreateProfileView()
                 }
-                .navigationViewStyle(StackNavigationViewStyle())
+                .navigationViewStyle(.stack)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

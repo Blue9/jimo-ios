@@ -20,6 +20,9 @@ struct Endpoint {
         apiURL.scheme = "https"
         apiURL.host = "api.jimoapp.com"
         apiURL.port = 443
+//        apiURL.scheme = "http"
+//        apiURL.host = "192.168.1.108"
+//        apiURL.port = 80
         apiURL.path = path
         apiURL.queryItems = queryItems
         return apiURL.url
@@ -160,14 +163,6 @@ struct Endpoint {
 
     static func postLikes(postId: String) -> Endpoint {
         return Endpoint(path: "/posts/\(postId)/likes")
-    }
-
-    static func savePost(postId: String) -> Endpoint {
-        return Endpoint(path: "/posts/\(postId)/save")
-    }
-
-    static func unsavePost(postId: String) -> Endpoint {
-        return Endpoint(path: "/posts/\(postId)/unsave")
     }
 
     // MARK: - Comment endpoints
@@ -525,7 +520,7 @@ class APIClient: ObservableObject {
         doRequest(endpoint: .placeSaves())
     }
 
-    func savePlace(_ request: SavePlaceRequest) -> AnyPublisher<SavedPlace, APIError> {
+    func savePlace(_ request: SavePlaceRequest) -> AnyPublisher<SavePlaceResponse, APIError> {
         doRequest(endpoint: .placeSaves(), httpMethod: "POST", body: request)
     }
 
@@ -606,20 +601,6 @@ class APIClient: ObservableObject {
      */
     func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
         doRequest(endpoint: Endpoint.postLikes(postId: postId), httpMethod: "DELETE")
-    }
-
-    /**
-     Save the given post.
-     */
-    func savePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
-        doRequest(endpoint: Endpoint.savePost(postId: postId), httpMethod: "POST")
-    }
-
-    /**
-     Unsave the given post.
-     */
-    func unsavePost(postId: PostId) -> AnyPublisher<SimpleResponse, APIError> {
-        doRequest(endpoint: Endpoint.unsavePost(postId: postId), httpMethod: "POST")
     }
 
     /**
