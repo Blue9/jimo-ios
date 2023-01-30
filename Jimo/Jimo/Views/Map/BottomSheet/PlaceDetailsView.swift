@@ -561,6 +561,10 @@ extension PlaceDetailsViewModel {
         place?.name ?? mkMapItem?.name ?? ""
     }
 
+    var category: String? {
+        place?.category ?? mkMapItem?.pointOfInterestCategory?.toString()
+    }
+
     var latitude: Double {
         place?.location.latitude ?? mkMapItem?.placemark.coordinate.latitude ?? 0
     }
@@ -597,5 +601,11 @@ extension PlaceDetailsViewModel {
             placemark.administrativeArea
         ]
         return components.compactMap({ $0 }).joined(separator: ", ")
+    }
+}
+
+extension MKPointOfInterestCategory {
+    func toString() -> String {
+        return self.rawValue.replacingOccurrences(of: "MKPOICategory", with: "")
     }
 }

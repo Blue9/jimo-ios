@@ -263,8 +263,8 @@ struct PostPlaceName: View {
     var post: Post
 
     var placeName: String {
-        if let regionName = post.place.regionName {
-            return "\(post.place.name), \(regionName)"
+        if let city = post.place.city {
+            return "\(post.place.name), \(city)"
         } else {
             return post.place.name
         }

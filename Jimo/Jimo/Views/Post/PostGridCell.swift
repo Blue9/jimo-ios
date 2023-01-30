@@ -33,7 +33,7 @@ struct PostGridCell: View {
                 .bold()
                 .lineLimit(1)
 
-            Text(post.place.regionName ?? "")
+            Text(post.place.city ?? "")
                 .font(.system(size: 12))
                 .lineLimit(1)
         }

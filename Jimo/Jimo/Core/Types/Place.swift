@@ -16,7 +16,8 @@ struct Place: Identifiable, Codable, Equatable, Hashable {
     }
     var placeId: PlaceId
     var name: String
-    var regionName: String?
+    var city: String?
+    var category: String?
     var location: Location
 }
 
