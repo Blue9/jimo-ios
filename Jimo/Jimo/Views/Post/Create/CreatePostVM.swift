@@ -55,9 +55,9 @@ enum CreateOrEdit: Equatable {
     var title: String {
         switch self {
         case .create:
-            return "Create a post"
+            return "Rate a place"
         case .edit:
-            return "Update a post"
+            return "Update"
         }
     }
 
@@ -170,6 +170,20 @@ class CreatePostVM: ObservableObject {
         maybeCreatePlaceCoord = nil
         maybeCreatePlaceRegion = nil
         additionalPlaceData = nil
+    }
+
+    func resetAll() {
+        self.resetPlace()
+        self.createOrEdit = .create
+        self.category = nil
+        self.content = ""
+        self.image = nil
+        self.placeId = nil
+        self.showError = false
+        self.errorMessage = ""
+        self.postingStatus = .drafting
+        self.onCreate = nil
+        self.cancelBag.removeAll(keepingCapacity: true)
     }
 
     func resetPlace() {

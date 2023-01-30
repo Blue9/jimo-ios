@@ -113,7 +113,6 @@ private struct BasePlaceDetailsView: View {
 
 private struct CreatePostButton: View {
     @ObservedObject var viewModel: PlaceDetailsViewModel
-
     var body: some View {
         Button {
             DispatchQueue.main.async {
@@ -137,7 +136,6 @@ private struct CreatePostButton: View {
             .background(.blue)
             .cornerRadius(5)
         }
-
         .sheet(isPresented: $viewModel.showCreatePost) {
             CreatePostWithModel(
                 createPostVM: viewModel.createPostVM,
@@ -346,13 +344,6 @@ class PlaceDetailsViewModel: ObservableObject {
     private var mapListener = PostPlaceListener()
 
     func initialize(appState: AppState, viewState: GlobalViewState) {
-        createPostVM.onCreate = { [weak self] post in
-            if self?.muxedPlaceDetails?.details != nil {
-                self?.muxedPlaceDetails?.details?.myPost = post
-            } else {
-                self?.muxedPlaceDetails?.details = .init(place: post.place, myPost: post)
-            }
-        }
         mapListener.onPostDeleted = { [weak self] postId in
             DispatchQueue.main.async {
                 if self?.muxedPlaceDetails?.details?.myPost?.postId == postId {
@@ -510,6 +501,7 @@ class PlaceDetailsViewModel: ObservableObject {
     // MARK: - View only functions
 
     func showCreateOrEditPostSheet() {
+        self.resetCreatePostVM()
         if let post = details?.myPost {
             createPostVM.initAsEditor(post)
         } else if let place = place {
@@ -518,6 +510,17 @@ class PlaceDetailsViewModel: ObservableObject {
             createPostVM.selectPlace(place: mapItem)
         }
         showCreatePost = true
+    }
+
+    private func resetCreatePostVM() {
+        self.createPostVM.resetAll()
+        createPostVM.onCreate = { [weak self] post in
+            if self?.muxedPlaceDetails?.details != nil {
+                self?.muxedPlaceDetails?.details?.myPost = post
+            } else {
+                self?.muxedPlaceDetails?.details = .init(place: post.place, myPost: post)
+            }
+        }
     }
 
     func openInMaps() {

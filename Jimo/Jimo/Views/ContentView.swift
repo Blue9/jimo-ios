@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseRemoteConfig
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
@@ -13,10 +14,13 @@ struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
 
     @StateObject var networkMonitor = NetworkConnectionMonitor()
+    @StateObject var appVersionModel = AppVersionModel()
 
     var body: some View {
         VStack {
-            if case .doesNotExist = appState.firebaseSession {
+            if appVersionModel.isOutOfDate {
+                RequireUpdateView()
+            } else if case .doesNotExist = appState.firebaseSession {
                 HomeMenu()
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
@@ -74,8 +78,12 @@ struct ContentView: View {
         .shareOverlay(globalViewState.shareAction, isPresented: $globalViewState.showShareOverlay)
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
+            appVersionModel.refreshMinimumAppVersion()
             appState.listen()
             networkMonitor.listen()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            appVersionModel.refreshMinimumAppVersion()
         }
     }
 }
@@ -84,7 +92,7 @@ private struct FailedToLoadView: View {
     @EnvironmentObject var appState: AppState
 
     var body: some View {
-        NavigationView {
+        Navigator {
             VStack {
                 Spacer()
                 Button("Could not connect. Tap to try again.") {
@@ -104,5 +112,73 @@ private struct FailedToLoadView: View {
             }
         }
         .navigationViewStyle(.stack)
+    }
+}
+
+private struct RequireUpdateView: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            Image("icon")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 120)
+            HStack {
+                Spacer()
+                Text("A new version of Jimo is available.\nPlease update to keep things\nrunning smoothly.")
+                    .multilineTextAlignment(.center)
+                Spacer()
+            }
+
+            Button {
+                // Go to app store
+                Analytics.track(.updateAppVersionTapped)
+                UIApplication.shared.open(URL(string: "itms-apps://itunes.apple.com/app/id1541360118?mt=8")!)
+            } label: {
+                Text("Update")
+                    .padding(10)
+                    .foregroundColor(.white)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
+            Spacer()
+        }
+    }
+}
+
+@MainActor
+class AppVersionModel: ObservableObject {
+    let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    @Published var minimumAppVersion: String?
+
+    var isOutOfDate: Bool {
+        guard let min = minimumAppVersion, let current = appVersion else {
+            return false
+        }
+        return min.compare(current, options: .numeric) == .orderedDescending
+    }
+
+    func refreshMinimumAppVersion() {
+        Task {
+            try await startFetching()
+        }
+    }
+
+    private func startFetching() async throws {
+        let remoteConfig = RemoteConfig.remoteConfig()
+        let settings = RemoteConfigSettings()
+        #if DEBUG
+        settings.minimumFetchInterval = 0
+        #else
+        settings.minimumFetchInterval = 3600
+        #endif
+        remoteConfig.configSettings = settings
+
+        do {
+            try await remoteConfig.fetchAndActivate()
+            self.minimumAppVersion = remoteConfig.configValue(forKey: "minimumAppVersion").stringValue
+        } catch let error {
+            print("Error fetching remote config \(error.localizedDescription)")
+        }
     }
 }

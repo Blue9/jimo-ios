@@ -46,7 +46,7 @@ struct FeedTab: View {
     }
 
     var body: some View {
-        NavigationView {
+        Navigator {
             Feed(onCreatePostTap: onCreatePostTap)
                 .background(
                     NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVM)

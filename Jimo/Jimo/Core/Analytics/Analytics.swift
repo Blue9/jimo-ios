@@ -135,4 +135,6 @@ enum AnalyticsName: Equatable {
     case mapSavePlace
     case mapPinTapped
     case mapSearchResultTapped
+
+    case updateAppVersionTapped
 }

@@ -11,7 +11,7 @@ struct MapTab: View {
     @EnvironmentObject var deepLinkManager: DeepLinkManager
 
     var body: some View {
-        NavigationView {
+        Navigator {
             MapViewV2()
                 .background(NavigationLink(item: $deepLinkManager.presentableEntity, destination: deepLinkManager.viewForDeepLink))
                 .navigationBarHidden(true)

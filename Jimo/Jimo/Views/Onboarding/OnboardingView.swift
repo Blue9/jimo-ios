@@ -12,7 +12,7 @@ struct OnboardingView: View {
     @ObservedObject var onboardingModel: OnboardingModel
 
     var body: some View {
-        NavigationView {
+        Navigator {
             VStack {
                 if onboardingModel.onboardingStep == .requestLocation {
                     RequestLocation(onCompleteRequest: onboardingModel.step)

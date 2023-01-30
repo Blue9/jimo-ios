@@ -12,7 +12,7 @@ struct DeactivatedProfileView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
 
     var body: some View {
-        NavigationView {
+        Navigator {
             deactivatedProfileView
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(Text("Goodbye"))

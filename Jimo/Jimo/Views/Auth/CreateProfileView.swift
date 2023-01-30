@@ -16,7 +16,7 @@ struct CreateProfileView: View {
     @StateObject private var viewModel = ViewModel()
 
     var body: some View {
-        NavigationView {
+        Navigator {
             mainBody
         }.navigationViewStyle(.stack)
     }

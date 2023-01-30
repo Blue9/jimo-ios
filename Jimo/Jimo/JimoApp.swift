@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Firebase
+import FirebaseRemoteConfig
 
 private let gcmMessageIDKey = "gcm.message_id"
 

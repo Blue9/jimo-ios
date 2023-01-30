@@ -33,7 +33,7 @@ struct SearchUsers: View {
     }
 
     var body: some View {
-        NavigationView {
+        Navigator {
             mainBody
                 .navigationViewStyle(.stack)
         }

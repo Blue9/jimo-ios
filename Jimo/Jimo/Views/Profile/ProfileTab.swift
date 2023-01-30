@@ -16,7 +16,7 @@ struct ProfileTab: View {
     @State private var showSettings = false
 
     var body: some View {
-        NavigationView {
+        Navigator {
             Profile(initialUser: currentUser)
                 .background(Color("background"))
                 .background(

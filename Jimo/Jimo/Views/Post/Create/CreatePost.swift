@@ -252,7 +252,7 @@ struct CreatePostWithModel: View {
     }
 
     var body: some View {
-        NavigationView {
+        Navigator {
             ZStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {

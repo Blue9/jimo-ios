@@ -13,7 +13,7 @@ struct HomeMenu: View {
     let height = UIScreen.main.bounds.height
 
     var body: some View {
-        NavigationView {
+        Navigator {
             mainBody.navigationBarHidden(true)
         }.navigationViewStyle(.stack)
     }
