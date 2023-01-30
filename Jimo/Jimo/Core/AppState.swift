@@ -19,17 +19,7 @@ enum CurrentUser {
     case doesNotExist
     case loading
     case failed
-    case empty
-}
-
-enum FirebaseSession {
-    case user(FirebaseUser)
-    case doesNotExist
-    case loading
-}
-
-class LocalSettings: ObservableObject {
-    @Published var clusteringEnabled = false
+    case signedOut
 }
 
 enum OnboardingStep: Int {
@@ -77,7 +67,6 @@ class AppState: ObservableObject {
     var dateTimeFormatter = RelativeDateTimeFormatter()
 
     @Published var currentUser: CurrentUser = .loading
-    @Published var firebaseSession: FirebaseSession = .loading
 
     @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
         didSet {
@@ -86,7 +75,6 @@ class AppState: ObservableObject {
     }
 
     let onboardingModel = OnboardingModel()
-    var localSettings = LocalSettings()
 
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()
@@ -110,6 +98,7 @@ class AppState: ObservableObject {
         // SDImageCache.shared.clearDisk()
 
         self.apiClient = apiClient
+        Auth.auth().addStateDidChangeListener(self.authHandler)
         updateTokenOnUserChange()
         NotificationCenter.default.addObserver(
             self,
@@ -157,11 +146,6 @@ class AppState: ObservableObject {
     }
 
     // MARK: - Auth
-
-    func listen() {
-        self.apiClient.setAuthHandler(handle: self.authHandler)
-    }
-
     func signUp(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
         return apiClient.authClient.signUp(email: email, password: password)
     }
@@ -626,9 +610,6 @@ class AppState: ObservableObject {
     // MARK: - Image upload
 
     func uploadImageAndGetId(image: UIImage) -> AnyPublisher<ImageId, APIError> {
-        guard apiClient.authClient.currentUser != nil else {
-            return Fail(error: APIError.authError).eraseToAnyPublisher()
-        }
         guard case .user = currentUser else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
@@ -725,14 +706,12 @@ class AppState: ObservableObject {
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         DispatchQueue.main.async {
             if let user = user {
-                self.firebaseSession = .user(FirebaseUser(uid: user.uid, phoneNumber: user.phoneNumber))
                 self.refreshCurrentUser()
             } else {
                 if self.signingOut {
                     self.signingOut = false
                 }
-                self.firebaseSession = .doesNotExist
-                self.currentUser = .loading
+                self.currentUser = .signedOut
             }
         }
     }

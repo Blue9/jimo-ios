@@ -291,13 +291,6 @@ class APIClient: ObservableObject {
         self.authClient = .init()
     }
 
-    /**
-     Listen to Firebase auth changes.
-     */
-    func setAuthHandler(handle: @escaping (Firebase.Auth, Firebase.User?) -> Void) {
-        self.authClient.handle = Auth.auth().addStateDidChangeListener(handle)
-    }
-
     // MARK: - Invite + waitlist endpoints
 
     /**
@@ -671,12 +664,7 @@ class APIClient: ObservableObject {
      Get an auth token for the logged in user if possible.
      */
     private func getToken() -> AnyPublisher<String, APIError> {
-        guard let currentUser = authClient.currentUser else {
-            print("Not logged in")
-            return Fail(error: APIError.authError)
-                .eraseToAnyPublisher()
-        }
-        return authClient.getAuthJWT(user: currentUser)
+        return authClient.getAuthJWT()
             .mapError({ _ in APIError.tokenError })
             .eraseToAnyPublisher()
     }

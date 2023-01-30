@@ -17,46 +17,30 @@ struct ContentView: View {
     @StateObject var appVersionModel = AppVersionModel()
 
     var body: some View {
-        VStack {
+        ZStack {
+
             if appVersionModel.isOutOfDate {
                 RequireUpdateView()
-            } else if case .doesNotExist = appState.firebaseSession {
-                HomeMenu()
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-            } else if case .loading = appState.firebaseSession {
-                Image("icon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 120)
-                    .offset(y: -5)
-            } else if case .loading = appState.currentUser {
-                // Firebase user exists, loading user profile
-                Image("icon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 120)
-                    .offset(y: -5)
-            } else if case .failed = appState.currentUser {
-                // Firebase user exists, failed while loading user profile
-                FailedToLoadView()
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-            } else if appState.me != nil {
-                // Both exist
-                LoggedInView(onboardingModel: appState.onboardingModel, currentUser: appState.me!)
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-                    .id(appState.me) // Force view reset when current user changes (i.e., when updating profile)
-            } else if case .deactivated = appState.currentUser {
-                DeactivatedProfileView()
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-            } else { // appState.currentUser == .empty
-                // Firebase user exists, user profile does not exist
-                CreateProfileView()
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
+            } else {
+                switch appState.currentUser {
+                case .loading:
+                    Image("icon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 120)
+                        .offset(y: -5)
+                        .id("loading")
+                case let .user(user):
+                    LoggedInView(onboardingModel: appState.onboardingModel, currentUser: user)
+                case .signedOut:
+                    HomeMenu()
+                case .failed:
+                    FailedToLoadView()
+                case .deactivated:
+                    DeactivatedProfileView()
+                case .doesNotExist:
+                    CreateProfileView()
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -79,7 +63,6 @@ struct ContentView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
             appVersionModel.refreshMinimumAppVersion()
-            appState.listen()
             networkMonitor.listen()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in

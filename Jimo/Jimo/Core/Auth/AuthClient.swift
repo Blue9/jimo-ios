@@ -12,14 +12,15 @@ import Combine
 
 typealias Token = String
 
-// From https://www.youtube.com/watch?v=FhLEwqyVSjE
 class AuthClient: ObservableObject {
-    /// Handles auth state changes. Set by the app state. Do not overwrite.
-    var handle: AuthStateDidChangeListenerHandle?
-
     /// The currently signed in Firebase user
-    var currentUser: FirebaseAuth.User? {
-        Auth.auth().currentUser
+    var currentUser: FirebaseAuth.User?
+    var cancelBag: Set<AnyCancellable> = .init()
+
+    init() {
+        Auth.auth().addStateDidChangeListener { [weak self] (_, user) in
+            self?.currentUser = user
+        }
     }
 
     func signUp(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
@@ -85,10 +86,14 @@ class AuthClient: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func getAuthJWT(user: FirebaseAuth.User) -> AnyPublisher<Token, Error> {
-        Future<Token, Error> { promise in
-            // print("Seems like it crashes here when signing in!!!!!")
-            return user.getIDToken { token, error in
+    func getAuthJWT() -> AnyPublisher<Token, Error> {
+        guard let currentUser = self.currentUser else {
+            print("Not logged in")
+            return Fail(error: APIError.authError)
+                .eraseToAnyPublisher()
+        }
+        return Future<Token, Error> { promise in
+            return currentUser.getIDToken { token, error in
                 if let error = error {
                     promise(.failure(error))
                 } else if let token = token {
@@ -96,15 +101,5 @@ class AuthClient: ObservableObject {
                 }
             }
         }.eraseToAnyPublisher()
-    }
-
-    private func unbind() {
-        if let handle = handle {
-            Auth.auth().removeStateDidChangeListener(handle)
-        }
-    }
-
-    deinit {
-        unbind()
     }
 }
