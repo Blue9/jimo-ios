@@ -13,12 +13,6 @@ struct PostPage: View {
     @State private var showFullPost = false
     @StateObject private var postViewModel = PostVM()
 
-    @ViewBuilder var fullPostView: some View {
-        LazyView {
-            ViewPost(initialPost: post, showSaveButton: false)
-        }
-    }
-
     @ViewBuilder var mainBody: some View {
         HStack(alignment: .top) {
             Group {
@@ -81,7 +75,9 @@ struct PostPage: View {
             .onTapGesture {
                 showFullPost.toggle()
             }
-            .background(NavigationLink(destination: fullPostView, isActive: $showFullPost) {})
+            .navDestination(isPresented: $showFullPost) {
+                ViewPost(initialPost: post, showSaveButton: false)
+            }
     }
 }
 

@@ -18,10 +18,19 @@ class SettingsViewModel: ObservableObject {
     @Published var loading = true
 
     @Published var confirmSignOut = false
+    @Published var initialized = false
 
     var getPreferencesCancellable: Cancellable?
     var setPreferencesCancellable: Cancellable?
     var deleteAccountCancellable: Cancellable?
+
+    func initialize(appState: AppState, viewState: GlobalViewState) {
+        guard !initialized else {
+            return
+        }
+        initialized = true
+        self.loadPreferences(appState: appState, viewState: viewState)
+    }
 
     func loadPreferences(appState: AppState, viewState: GlobalViewState) {
         loading = true
@@ -97,26 +106,31 @@ class SettingsViewModel: ObservableObject {
 struct Settings: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-
-    @StateObject private var settingsViewModel = SettingsViewModel()
+    @ObservedObject var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Form {
             Section(header: Text("Profile")) {
-                NavigationLink(destination: EditProfile()) {
+                NavigationLink {
+                    EditProfile()
+                } label: {
                     Text("Edit profile")
                 }
             }
 
             Section(header: Text("Preferences")) {
-                NavigationLink(destination: EditPreferences(settingsViewModel: settingsViewModel)) {
+                NavigationLink {
+                    EditPreferences(settingsViewModel: settingsViewModel)
+                } label: {
                     Text("Edit preferences")
                 }
             }
             .disabled(settingsViewModel.loading)
 
             Section(header: Text("Account")) {
-                NavigationLink(destination: Feedback()) {
+                NavigationLink {
+                    Feedback()
+                } label: {
                     Text("Submit feedback")
                 }
 
@@ -131,7 +145,7 @@ struct Settings: View {
             }
         }
         .onAppear {
-            settingsViewModel.loadPreferences(appState: appState, viewState: globalViewState)
+            settingsViewModel.initialize(appState: appState, viewState: globalViewState)
         }
         .alert(isPresented: $settingsViewModel.confirmSignOut) {
             Alert(title: Text("Sign out?"),

@@ -65,14 +65,12 @@ struct EnterPhoneNumber: View {
                 }
                 .font(.caption)
                 .foregroundColor(.gray)
-
-                NavigationLink(destination: VerifyPhoneNumber(), isActive: $viewModel.nextStep) {
-                    EmptyView()
-                }
-
-                NavigationLink(destination: EmailLogin(), isActive: $viewModel.showSecretEmailPage) {
-                    EmptyView()
-                }
+            }
+            .navDestination(isPresented: $viewModel.nextStep) {
+                VerifyPhoneNumber()
+            }
+            .navDestination(isPresented: $viewModel.showSecretEmailPage) {
+                EmailLogin()
             }
             .padding(.horizontal, 30)
             .frame(maxHeight: .infinity)

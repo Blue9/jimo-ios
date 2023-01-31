@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @StateObject private var settingsViewModel = SettingsViewModel()
 
     let currentUser: PublicUser
 
@@ -19,10 +20,11 @@ struct ProfileTab: View {
         Navigator {
             Profile(initialUser: currentUser)
                 .background(Color("background"))
-                .background(
-                    NavigationLink(destination: Settings()
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState), isActive: $showSettings) {})
+                .navDestination(isPresented: $showSettings) {
+                    Settings(settingsViewModel: settingsViewModel)
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                }
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
                 .navigationTitle(Text("Profile"))

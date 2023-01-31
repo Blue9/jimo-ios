@@ -9,6 +9,16 @@ import SwiftUI
 import Combine
 
 struct CommentItem: View {
+    enum Destination: NavigationDestinationEnum {
+        case profile(PublicUser)
+
+        func view() -> some View {
+            switch self {
+            case let .profile(user):
+                return ProfileScreen(initialUser: user)
+            }
+        }
+    }
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
 
@@ -16,6 +26,7 @@ struct CommentItem: View {
     @StateObject var viewModel = ViewModel()
     @State private var confirmDelete = false
     @State private var relativeTime = ""
+    var navigate: (Destination?) -> Void
 
     let comment: Comment
     let isMyPost: Bool
@@ -51,20 +62,21 @@ struct CommentItem: View {
     var body: some View {
         HStack(alignment: .center) {
             VStack {
-                NavigationLink(destination: profileView) {
-                    profilePicture
+                profilePicture.onTapGesture {
+                    self.navigate(.profile(comment.user))
                 }
 
                 Spacer()
             }
 
             VStack(alignment: .leading) {
-                NavigationLink(destination: profileView) {
-                    Text(comment.user.username.lowercased())
-                        .font(.system(size: 12))
-                        .bold()
-                        .foregroundColor(Color("foreground"))
-                }
+                Text(comment.user.username.lowercased())
+                    .font(.system(size: 12))
+                    .bold()
+                    .foregroundColor(Color("foreground"))
+                    .onTapGesture {
+                        self.navigate(.profile(comment.user))
+                    }
 
                 Spacer().frame(height: 3)
 

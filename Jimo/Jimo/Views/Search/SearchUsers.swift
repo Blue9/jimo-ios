@@ -28,10 +28,6 @@ struct SearchUsers: View {
             .padding(.trailing)
     }
 
-    func profileView(user: User) -> some View {
-        ProfileScreen(initialUser: user)
-    }
-
     var body: some View {
         Navigator {
             mainBody
@@ -95,7 +91,9 @@ struct SearchUsers: View {
             LazyVStack(alignment: .leading) {
                 Divider()
                 ForEach(searchViewModel.userResults, id: \.username) { (user: PublicUser) in
-                    NavigationLink(destination: profileView(user: user)) {
+                    NavigationLink {
+                        ProfileScreen(initialUser: user)
+                    } label: {
                         HStack {
                             profilePicture(user: user)
 
