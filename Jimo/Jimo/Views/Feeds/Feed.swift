@@ -86,9 +86,7 @@ struct Feed: View {
                 }
             }
         }
-        .navigation(item: $navigationDestination) { destination in
-            destination?.view()
-        }
+        .navigation(destination: $navigationDestination)
         .background(Color("background"))
         .fullScreenCover(isPresented: $showFindFriendsSheet) {
             SearchUsers()

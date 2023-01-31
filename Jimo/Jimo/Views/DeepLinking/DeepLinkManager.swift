@@ -9,27 +9,21 @@ import SwiftUI
 
 class DeepLinkManager: ObservableObject {
     @Published var presentableEntity: DeepLinkEntity?
+}
+
+/// What type of detail page we want to open based on the deeplink URL
+enum DeepLinkEntity: Equatable, Hashable, NavigationDestinationEnum {
+    case profile(String), post(PostId)
 
     @ViewBuilder
-    func viewForDeepLink(_ entity: DeepLinkEntity?) -> some View {
-        // entity == presentableEntity
-        switch entity {
+    func view() -> some View {
+        switch self {
         case .profile(let username):
             DeepLinkProfileLoadingScreen(username: username).id(username)
         case .post(let postId):
             DeepLinkViewPost(postId: postId)
-        default:
-            ProgressView()
-                .onAppear {
-                    self.presentableEntity = nil
-                }
         }
     }
-}
-
-/// What type of detail page we want to open based on the deeplink URL
-enum DeepLinkEntity: Equatable, Hashable {
-    case profile(String), post(PostId)
 }
 
 extension URL {

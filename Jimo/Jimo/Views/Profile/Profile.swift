@@ -66,11 +66,7 @@ struct Profile: View {
             profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
         }
         .font(.system(size: 15))
-        .navigation(item: $navigationDestination) {
-            if let dest = $0 {
-                dest.view()
-            }
-        }
+        .navigation(destination: $navigationDestination)
     }
 
     var body: some View {

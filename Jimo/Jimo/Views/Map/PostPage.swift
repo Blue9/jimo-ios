@@ -76,9 +76,7 @@ struct PostPage: View {
                 showFullPost.toggle()
             }
             .navDestination(isPresented: $showFullPost) {
-                LazyView {
-                    ViewPost(initialPost: post, showSaveButton: false)
-                }
+                ViewPost(initialPost: post, showSaveButton: false)
             }
     }
 }

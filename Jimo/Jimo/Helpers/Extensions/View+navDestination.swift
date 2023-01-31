@@ -8,7 +8,11 @@
 import SwiftUI
 
 extension View {
-    @ViewBuilder func navDestination<Content: View>(isPresented: Binding<Bool>, @ViewBuilder destination: () -> Content) -> some View {
+    @ViewBuilder
+    func navDestination<Content: View>(
+        isPresented: Binding<Bool>,
+        @ViewBuilder destination: () -> Content
+    ) -> some View {
         if #available(iOS 16, *) {
             self.navigationDestination(isPresented: isPresented, destination: destination)
         } else {

@@ -33,10 +33,10 @@ struct ViewPost: View {
     @StateObject private var postVM = PostVM()
     @StateObject private var commentsViewModel = ViewPostCommentsViewModel()
     @State private var initializedComments = false
-    @State private var commentItemDestination: CommentItem.Destination?
+
+    @State private var destination: Destination?
 
     @State private var imageSize: CGSize?
-    @State private var destination: Destination?
     @FocusState private var commentFieldFocused: Bool
     var focusOnAppear = false
 
@@ -149,11 +149,7 @@ struct ViewPost: View {
                 commentsViewModel.loadComments()
             }
         }
-        .navigation(item: $destination) { destination in
-            if let destination = destination {
-                destination.view()
-            }
-        }
+        .navigation(destination: $destination)
     }
 
     var body: some View {

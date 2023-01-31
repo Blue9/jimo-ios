@@ -13,7 +13,7 @@ struct MapTab: View {
     var body: some View {
         Navigator {
             MapViewV2()
-                .navigation(item: $deepLinkManager.presentableEntity, destination: deepLinkManager.viewForDeepLink)
+                .navigation(destination: $deepLinkManager.presentableEntity)
                 .navigationBarHidden(true)
                 .trackScreen(.mapTab)
         }

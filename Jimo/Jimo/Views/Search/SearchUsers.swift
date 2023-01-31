@@ -8,17 +8,6 @@
 import SwiftUI
 
 struct SearchUsers: View {
-    enum Destination: NavigationDestinationEnum {
-        case user(PublicUser)
-
-        @ViewBuilder func view() -> some View {
-            switch self {
-            case let .user(user):
-                ProfileScreen(initialUser: user)
-            }
-        }
-    }
-
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
