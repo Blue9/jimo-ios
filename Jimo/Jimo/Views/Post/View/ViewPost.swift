@@ -8,6 +8,24 @@
 import SwiftUI
 
 struct ViewPost: View {
+    enum Destination: NavigationDestinationEnum {
+        case user(PublicUser)
+        case pinView(Post)
+        case commentItemDestination(CommentItem.Destination)
+
+        @ViewBuilder
+        func view() -> some View {
+            switch self {
+            case let .user(user):
+                ProfileScreen(initialUser: user)
+            case let .pinView(post):
+                LiteMapView(post: post)
+            case let .commentItemDestination(destination):
+                destination.view()
+            }
+        }
+    }
+
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @Environment(\.presentationMode) var presentationMode
@@ -15,8 +33,10 @@ struct ViewPost: View {
     @StateObject private var postVM = PostVM()
     @StateObject private var commentsViewModel = ViewPostCommentsViewModel()
     @State private var initializedComments = false
+    @State private var commentItemDestination: CommentItem.Destination?
 
     @State private var imageSize: CGSize?
+    @State private var destination: Destination?
     @FocusState private var commentFieldFocused: Bool
     var focusOnAppear = false
 
@@ -43,11 +63,14 @@ struct ViewPost: View {
     @ViewBuilder
     private func postItem(post: Post) -> some View {
         VStack {
-            PostHeader(postVM: postVM, post: post)
+            PostHeader(postVM: postVM, post: post, navigate: { self.destination = .user($0) })
             PostImageTrackedSize(post: post, imageSize: $imageSize)
                 .frame(width: UIScreen.main.bounds.width)
             VStack(spacing: 5) {
                 PostPlaceName(post: post)
+                    .onTapGesture {
+                        self.destination = .pinView(post)
+                    }
                 PostCaption(post: post)
             }
             PostFooter(
@@ -88,7 +111,18 @@ struct ViewPost: View {
             LazyVStack(spacing: 0) {
                 ForEach(commentsViewModel.comments) { comment in
                     ZStack(alignment: .bottom) {
-                        CommentItem(commentsViewModel: commentsViewModel, comment: comment, isMyPost: isMyPost)
+                        CommentItem(
+                            commentsViewModel: commentsViewModel,
+                            navigate: { dest in
+                                if let dest = dest {
+                                    self.destination = .commentItemDestination(dest)
+                                } else {
+                                    self.destination = nil
+                                }
+                            },
+                            comment: comment,
+                            isMyPost: isMyPost
+                        )
                         Divider()
                             .foregroundColor(.gray)
                             .padding(.horizontal, 10)
@@ -113,6 +147,11 @@ struct ViewPost: View {
                 commentsViewModel.appState = appState
                 commentsViewModel.viewState = globalViewState
                 commentsViewModel.loadComments()
+            }
+        }
+        .navigation(item: $destination) { destination in
+            if let destination = destination {
+                destination.view()
             }
         }
     }

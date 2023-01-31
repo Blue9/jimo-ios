@@ -48,15 +48,11 @@ struct FeedTab: View {
     var body: some View {
         Navigator {
             Feed(onCreatePostTap: onCreatePostTap)
-                .background(
-                    NavigationLink(
-                        destination: NotificationFeed(notificationFeedVM: notificationFeedVM)
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState),
-                        isActive: $showNotifications) {
-                            EmptyView()
-                        }
-                )
+                .navDestination(isPresented: $showNotifications) {
+                    NotificationFeed(notificationFeedVM: notificationFeedVM)
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                }
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
                 .toolbar(content: {

@@ -22,6 +22,7 @@ struct Feed: View {
     @State private var feedType: FeedType = .following
     @State private var showFindFriendsSheet = false
     @State private var showEnableLocationButton = false
+    @State private var navigationDestination: FeedItem.Destination?
 
     var onCreatePostTap: () -> Void
 
@@ -85,6 +86,9 @@ struct Feed: View {
                 }
             }
         }
+        .navigation(item: $navigationDestination) { destination in
+            destination?.view()
+        }
         .background(Color("background"))
         .fullScreenCover(isPresented: $showFindFriendsSheet) {
             SearchUsers()
@@ -105,7 +109,7 @@ struct Feed: View {
                 .padding(.bottom, 10)
 
             ForEach(feedViewModel.feed) { post in
-                FeedItem(post: post)
+                FeedItem(post: post, navigate: { self.navigationDestination = $0 })
             }
         } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
@@ -122,7 +126,7 @@ struct Feed: View {
             }
 
             ForEach(discoverViewModel.posts) { post in
-                FeedItem(post: post)
+                FeedItem(post: post, navigate: { self.navigationDestination = $0 })
             }
         } onRefresh: { onFinish in
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)

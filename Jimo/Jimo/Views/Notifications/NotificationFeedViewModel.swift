@@ -15,6 +15,7 @@ class NotificationFeedViewModel: ObservableObject {
 
     private var cancellable: Cancellable?
     private var cursor: String?
+    var initialized = false
 
     init() {
         PermissionManager.shared.getNotificationAuthStatus { status in
@@ -24,7 +25,16 @@ class NotificationFeedViewModel: ObservableObject {
         }
     }
 
+    func onAppear(appState: AppState, viewState: GlobalViewState) {
+        if initialized {
+            return
+        }
+        initialized = true
+        self.refreshFeed(appState: appState, viewState: viewState)
+    }
+
     func refreshFeed(appState: AppState, viewState: GlobalViewState, onFinish: OnFinish? = nil) {
+        print("refreshing feed")
         cursor = nil
         loading = true
         cancellable = appState.getNotificationsFeed(token: nil)

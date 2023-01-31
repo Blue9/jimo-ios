@@ -13,8 +13,6 @@ struct NotificationFeed: View {
 
     @ObservedObject var notificationFeedVM: NotificationFeedViewModel
 
-    @State private var initialized = false
-
     var body: some View {
         RefreshableScrollView(spacing: 10) {
             if notificationFeedVM.shouldRequestNotificationPermissions {
@@ -35,10 +33,7 @@ struct NotificationFeed: View {
         .foregroundColor(Color("foreground"))
         .background(Color("background").edgesIgnoringSafeArea(.all))
         .onAppear {
-            if !initialized {
-                notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState)
-                initialized = true
-            }
+            notificationFeedVM.onAppear(appState: appState, viewState: globalViewState)
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
@@ -100,9 +95,13 @@ private struct NotificationFeedItem: View {
     }
 
     var body: some View {
-        NavigationLink(destination: destinationView) {
+        NavigationLink {
+            destinationView
+        } label: {
             HStack {
-                NavigationLink(destination: ProfileScreen(initialUser: user)) {
+                NavigationLink {
+                    ProfileScreen(initialUser: user)
+                } label: {
                     profilePicture
                 }
 

@@ -19,10 +19,11 @@ struct ProfileTab: View {
         Navigator {
             Profile(initialUser: currentUser)
                 .background(Color("background"))
-                .background(
-                    NavigationLink(destination: Settings()
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState), isActive: $showSettings) {})
+                .navDestination(isPresented: $showSettings) {
+                    Settings()
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                }
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
                 .navigationTitle(Text("Profile"))

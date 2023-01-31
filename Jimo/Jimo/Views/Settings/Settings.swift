@@ -103,20 +103,26 @@ struct Settings: View {
     var body: some View {
         Form {
             Section(header: Text("Profile")) {
-                NavigationLink(destination: EditProfile()) {
+                NavigationLink {
+                    EditProfile()
+                } label: {
                     Text("Edit profile")
                 }
             }
 
             Section(header: Text("Preferences")) {
-                NavigationLink(destination: EditPreferences(settingsViewModel: settingsViewModel)) {
+                NavigationLink {
+                    EditPreferences(settingsViewModel: settingsViewModel)
+                } label: {
                     Text("Edit preferences")
                 }
             }
             .disabled(settingsViewModel.loading)
 
             Section(header: Text("Account")) {
-                NavigationLink(destination: Feedback()) {
+                NavigationLink {
+                    Feedback()
+                } label: {
                     Text("Submit feedback")
                 }
 

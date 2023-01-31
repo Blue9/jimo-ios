@@ -8,32 +8,48 @@
 import SwiftUI
 
 extension View {
-    func navigation<V: Identifiable, Destination: View>(
+    func navigation<V: Hashable, Destination: View>(
         item: Binding<V?>,
-        destination: @escaping (V?) -> Destination
+        @ViewBuilder destination: @escaping (V?) -> Destination
     ) -> some View {
-        self.background(NavigationLink(item: item, destination: destination))
+        self.navDestination(
+            isPresented: Binding(
+                get: { item.wrappedValue != nil },
+                set: { value in
+                    // There shouldn't be a way for SwiftUI to set `true` here.
+                    if !value {
+                        item.wrappedValue = nil
+                    }
+                }
+            ),
+            destination: {
+                destination(item.wrappedValue)
+            }
+        )
     }
 }
 
-extension NavigationLink where Label == EmptyView {
-    public init?<V: Identifiable>(
-        item: Binding<V?>,
-        destination: @escaping (V?) -> Destination
-    ) {
-        let isActive: Binding<Bool> = Binding(
-            get: { item.wrappedValue != nil },
-            set: { value in
-                // There's shouldn't be a way for SwiftUI to set `true` here.
-                if !value {
-                    item.wrappedValue = nil
-                }
-            }
-        )
-        self.init(
-            destination: destination(item.wrappedValue),
-            isActive: isActive,
-            label: { EmptyView() }
-        )
-    }
-}
+// extension NavigationLink where Label == EmptyView {
+//    public init?<V: Identifiable>(
+//        item: Binding<V?>,
+//        destination: @escaping (V?) -> Destination
+//    ) {
+//        let isActive: Binding<Bool> = Binding(
+//            get: { item.wrappedValue != nil },
+//            set: { value in
+//                // There shouldn't be a way for SwiftUI to set `true` here.
+//                if !value {
+//                    item.wrappedValue = nil
+//                }
+//            }
+//        )
+//        self.init(
+//            destination: destination(item.wrappedValue),
+//            isActive: isActive,
+//            label: { EmptyView() }
+//        )
+//    }
+// }
+//
+
+//

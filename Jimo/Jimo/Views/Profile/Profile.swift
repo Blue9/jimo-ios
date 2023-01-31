@@ -7,30 +7,23 @@
 
 import SwiftUI
 
-private enum NavigationDestination: Identifiable {
-    case editProfile, submitFeedback
-
-    var id: String {
-        switch self {
-        case .editProfile:
-            return "editProfile"
-        case .submitFeedback:
-            return "submitFeedback"
-        }
-    }
-
-    @ViewBuilder
-    func destinationView() -> some View {
-        switch self {
-        case .editProfile:
-            EditProfile()
-        case .submitFeedback:
-            Feedback()
-        }
-    }
-}
-
 struct Profile: View {
+    enum Destination: NavigationDestinationEnum {
+        case editProfile, submitFeedback, post(Post)
+
+        @ViewBuilder
+        func view() -> some View {
+            switch self {
+            case .editProfile:
+                EditProfile()
+            case .submitFeedback:
+                Feedback()
+            case let .post(post):
+                ViewPost(initialPost: post)
+            }
+        }
+    }
+
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var profileVM = ProfileVM()
@@ -44,32 +37,25 @@ struct Profile: View {
 
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
-    @State private var navigationDestination: NavigationDestination?
+    @State private var navigationDestination: Destination?
 
     var username: String {
         initialUser.username
-    }
-
-    @ViewBuilder
-    private func destinationView(for destination: NavigationDestination?) -> some View {
-        if let destination = destination {
-            destination.destinationView()
-        } else {
-            EmptyView().onAppear { self.navigationDestination = nil }
-        }
     }
 
     var profileGrid: some View {
         RefreshableScrollView(spacing: 0) {
             ProfileHeaderView(
                 profileVM: profileVM,
-                navigationDestination: $navigationDestination,
+                navigate: { self.navigationDestination = $0 },
                 initialUser: initialUser
             ).padding(.bottom, 10)
 
             LazyVGrid(columns: columns, spacing: 2) {
                 ForEach(profileVM.posts) { post in
-                    NavigationLink(destination: ViewPost(initialPost: post)) {
+                    Button {
+                        self.navigationDestination = .post(post)
+                    } label: {
                         PostGridCell(post: post)
                     }
                 }
@@ -80,7 +66,11 @@ struct Profile: View {
             profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
         }
         .font(.system(size: 15))
-        .navigation(item: $navigationDestination, destination: destinationView)
+        .navigation(item: $navigationDestination) {
+            if let dest = $0 {
+                dest.view()
+            }
+        }
     }
 
     var body: some View {
@@ -152,7 +142,7 @@ struct ProfileScreen: View {
     }
 }
 
-struct ProfileHeaderView: View {
+private struct ProfileHeaderView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
 
@@ -160,7 +150,7 @@ struct ProfileHeaderView: View {
 
     @State private var showCreatePostView = false
 
-    @Binding fileprivate var navigationDestination: NavigationDestination?
+    var navigate: (Profile.Destination?) -> Void
 
     let initialUser: User
 
@@ -226,12 +216,12 @@ struct ProfileHeaderView: View {
 
     @ViewBuilder
     fileprivate func headerButtonText(
-        _ dest: NavigationDestination,
+        _ dest: Profile.Destination,
         _ text: String,
         _ buttonImage: String? = nil
     ) -> some View {
         Button {
-            self.navigationDestination = dest
+            self.navigate(dest)
         } label: {
             HStack(spacing: 3) {
                 if let buttonImage = buttonImage {
@@ -306,16 +296,16 @@ struct ProfileStatsView: View {
         }
         .font(.system(size: 15))
         .foregroundColor(Color("foreground"))
-        .background(
-            NavigationLink(destination: FollowFeed(navTitle: "Followers", type: .followers, username: user.username)
+        .navDestination(isPresented: $showFollowers) {
+            FollowFeed(navTitle: "Followers", type: .followers, username: user.username)
                 .environmentObject(appState)
-                .environmentObject(globalViewState), isActive: $showFollowers) {}
-        )
-        .background(
-            NavigationLink(destination: FollowFeed(navTitle: "Following", type: .following, username: user.username)
+                .environmentObject(globalViewState)
+        }
+        .navDestination(isPresented: $showFollowing) {
+            FollowFeed(navTitle: "Following", type: .following, username: user.username)
                 .environmentObject(appState)
-                .environmentObject(globalViewState), isActive: $showFollowing) {}
-        )
+                .environmentObject(globalViewState)
+        }
     }
 }
 

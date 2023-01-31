@@ -8,6 +8,17 @@
 import SwiftUI
 
 struct SearchUsers: View {
+    enum Destination: NavigationDestinationEnum {
+        case user(PublicUser)
+
+        @ViewBuilder func view() -> some View {
+            switch self {
+            case let .user(user):
+                ProfileScreen(initialUser: user)
+            }
+        }
+    }
+
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
@@ -26,10 +37,6 @@ struct SearchUsers: View {
             .background(Color.white)
             .cornerRadius(50)
             .padding(.trailing)
-    }
-
-    func profileView(user: User) -> some View {
-        ProfileScreen(initialUser: user)
     }
 
     var body: some View {
@@ -95,7 +102,9 @@ struct SearchUsers: View {
             LazyVStack(alignment: .leading) {
                 Divider()
                 ForEach(searchViewModel.userResults, id: \.username) { (user: PublicUser) in
-                    NavigationLink(destination: profileView(user: user)) {
+                    NavigationLink {
+                        ProfileScreen(initialUser: user)
+                    } label: {
                         HStack {
                             profilePicture(user: user)
 

@@ -145,7 +145,9 @@ struct EditPreferences: View {
                 }
             }
         }
-        .background(NavigationLink(destination: LazyView { Feedback() }, isActive: $showSubmitFeedback, label: {}))
+        .navDestination(isPresented: $showSubmitFeedback) {
+            Feedback()
+        }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))
         .navigationTitle(Text("Preferences"))

@@ -28,17 +28,8 @@ class DeepLinkManager: ObservableObject {
 }
 
 /// What type of detail page we want to open based on the deeplink URL
-enum DeepLinkEntity: Equatable, Identifiable {
+enum DeepLinkEntity: Equatable, Hashable {
     case profile(String), post(PostId)
-
-    var id: String {
-        switch self {
-        case .profile(let username):
-            return username
-        case .post(let id):
-            return id
-        }
-    }
 }
 
 extension URL {

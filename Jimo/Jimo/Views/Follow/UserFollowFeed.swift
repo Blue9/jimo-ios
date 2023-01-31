@@ -173,10 +173,6 @@ struct FollowFeedItemView: View {
             .cornerRadius(50)
     }
 
-    @ViewBuilder var destinationView: some View {
-        ProfileScreen(initialUser: item.user)
-    }
-
     @ViewBuilder var followItemButton: some View {
         if item.relation == .following {
             FollowFeedItemButton(
@@ -209,7 +205,9 @@ struct FollowFeedItemView: View {
     }
 
     var body: some View {
-        NavigationLink(destination: destinationView) {
+        NavigationLink {
+            ProfileScreen(initialUser: item.user)
+        } label: {
             HStack {
                 profilePicture(user: item.user)
 

@@ -202,9 +202,9 @@ private struct SuggestedUserCard: View {
     }
 
     var body: some View {
-        NavigationLink(destination: LazyView {
+        NavigationLink {
             Profile(initialUser: user)
-        }) {
+        } label: {
             VStack {
                 profilePicture
                 Text(user.username).font(.system(size: 12)).bold().lineLimit(1)

@@ -143,6 +143,7 @@ struct PostHeader: View {
     @State private var showEditSheet = false
     @State private var showConfirmDelete = false
     @State private var showConfirmReport = false
+    var navigate: (PublicUser) -> Void
 
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
@@ -154,17 +155,18 @@ struct PostHeader: View {
 
     var body: some View {
         HStack {
-            NavigationLink(destination: profileView) {
-                profilePicture
-            }.buttonStyle(NoButtonStyle())
+            profilePicture.onTapGesture {
+                self.navigate(post.user)
+            }
 
             VStack(alignment: .leading) {
-                NavigationLink(destination: profileView) {
-                    Text(post.user.username.lowercased())
-                        .font(.system(size: 16))
-                        .bold()
-                        .foregroundColor(Color("foreground"))
-                }.buttonStyle(NoButtonStyle())
+                Text(post.user.username.lowercased())
+                    .font(.system(size: 16))
+                    .bold()
+                    .foregroundColor(Color("foreground"))
+                    .onTapGesture {
+                        self.navigate(post.user)
+                    }
 
                 HStack(spacing: 0) {
                     Text(post.category.capitalized)
@@ -239,12 +241,6 @@ struct PostHeader: View {
         }
     }
 
-    @ViewBuilder var profileView: some View {
-        LazyView {
-            ProfileScreen(initialUser: post.user)
-        }
-    }
-
     @ViewBuilder var profilePicture: some View {
         ZStack {
             URLImage(
@@ -271,21 +267,13 @@ struct PostPlaceName: View {
     }
 
     var body: some View {
-        NavigationLink(destination: pinView) {
-            Text(placeName)
-                .font(.system(size: 16))
-                .bold()
-                .foregroundColor(Color("foreground"))
-                .padding(.horizontal, 10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .multilineTextAlignment(.leading)
-        }
-    }
-
-    @ViewBuilder var pinView: some View {
-        LazyView {
-            LiteMapView(post: post)
-        }
+        Text(placeName)
+            .font(.system(size: 16))
+            .bold()
+            .foregroundColor(Color("foreground"))
+            .padding(.horizontal, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .multilineTextAlignment(.leading)
     }
 }
 

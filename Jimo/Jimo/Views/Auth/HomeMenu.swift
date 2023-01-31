@@ -38,7 +38,9 @@ struct HomeMenu: View {
             Spacer().frame(maxHeight: height * 0.23)
 
             VStack(spacing: 0) {
-                NavigationLink(destination: EnterPhoneNumber()) {
+                NavigationLink {
+                    EnterPhoneNumber()
+                } label: {
                     LargeButton("Sign Up")
                 }
                 .padding(.bottom, 8)
@@ -61,7 +63,9 @@ struct HomeMenu: View {
                 }
                 .padding(.vertical, 5)
 
-                NavigationLink(destination: LazyView { EnterPhoneNumber() }) {
+                NavigationLink {
+                    EnterPhoneNumber()
+                } label: {
                     Group {
                         Text("Already have an account? ") + Text("Sign in").bold()
                     }
