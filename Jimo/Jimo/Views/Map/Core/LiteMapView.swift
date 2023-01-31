@@ -35,17 +35,19 @@ struct LiteMapView: View {
             sheetViewModel: sheetViewModel
         )
         .onAppear {
-            DispatchQueue.main.async {
-                mapViewModel.pins = [pin]
-                mapViewModel.selectPin(
-                    placeViewModel: placeViewModel,
-                    appState: appState,
-                    viewState: viewState,
-                    pin: pin
-                )
-                sheetViewModel.showBusinessSheet()
-                mapViewModel.listenToRegionChanges(appState: appState, viewState: viewState)
-            }
+            initializeMapViewModel()
         }
+    }
+
+    @MainActor func initializeMapViewModel() {
+        mapViewModel.pins = [pin]
+        mapViewModel.selectPin(
+            placeViewModel: placeViewModel,
+            appState: appState,
+            viewState: viewState,
+            pin: pin
+        )
+        sheetViewModel.showBusinessSheet()
+        mapViewModel.listenToRegionChanges(appState: appState, viewState: viewState)
     }
 }

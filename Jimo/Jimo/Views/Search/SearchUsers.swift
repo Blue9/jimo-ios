@@ -35,7 +35,6 @@ struct SearchUsers: View {
     var body: some View {
         Navigator {
             mainBody
-                .navigationViewStyle(.stack)
         }
         .accentColor(Color("foreground"))
         .onAppear {

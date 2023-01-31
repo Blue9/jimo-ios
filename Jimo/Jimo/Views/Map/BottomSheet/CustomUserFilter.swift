@@ -123,7 +123,7 @@ struct CustomUserFilter: View {
                     }
                 }
             }
-        }.navigationViewStyle(.stack)
+        }
     }
 }
 

@@ -94,7 +94,6 @@ private struct FailedToLoadView: View {
                 }
             }
         }
-        .navigationViewStyle(.stack)
     }
 }
 

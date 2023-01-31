@@ -18,7 +18,7 @@ struct CreateProfileView: View {
     var body: some View {
         Navigator {
             mainBody
-        }.navigationViewStyle(.stack)
+        }
     }
 
     var mainBody: some View {

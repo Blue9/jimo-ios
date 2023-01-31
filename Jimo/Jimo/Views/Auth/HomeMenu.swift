@@ -15,7 +15,7 @@ struct HomeMenu: View {
     var body: some View {
         Navigator {
             mainBody.navigationBarHidden(true)
-        }.navigationViewStyle(.stack)
+        }
     }
 
     var mainBody: some View {

@@ -17,7 +17,6 @@ struct DeactivatedProfileView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle(Text("Goodbye"))
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 
     @ViewBuilder

@@ -380,7 +380,6 @@ struct CreatePostWithModel: View {
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

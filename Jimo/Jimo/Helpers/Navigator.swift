@@ -15,7 +15,7 @@ struct Navigator<Content>: View where Content: View {
         if #available(iOS 16, *) {
             NavigationStack(root: content)
         } else {
-            NavigationView(content: content)
+            NavigationView(content: content).navigationViewStyle(.stack)
         }
     }
 }

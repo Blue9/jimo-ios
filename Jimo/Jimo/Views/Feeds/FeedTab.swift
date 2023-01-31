@@ -49,16 +49,13 @@ struct FeedTab: View {
         Navigator {
             Feed(onCreatePostTap: onCreatePostTap)
                 .background(
-                    NavigationLink(destination: NotificationFeed(notificationFeedVM: notificationFeedVM)
-                                    .environmentObject(appState)
-                                    .environmentObject(globalViewState), isActive: $showNotifications) {}
-                )
-                .background(
-                    /// iOS 14.5 bug
-                    /// https://developer.apple.com/forums/thread/677333
-                    NavigationLink(destination: EmptyView()) {
-                        EmptyView()
-                    }
+                    NavigationLink(
+                        destination: NotificationFeed(notificationFeedVM: notificationFeedVM)
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState),
+                        isActive: $showNotifications) {
+                            EmptyView()
+                        }
                 )
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
@@ -81,6 +78,5 @@ struct FeedTab: View {
                     }
                 })
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }

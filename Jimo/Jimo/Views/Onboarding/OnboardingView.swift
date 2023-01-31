@@ -54,6 +54,5 @@ struct OnboardingView: View {
             }
             .trackScreen(.onboarding)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
