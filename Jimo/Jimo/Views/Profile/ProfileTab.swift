@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @StateObject private var settingsViewModel = SettingsViewModel()
 
     let currentUser: PublicUser
 
@@ -20,7 +21,7 @@ struct ProfileTab: View {
             Profile(initialUser: currentUser)
                 .background(Color("background"))
                 .navDestination(isPresented: $showSettings) {
-                    Settings()
+                    Settings(settingsViewModel: settingsViewModel)
                         .environmentObject(appState)
                         .environmentObject(globalViewState)
                 }
