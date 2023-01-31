@@ -9,9 +9,12 @@ import SwiftUI
 import Combine
 
 struct VerifyPhoneNumber: View {
+    @Environment(\.isPresented) var isPresented: Bool
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
     @FocusState private var isFocused: Bool
+    @State private var showHelpText = false
+    @State private var showHelpSheet = false
 
     var body: some View {
         ZStack {
@@ -23,8 +26,10 @@ struct VerifyPhoneNumber: View {
                     .keyboardType(.numberPad)
                     .frame(height: 40, alignment: .center)
                     .padding(10)
-                    .background(RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2))
+                    )
                     .appear {
                         isFocused = true
                     }
@@ -40,8 +45,24 @@ struct VerifyPhoneNumber: View {
                         .cornerRadius(10)
                 }
                 .shadow(radius: 5)
+
+                Button {
+                    showHelpSheet = true
+                } label: {
+                    Text("Not receiving a code?").foregroundColor(.blue)
+                }.opacity(showHelpText ? 1.0 : 0.0)
             }
             .padding(.horizontal, 24)
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                if isPresented {
+                    self.showHelpText = true
+                }
+            }
+        }
+        .sheet(isPresented: $showHelpSheet) {
+            TroubleshootingView()
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(.clear)
@@ -79,5 +100,61 @@ extension VerifyPhoneNumber {
                 })
                 .store(in: &cancelBag)
         }
+    }
+}
+
+private struct TroubleshootingView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Spacer()
+                Text("Troubleshooting")
+                    .bold()
+                    .padding(.bottom)
+                Spacer()
+            }
+
+            Text("Ensure your phone number is entered correctly, including the country code.")
+
+            HStack {
+                Text("Examples:").bold()
+                Spacer()
+            }
+            VStack(spacing: 10) {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                    Text("+1 (845) 462-5555")
+                    Spacer()
+                }
+
+                HStack {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.red)
+                    Text("462-5555")
+                    Spacer()
+                }
+
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                    Text("+44 333 772 0020")
+                    Spacer()
+                }
+
+                HStack {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.red)
+                    Text("333 772 0020")
+                    Spacer()
+                }
+            }.padding(.leading, 5)
+
+            Text("If you are still not receiving a verification code, make sure the number you have entered is activated and can receive SMS messages.")
+
+            Text("Please reach out to support@jimoapp.com if the issue persists.")
+
+            Spacer()
+        }.padding(20)
     }
 }
