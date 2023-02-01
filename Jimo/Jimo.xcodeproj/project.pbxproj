@@ -129,6 +129,8 @@
 		C78653E827D8476000A0D1A0 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78653E727D8476000A0D1A0 /* Analytics.swift */; };
 		C79183482597DABF006B4056 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79183472597DABF006B4056 /* PopupView.swift */; };
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
+		C794A32C298AF26400455972 /* MaybeGuestPostPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C794A32B298AF26400455972 /* MaybeGuestPostPage.swift */; };
+		C794A32E298AF27100455972 /* PostPagePlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C794A32D298AF27100455972 /* PostPagePlaceholder.swift */; };
 		C7959C7726AFCDE500EB9FD2 /* UserPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7959C7626AFCDE500EB9FD2 /* UserPublisher.swift */; };
 		C7970A49282C682100823F39 /* SuggestedUsersCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7970A48282C682100823F39 /* SuggestedUsersCarousel.swift */; };
 		C79E1E9F2788BE2200267A86 /* MapViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79E1E9E2788BE2200267A86 /* MapViewV2.swift */; };
@@ -308,6 +310,8 @@
 		C78653E727D8476000A0D1A0 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		C79183472597DABF006B4056 /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		C791835E2597EC64006B4056 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C794A32B298AF26400455972 /* MaybeGuestPostPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaybeGuestPostPage.swift; sourceTree = "<group>"; };
+		C794A32D298AF27100455972 /* PostPagePlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPagePlaceholder.swift; sourceTree = "<group>"; };
 		C7959C7626AFCDE500EB9FD2 /* UserPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPublisher.swift; sourceTree = "<group>"; };
 		C7970A48282C682100823F39 /* SuggestedUsersCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedUsersCarousel.swift; sourceTree = "<group>"; };
 		C79E1E9E2788BE2200267A86 /* MapViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewV2.swift; sourceTree = "<group>"; };
@@ -487,6 +491,8 @@
 				C75465E2298A44960013B1ED /* AnonymousProfilePlaceholder.swift */,
 				C75465E4298A4B1D0013B1ED /* AnonymousFeedPlaceholder.swift */,
 				C75465E6298A54C00013B1ED /* SignUpTapSource.swift */,
+				C794A32B298AF26400455972 /* MaybeGuestPostPage.swift */,
+				C794A32D298AF27100455972 /* PostPagePlaceholder.swift */,
 			);
 			path = GuestAccount;
 			sourceTree = "<group>";
@@ -1198,6 +1204,7 @@
 				C75C2EDF25561309009B6ADA /* JimoApp.swift in Sources */,
 				1FFF5CEC264A384D005BB943 /* UserFollowFeed.swift in Sources */,
 				C7416D0C26474AA000FA58EE /* CommentInputField.swift in Sources */,
+				C794A32E298AF27100455972 /* PostPagePlaceholder.swift in Sources */,
 				C7AB52892890BDC70080DF73 /* NotificationFeedViewModel.swift in Sources */,
 				C7EAD4CF25ABBD9A004A9F53 /* CreatePostVM.swift in Sources */,
 				C70E61C726EAE56F00340EEC /* PostComponents.swift in Sources */,
@@ -1205,6 +1212,7 @@
 				C7E2732D25EC62DA00C787DB /* Checkbox.swift in Sources */,
 				C7654E5C27FBA5050023A541 /* MKCoordinateRegion+Hashable.swift in Sources */,
 				C7970A49282C682100823F39 /* SuggestedUsersCarousel.swift in Sources */,
+				C794A32C298AF26400455972 /* MaybeGuestPostPage.swift in Sources */,
 				C73BC39F2988D05A00BF85AC /* View+modify.swift in Sources */,
 				C757F86F27F150DD00364EDB /* NotificationPermissions.swift in Sources */,
 				C75465E5298A4B1D0013B1ED /* AnonymousFeedPlaceholder.swift in Sources */,
@@ -1387,7 +1395,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.1.1;
+				MARKETING_VERSION = 8.2.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1413,7 +1421,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.1.1;
+				MARKETING_VERSION = 8.2.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -22,6 +22,7 @@ struct UnauthedMapUserFilter: View {
 
     @State private var showCustomUsersSheet = false
     @Binding var customUserFilter: Set<UserId>
+    @Binding var mapType: MapType
 
     @State private var alert: SignUpAlert = .init(
         isPresented: false,
@@ -41,14 +42,24 @@ struct UnauthedMapUserFilter: View {
             view(for: .following)
                 .onTapGesture { self.showAlert("Sign up to start following others.", source: .filterFriends) }
             view(for: .community)
-                .onTapGesture { self.showAlert("Sign up to view community posts.", source: .filterCommunity) }
+                .background(self.mapType == .community ? Color("foreground").opacity(0.1) : nil)
+                .onTapGesture {
+                    // self.showAlert("Sign up to view community posts.", source: .filterCommunity)
+                    self.mapType = .community
+                    self.customUserFilter.removeAll()
+                }
+                .cornerRadius(10)
             view(for: .custom)
-                .background(Color("foreground").opacity(0.1))
+                .background(self.mapType == .custom ? Color("foreground").opacity(0.1) : nil)
                 .onTapGesture {
                     self.showCustomUsersSheet = true
                 }
                 .cornerRadius(10)
-        }.sheet(isPresented: $showCustomUsersSheet) {
+        }.sheet(isPresented: $showCustomUsersSheet, onDismiss: {
+            if customUserFilter.count > 0 {
+                self.mapType = .custom
+            }
+        }) {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 10) {
                     Text("Featured Profiles")

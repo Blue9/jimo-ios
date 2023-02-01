@@ -32,7 +32,10 @@ struct MapBottomSheetBody: View {
             ScrollView(showsIndicators: false) {
                 VStack {
                     if appState.me == nil {
-                        UnauthedMapUserFilter(customUserFilter: $mapViewModel.userIds)
+                        UnauthedMapUserFilter(
+                            customUserFilter: $mapViewModel.userIds,
+                            mapType: $mapViewModel.mapType
+                        )
                     } else {
                         AuthedMapUserFilter(
                             mapType: $mapViewModel.mapType,

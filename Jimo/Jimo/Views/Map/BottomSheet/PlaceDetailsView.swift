@@ -140,7 +140,29 @@ private struct BasePlaceDetailsView: View {
                     )
                 }
 
-                if viewModel.communityPosts.count > 0 {
+                if appState.currentUser.isAnonymous {
+                    HStack {
+                        Text("Community")
+                            .font(.system(size: 15))
+                            .bold()
+                        Spacer()
+                    }
+                    PostPagePlaceholder()
+                        .redacted(reason: .placeholder)
+                        .overlay(Color.white.opacity(0.3))
+                        .overlay(
+                            Button {
+                                viewState.showSignUpPage(.placeDetailsCommunityNudge)
+                            } label: {
+                                Text("Sign up to view community recs")
+                                    .font(.system(size: 15))
+                                    .foregroundColor(.white)
+                                    .padding(10)
+                                    .background(Color.blue)
+                                    .cornerRadius(10)
+                            }
+                        )
+                } else if viewModel.communityPosts.count > 0 {
                     PostCarousel(
                         text: "Community (\(viewModel.communityPosts.count))",
                         posts: viewModel.communityPosts,
@@ -154,26 +176,6 @@ private struct BasePlaceDetailsView: View {
             Spacer()
         }
         .padding(.bottom, 49)
-    }
-}
-
-private struct MaybeGuestPostPage: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var viewState: GlobalViewState
-    var post: Post
-
-    var showSignUpAlert: (SignUpTapSource) -> Void
-
-    var body: some View {
-        if appState.currentUser.isAnonymous {
-            PostPage(post: post)
-                .disabled(true)
-                .onTapGesture {
-                    showSignUpAlert(.placeDetailsViewPost)
-                }
-        } else {
-            PostPage(post: post)
-        }
     }
 }
 
