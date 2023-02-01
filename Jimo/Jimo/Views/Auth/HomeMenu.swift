@@ -34,7 +34,7 @@ struct HomeMenu: View {
                     .foregroundColor(Color("foreground"))
                     .scaledToFit()
                     .frame(width: 175)
-                Text("Sign up to see recs\nfrom your friends.")
+                Text("The social maps platform.")
                     .multilineTextAlignment(.center)
                     .font(.system(size: 16))
             }
