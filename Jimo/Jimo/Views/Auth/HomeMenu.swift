@@ -5,10 +5,14 @@
 //  Created by Gautam Mekkat on 2/3/21.
 //
 
+import Combine
 import SwiftUI
 
 struct HomeMenu: View {
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    @StateObject var viewModel = ViewModel()
 
     let height = UIScreen.main.bounds.height
 
@@ -37,42 +41,45 @@ struct HomeMenu: View {
 
             Spacer().frame(maxHeight: height * 0.23)
 
-            VStack(spacing: 0) {
+            VStack(spacing: 5) {
                 NavigationLink {
-                    EnterPhoneNumber()
+                    EnterPhoneNumber(onVerify: {})
                 } label: {
                     LargeButton("Sign Up")
                 }
-                .padding(.bottom, 8)
                 .buttonStyle(RaisedButtonStyle())
+                .padding(.vertical, 8)
 
                 HStack(spacing: 10) {
-                    VStack {
-                        Divider()
-                            .frame(maxWidth: 100)
-                            .background(Color("foreground"))
-                    }
-                    Text("OR")
-                        .font(.system(size: 16))
-                        .foregroundColor(Color("foreground"))
-                    VStack {
-                        Divider()
-                            .frame(maxWidth: 100)
-                            .background(Color("foreground"))
-                    }
+                    VStack { Divider().frame(maxWidth: 100) }
+                    Text("OR").opacity(0.5)
+                        .padding(.vertical, 8)
+                    VStack { Divider().frame(maxWidth: 100) }
                 }
-                .padding(.vertical, 5)
 
                 NavigationLink {
-                    EnterPhoneNumber()
+                    EnterPhoneNumber(onVerify: {})
                 } label: {
-                    Group {
-                        Text("Already have an account? ") + Text("Sign in").bold()
-                    }
-                    .font(.system(size: 16))
-                    .minimumScaleFactor(0.8)
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .foregroundColor(Color("foreground"))
+                    Text("Sign in to an existing account")
+                        .font(.system(size: 16))
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .padding(.bottom, 8)
+                        .contentShape(Rectangle())
+                        .foregroundColor(Color("foreground"))
+                }
+
+                Divider().frame(maxWidth: 200)
+
+                Button {
+                    Analytics.track(.signInAnonymous)
+                    viewModel.signInAnonymously(appState: appState, viewState: viewState)
+                } label: {
+                    Text("Explore Jimo first")
+                        .font(.system(size: 16))
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .contentShape(Rectangle())
+                        .foregroundColor(Color("foreground"))
                 }
             }
             .padding(.bottom, 50)
@@ -83,5 +90,29 @@ struct HomeMenu: View {
         .frame(maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
         .trackScreen(.landing)
+    }
+}
+
+extension HomeMenu {
+    @MainActor
+    class ViewModel: ObservableObject {
+        var cancelBag: Set<AnyCancellable> = .init()
+        var signingIn = false
+
+        func signInAnonymously(appState: AppState, viewState: GlobalViewState) {
+            guard !signingIn else {
+                return
+            }
+            signingIn = true
+            appState.signInAnonymously()
+                .sink { [weak self] completion in
+                    if case let .failure(error) = completion {
+                        viewState.setError("Cannot continue at this time (\(error.localizedDescription))")
+                    }
+                    self?.signingIn = false
+                } receiveValue: { _ in
+                    // pass
+                }.store(in: &cancelBag)
+        }
     }
 }

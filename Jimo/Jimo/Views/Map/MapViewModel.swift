@@ -8,9 +8,9 @@
 import SwiftUI
 import Combine
 import MapKit
+import FirebaseRemoteConfig
 
 struct MapRequestState: Equatable, Hashable {
-    var requestId: UUID
     var region: RectangularRegion
     var categories: Set<Category>
     var mapType: MapType
@@ -102,6 +102,17 @@ class MapViewModel: ObservableObject {
     }
 
     func initializeMap(appState: AppState, viewState: GlobalViewState, onLoad: @escaping OnMapLoadCallback) {
+        if appState.me == nil {
+            // Anonymous user
+            self.mapType = .custom
+            if let value = RemoteConfig.remoteConfig().configValue(forKey: "featuredUsersForGuestMap").jsonValue,
+               let parsed = value as? [[String: String]] {
+                self.userIds = Set(parsed.compactMap(\.["userId"]))
+            } else {
+                viewState.setError("Map is currently unavailable")
+                self.userIds = []
+            }
+        }
         if self.regionToLoad != nil {
             self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] numPins in
                 onLoad(numPins)
@@ -142,13 +153,16 @@ class MapViewModel: ObservableObject {
                     return
                 }
                 let request = MapRequestState(
-                    requestId: UUID(),
                     region: region,
                     categories: categories,
                     mapType: mapType,
                     userIds: userIds
                 )
-                print("Created request with ID", request.requestId, mapType)
+                guard request != self.latestMapRequest else {
+                    print("Duplicate request ignoring")
+                    return
+                }
+                print("Created request with hash", request.hashValue, mapType)
                 self.loadMap(request, appState: appState, viewState: viewState, onLoad: nil)
             }
             .store(in: &cancelBag)
@@ -215,7 +229,6 @@ class MapViewModel: ObservableObject {
         }
         self.loadMap(
             MapRequestState(
-                requestId: UUID(),
                 region: region,
                 categories: categories,
                 mapType: mapType,

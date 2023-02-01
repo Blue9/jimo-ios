@@ -13,7 +13,7 @@ struct CustomUserFilter: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @ObservedObject var viewModel: UserFilterViewModel
+    @ObservedObject var viewModel: AuthedUserFilterViewModel
 
     @FocusState private var isSearchFocused: Bool
 
@@ -131,7 +131,7 @@ private struct SelectableUser: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
 
-    @ObservedObject var viewModel: UserFilterViewModel
+    @ObservedObject var viewModel: AuthedUserFilterViewModel
 
     var user: PublicUser
 
@@ -191,7 +191,7 @@ private struct SelectableUser: View {
     }
 }
 
-class UserFilterViewModel: ObservableObject {
+class AuthedUserFilterViewModel: ObservableObject {
     private var cancelBag: Set<AnyCancellable> = []
 
     @Published var query = ""
@@ -225,6 +225,9 @@ class UserFilterViewModel: ObservableObject {
     }
 
     private func search(appState: AppState, query: String) {
+        guard appState.me != nil else {
+            return
+        }
         appState.searchUsers(query: query)
             .catch { error -> AnyPublisher<[PublicUser], Never> in
                 print("Error when searching", error)
@@ -237,19 +240,5 @@ class UserFilterViewModel: ObservableObject {
                 }
             }
             .store(in: &cancelBag)
-    }
-}
-
-private struct CircularCheckbox: View {
-    var selected: Bool
-
-    var imageName: String {
-        selected ? "checkmark.circle.fill" : "circle"
-    }
-
-    var body: some View {
-        Image(systemName: imageName)
-            .font(.system(size: 30, weight: .light))
-            .foregroundColor(.blue)
     }
 }

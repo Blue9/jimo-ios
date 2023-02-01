@@ -18,7 +18,6 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-
             if appVersionModel.isOutOfDate {
                 RequireUpdateView()
             } else {
@@ -32,30 +31,76 @@ struct ContentView: View {
                         .id("loading")
                 case let .user(user):
                     LoggedInView(onboardingModel: appState.onboardingModel, currentUser: user)
+                case .anonymous:
+                    UnauthedOnboarding()
                 case .signedOut:
                     HomeMenu()
                 case .failed:
                     FailedToLoadView()
                 case .deactivated:
                     DeactivatedProfileView()
-                case .doesNotExist:
+                case .phoneAuthed:
                     CreateProfileView()
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .popup(isPresented: !$networkMonitor.connected, type: .toast, position: .bottom, autohideIn: nil, closeOnTap: true) {
+        .fullScreenCover(isPresented: $globalViewState.showSignUpPage) {
+            Navigator {
+                EnterPhoneNumber(onVerify: {
+                    globalViewState.showSignUpPage = false
+                })
+                .navigationTitle(Text("Sign up"))
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            globalViewState.showSignUpPage = false
+                        } label: {
+                            Image(systemName: "xmark").foregroundColor(Color("foreground"))
+                        }
+                    }
+                }
+            }
+        }
+        .popup(
+            isPresented: !$networkMonitor.connected,
+            type: .toast,
+            position: .bottom,
+            autohideIn: nil,
+            closeOnTap: true
+        ) {
             Toast(text: "No internet connection", type: .error)
         }
-        .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 4, closeOnTap: true, closeOnTapOutside: false) {
+        .popup(
+            isPresented: $globalViewState.showError,
+            type: .toast,
+            position: .bottom,
+            autohideIn: 4,
+            closeOnTap: true,
+            closeOnTapOutside: false
+        ) {
             Toast(text: globalViewState.errorMessage, type: .error)
                 .padding(.bottom, 50)
         }
-        .popup(isPresented: $globalViewState.showWarning, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+        .popup(
+            isPresented: $globalViewState.showWarning,
+            type: .toast,
+            position: .bottom,
+            autohideIn: 2,
+            closeOnTap: true,
+            closeOnTapOutside: false
+        ) {
             Toast(text: globalViewState.warningMessage, type: .warning)
                 .padding(.bottom, 50)
         }
-        .popup(isPresented: $globalViewState.showSuccess, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+        .popup(
+            isPresented: $globalViewState.showSuccess,
+            type: .toast,
+            position: .bottom,
+            autohideIn: 2,
+            closeOnTap: true,
+            closeOnTapOutside: false
+        ) {
             Toast(text: globalViewState.successMessage, type: .success)
                 .padding(.bottom, 50)
         }

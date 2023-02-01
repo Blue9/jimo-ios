@@ -19,7 +19,6 @@ struct MapBottomSheetBody: View {
 
     @ObservedObject var placeViewModel: PlaceDetailsViewModel
     @ObservedObject var mapViewModel: MapViewModel
-    @ObservedObject var userFilterViewModel: UserFilterViewModel
     @ObservedObject var locationSearch: LocationSearch
     @ObservedObject var sheetViewModel: SheetPositionViewModel
     @FocusState.Binding var searchFieldActive: Bool
@@ -32,11 +31,17 @@ struct MapBottomSheetBody: View {
         ZStack {
             ScrollView(showsIndicators: false) {
                 VStack {
-                    MapUserFilter(
-                        userFilterViewModel: userFilterViewModel,
-                        mapType: $mapViewModel.mapType,
-                        customUserFilter: $mapViewModel.userIds
-                    )
+                    if appState.me == nil {
+                        UnauthedMapUserFilter(
+                            customUserFilter: $mapViewModel.userIds,
+                            mapType: $mapViewModel.mapType
+                        )
+                    } else {
+                        AuthedMapUserFilter(
+                            mapType: $mapViewModel.mapType,
+                            customUserFilter: $mapViewModel.userIds
+                        )
+                    }
                     CategoryFilter(selected: $mapViewModel.categories)
                         .opacity(mapViewModel.mapType != .saved ? 1 : 0)
                     Spacer()
@@ -70,11 +75,11 @@ struct MapBottomSheetBody: View {
     }
 }
 
-private struct MapUserFilter: View {
+private struct AuthedMapUserFilter: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
 
-    @ObservedObject var userFilterViewModel: UserFilterViewModel
+    @StateObject var userFilterViewModel = AuthedUserFilterViewModel()
 
     @Binding var mapType: MapType
     @Binding var customUserFilter: Set<UserId>
@@ -151,7 +156,7 @@ private struct MapUserFilterButton: View {
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if mapType == .community {
-                GlobalViewButton()
+                GlobalViewFilterButton()
             } else if mapType == .me {
                 profilePicture
                     .foregroundColor(Color("background").opacity(0.5))
@@ -170,41 +175,5 @@ private struct MapUserFilterButton: View {
             onTap?()
         }
         .cornerRadius(10)
-    }
-}
-
-private struct GlobalViewButton: View {
-    var body: some View {
-        ZStack {
-            Image("logo")
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(5)
-            Circle()
-                .stroke(Colors.angularGradient, style: StrokeStyle(lineWidth: 2.5))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-    }
-}
-
-fileprivate extension MapType {
-    var buttonName: String {
-        switch self {
-        case .saved: return "Saved"
-        case .me: return "My Posts"
-        case .following: return "Friends"
-        case .community: return "Everyone"
-        case .custom: return "More"
-        }
-    }
-
-    var systemImage: String? {
-        switch self {
-        case .following: return "person.2.circle.fill"
-        case .saved: return "bookmark.circle.fill"
-        case .custom: return "ellipsis.circle.fill"
-        default: return nil
-        }
     }
 }

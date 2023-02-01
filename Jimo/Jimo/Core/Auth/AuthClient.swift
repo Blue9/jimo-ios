@@ -23,8 +23,15 @@ class AuthClient: ObservableObject {
         }
     }
 
+    private func deleteAnonymousAccount() {
+        if let anonUser = Auth.auth().currentUser, anonUser.isAnonymous {
+            anonUser.delete()
+        }
+    }
+
     func signUp(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
-        Future<AuthDataResult, Error> { promise in
+        deleteAnonymousAccount()
+        return Future<AuthDataResult, Error> { promise in
             Auth.auth().createUser(withEmail: email, password: password) { auth, error in
                 if let error = error {
                     promise(.failure(error))
@@ -36,8 +43,21 @@ class AuthClient: ObservableObject {
     }
 
     func signIn(email: String, password: String) -> AnyPublisher<AuthDataResult, Error> {
-        Future<AuthDataResult, Error> { promise in
+        deleteAnonymousAccount()
+        return Future<AuthDataResult, Error> { promise in
             Auth.auth().signIn(withEmail: email, password: password) { auth, error in
+                if let error = error {
+                    promise(.failure(error))
+                } else if let auth = auth {
+                    promise(.success(auth))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+
+    func signInAnonymously() -> AnyPublisher<AuthDataResult, Error> {
+        Future<AuthDataResult, Error> { promise in
+            Auth.auth().signInAnonymously { auth, error in
                 if let error = error {
                     promise(.failure(error))
                 } else if let auth = auth {
@@ -59,18 +79,47 @@ class AuthClient: ObservableObject {
         }.eraseToAnyPublisher()
     }
 
-    func signInPhone(verificationID: String, verificationCode: String) -> AnyPublisher<AuthDataResult, Error> {
+    func signInPhone(
+        verificationID: String,
+        verificationCode: String,
+        onLinkCredential: @escaping () -> Void
+    ) -> AnyPublisher<AuthDataResult, Error> {
+        // Linking credentials updates currentUser but doesn't call any auth state listeners
+        // so it's handled manually
+        // https://github.com/firebase/firebase-android-sdk/issues/2160
         Future<AuthDataResult, Error> { promise in
             let credential = PhoneAuthProvider.provider().credential(
                 withVerificationID: verificationID,
                 verificationCode: verificationCode)
-            Auth.auth().signIn(with: credential, completion: { auth, error in
-                if let error = error {
-                    promise(.failure(error))
-                } else if let auth = auth {
-                    promise(.success(auth))
-                }
-            })
+            if let anonUser = Auth.auth().currentUser, anonUser.isAnonymous {
+                anonUser.link(with: credential, completion: { auth, error in
+                    if let error = error {
+                        if (error as NSError).code == AuthErrorCode.credentialAlreadyInUse.rawValue {
+                            anonUser.delete()
+                            Auth.auth().signIn(with: credential) { auth, error in
+                                if let error = error {
+                                    promise(.failure(error))
+                                } else if let auth = auth {
+                                    promise(.success(auth))
+                                }
+                            }
+                        } else {
+                            promise(.failure(error))
+                        }
+                    } else if let auth = auth {
+                        promise(.success(auth))
+                        onLinkCredential()
+                    }
+                })
+            } else {
+                Auth.auth().signIn(with: credential, completion: { auth, error in
+                    if let error = error {
+                        promise(.failure(error))
+                    } else if let auth = auth {
+                        promise(.success(auth))
+                    }
+                })
+            }
         }.eraseToAnyPublisher()
     }
 

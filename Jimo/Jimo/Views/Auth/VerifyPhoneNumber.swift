@@ -9,12 +9,13 @@ import SwiftUI
 import Combine
 
 struct VerifyPhoneNumber: View {
-    @Environment(\.isPresented) var isPresented: Bool
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
     @FocusState private var isFocused: Bool
     @State private var showHelpText = false
     @State private var showHelpSheet = false
+
+    var onVerify: () -> Void
 
     var body: some View {
         ZStack {
@@ -35,7 +36,7 @@ struct VerifyPhoneNumber: View {
                     }
 
                 Button(action: {
-                    viewModel.verifyPhoneNumber(appState: appState)
+                    viewModel.verifyPhoneNumber(appState: appState, onVerify: onVerify)
                 }) {
                     Text("Submit")
                         .frame(minWidth: 0, maxWidth: .infinity)
@@ -49,16 +50,17 @@ struct VerifyPhoneNumber: View {
                 Button {
                     showHelpSheet = true
                 } label: {
-                    Text("Not receiving a code?").foregroundColor(.blue)
+                    Text("Not receiving a code?")
+                        .foregroundColor(.blue)
+                        .padding()
+                        .contentShape(Rectangle())
                 }.opacity(showHelpText ? 1.0 : 0.0)
             }
             .padding(.horizontal, 24)
         }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                if isPresented {
-                    self.showHelpText = true
-                }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                self.showHelpText = true
             }
         }
         .sheet(isPresented: $showHelpSheet) {
@@ -86,7 +88,7 @@ extension VerifyPhoneNumber {
             self.error = error
         }
 
-        func verifyPhoneNumber(appState: AppState) {
+        func verifyPhoneNumber(appState: AppState, onVerify: @escaping () -> Void) {
             hideKeyboard()
             appState.signInPhone(verificationCode: verificationCode)
                 .sink(receiveCompletion: { [weak self] completion in
@@ -97,6 +99,7 @@ extension VerifyPhoneNumber {
                 }, receiveValue: { [weak self] _ in
                     self?.verificationCode = ""
                     self?.error = ""
+                    onVerify()
                 })
                 .store(in: &cancelBag)
         }
@@ -114,6 +117,7 @@ private struct TroubleshootingView: View {
                 Spacer()
             }
 
+            Text("If you don't receive a verification code after a few minutes, please try the following.")
             Text("Ensure your phone number is entered correctly, including the country code.")
 
             HStack {

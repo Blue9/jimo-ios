@@ -14,33 +14,42 @@ import Firebase
 import SDWebImage
 
 enum CurrentUser {
+    case loading
+    case anonymous
+    case phoneAuthed
     case user(PublicUser)
     case deactivated
-    case doesNotExist
-    case loading
-    case failed
     case signedOut
+    case failed
+
+    var isAnonymous: Bool {
+        switch self {
+        case .anonymous:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 enum OnboardingStep: Int {
     case completed = -1,
     requestLocation = 1,
-    requestContacts = 2,
-    followContacts = 3,
-    followFeatured = 4,
+    followFeatured = 2,
+    requestContacts = 3,
+    followContacts = 4,
     requestNotifications = 5
 }
 
 class OnboardingModel: ObservableObject {
-    @AppStorage("onboardingStep") var onboardingStep: OnboardingStep = .requestLocation {
-        willSet {
-            objectWillChange.send() // Required for iOS 14.4 and lower
-        }
-    }
+    @AppStorage("onboardingStep") var onboardingStep: OnboardingStep = .requestLocation
 
     init() {
         // Uncomment to reset onboarding view
-        // onboardingStep = .requestLocation
+//        onboardingStep = .requestLocation
+//        if PermissionManager.shared.locationManager.location != nil && self.onboardingStep == .requestLocation {
+//            self.onboardingStep = .followFeatured
+//        }
     }
 
     var isUserOnboarded: Bool {
@@ -51,7 +60,7 @@ class OnboardingModel: ObservableObject {
         withAnimation {
             if self.onboardingStep == .requestContacts && PermissionManager.shared.contactsAuthStatus() != .authorized {
                 // Didn't receive contacts permission, skip followContacts
-                self.onboardingStep = .followFeatured
+                self.onboardingStep = .requestNotifications
             } else {
                 // Go to next step
                 self.onboardingStep = .init(rawValue: self.onboardingStep.rawValue + 1) ?? .completed
@@ -61,7 +70,7 @@ class OnboardingModel: ObservableObject {
 }
 
 class AppState: ObservableObject {
-    private var cancelBag: Set<AnyCancellable> = .init()
+    var cancelBag: Set<AnyCancellable> = .init()
 
     var apiClient: APIClient
     var dateTimeFormatter = RelativeDateTimeFormatter()
@@ -154,6 +163,10 @@ class AppState: ObservableObject {
         return apiClient.authClient.signIn(email: email, password: password)
     }
 
+    func signInAnonymously() -> AnyPublisher<AuthDataResult, Error> {
+        apiClient.authClient.signInAnonymously()
+    }
+
     func verifyPhoneNumber(phoneNumber: String) -> AnyPublisher<String, Error> {
         return apiClient.authClient.verifyPhoneNumber(phoneNumber: phoneNumber)
             .map({ verificationID in
@@ -171,7 +184,13 @@ class AppState: ObservableObject {
         guard let verificationID = getPhoneVerificationID() else {
             return Fail(error: APIError.authError).eraseToAnyPublisher()
         }
-        return apiClient.authClient.signInPhone(verificationID: verificationID, verificationCode: verificationCode)
+        return apiClient.authClient.signInPhone(
+            verificationID: verificationID,
+            verificationCode: verificationCode,
+            onLinkCredential: {
+                self.refreshCurrentUser()
+            }
+        )
     }
 
     func forgotPassword(email: String) -> AnyPublisher<Void, Error> {
@@ -216,6 +235,10 @@ class AppState: ObservableObject {
 
     func signOutFirebase() {
         do {
+            Messaging.messaging().deleteToken(completion: {_ in})
+            if let user = Auth.auth().currentUser, user.isAnonymous {
+                user.delete()
+            }
             try Auth.auth().signOut()
         } catch {
             print("Already logged out")
@@ -330,7 +353,7 @@ class AppState: ObservableObject {
                 print("catching error when getting Me: \(error.localizedDescription)")
                 switch error {
                 case .notFound:
-                    return Just(CurrentUser.doesNotExist)
+                    return Just(CurrentUser.phoneAuthed)
                 case .gone:
                     return Just(CurrentUser.deactivated)
                 default:
@@ -706,7 +729,11 @@ class AppState: ObservableObject {
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         DispatchQueue.main.async {
             if let user = user {
-                self.refreshCurrentUser()
+                if user.isAnonymous {
+                    self.currentUser = .anonymous
+                } else {
+                    self.refreshCurrentUser()
+                }
             } else {
                 if self.signingOut {
                     self.signingOut = false

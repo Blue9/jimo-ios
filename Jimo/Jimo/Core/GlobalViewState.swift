@@ -17,6 +17,8 @@ class GlobalViewState: ObservableObject {
     @Published var showSuccess = false
     @Published var successMessage = ""
 
+    @Published var showSignUpPage = false
+
     @Published var shareAction: ShareAction? {
         didSet {
             if shareAction != nil {
@@ -53,5 +55,10 @@ class GlobalViewState: ObservableObject {
 
     func showShareOverlay(for shareAction: ShareAction) {
         self.shareAction = shareAction
+    }
+
+    func showSignUpPage(_ type: SignUpTapSource) {
+        Analytics.track(.guestAccountSignUpTap, parameters: ["source": type.analyticsSourceParameter])
+        self.showSignUpPage = true
     }
 }

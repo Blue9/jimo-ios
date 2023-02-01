@@ -24,8 +24,13 @@ struct CreateProfileView: View {
     var mainBody: some View {
         ZStack {
             VStack(spacing: 20) {
+                HStack {
+                    Spacer()
+                    Button("Sign out") {
+                        appState.signOut()
+                    }
+                }.padding(.top, 5)
                 Spacer()
-
                 ZStack {
                     if let image = viewModel.profilePicture {
                         Image(uiImage: image)
@@ -118,15 +123,7 @@ struct CreateProfileView: View {
         .popup(isPresented: $viewModel.showRequestError, type: .toast, position: .bottom, autohideIn: 2) {
             Toast(text: viewModel.requestError, type: .warning)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(Color("background")))
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Sign out") {
-                    appState.signOut()
-                }
-            }
-        }
+        .navigationBarHidden(true)
         .trackScreen(.createProfile)
     }
 }

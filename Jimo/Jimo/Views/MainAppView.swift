@@ -16,8 +16,8 @@ struct MainAppView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @EnvironmentObject var deepLinkManager: DeepLinkManager
     @StateObject private var viewModel = ViewModel()
-
-    let currentUser: PublicUser
+    @State private var signUpAlert: SignUpAlert = .init(isPresented: false, source: .none)
+    let currentUser: PublicUser?
 
     var mainBody: some View {
         UITabView(selection: viewModel.selectionIndex) {
@@ -42,10 +42,24 @@ struct MainAppView: View {
                 .tabItem("", image: UIImage(named: "profileIcon"))
         }
         .sheet(isPresented: $viewModel.createPostPresented) {
-            CreatePost(presented: $viewModel.createPostPresented)
-                .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
+            if appState.currentUser.isAnonymous {
+                CreatePost(presented: $viewModel.createPostPresented)
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+                    .disabled(true)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.createPostPresented = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                            signUpAlert = .init(isPresented: true, source: .createPost)
+                        }
+                    }
+            } else {
+                CreatePost(presented: $viewModel.createPostPresented)
+                    .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
+                    .environmentObject(appState)
+                    .environmentObject(globalViewState)
+            }
         }
         .accentColor(Color("foreground"))
         .onAppear {
@@ -69,7 +83,9 @@ struct MainAppView: View {
                 .fill()
                 .foregroundColor(.white)
                 .frame(width: 55, height: 55)
-            Button(action: { viewModel.createPostPresented = true }) {
+            Button(action: {
+                viewModel.createPostPresented = true
+            }) {
                 ZStack {
                     Circle()
                         .fill()
@@ -88,7 +104,18 @@ struct MainAppView: View {
             mainBody
 
             newPostButton
-                .opacity(viewModel.selection == .map ? 1 : 0) // sadly not clean
+                .opacity(viewModel.selection == .map ? 1 : 0)
+                .alert("Account required", isPresented: $signUpAlert.isPresented) {
+                    Button("Later", action: {
+                        signUpAlert = .init(isPresented: false, source: .none)
+                    })
+
+                    Button("Sign up", action: {
+                        globalViewState.showSignUpPage(signUpAlert.source)
+                    })
+                } message: {
+                    Text(signUpAlert.source.signUpNudgeText ?? "Sign up for the full experience")
+                }
         }
     }
 }

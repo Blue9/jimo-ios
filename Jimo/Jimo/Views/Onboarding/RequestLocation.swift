@@ -14,10 +14,9 @@ struct RequestLocation: View {
         RequestPermission(
             onCompleteRequest: onCompleteRequest,
             action: PermissionManager.shared.requestLocation,
-            title: "Allowing location helps you find nearby recs",
+            title: "Jimo works best with your location enabled",
             imageName: "location-icon",
-            caption: "e.g., You are close to Alex's recommendation",
-            privacyCaption: "We do not store your location on our servers."
+            caption: "View your location on the Jimo map."
         )
     }
 }

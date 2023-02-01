@@ -54,11 +54,18 @@ class Analytics {
     ///   - event: The type of analytic we want to track.
     ///   - parameters: Any additional properties we want to associate with the event.
     static func track(_ event: AnalyticsName, parameters: [String: Any?]? = nil) {
+        var finalParameters = parameters ?? [:]
+        if let user = Auth.auth().currentUser {
+            finalParameters["isAnonymous"] = user.isAnonymous
+        }
         guard analyticsEnabled else {
-            print("event \(event.eventName) parameters \(String(describing: parameters))")
+            print("event \(event.eventName) parameters \(String(describing: finalParameters))")
             return
         }
-        FirebaseAnalytics.Analytics.logEvent(event.eventName, parameters: parameters?.compactMapValues { $0 })
+        FirebaseAnalytics.Analytics.logEvent(
+            event.eventName,
+            parameters: finalParameters.compactMapValues { $0 }
+        )
     }
 }
 
@@ -79,7 +86,7 @@ enum AnalyticsName: Equatable {
         return name
     }
 
-    // MARK: Push Notifications
+    case signInAnonymous
 
     /// Track when new screen is viewed
     case screenView
@@ -137,4 +144,6 @@ enum AnalyticsName: Equatable {
     case mapSearchResultTapped
 
     case updateAppVersionTapped
+
+    case guestAccountSignUpTap
 }
