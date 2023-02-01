@@ -71,7 +71,7 @@ struct HomeMenu: View {
                 Divider().frame(maxWidth: 200)
 
                 Button {
-                    Analytics.track(.homeMenuAnonymous)
+                    Analytics.track(.signInAnonymous)
                     viewModel.signInAnonymously(appState: appState, viewState: viewState)
                 } label: {
                     Text("Explore Jimo first")

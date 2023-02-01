@@ -86,7 +86,7 @@ enum AnalyticsName: Equatable {
         return name
     }
 
-    case homeMenuAnonymous
+    case signInAnonymous
 
     /// Track when new screen is viewed
     case screenView
