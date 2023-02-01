@@ -13,6 +13,8 @@ struct EnterPhoneNumber: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
 
+    var onVerify: () -> Void
+
     var body: some View {
         ZStack {
             VStack {
@@ -67,7 +69,7 @@ struct EnterPhoneNumber: View {
                 .foregroundColor(.gray)
             }
             .navDestination(isPresented: $viewModel.nextStep) {
-                VerifyPhoneNumber()
+                VerifyPhoneNumber(onVerify: onVerify)
             }
             .navDestination(isPresented: $viewModel.showSecretEmailPage) {
                 EmailLogin()

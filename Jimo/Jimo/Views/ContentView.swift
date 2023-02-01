@@ -18,7 +18,6 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-
             if appVersionModel.isOutOfDate {
                 RequireUpdateView()
             } else {
@@ -32,18 +31,37 @@ struct ContentView: View {
                         .id("loading")
                 case let .user(user):
                     LoggedInView(onboardingModel: appState.onboardingModel, currentUser: user)
+                case .anonymous:
+                    UnauthedOnboarding()
                 case .signedOut:
                     HomeMenu()
                 case .failed:
                     FailedToLoadView()
                 case .deactivated:
                     DeactivatedProfileView()
-                case .doesNotExist:
+                case .phoneAuthed:
                     CreateProfileView()
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .fullScreenCover(isPresented: $globalViewState.showSignUpPage) {
+            Navigator {
+                EnterPhoneNumber(onVerify: {
+                    globalViewState.showSignUpPage = false
+                })
+                .navigationTitle(Text("Welcome"))
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            globalViewState.showSignUpPage = false
+                        } label: {
+                            Image(systemName: "xmark").foregroundColor(Color("foreground"))
+                        }
+                    }
+                }
+            }
+        }
         .popup(isPresented: !$networkMonitor.connected, type: .toast, position: .bottom, autohideIn: nil, closeOnTap: true) {
             Toast(text: "No internet connection", type: .error)
         }

@@ -17,7 +17,7 @@ struct MainAppView: View {
     @EnvironmentObject var deepLinkManager: DeepLinkManager
     @StateObject private var viewModel = ViewModel()
 
-    let currentUser: PublicUser
+    let currentUser: PublicUser?
 
     var mainBody: some View {
         UITabView(selection: viewModel.selectionIndex) {
@@ -88,7 +88,7 @@ struct MainAppView: View {
             mainBody
 
             newPostButton
-                .opacity(viewModel.selection == .map ? 1 : 0) // sadly not clean
+                .opacity(viewModel.selection == .map ? 1 : 0)
         }
     }
 }

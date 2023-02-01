@@ -14,6 +14,7 @@ enum Screen: String {
     case enterVerificationCode
     case createProfile
     case onboarding // TODO: Split into individual onboarding screens, fine for now
+    case guestLocationOnboarding
 
     // Authenticated
     case mapTab

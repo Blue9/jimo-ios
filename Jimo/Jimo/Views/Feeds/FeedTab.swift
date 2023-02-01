@@ -47,32 +47,54 @@ struct FeedTab: View {
 
     var body: some View {
         Navigator {
-            Feed(onCreatePostTap: onCreatePostTap)
-                .navDestination(isPresented: $showNotifications) {
-                    NotificationFeed(notificationFeedVM: notificationFeedVM)
-                        .environmentObject(appState)
-                        .environmentObject(globalViewState)
-                }
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationBarColor(UIColor(Color("background")))
-                .toolbar(content: {
-                    ToolbarItem(placement: .principal) {
-                        Image("logo")
-                            .renderingMode(.template)
-                            .resizable()
-                            .foregroundColor(Color("foreground"))
-                            .scaledToFit()
-                            .frame(width: 50)
+            if appState.me != nil {
+                Feed(onCreatePostTap: onCreatePostTap)
+                    .navDestination(isPresented: $showNotifications) {
+                        NotificationFeed(notificationFeedVM: notificationFeedVM)
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState)
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            Analytics.track(.tapNotificationBell, parameters: ["badge_present": notificationBellBadgePresent])
-                            self.showNotifications = true
-                        }) {
-                            notificationFeedIcon
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationBarColor(UIColor(Color("background")))
+                    .toolbar(content: {
+                        ToolbarItem(placement: .principal) {
+                            Image("logo")
+                                .renderingMode(.template)
+                                .resizable()
+                                .foregroundColor(Color("foreground"))
+                                .scaledToFit()
+                                .frame(width: 50)
                         }
-                    }
-                })
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                Analytics.track(.tapNotificationBell, parameters: ["badge_present": notificationBellBadgePresent])
+                                self.showNotifications = true
+                            }) {
+                                notificationFeedIcon
+                            }
+                        }
+                    })
+            } else {
+
+            }
+        }
+    }
+}
+
+private struct AnonymousPlaceholderView: View {
+    var body: some View {
+        ZStack {
+            Color("background").opacity(0.4)
+
+            Button {
+
+            } label: {
+                Text("Sign up to build your profile")
+                    .foregroundColor(.white)
+                    .padding(10)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
         }
     }
 }
