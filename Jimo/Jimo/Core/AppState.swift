@@ -121,7 +121,6 @@ class AppState: ObservableObject {
             "locationPingInterval": 15.0 as NSObject
         ])
         self.refreshRemoteConfig()
-        self.locationPingBackground()
     }
 
     func locationPingBackground() {
@@ -750,12 +749,14 @@ class AppState: ObservableObject {
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         DispatchQueue.main.async {
             if let user = user {
+                self.locationPingBackground()
                 if user.isAnonymous {
                     self.currentUser = .anonymous
                 } else {
                     self.refreshCurrentUser()
                 }
             } else {
+                self.locationPingTimer?.invalidate()
                 if self.signingOut {
                     self.signingOut = false
                 }
