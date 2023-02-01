@@ -186,26 +186,7 @@ class AppVersionModel: ObservableObject {
     }
 
     func refreshMinimumAppVersion() {
-        Task {
-            try await startFetching()
-        }
-    }
-
-    private func startFetching() async throws {
-        let remoteConfig = RemoteConfig.remoteConfig()
-        let settings = RemoteConfigSettings()
-        #if DEBUG
-        settings.minimumFetchInterval = 0
-        #else
-        settings.minimumFetchInterval = 3600
-        #endif
-        remoteConfig.configSettings = settings
-
-        do {
-            try await remoteConfig.fetchAndActivate()
-            self.minimumAppVersion = remoteConfig.configValue(forKey: "minimumAppVersion").stringValue
-        } catch let error {
-            print("Error fetching remote config \(error.localizedDescription)")
-        }
+        // RemoteConfig is initialized in AppState+RemoteConfig.swift
+        self.minimumAppVersion = RemoteConfig.remoteConfig().configValue(forKey: "minimumAppVersion").stringValue
     }
 }
