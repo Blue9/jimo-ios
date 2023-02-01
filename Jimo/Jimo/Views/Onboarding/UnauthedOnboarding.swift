@@ -8,17 +8,28 @@
 import SwiftUI
 
 struct UnauthedOnboarding: View {
+    @EnvironmentObject var appState: AppState
     @StateObject var viewModel = ViewModel()
 
     var body: some View {
         if !viewModel.onboarded {
-            RequestLocation(onCompleteRequest: {
-                DispatchQueue.main.async {
-                    viewModel.onboarded = true
-                }
-            })
-            .navigationBarHidden(true)
-            .trackScreen(.guestLocationOnboarding)
+            VStack {
+                HStack {
+                    Button {
+                        appState.signOut()
+                    } label: {
+                        Text("Back")
+                    }
+                    Spacer()
+                }.padding()
+
+                RequestLocation(onCompleteRequest: {
+                    DispatchQueue.main.async {
+                        viewModel.onboarded = true
+                    }
+                })
+                .trackScreen(.guestLocationOnboarding)
+            }
         } else {
             MainAppView(currentUser: nil)
         }

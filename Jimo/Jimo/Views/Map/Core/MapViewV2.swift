@@ -51,7 +51,7 @@ struct MapViewV2: View {
             DispatchQueue.main.async {
                 if !initialized {
                     initialized = true
-                    mapViewModel.initializeMap(appState: appState, viewState: globalViewState, onLoad: { _ in
+                    mapViewModel.initializeMap(appState: appState, viewState: globalViewState, onLoad: {
                         sheetViewModel.showSearchSheet()
                     })
                 }

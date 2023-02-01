@@ -17,7 +17,7 @@ struct MapRequestState: Equatable, Hashable {
     var userIds: Set<UserId>
 }
 
-typealias OnMapLoadCallback = (_ numPins: Int) -> Void
+typealias OnMapLoadCallback = () -> Void
 
 struct RegionCache: Codable, Equatable, Hashable {
     // We store both because converting between the two region formats
@@ -114,12 +114,12 @@ class MapViewModel: ObservableObject {
             }
         }
         if self.regionToLoad != nil {
-            self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] numPins in
-                onLoad(numPins)
+            self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] in
                 self?.listenToRegionChanges(appState: appState, viewState: viewState)
             })
         } else {
             self.listenToRegionChanges(appState: appState, viewState: viewState)
+            onLoad()
         }
     }
 
@@ -250,9 +250,9 @@ class MapViewModel: ObservableObject {
             mapType: request.mapType,
             userIds: Array(request.userIds)
         ).sink { completion in
+            onLoad?()
             self.isLoading = false
             if case let .failure(err) = completion {
-                onLoad?(0)
                 print(err)
                 // viewState.setError("Could not load map")
             }
@@ -276,7 +276,6 @@ class MapViewModel: ObservableObject {
                     self.pins.append(selectedPin)
                 }
             }
-            onLoad?(self.pins.count)
         }
     }
 }

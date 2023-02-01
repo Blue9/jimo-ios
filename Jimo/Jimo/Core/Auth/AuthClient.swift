@@ -87,6 +87,7 @@ class AuthClient: ObservableObject {
         // Linking credentials updates currentUser but doesn't call any auth state listeners
         // so it's handled manually
         // https://github.com/firebase/firebase-android-sdk/issues/2160
+        // https://stackoverflow.com/questions/65866463/using-swiftui-combine-and-firebase-how-do-i-verify-that-a-user-is-signed-in-a
         Future<AuthDataResult, Error> { promise in
             let credential = PhoneAuthProvider.provider().credential(
                 withVerificationID: verificationID,
@@ -96,12 +97,16 @@ class AuthClient: ObservableObject {
                     if let error = error {
                         if (error as NSError).code == AuthErrorCode.credentialAlreadyInUse.rawValue {
                             anonUser.delete()
-                            Auth.auth().signIn(with: credential) { auth, error in
-                                if let error = error {
-                                    promise(.failure(error))
-                                } else if let auth = auth {
-                                    promise(.success(auth))
+                            if let updatedCredential = (error as NSError).userInfo[AuthErrorUserInfoUpdatedCredentialKey] as? PhoneAuthCredential {
+                                Auth.auth().signIn(with: updatedCredential) { auth, error in
+                                    if let error = error {
+                                        promise(.failure(error))
+                                    } else if let auth = auth {
+                                        promise(.success(auth))
+                                    }
                                 }
+                            } else {
+                                promise(.failure(error))
                             }
                         } else {
                             promise(.failure(error))

@@ -118,7 +118,7 @@ class AppState: ObservableObject {
             name: Notification.Name(rawValue: "FCMToken"),
             object: nil)
         RemoteConfig.remoteConfig().setDefaults([
-            "locationPingInterval": 15.0 as NSObject
+            "locationPingInterval": 120.0 as NSObject
         ])
         self.refreshRemoteConfig()
     }
@@ -126,7 +126,7 @@ class AppState: ObservableObject {
     func locationPingBackground() {
         self.locationPingTimer?.invalidate()
         let pingConfig = RemoteConfig.remoteConfig().configValue(forKey: "locationPingInterval").numberValue.doubleValue
-        let pingInterval = pingConfig == 0 ? 15.0 : pingConfig
+        let pingInterval = pingConfig == 0 ? 120.0 : pingConfig
         let timer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] timer in
             guard let location = PermissionManager.shared.locationManager.location else {
                 return

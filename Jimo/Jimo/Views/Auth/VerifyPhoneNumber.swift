@@ -94,7 +94,7 @@ extension VerifyPhoneNumber {
                 .sink(receiveCompletion: { [weak self] completion in
                     if case let .failure(error) = completion {
                         print("Error", error)
-                        self?.setError("Invalid code. Try again.")
+                        self?.setError("Error: \(error.localizedDescription)")
                     }
                 }, receiveValue: { [weak self] _ in
                     self?.verificationCode = ""
