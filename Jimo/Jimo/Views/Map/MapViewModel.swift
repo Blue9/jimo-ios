@@ -115,6 +115,7 @@ class MapViewModel: ObservableObject {
         }
         if self.regionToLoad != nil {
             self.loadMap(appState: appState, viewState: viewState, onLoad: { [weak self] in
+                onLoad()
                 self?.listenToRegionChanges(appState: appState, viewState: viewState)
             })
         } else {

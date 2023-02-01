@@ -25,6 +25,7 @@ struct UnauthedOnboarding: View {
 
                 RequestLocation(onCompleteRequest: {
                     DispatchQueue.main.async {
+                        appState.onboardingModel.skipLocationIfGranted()
                         viewModel.onboarded = true
                     }
                 })

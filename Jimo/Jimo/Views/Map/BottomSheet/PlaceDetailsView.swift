@@ -149,7 +149,7 @@ private struct BasePlaceDetailsView: View {
                     }
                     PostPagePlaceholder()
                         .redacted(reason: .placeholder)
-                        .overlay(Color.white.opacity(0.3))
+                        .overlay(Color("background").opacity(0.3))
                         .overlay(
                             Button {
                                 viewState.showSignUpPage(.placeDetailsCommunityNudge)

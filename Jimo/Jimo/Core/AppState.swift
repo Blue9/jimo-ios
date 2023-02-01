@@ -48,9 +48,13 @@ class OnboardingModel: ObservableObject {
     init() {
         // Uncomment to reset onboarding view
 //        onboardingStep = .requestLocation
-//        if PermissionManager.shared.locationManager.location != nil && self.onboardingStep == .requestLocation {
-//            self.onboardingStep = .followFeatured
-//        }
+        self.skipLocationIfGranted()
+    }
+
+    func skipLocationIfGranted() {
+        if PermissionManager.shared.locationManager.location != nil && self.onboardingStep == .requestLocation {
+            self.onboardingStep = .followFeatured
+        }
     }
 
     var isUserOnboarded: Bool {
