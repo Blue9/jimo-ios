@@ -71,13 +71,11 @@ struct PostPage: View {
     }
 
     var body: some View {
-        mainBody
-            .onTapGesture {
-                showFullPost.toggle()
-            }
-            .navDestination(isPresented: $showFullPost) {
-                ViewPost(initialPost: post, showSaveButton: false)
-            }
+        NavigationLink {
+            ViewPost(initialPost: post, showSaveButton: false)
+        } label: {
+            mainBody.contentShape(Rectangle())
+        }.buttonStyle(NoButtonStyle())
     }
 }
 

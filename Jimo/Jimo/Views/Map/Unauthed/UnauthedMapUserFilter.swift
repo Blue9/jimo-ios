@@ -8,12 +8,6 @@
 import SwiftUI
 import FirebaseRemoteConfig
 
-private struct SignUpAlert: Equatable {
-    var isPresented: Bool
-    var text: String
-    var event: AnalyticsName
-}
-
 private struct AllowedUser: Codable, Hashable {
     var userId: UserId
     var profilePictureUrl: String?
@@ -31,24 +25,23 @@ struct UnauthedMapUserFilter: View {
 
     @State private var alert: SignUpAlert = .init(
         isPresented: false,
-        text: "Sign up to view community posts.",
-        event: .allFilterSignUpTap
+        source: .none
     )
 
-    private func showAlert(_ text: String, event: AnalyticsName) {
-        self.alert = .init(isPresented: true, text: text, event: event)
+    private func showAlert(_ text: String, source: SignUpTapSource) {
+        self.alert = .init(isPresented: true, source: source)
     }
 
     var body: some View {
         HStack(spacing: 0) {
             view(for: .saved)
-                .onTapGesture { self.showAlert("Sign up to start saving places.", event: .saveFilterSignUpTap) }
+                .onTapGesture { self.showAlert("Sign up to start saving places.", source: .filterSaves) }
             view(for: .me)
-                .onTapGesture { self.showAlert("Sign up to start posting places.", event: .meFilterSignUpTap)}
+                .onTapGesture { self.showAlert("Sign up to start posting places.", source: .filterMe)}
             view(for: .following)
-                .onTapGesture { self.showAlert("Sign up to start following others.", event: .followingFilterSignUpTap) }
+                .onTapGesture { self.showAlert("Sign up to start following others.", source: .filterFriends) }
             view(for: .community)
-                .onTapGesture { self.showAlert("Sign up to view community posts.", event: .allFilterSignUpTap) }
+                .onTapGesture { self.showAlert("Sign up to view community posts.", source: .filterCommunity) }
             view(for: .custom)
                 .background(Color("foreground").opacity(0.1))
                 .onTapGesture {
@@ -59,14 +52,32 @@ struct UnauthedMapUserFilter: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 10) {
                     Text("Featured Profiles")
-                        .bold()
-                        .padding(.vertical, 10)
-                    Text("Sign up to view recs from the rest of the community.").font(.caption)
+                        .fontWeight(.semibold)
+                        .font(.system(size: 18))
+                        .padding(.top, 25)
+
                     ForEach(viewModel.allowedUsers, id: \.userId) { user in
                         SelectableUser(customUserFilter: $customUserFilter, user: user)
                             .matchedGeometryEffect(id: user.userId, in: userFilter)
                     }
                     .animation(.easeInOut, value: userFilter)
+
+                    Divider().padding(.top, 10)
+
+                    Text("Sign up to view recs from the rest of the community.")
+                    Button {
+                        showCustomUsersSheet = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                            viewState.showSignUpPage(.customUserFilter)
+                        }
+                    } label: {
+                        Text("Sign up")
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }.font(.system(size: 15))
+
                     Spacer()
                 }
                 .padding(.horizontal, 10)
@@ -78,15 +89,14 @@ struct UnauthedMapUserFilter: View {
         .cornerRadius(10)
         .alert("Account required", isPresented: $alert.isPresented) {
             Button("Later", action: {
-                alert.isPresented = false
+                alert = .init(isPresented: false, source: .none)
             })
 
             Button("Sign up", action: {
-                Analytics.track(alert.event)
-                viewState.showSignUpPage = true
+                viewState.showSignUpPage(alert.source)
             })
         } message: {
-            Text(alert.text)
+            Text(alert.source.signUpNudgeText ?? "Sign up for the full experience")
         }
         .onAppear {
             if viewModel.showError {
@@ -122,6 +132,7 @@ struct UnauthedMapUserFilter: View {
             Text(mapType.buttonName)
                 .lineLimit(1)
                 .font(.caption)
+                .minimumScaleFactor(0.5)
         }
         .padding(5)
         .contentShape(Rectangle())

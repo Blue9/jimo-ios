@@ -18,8 +18,15 @@ struct PlaceDetailsView: View {
 
     @State private var initialized = false
 
+    // Guest accounts
+    @State private var signUpAlert = SignUpAlert(isPresented: false, source: .none)
+
+    fileprivate func showSignUpAlert(_ source: SignUpTapSource) {
+        self.signUpAlert = .init(isPresented: true, source: source)
+    }
+
     var body: some View {
-        BasePlaceDetailsView(viewModel: viewModel)
+        BasePlaceDetailsView(viewModel: viewModel, showSignUpAlert: showSignUpAlert)
             .onAppear {
                 DispatchQueue.main.async {
                     if !initialized {
@@ -28,18 +35,43 @@ struct PlaceDetailsView: View {
                     }
                 }
             }
+            .alert("Account required", isPresented: $signUpAlert.isPresented) {
+                Button("Later", action: {
+                    signUpAlert = .init(isPresented: false, source: .none)
+                })
+
+                Button("Sign up", action: {
+                    viewState.showSignUpPage(signUpAlert.source)
+                })
+            } message: {
+                Text(signUpAlert.source.signUpNudgeText ?? "Sign up for the full experience.")
+            }
     }
 }
 
 private struct BasePlaceDetailsView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var viewModel: PlaceDetailsViewModel
+
+    var showSignUpAlert: (SignUpTapSource) -> Void
 
     var body: some View {
         ScrollView(showsIndicators: false) {
             HStack(spacing: 10) {
                 CreatePostButton(viewModel: viewModel)
+                    .modify {
+                        if appState.currentUser.isAnonymous {
+                            $0.disabled(true).onTapGesture { showSignUpAlert(.placeDetailsRate) }
+                        }
+                    }
+
                 SavePlaceButton(viewModel: viewModel)
+                    .modify {
+                        if appState.currentUser.isAnonymous {
+                            $0.disabled(true).onTapGesture { showSignUpAlert(.placeDetailsSave) }
+                        }
+                    }
             }.padding(.horizontal, 10)
 
             HStack {
@@ -71,6 +103,17 @@ private struct BasePlaceDetailsView: View {
                     }
                 }
 
+                if appState.currentUser.isAnonymous {
+                    Button {
+                        viewState.showSignUpPage(.placeDetailsNudge)
+                    } label: {
+                        Text("Sign up to save and rate places.")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                    Divider()
+                }
+
                 if let post = viewModel.details?.myPost {
                     HStack {
                         Text("Me")
@@ -78,27 +121,30 @@ private struct BasePlaceDetailsView: View {
                             .bold()
                         Spacer()
                     }
-                    PostPage(post: post).contentShape(Rectangle())
+                    MaybeGuestPostPage(post: post, showSignUpAlert: showSignUpAlert)
                 }
 
                 if viewModel.followingPosts.count > 0 {
                     PostCarousel(
                         text: "Friends' Posts (\(viewModel.followingPosts.count))",
-                        posts: viewModel.followingPosts
+                        posts: viewModel.followingPosts,
+                        showSignUpAlert: showSignUpAlert
                     )
                 }
 
                 if viewModel.featuredPosts.count > 0 {
                     PostCarousel(
                         text: "Featured (\(viewModel.featuredPosts.count))",
-                        posts: viewModel.featuredPosts
+                        posts: viewModel.featuredPosts,
+                        showSignUpAlert: showSignUpAlert
                     )
                 }
 
                 if viewModel.communityPosts.count > 0 {
                     PostCarousel(
                         text: "Community (\(viewModel.communityPosts.count))",
-                        posts: viewModel.communityPosts
+                        posts: viewModel.communityPosts,
+                        showSignUpAlert: showSignUpAlert
                     )
                 }
             }
@@ -108,6 +154,26 @@ private struct BasePlaceDetailsView: View {
             Spacer()
         }
         .padding(.bottom, 49)
+    }
+}
+
+private struct MaybeGuestPostPage: View {
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var viewState: GlobalViewState
+    var post: Post
+
+    var showSignUpAlert: (SignUpTapSource) -> Void
+
+    var body: some View {
+        if appState.currentUser.isAnonymous {
+            PostPage(post: post)
+                .disabled(true)
+                .onTapGesture {
+                    showSignUpAlert(.placeDetailsViewPost)
+                }
+        } else {
+            PostPage(post: post)
+        }
     }
 }
 
@@ -270,6 +336,7 @@ private struct PostCarousel: View {
 
     var text: String
     var posts: [Post]
+    var showSignUpAlert: (SignUpTapSource) -> Void
 
     var body: some View {
         HStack {
@@ -280,8 +347,7 @@ private struct PostCarousel: View {
         }
 
         Pager(page: page, data: posts) { post in
-            PostPage(post: post)
-                .contentShape(Rectangle())
+            MaybeGuestPostPage(post: post, showSignUpAlert: showSignUpAlert)
         }
         .padding(10)
         .alignment(.start)

@@ -56,4 +56,9 @@ class GlobalViewState: ObservableObject {
     func showShareOverlay(for shareAction: ShareAction) {
         self.shareAction = shareAction
     }
+
+    func showSignUpPage(_ type: SignUpTapSource) {
+        Analytics.track(.guestAccountSignUpTap, parameters: ["source": type.analyticsSourceParameter])
+        self.showSignUpPage = true
+    }
 }

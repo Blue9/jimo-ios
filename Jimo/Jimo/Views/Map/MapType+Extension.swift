@@ -14,7 +14,7 @@ extension MapType {
         case .me: return "My Posts"
         case .following: return "Friends"
         case .community: return "Everyone"
-        case .custom: return "More"
+        case .custom: return "Custom"
         }
     }
 

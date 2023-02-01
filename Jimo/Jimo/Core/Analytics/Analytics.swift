@@ -145,9 +145,5 @@ enum AnalyticsName: Equatable {
 
     case updateAppVersionTapped
 
-    case saveFilterSignUpTap
-    case meFilterSignUpTap
-    case followingFilterSignUpTap
-    case allFilterSignUpTap
-    case customFilterSignUpTap
+    case guestAccountSignUpTap
 }

@@ -50,7 +50,7 @@ struct ContentView: View {
                 EnterPhoneNumber(onVerify: {
                     globalViewState.showSignUpPage = false
                 })
-                .navigationTitle(Text("Welcome"))
+                .navigationTitle(Text("Sign up"))
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button {
@@ -62,18 +62,45 @@ struct ContentView: View {
                 }
             }
         }
-        .popup(isPresented: !$networkMonitor.connected, type: .toast, position: .bottom, autohideIn: nil, closeOnTap: true) {
+        .popup(
+            isPresented: !$networkMonitor.connected,
+            type: .toast,
+            position: .bottom,
+            autohideIn: nil,
+            closeOnTap: true
+        ) {
             Toast(text: "No internet connection", type: .error)
         }
-        .popup(isPresented: $globalViewState.showError, type: .toast, position: .bottom, autohideIn: 4, closeOnTap: true, closeOnTapOutside: false) {
+        .popup(
+            isPresented: $globalViewState.showError,
+            type: .toast,
+            position: .bottom,
+            autohideIn: 4,
+            closeOnTap: true,
+            closeOnTapOutside: false
+        ) {
             Toast(text: globalViewState.errorMessage, type: .error)
                 .padding(.bottom, 50)
         }
-        .popup(isPresented: $globalViewState.showWarning, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+        .popup(
+            isPresented: $globalViewState.showWarning,
+            type: .toast,
+            position: .bottom,
+            autohideIn: 2,
+            closeOnTap: true,
+            closeOnTapOutside: false
+        ) {
             Toast(text: globalViewState.warningMessage, type: .warning)
                 .padding(.bottom, 50)
         }
-        .popup(isPresented: $globalViewState.showSuccess, type: .toast, position: .bottom, autohideIn: 2, closeOnTap: true, closeOnTapOutside: false) {
+        .popup(
+            isPresented: $globalViewState.showSuccess,
+            type: .toast,
+            position: .bottom,
+            autohideIn: 2,
+            closeOnTap: true,
+            closeOnTapOutside: false
+        ) {
             Toast(text: globalViewState.successMessage, type: .success)
                 .padding(.bottom, 50)
         }

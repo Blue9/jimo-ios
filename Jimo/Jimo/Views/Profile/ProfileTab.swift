@@ -38,24 +38,35 @@ struct ProfileTab: View {
                     })
                     .trackScreen(.profileTab)
             } else {
-                AnonymousPlaceholderView()
+                AnonymousProfilePlaceholder()
+                    .redacted(reason: .placeholder)
+                    .overlay(ProfileSignUpNudge())
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(Text("Profile"))
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                appState.signOut()
+                            } label: {
+                                Text("Sign out").foregroundColor(.blue)
+                            }
+                        }
+                    }
             }
         }
     }
 }
 
-private struct AnonymousPlaceholderView: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var globalViewState: GlobalViewState
+private struct ProfileSignUpNudge: View {
+    @EnvironmentObject var viewState: GlobalViewState
 
     var body: some View {
         ZStack {
             Color("background").opacity(0.4)
-
             Button {
-
+                viewState.showSignUpPage(.profile)
             } label: {
-                Text("Sign up to build your profile")
+                Text("Sign up to create your profile")
                     .foregroundColor(.white)
                     .padding(10)
                     .background(Color.blue)

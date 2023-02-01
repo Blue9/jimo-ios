@@ -75,21 +75,36 @@ struct FeedTab: View {
                         }
                     })
             } else {
-
+                AnonymousFeedPlaceholder()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar(content: {
+                        ToolbarItem(placement: .principal) {
+                            Image("logo")
+                                .renderingMode(.template)
+                                .resizable()
+                                .foregroundColor(Color("foreground"))
+                                .scaledToFit()
+                                .frame(width: 50)
+                        }
+                    })
+                    .redacted(reason: .placeholder)
+                    .overlay(SignUpPush())
             }
         }
     }
 }
 
-private struct AnonymousPlaceholderView: View {
+private struct SignUpPush: View {
+    @EnvironmentObject var viewState: GlobalViewState
+
     var body: some View {
         ZStack {
             Color("background").opacity(0.4)
 
             Button {
-
+                viewState.showSignUpPage(.feed)
             } label: {
-                Text("Sign up to build your profile")
+                Text("Sign up to view your feed")
                     .foregroundColor(.white)
                     .padding(10)
                     .background(Color.blue)
