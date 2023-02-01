@@ -25,18 +25,8 @@ struct Endpoint {
         return apiURL.url
     }
 
-    // MARK: - Invite + waitlist endpoints
-
-    static func waitlistStatus() -> Endpoint {
-        return Endpoint(path: "/waitlist/status")
-    }
-
-    static func joinWaitlist() -> Endpoint {
-        return Endpoint(path: "/waitlist")
-    }
-
-    static func inviteUser() -> Endpoint {
-        return Endpoint(path: "/waitlist/invites")
+    static func pingLocation() -> Endpoint {
+        .init(path: "/location/ping")
     }
 
     // MARK: - Onboarding endpoints
@@ -291,29 +281,8 @@ class APIClient: ObservableObject {
         self.authClient = .init()
     }
 
-    // MARK: - Invite + waitlist endpoints
-
-    /**
-     Check if the current user is on the waitlist.
-     */
-    func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
-        return doRequest(endpoint: Endpoint.waitlistStatus())
-    }
-
-    /**
-     Add the current user to the waitlist.
-     */
-    func joinWaitlist() -> AnyPublisher<UserWaitlistStatus, APIError> {
-        return doRequest(endpoint: Endpoint.joinWaitlist(), httpMethod: "POST")
-    }
-
-    /**
-     Invite another user.
-     */
-    func inviteUser(phoneNumber: String) -> AnyPublisher<UserInviteStatus, APIError> {
-        return doRequest(endpoint: Endpoint.inviteUser(),
-                         httpMethod: "POST",
-                         body: InviteUserRequest(phoneNumber: phoneNumber))
+    func pingLocation(_ location: Location) -> AnyPublisher<SimpleResponse, APIError> {
+        return doRequest(endpoint: .pingLocation(), httpMethod: "POST", body: PingLocationRequest(location: location))
     }
 
     // MARK: - Onboarding endpoints

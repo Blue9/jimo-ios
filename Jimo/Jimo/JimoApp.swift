@@ -26,9 +26,11 @@ struct JimoApp: App {
                 .environmentObject(globalViewState)
                 .environmentObject(deepLinkManager)
                 .onAppear {
+                    appState.refreshRemoteConfig()
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    appState.refreshRemoteConfig()
                     appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onOpenURL { url in

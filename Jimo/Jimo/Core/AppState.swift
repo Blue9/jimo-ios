@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import MapKit
 import Firebase
+import FirebaseRemoteConfig
 import SDWebImage
 
 enum CurrentUser {
@@ -94,6 +95,9 @@ class AppState: ObservableObject {
     var signingOut = false
     var registeringToken = false
 
+    var locationPingTimer: Timer?
+    var locationPingCancellable: AnyCancellable?
+
     var me: PublicUser? {
         if case let .user(user) = currentUser {
             return user
@@ -105,7 +109,6 @@ class AppState: ObservableObject {
         // Uncomment the two lines below to clear the image cache
         // SDImageCache.shared.clearMemory()
         // SDImageCache.shared.clearDisk()
-
         self.apiClient = apiClient
         Auth.auth().addStateDidChangeListener(self.authHandler)
         updateTokenOnUserChange()
@@ -114,6 +117,38 @@ class AppState: ObservableObject {
             selector: #selector(didReceiveTokenUpdate(_:)),
             name: Notification.Name(rawValue: "FCMToken"),
             object: nil)
+        RemoteConfig.remoteConfig().setDefaults([
+            "locationPingInterval": 15.0 as NSObject
+        ])
+        self.refreshRemoteConfig()
+        self.locationPingBackground()
+    }
+
+    func locationPingBackground() {
+        self.locationPingTimer?.invalidate()
+        let pingConfig = RemoteConfig.remoteConfig().configValue(forKey: "locationPingInterval").numberValue.doubleValue
+        let pingInterval = pingConfig == 0 ? 15.0 : pingConfig
+        let timer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] timer in
+            guard let location = PermissionManager.shared.locationManager.location else {
+                return
+            }
+            guard let self = self else {
+                timer.invalidate()
+                return
+            }
+            let pingConfig = RemoteConfig.remoteConfig().configValue(forKey: "locationPingInterval").numberValue.doubleValue
+            let pingInterval = pingConfig == 0 ? 60.0 : pingConfig
+            if pingInterval != timer.timeInterval {
+                print("Refreshing location ping timer")
+                self.locationPingBackground()
+            }
+            print("Pinging location")
+            self.locationPingCancellable = self.apiClient.pingLocation(Location(coord: location.coordinate))
+                .sink(receiveCompletion: {_ in}, receiveValue: {_ in})
+        }
+        timer.tolerance = 2
+        RunLoop.current.add(timer, forMode: .common)
+        self.locationPingTimer = timer
     }
 
     func relativeTime(for date: Date) -> String {
@@ -243,20 +278,6 @@ class AppState: ObservableObject {
         } catch {
             print("Already logged out")
         }
-    }
-
-    // MARK: - Invite + waitlist
-
-    func getWaitlistStatus() -> AnyPublisher<UserWaitlistStatus, APIError> {
-        return self.apiClient.getWaitlistStatus()
-    }
-
-    func joinWaitlist() -> AnyPublisher<UserWaitlistStatus, APIError> {
-        return self.apiClient.joinWaitlist()
-    }
-
-    func inviteUser(phoneNumber: String) -> AnyPublisher<UserInviteStatus, APIError> {
-        return self.apiClient.inviteUser(phoneNumber: phoneNumber)
     }
 
     // MARK: - User
