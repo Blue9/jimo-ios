@@ -121,10 +121,7 @@ class AppState: ObservableObject {
             selector: #selector(didReceiveTokenUpdate(_:)),
             name: Notification.Name(rawValue: "FCMToken"),
             object: nil)
-        RemoteConfig.remoteConfig().setDefaults([
-            "locationPingInterval": 120.0 as NSObject
-        ])
-        self.refreshRemoteConfig()
+        self.initializeRemoteConfig()
     }
 
     func locationPingBackground() {

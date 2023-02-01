@@ -9,13 +9,20 @@ import SwiftUI
 import FirebaseRemoteConfig
 
 extension AppState {
+    func initializeRemoteConfig() {
+        RemoteConfig.remoteConfig().setDefaults([
+            "locationPingInterval": 120.0 as NSObject
+        ])
+        self.refreshRemoteConfig()
+    }
+
     func refreshRemoteConfig() {
-        // Defaults are set in AppState.init
         Task {
             try await fetch()
         }
     }
 
+    @MainActor
     private func fetch() async throws {
         let settings = RemoteConfigSettings()
         #if DEBUG

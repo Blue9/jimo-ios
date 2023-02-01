@@ -14,7 +14,7 @@ enum SignUpTapSource: String {
          filterFriends,
          filterCommunity,
          placeDetailsNudge,
-         placeDetailsRate,
+         placeDetailsPost,
          placeDetailsSave,
          placeDetailsViewPost,
          placeDetailsCommunityNudge,
@@ -32,11 +32,11 @@ enum SignUpTapSource: String {
         case .filterFriends: return "Sign up to follow and invite friends."
         case .filterCommunity: return "Sign up to view the community map."
         case .placeDetailsNudge: return nil
-        case .placeDetailsRate: return "Sign up to start rating places."
+        case .placeDetailsPost: return "Sign up to start posting places."
         case .placeDetailsSave: return "Sign up to start saving places."
         case .placeDetailsViewPost: return "Sign up to interact with posts."
         case .placeDetailsCommunityNudge: return nil
-        case .createPost: return "Sign up to start rating places."
+        case .createPost: return "Sign up to start posting places."
         case .customUserFilter: return nil
         }
     }

@@ -7,6 +7,7 @@
 
 import Combine
 import SwiftUI
+import FirebaseRemoteConfig
 
 struct HomeMenu: View {
     @Environment(\.colorScheme) var colorScheme

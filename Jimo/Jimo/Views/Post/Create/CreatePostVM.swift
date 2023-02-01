@@ -55,7 +55,7 @@ enum CreateOrEdit: Equatable {
     var title: String {
         switch self {
         case .create:
-            return "Rate a place"
+            return "Post a place"
         case .edit:
             return "Update"
         }

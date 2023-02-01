@@ -62,7 +62,7 @@ private struct BasePlaceDetailsView: View {
                 CreatePostButton(viewModel: viewModel)
                     .modify {
                         if appState.currentUser.isAnonymous {
-                            $0.disabled(true).onTapGesture { showSignUpAlert(.placeDetailsRate) }
+                            $0.disabled(true).onTapGesture { showSignUpAlert(.placeDetailsPost) }
                         }
                     }
 
@@ -107,7 +107,7 @@ private struct BasePlaceDetailsView: View {
                     Button {
                         viewState.showSignUpPage(.placeDetailsNudge)
                     } label: {
-                        Text("Sign up to save and rate places.")
+                        Text("Sign up to post and save places.")
                             .font(.caption)
                             .foregroundColor(.blue)
                     }
@@ -190,7 +190,7 @@ private struct CreatePostButton: View {
         } label: {
             HStack {
                 Spacer()
-                Text(viewModel.isPosted ? "Update" : "Rate")
+                Text(viewModel.isPosted ? "Update" : "Post")
                     .font(.system(size: 15))
                     .fontWeight(.medium)
                 Image(systemName: "plus.app")
