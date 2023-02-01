@@ -50,7 +50,10 @@ struct VerifyPhoneNumber: View {
                 Button {
                     showHelpSheet = true
                 } label: {
-                    Text("Not receiving a code?").foregroundColor(.blue)
+                    Text("Not receiving a code?")
+                        .foregroundColor(.blue)
+                        .padding()
+                        .contentShape(Rectangle())
                 }.opacity(showHelpText ? 1.0 : 0.0)
             }
             .padding(.horizontal, 24)

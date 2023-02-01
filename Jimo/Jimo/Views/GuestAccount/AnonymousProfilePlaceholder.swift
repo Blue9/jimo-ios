@@ -14,7 +14,7 @@ struct AnonymousProfilePlaceholder: View {
         GridItem(.flexible(minimum: 50), spacing: 2)
     ]
 
-    let colors = [
+    @State private var colors = [
         "food", "food", "activity",
         "nightlife", "shopping", "attraction",
         "lodging", "nightlife", "activity"
@@ -51,6 +51,9 @@ struct AnonymousProfilePlaceholder: View {
                 }
                 Spacer()
             }
+        }
+        .onAppear {
+            colors.shuffle()
         }
         .font(.system(size: 15))
     }

@@ -35,9 +35,9 @@ enum CurrentUser {
 enum OnboardingStep: Int {
     case completed = -1,
     requestLocation = 1,
-    requestContacts = 2,
-    followContacts = 3,
-    followFeatured = 4,
+    followFeatured = 2,
+    requestContacts = 3,
+    followContacts = 4,
     requestNotifications = 5
 }
 
@@ -48,7 +48,7 @@ class OnboardingModel: ObservableObject {
         // Uncomment to reset onboarding view
         onboardingStep = .requestLocation
         if PermissionManager.shared.locationManager.location != nil && self.onboardingStep == .requestLocation {
-            self.onboardingStep = .requestContacts
+            self.onboardingStep = .followFeatured
         }
     }
 
@@ -60,7 +60,7 @@ class OnboardingModel: ObservableObject {
         withAnimation {
             if self.onboardingStep == .requestContacts && PermissionManager.shared.contactsAuthStatus() != .authorized {
                 // Didn't receive contacts permission, skip followContacts
-                self.onboardingStep = .followFeatured
+                self.onboardingStep = .requestNotifications
             } else {
                 // Go to next step
                 self.onboardingStep = .init(rawValue: self.onboardingStep.rawValue + 1) ?? .completed
@@ -238,9 +238,8 @@ class AppState: ObservableObject {
             Messaging.messaging().deleteToken(completion: {_ in})
             if let user = Auth.auth().currentUser, user.isAnonymous {
                 user.delete()
-            } else {
-                try Auth.auth().signOut()
             }
+            try Auth.auth().signOut()
         } catch {
             print("Already logged out")
         }

@@ -47,48 +47,39 @@ struct HomeMenu: View {
                 } label: {
                     LargeButton("Sign Up")
                 }
-                .padding(.bottom, 8)
                 .buttonStyle(RaisedButtonStyle())
+                .padding(.vertical, 8)
 
                 HStack(spacing: 10) {
-                    VStack {
-                        Divider()
-                            .frame(maxWidth: 100)
-                            .background(Color("foreground"))
-                    }
-                    Text("OR")
-                        .font(.system(size: 16))
-                        .foregroundColor(Color("foreground"))
-                    VStack {
-                        Divider()
-                            .frame(maxWidth: 100)
-                            .background(Color("foreground"))
-                    }
+                    VStack { Divider().frame(maxWidth: 100) }
+                    Text("OR").opacity(0.5)
+                        .padding(.vertical, 8)
+                    VStack { Divider().frame(maxWidth: 100) }
                 }
 
                 NavigationLink {
                     EnterPhoneNumber(onVerify: {})
                 } label: {
-                    Group {
-                        Text("Already have an account? ") + Text("Sign in").bold()
-                    }
-                    .font(.system(size: 16))
-                    .minimumScaleFactor(0.8)
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .foregroundColor(Color("foreground"))
+                    Text("Sign in to an existing account")
+                        .font(.system(size: 16))
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .padding(.bottom, 8)
+                        .contentShape(Rectangle())
+                        .foregroundColor(Color("foreground"))
                 }
+
+                Divider().frame(maxWidth: 200)
 
                 Button {
                     Analytics.track(.homeMenuAnonymous)
                     viewModel.signInAnonymously(appState: appState, viewState: viewState)
                 } label: {
-                    Group {
-                        Text("Continue without an account")
-                    }
-                    .font(.system(size: 16))
-                    .minimumScaleFactor(0.8)
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .foregroundColor(Color("foreground"))
+                    Text("Explore Jimo first")
+                        .font(.system(size: 16))
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .contentShape(Rectangle())
+                        .foregroundColor(Color("foreground"))
                 }
             }
             .padding(.bottom, 50)
@@ -103,15 +94,22 @@ struct HomeMenu: View {
 }
 
 extension HomeMenu {
+    @MainActor
     class ViewModel: ObservableObject {
         var cancelBag: Set<AnyCancellable> = .init()
+        var signingIn = false
 
         func signInAnonymously(appState: AppState, viewState: GlobalViewState) {
+            guard !signingIn else {
+                return
+            }
+            signingIn = true
             appState.signInAnonymously()
-                .sink { completion in
+                .sink { [weak self] completion in
                     if case let .failure(error) = completion {
                         viewState.setError("Cannot continue at this time (\(error.localizedDescription))")
                     }
+                    self?.signingIn = false
                 } receiveValue: { _ in
                     // pass
                 }.store(in: &cancelBag)

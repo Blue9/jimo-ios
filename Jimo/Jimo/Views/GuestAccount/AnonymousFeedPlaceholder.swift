@@ -8,14 +8,22 @@
 import SwiftUI
 
 struct AnonymousFeedPlaceholder: View {
+    @State private var posts = [
+        "nightlife",
+        "shopping",
+        "attraction",
+        "lodging"
+    ]
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
-                AnonymousFeedItem(category: "nightlife")
-                AnonymousFeedItem(category: "shopping")
-                AnonymousFeedItem(category: "attraction")
+                AnonymousFeedItem(category: posts[0])
+                AnonymousFeedItem(category: posts[1])
                 Spacer()
             }
+        }.onAppear {
+            posts.shuffle()
         }
     }
 }
