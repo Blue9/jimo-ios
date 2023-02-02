@@ -18,22 +18,37 @@ struct DeepLinkViewPost: View {
 
     var body: some View {
         Group {
-            switch viewModel.loadStatus {
-            case .loading:
-                ProgressView()
-                    .onAppear {
-                        viewModel.load(postId, appState: appState, viewState: viewState)
+            if appState.currentUser.isAnonymous {
+                VStack {
+                    Text("Account required")
+                    Button {
+                        viewState.showSignUpPage(.deepLinkPost)
+                    } label: {
+                        Text("Sign up to view this post")
+                            .foregroundColor(.blue)
                     }
-            case .failed:
-                ProgressView()
-                    .onAppear {
-                        presentationMode.wrappedValue.dismiss()
-                    }
-            case .success(let post):
-                ViewPost(initialPost: post)
+                }
+            } else {
+                switch viewModel.loadStatus {
+                case .loading:
+                    ProgressView()
+                        .onAppear {
+                            viewModel.load(postId, appState: appState, viewState: viewState)
+                        }
+                case .failed:
+                    ProgressView()
+                        .onAppear {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                case .success(let post):
+                    ViewPost(initialPost: post)
+                }
             }
         }
         .background(Color("background"))
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarColor(UIColor(Color("background")))
+        .navigationTitle(Text("View Post"))
     }
 }
 

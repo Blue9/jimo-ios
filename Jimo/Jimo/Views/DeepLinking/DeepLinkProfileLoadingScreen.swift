@@ -18,7 +18,17 @@ struct DeepLinkProfileLoadingScreen: View {
 
     var body: some View {
         Group {
-            if let user = viewModel.initialUser {
+            if appState.currentUser.isAnonymous {
+                VStack {
+                    Text("Account required")
+                    Button {
+                        viewState.showSignUpPage(.deepLinkProfile)
+                    } label: {
+                        Text("Sign up to view \(username)'s profile")
+                            .foregroundColor(.blue)
+                    }
+                }
+            } else if let user = viewModel.initialUser {
                 ProfileScreen(initialUser: user)
             } else if viewModel.loadStatus == .notInitialized {
                 ProgressView()

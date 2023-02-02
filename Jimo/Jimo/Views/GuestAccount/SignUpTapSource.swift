@@ -19,7 +19,9 @@ enum SignUpTapSource: String {
          placeDetailsViewPost,
          placeDetailsCommunityNudge,
          createPost,
-         customUserFilter
+         customUserFilter,
+         deepLinkProfile,
+         deepLinkPost
 
     // Only set if the source displays a sign up nudge alert (feed and profile go directly to sign up page)
     var signUpNudgeText: String? {
@@ -38,6 +40,8 @@ enum SignUpTapSource: String {
         case .placeDetailsCommunityNudge: return nil
         case .createPost: return "Sign up to start posting places."
         case .customUserFilter: return nil
+        case .deepLinkPost: return nil
+        case .deepLinkProfile: return nil
         }
     }
 
