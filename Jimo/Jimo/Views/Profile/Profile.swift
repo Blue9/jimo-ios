@@ -117,11 +117,6 @@ struct Profile: View {
                     secondaryButton: .cancel()
                 )
             }
-            .fullScreenCover(isPresented: $profileVM.showSearchUsers) {
-                SearchUsers()
-                    .environmentObject(appState)
-                    .environmentObject(viewState)
-            }
     }
 }
 
@@ -192,7 +187,7 @@ private struct ProfileHeaderView: View {
 
                 Spacer()
 
-                ProfileActionButtonView(profileVM: profileVM, initialUser: initialUser)
+                ProfileActionButtonView(profileVM: profileVM, initialUser: initialUser, navigate: navigate)
 
                 // Cannot share blocked user profile
                 if profileVM.relationToUser != .blocked {
@@ -311,6 +306,7 @@ struct ProfileActionButtonView: View {
     @ObservedObject var profileVM: ProfileVM
 
     let initialUser: User
+    let navigate: (Profile.Destination) -> Void
 
     var user: User {
         profileVM.user ?? initialUser
@@ -326,8 +322,8 @@ struct ProfileActionButtonView: View {
     var body: some View {
         VStack {
             if isCurrentUser {
-                ProfileButton(textType: .search) {
-                    profileVM.showSearchUsers = true
+                ProfileButton(textType: .create) {
+                    viewState.createPostPresented = true
                 }
             } else if !profileVM.loadedRelation {
                 Text("Loading...")
@@ -364,7 +360,7 @@ struct ProfileActionButtonView: View {
 }
 
 private enum TextType {
-    case follow, unfollow, unblock, loading, search
+    case follow, unfollow, unblock, loading, create
 
     var text: String {
         switch self {
@@ -372,7 +368,7 @@ private enum TextType {
         case .unfollow: return "Unfollow"
         case .unblock: return "Unblock"
         case .loading: return "Loading..."
-        case .search: return "Find People"
+        case .create: return "New Post"
         }
     }
 
@@ -382,7 +378,7 @@ private enum TextType {
         case .unfollow: return .userUnfollowed
         case .unblock: return nil
         case .loading: return nil
-        case .search: return .findFriendsTapped
+        case .create: return .profileNewPostTapped
         }
     }
 
@@ -390,7 +386,7 @@ private enum TextType {
         switch self {
         case .loading, .unfollow: return .white
         case .unblock: return .red
-        case .follow, .search: return .blue
+        case .follow, .create: return .blue
         }
     }
 
