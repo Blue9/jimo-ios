@@ -70,7 +70,8 @@ class SuggestedUserCarouselViewModel: ObservableObject {
     @Published var users: [SuggestedUserItem] = []
     @Published var followedUsernames: Set<String> = []
 
-    var cancelBag: Set<AnyCancellable> = .init()
+    private var cancelBag: Set<AnyCancellable> = .init()
+    private var initialized = false
 
     init() {
         nc.addObserver(self, selector: #selector(userRelationChanged), name: UserPublisher.userRelationChanged, object: nil)
@@ -96,7 +97,11 @@ class SuggestedUserCarouselViewModel: ObservableObject {
         users.count > 0
     }
 
-    func load(appState: AppState, viewState: GlobalViewState) {
+    func initialize(appState: AppState, viewState: GlobalViewState) {
+        guard !initialized else {
+            return
+        }
+        initialized = true
         appState.getSuggestedUsers()
             .sink { [weak self] completion in
                 if case .failure = completion {

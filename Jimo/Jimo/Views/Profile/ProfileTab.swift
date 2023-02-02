@@ -11,10 +11,13 @@ struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @StateObject private var settingsViewModel = SettingsViewModel()
+    @StateObject private var searchViewModel = SearchViewModel()
+    @StateObject private var suggestedViewModel = SuggestedUserCarouselViewModel()
 
     let currentUser: PublicUser?
 
     @State private var showSettings = false
+    @State private var showSearchUsers = false
 
     var body: some View {
         Navigator {
@@ -28,15 +31,27 @@ struct ProfileTab: View {
                     }
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationBarColor(UIColor(Color("background")))
-                    .navigationTitle(Text("Profile"))
+                    .navigationTitle(Text("My Profile"))
                     .toolbar(content: {
-                        ToolbarItem(placement: .navigationBarTrailing, content: {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: { self.showSearchUsers = true }) {
+                                Image(systemName: "magnifyingglass")
+                                    .contentShape(Rectangle())
+                            }
+                        }
+
+                        ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: { self.showSettings = true }) {
                                 Image(systemName: "gearshape")
                             }
-                        })
+                        }
                     })
                     .trackScreen(.profileTab)
+                    .fullScreenCover(isPresented: $showSearchUsers) {
+                        SearchUsers()
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState)
+                    }
             } else {
                 AnonymousProfilePlaceholder()
                     .redacted(reason: .placeholder)
@@ -54,6 +69,17 @@ struct ProfileTab: View {
                     }
             }
         }
+    }
+
+    @ViewBuilder
+    func profilePicture(user: PublicUser) -> some View {
+        URLImage(url: user.profilePictureUrl, loading: Image(systemName: "person.crop.circle"))
+            .frame(width: 40, height: 40, alignment: .center)
+            .font(Font.title.weight(.ultraLight))
+            .foregroundColor(.gray)
+            .background(Color.white)
+            .cornerRadius(50)
+            .padding(.trailing)
     }
 }
 

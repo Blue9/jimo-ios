@@ -35,7 +35,7 @@ struct SearchUsers: View {
         .accentColor(Color("foreground"))
         .onAppear {
             searchBarFocused = true
-            suggestedViewModel.load(appState: appState, viewState: viewState)
+            suggestedViewModel.initialize(appState: appState, viewState: viewState)
         }
     }
 
@@ -71,7 +71,7 @@ struct SearchUsers: View {
                 Button("Close", action: { presentationMode.wrappedValue.dismiss() })
             }
         }
-        .navigationTitle(Text("Find People"))
+        .navigationTitle(Text("Search Users"))
         .appear {
             if !initialized {
                 searchViewModel.listen(appState: appState)

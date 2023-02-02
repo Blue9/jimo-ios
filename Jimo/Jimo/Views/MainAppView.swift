@@ -21,7 +21,7 @@ struct MainAppView: View {
 
     var mainBody: some View {
         UITabView(selection: viewModel.selectionIndex) {
-            FeedTab(onCreatePostTap: { viewModel.createPostPresented = true })
+            FeedTab(onCreatePostTap: { globalViewState.createPostPresented = true })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .tabItem(
@@ -41,21 +41,21 @@ struct MainAppView: View {
                 .environmentObject(globalViewState)
                 .tabItem("", image: UIImage(named: "profileIcon"))
         }
-        .sheet(isPresented: $viewModel.createPostPresented) {
+        .sheet(isPresented: $globalViewState.createPostPresented) {
             if appState.currentUser.isAnonymous {
-                CreatePost(presented: $viewModel.createPostPresented)
+                CreatePost(presented: $globalViewState.createPostPresented)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
                     .disabled(true)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        viewModel.createPostPresented = false
+                        globalViewState.createPostPresented = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                             signUpAlert = .init(isPresented: true, source: .createPost)
                         }
                     }
             } else {
-                CreatePost(presented: $viewModel.createPostPresented)
+                CreatePost(presented: $globalViewState.createPostPresented)
                     .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
@@ -70,7 +70,7 @@ struct MainAppView: View {
         }
         .onChange(of: deepLinkManager.presentableEntity) { item in
             if item != .none {
-                viewModel.createPostPresented = false
+                globalViewState.createPostPresented = false
                 viewModel.selection = .map
             }
         }
@@ -84,7 +84,7 @@ struct MainAppView: View {
                 .foregroundColor(.white)
                 .frame(width: 55, height: 55)
             Button(action: {
-                viewModel.createPostPresented = true
+                globalViewState.createPostPresented = true
             }) {
                 ZStack {
                     Circle()
@@ -122,7 +122,6 @@ struct MainAppView: View {
 
 fileprivate extension MainAppView {
     class ViewModel: ObservableObject {
-        @Published var createPostPresented: Bool = false
         @Published var selection: Tab = Tab.map
 
         var selectionIndex: Binding<Int> {

@@ -18,6 +18,7 @@ class GlobalViewState: ObservableObject {
     @Published var successMessage = ""
 
     @Published var showSignUpPage = false
+    @Published var createPostPresented = false
 
     @Published var shareAction: ShareAction? {
         didSet {

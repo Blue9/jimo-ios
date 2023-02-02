@@ -124,10 +124,11 @@ enum AnalyticsName: Equatable {
     case postSaved
     case postUnsaved
 
+    // Profile action button events
     case userFollowed
     case userUnfollowed
-    case findFriendsTapped
     case feedFindFriendsTapped
+    case profileNewPostTapped
 
     case notificationPermissionsAllowed
     case notificationPermissionsDenied
