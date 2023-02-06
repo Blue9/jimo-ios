@@ -13,7 +13,7 @@ class DeepLinkManager: ObservableObject {
 
 /// What type of detail page we want to open based on the deeplink URL
 enum DeepLinkEntity: Identifiable, NavigationDestinationEnum {
-    case profile(String), post(PostId)
+    case profile(String), post(PostId), loadedPost(Post)
 
     @ViewBuilder
     func view() -> some View {
@@ -22,6 +22,8 @@ enum DeepLinkEntity: Identifiable, NavigationDestinationEnum {
             DeepLinkProfileLoadingScreen(username: username).id(username)
         case .post(let postId):
             DeepLinkViewPost(postId: postId)
+        case .loadedPost(let post):
+            ViewPost(initialPost: post)
         }
     }
 
@@ -30,7 +32,9 @@ enum DeepLinkEntity: Identifiable, NavigationDestinationEnum {
         case .profile(let username):
             return "profile-\(username)"
         case .post(let postId):
-            return "post-\(postId)"
+            return "postId-\(postId)"
+        case .loadedPost(let post):
+            return "post-\(post.postId)"
         }
     }
 }

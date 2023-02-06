@@ -153,6 +153,23 @@ struct PostHeader: View {
         return false
     }
 
+    @ViewBuilder
+    func starsView(stars: Int) -> some View {
+        HStack(spacing: 2) {
+            if stars == 0 {
+                Image(systemName: "star.slash.fill")
+                    .foregroundColor(.gray)
+                    .font(.system(size: 15))
+            } else {
+                ForEach(0..<stars, id: \.self) { _ in
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                        .font(.system(size: 15))
+                }
+            }
+        }
+    }
+
     var body: some View {
         HStack {
             profilePicture.onTapGesture {
@@ -174,6 +191,11 @@ struct PostHeader: View {
                         .bold()
                     Text(" · ")
                         .foregroundColor(.gray)
+                    if let stars = post.stars {
+                        starsView(stars: stars)
+                        Text(" · ")
+                            .foregroundColor(.gray)
+                    }
                     Text(appState.relativeTime(for: post.createdAt))
                         .foregroundColor(.gray)
                 }
@@ -343,8 +365,19 @@ struct PostFooter: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(likeCountText) · \(commentCountText)").font(.caption)
-                .padding(.horizontal, 10)
+            Group {
+                if post.likeCount > 0 && post.commentCount > 0 {
+                    Text("\(likeCountText) · \(commentCountText)")
+                } else if post.likeCount > 0 {
+                    Text(likeCountText)
+                } else if post.commentCount > 0 {
+                    Text(commentCountText)
+                } else {
+                    Text("") // Keep spacing consistent
+                }
+            }
+            .font(.caption)
+            .padding(.horizontal, 10)
 
             HStack(spacing: 0) {
                 PostLikeButton(postVM: viewModel, post: post)

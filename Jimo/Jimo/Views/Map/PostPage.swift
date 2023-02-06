@@ -13,7 +13,8 @@ struct PostPage: View {
     @State private var showFullPost = false
     @StateObject private var postViewModel = PostVM()
 
-    @ViewBuilder var mainBody: some View {
+    @ViewBuilder
+    var mainBody: some View {
         HStack(alignment: .top) {
             Group {
                 if let url = post.imageUrl {
@@ -38,13 +39,26 @@ struct PostPage: View {
                     .fontWeight(.black)
                     .lineLimit(1)
 
-                Group {
-                    Text(post.user.username.lowercased() + " ")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                    +
-                    Text(post.content)
-                        .font(.caption)
+                if let stars = post.stars {
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 2) {
+                            Text(post.user.username.lowercased() + " ")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                            StarsView(stars: stars)
+                        }
+                        Text(post.content)
+                            .font(.caption)
+                    }
+                } else {
+                    Group {
+                        Text(post.user.username.lowercased() + " ")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                        +
+                        Text(post.content)
+                            .font(.caption)
+                    }
                 }
 
                 Spacer()
@@ -52,14 +66,18 @@ struct PostPage: View {
                 HStack(spacing: 5) {
                     MiniPostLikeButton(postViewModel: postViewModel, initialPost: post)
                         .font(.system(size: 15))
-                    Text(String(post.likeCount)).font(.caption)
+                    Text(String(post.likeCount))
+                        .font(.caption)
+                        .opacity(post.likeCount > 0 ? 1 : 0)
 
                     Spacer().frame(width: 2)
 
                     Image(systemName: "bubble.right")
                         .font(.system(size: 15))
                         .offset(y: 1.5)
-                    Text(String(post.commentCount)).font(.caption)
+                    Text(String(post.commentCount))
+                        .font(.caption)
+                        .opacity(post.likeCount > 0 ? 1 : 0)
 
                     Spacer()
                 }
@@ -72,10 +90,29 @@ struct PostPage: View {
 
     var body: some View {
         NavigationLink {
-            ViewPost(initialPost: post, showSaveButton: false)
+            ViewPost(initialPost: postViewModel.post ?? post, showSaveButton: false)
         } label: {
             mainBody.contentShape(Rectangle())
         }.buttonStyle(NoButtonStyle())
+    }
+}
+
+private struct StarsView: View {
+    var stars: Int
+
+    var body: some View {
+        HStack(spacing: 2) {
+            if stars == 0 {
+                Image(systemName: "star.slash.fill")
+                    .foregroundColor(.gray)
+            } else {
+                ForEach(0..<stars, id: \.self) { _ in
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                }
+            }
+        }
+        .font(.caption)
     }
 }
 
