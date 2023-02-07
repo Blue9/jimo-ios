@@ -100,7 +100,6 @@ struct BaseMapViewV2: View {
                     print("Setting businessSheetPosition to mid")
                     sheetViewModel.showBusinessSheet()
                 } else {
-                    placeViewModel.isStale = true
                     mapViewModel.selectedPin = nil
                     print("Setting filterSheetPosition to mid")
                     locationSearch.searchQuery = ""
@@ -162,17 +161,17 @@ struct BaseMapViewV2: View {
                         Text(placeViewModel.name)
                             .font(.title2)
                             .bold()
-                        Text(placeViewModel.address)
+                        Text(placeViewModel.address())
                             .font(.caption)
                     }
                     .padding(.horizontal, 10)
-                    .opacity(placeViewModel.isStale ? 0.5 : 1.0)
-                    .renderAsPlaceholder(if: placeViewModel.isStale)
+                    .opacity(placeViewModel.loadStatus == .loading ? 0.5 : 1.0)
+                    .renderAsPlaceholder(if: placeViewModel.loadStatus == .loading)
                 }, mainContent: {
                     PlaceDetailsView(viewModel: placeViewModel)
                         .environmentObject(appState)
                         .environmentObject(globalViewState)
-                        .renderAsPlaceholder(if: placeViewModel.isStale)
+                        .renderAsPlaceholder(if: placeViewModel.loadStatus == .loading)
                         .padding(.top, 10)
                 }
             )
@@ -181,7 +180,6 @@ struct BaseMapViewV2: View {
             .showCloseButton()
             .onDismiss {
                 DispatchQueue.main.async {
-                    placeViewModel.isStale = true
                     mapViewModel.selectedPin = nil
                     locationSearch.searchQuery = ""
                     sheetViewModel.showSearchSheet()
