@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 struct DeepLinkViewPost: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
@@ -38,10 +38,10 @@ struct DeepLinkViewPost: View {
                 case .failed:
                     ProgressView()
                         .onAppear {
-                            presentationMode.wrappedValue.dismiss()
+                            dismiss()
                         }
                 case .success(let post):
-                    ViewPost(initialPost: post)
+                    ViewPost(post: post)
                 }
             }
         }

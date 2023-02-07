@@ -83,11 +83,11 @@ private struct NotificationFeedItem: View {
     @ViewBuilder var destinationView: some View {
         if item.type == ItemType.like || item.type == ItemType.save {
             if let post = item.post {
-                ViewPost(initialPost: post)
+                ViewPost(post: post)
             }
         } else if item.type == ItemType.comment {
             if let post = item.post {
-                ViewPost(initialPost: post, highlightedComment: item.comment)
+                ViewPost(post: post, highlightedComment: item.comment)
             }
         } else {
             ProfileScreen(initialUser: item.user)

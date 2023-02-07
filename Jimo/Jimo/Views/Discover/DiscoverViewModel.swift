@@ -27,34 +27,7 @@ class DiscoverViewModel: ObservableObject {
     }
 
     init() {
-        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
-        nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
-        nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
         nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
-    }
-
-    @objc private func placeSaved(notification: Notification) {
-        let payload = notification.object as! PlaceSavePayload
-        let postIndex = posts.indices.first(where: { posts[$0].place.placeId == payload.placeId })
-        if let i = postIndex {
-            posts[i].saved = payload.save != nil
-        }
-    }
-
-    @objc private func postLiked(notification: Notification) {
-        let like = notification.object as! PostLikePayload
-        let postIndex = posts.indices.first(where: { posts[$0].postId == like.postId })
-        if let i = postIndex {
-            posts[i].likeCount = like.likeCount
-            posts[i].liked = like.liked
-        }
-    }
-
-    @objc private func postUpdated(notification: Notification) {
-        let post = notification.object as! Post
-        if let i = posts.indices.first(where: { posts[$0].postId == post.postId }) {
-            posts[i] = post
-        }
     }
 
     @objc private func postDeleted(notification: Notification) {

@@ -16,7 +16,7 @@ struct FeedItem: View {
         @ViewBuilder func view() -> some View {
             switch self {
             case let .post(post):
-                ViewPost(initialPost: post)
+                ViewPost(post: post)
             case let .user(user):
                 ProfileScreen(initialUser: user)
             case let .map(post):
@@ -27,11 +27,12 @@ struct FeedItem: View {
 
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @Environment(\.dismiss) var dismiss
 
-    @StateObject var postVM = PostVM()
-
-    var post: Post
+    @ObservedObject var postVM: PostVM
     var navigate: (Destination?) -> Void
+
+    var post: Post { postVM.post }
 
     var body: some View {
         VStack {

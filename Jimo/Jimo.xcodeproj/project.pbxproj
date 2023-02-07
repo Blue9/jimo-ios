@@ -169,6 +169,7 @@
 		C7EAD4DE25AC1DD0004A9F53 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */; };
 		C7EF8E6A296E699E00892BA0 /* CustomUserFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */; };
 		C7F1EF3F29792488009806F8 /* MKMapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F1EF3E29792488009806F8 /* MKMapItem.swift */; };
+		C7F60C3B2991F8F90020AA9F /* ModelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F60C3A2991F8F90020AA9F /* ModelProvider.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
 		C7FC69E02790160100C41ED3 /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = C7FC69DF2790160100C41ED3 /* SwiftUIPager */; };
 /* End PBXBuildFile section */
@@ -348,6 +349,7 @@
 		C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
 		C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUserFilter.swift; sourceTree = "<group>"; };
 		C7F1EF3E29792488009806F8 /* MKMapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKMapItem.swift; sourceTree = "<group>"; };
+		C7F60C3A2991F8F90020AA9F /* ModelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelProvider.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -580,6 +582,7 @@
 				C79EA00125AFD56F00A38DB8 /* AppState.swift */,
 				C794A32F298B07E700455972 /* AppState+RemoteConfig.swift */,
 				C74183DF25D6E3A2007F13C1 /* GlobalViewState.swift */,
+				C7F60C3A2991F8F90020AA9F /* ModelProvider.swift */,
 				C7AB527D2890B7240080DF73 /* Analytics */,
 				C7AB527F2890B7850080DF73 /* Auth */,
 				C72BB2AF28038DD9001997C1 /* Navigation */,
@@ -1159,6 +1162,7 @@
 				C7B91FE928245D2400F383BC /* SharePostButton.swift in Sources */,
 				1FC816C625E34249009B803F /* Feedback.swift in Sources */,
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
+				C7F60C3B2991F8F90020AA9F /* ModelProvider.swift in Sources */,
 				C7AB52852890BBAD0080DF73 /* RaisedButtonStyle.swift in Sources */,
 				C70367062557629900F970DE /* View+navigationBarColor.swift in Sources */,
 				84952F332956326800C48DFC /* PlaceDetailsView.swift in Sources */,

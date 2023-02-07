@@ -8,6 +8,22 @@
 import SwiftUI
 
 struct ViewPost: View {
+    @EnvironmentObject var appState: AppState
+
+    var post: Post
+    var highlightedComment: Comment?
+    var showSaveButton: Bool = true
+
+    var body: some View {
+        BaseViewPost(
+            postVM: ModelProvider.getPostModel(for: post),
+            highlightedComment: highlightedComment,
+            showSaveButton: showSaveButton
+        )
+    }
+}
+
+struct BaseViewPost: View {
     enum Destination: NavigationDestinationEnum {
         case user(PublicUser)
         case pinView(Post)
@@ -28,9 +44,8 @@ struct ViewPost: View {
 
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @Environment(\.presentationMode) var presentationMode
 
-    @StateObject private var postVM = PostVM()
+    @ObservedObject var postVM: PostVM
     @StateObject private var commentsViewModel = ViewPostCommentsViewModel()
     @State private var initializedComments = false
 
@@ -39,13 +54,11 @@ struct ViewPost: View {
     @State private var imageSize: CGSize?
     @FocusState private var commentFieldFocused: Bool
     var focusOnAppear = false
-
-    let initialPost: Post
     var highlightedComment: Comment?
     var showSaveButton = true
 
     var post: Post {
-        postVM.post ?? initialPost
+        postVM.post
     }
 
     var colorTheme: Color {
@@ -80,9 +93,6 @@ struct ViewPost: View {
                 showZeroCommentCount: true,
                 onCommentTap: { commentFieldFocused = true }
             ).padding(.bottom, 10)
-        }
-        .onAppear {
-            postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })
         }
     }
 
@@ -139,7 +149,6 @@ struct ViewPost: View {
             commentsViewModel.loadMore()
         }
         .onAppear {
-            postVM.listen(post: post, onDelete: { presentationMode.wrappedValue.dismiss() })
             if !initializedComments {
                 initializedComments = true
                 commentsViewModel.highlightedComment = highlightedComment

@@ -11,60 +11,39 @@ import Combine
 class PostVM: ObservableObject {
     let nc = NotificationCenter.default
 
-    @Published var post: Post?
+    @Published var post: Post
     @Published var liking = false
     @Published var unliking = false
     @Published var deleting = false
 
     var cancelBag: Set<AnyCancellable> = .init()
 
-    var onDelete: (() -> Void)?
-
-    /// Listen for post updates and update the current post (optional to call this, only necessary if you want to listen to updates)
-    func listen(post: Post, onDelete: @escaping () -> Void) {
-        guard self.post == nil else {
-            return
-        }
+    init(post: Post) {
         self.post = post
-        self.onDelete = onDelete
         nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
         nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
         nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
-        nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
     }
 
     @objc func postLiked(notification: Notification) {
-        guard let postId = post?.id else {
-            return
-        }
         let like = notification.object as! PostLikePayload
-        if postId == like.postId {
-            self.post?.liked = like.liked
-            self.post?.likeCount = like.likeCount
+        if post.id == like.postId {
+            self.post.liked = like.liked
+            self.post.likeCount = like.likeCount
         }
     }
 
     @objc func placeSaved(notification: Notification) {
-        guard let placeId = post?.place.id else {
-            return
-        }
         let payload = notification.object as! PlaceSavePayload
-        if placeId == payload.placeId {
-            self.post?.saved = payload.save != nil
+        if post.place.id == payload.placeId {
+            self.post.saved = payload.save != nil
         }
     }
 
     @objc func postUpdated(notification: Notification) {
-        self.post = notification.object as? Post
-    }
-
-    @objc func postDeleted(notification: Notification) {
-        guard let post = post, let onDelete = onDelete else {
-            return
-        }
-        let deletedPostId = notification.object as! PostId
-        if post.id == deletedPostId {
-            onDelete()
+        let updated = notification.object as! Post
+        if updated.postId == post.postId {
+            self.post = updated
         }
     }
 

@@ -10,19 +10,19 @@ import SwiftUI
 struct MaybeGuestPostPage: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    var post: Post
+    @ObservedObject var postVM: PostVM
 
     var showSignUpAlert: (SignUpTapSource) -> Void
 
     var body: some View {
         if appState.currentUser.isAnonymous {
-            PostPage(post: post)
+            PostPage(postViewModel: postVM)
                 .disabled(true)
                 .onTapGesture {
                     showSignUpAlert(.placeDetailsViewPost)
                 }
         } else {
-            PostPage(post: post)
+            PostPage(postViewModel: postVM)
         }
     }
 }

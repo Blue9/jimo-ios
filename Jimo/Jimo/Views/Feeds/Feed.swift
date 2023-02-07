@@ -107,7 +107,10 @@ struct Feed: View {
                 .padding(.bottom, 10)
 
             ForEach(feedViewModel.feed) { post in
-                FeedItem(post: post, navigate: { self.navigationDestination = $0 })
+                FeedItem(
+                    postVM: ModelProvider.getPostModel(for: post),
+                    navigate: { self.navigationDestination = $0 }
+                )
             }
         } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
@@ -124,7 +127,10 @@ struct Feed: View {
             }
 
             ForEach(discoverViewModel.posts) { post in
-                FeedItem(post: post, navigate: { self.navigationDestination = $0 })
+                FeedItem(
+                    postVM: ModelProvider.getPostModel(for: post),
+                    navigate: { self.navigationDestination = $0 }
+                )
             }
         } onRefresh: { onFinish in
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)
@@ -147,39 +153,12 @@ extension Feed {
 
         init() {
             nc.addObserver(self, selector: #selector(postCreated), name: PostPublisher.postCreated, object: nil)
-            nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
-            nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
-            nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
             nc.addObserver(self, selector: #selector(postDeleted), name: PostPublisher.postDeleted, object: nil)
         }
 
         @objc private func postCreated(notification: Notification) {
             let post = notification.object as! Post
             feed.insert(post, at: 0)
-        }
-
-        @objc private func postUpdated(notification: Notification) {
-            let post = notification.object as! Post
-            if let i = feed.indices.first(where: { feed[$0].postId == post.postId }) {
-                feed[i] = post
-            }
-        }
-
-        @objc private func postLiked(notification: Notification) {
-            let like = notification.object as! PostLikePayload
-            let postIndex = feed.indices.first(where: { feed[$0].postId == like.postId })
-            if let i = postIndex {
-                feed[i].likeCount = like.likeCount
-                feed[i].liked = like.liked
-            }
-        }
-
-        @objc private func placeSaved(notification: Notification) {
-            let payload = notification.object as! PlaceSavePayload
-            let postIndex = feed.indices.first(where: { feed[$0].place.placeId == payload.placeId })
-            if let i = postIndex {
-                feed[i].saved = payload.save != nil
-            }
         }
 
         @objc private func postDeleted(notification: Notification) {

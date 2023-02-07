@@ -121,7 +121,7 @@ private struct BasePlaceDetailsView: View {
                             .bold()
                         Spacer()
                     }
-                    MaybeGuestPostPage(post: post, showSignUpAlert: showSignUpAlert)
+                    MaybeGuestPostPage(postVM: ModelProvider.getPostModel(for: post), showSignUpAlert: showSignUpAlert)
                 }
 
                 if viewModel.followingPosts.count > 0 {
@@ -349,7 +349,7 @@ private struct PostCarousel: View {
         }
 
         Pager(page: page, data: posts) { post in
-            MaybeGuestPostPage(post: post, showSignUpAlert: showSignUpAlert)
+            MaybeGuestPostPage(postVM: ModelProvider.getPostModel(for: post), showSignUpAlert: showSignUpAlert)
         }
         .padding(10)
         .alignment(.start)

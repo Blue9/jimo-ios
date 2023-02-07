@@ -19,7 +19,7 @@ struct Profile: View {
             case .submitFeedback:
                 Feedback()
             case let .post(post):
-                ViewPost(initialPost: post)
+                ViewPost(post: post)
             }
         }
     }

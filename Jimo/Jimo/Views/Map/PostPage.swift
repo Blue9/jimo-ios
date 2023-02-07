@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct PostPage: View {
-    var post: Post
-
+    @ObservedObject var postViewModel: PostVM
     @State private var showFullPost = false
-    @StateObject private var postViewModel = PostVM()
+
+    var post: Post { postViewModel.post }
 
     @ViewBuilder var mainBody: some View {
         HStack(alignment: .top) {
@@ -50,7 +50,7 @@ struct PostPage: View {
                 Spacer()
 
                 HStack(spacing: 5) {
-                    MiniPostLikeButton(postViewModel: postViewModel, initialPost: post)
+                    MiniPostLikeButton(postViewModel: postViewModel)
                         .font(.system(size: 15))
                     Text(String(post.likeCount)).font(.caption)
 
@@ -72,7 +72,7 @@ struct PostPage: View {
 
     var body: some View {
         NavigationLink {
-            ViewPost(initialPost: post, showSaveButton: false)
+            BaseViewPost(postVM: postViewModel, showSaveButton: false)
         } label: {
             mainBody.contentShape(Rectangle())
         }.buttonStyle(NoButtonStyle())
@@ -85,10 +85,8 @@ private struct MiniPostLikeButton: View {
 
     @ObservedObject var postViewModel: PostVM
 
-    var initialPost: Post
-
     var post: Post {
-        postViewModel.post ?? initialPost
+        postViewModel.post
     }
 
     private var showFilledHeart: Bool {
@@ -96,13 +94,6 @@ private struct MiniPostLikeButton: View {
     }
 
     var body: some View {
-        mainBody.onAppear {
-            postViewModel.listen(post: post, onDelete: {})
-        }
-    }
-
-    @ViewBuilder
-    var mainBody: some View {
         if showFilledHeart {
             Button(action: {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
