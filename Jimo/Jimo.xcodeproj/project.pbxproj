@@ -37,7 +37,6 @@
 		C70AE47A25CA8E76009920E8 /* EnterPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE47925CA8E76009920E8 /* EnterPhoneNumber.swift */; };
 		C70AE47F25CA8EC5009920E8 /* VerifyPhoneNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */; };
 		C70AE48425CA8FA9009920E8 /* LargeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AE48325CA8FA9009920E8 /* LargeButton.swift */; };
-		C70AF05C282490C700FC7A20 /* View+shareOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70AF05B282490C700FC7A20 /* View+shareOverlay.swift */; };
 		C70E61C726EAE56F00340EEC /* PostComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70E61C626EAE56E00340EEC /* PostComponents.swift */; };
 		C70F53BE27F2A42600A15EE2 /* ContactsPermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70F53BD27F2A42600A15EE2 /* ContactsPermissions.swift */; };
 		C70F53C227F2ABEF00A15EE2 /* RequestLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70F53C127F2ABEF00A15EE2 /* RequestLocation.swift */; };
@@ -218,7 +217,6 @@
 		C70AE47925CA8E76009920E8 /* EnterPhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterPhoneNumber.swift; sourceTree = "<group>"; };
 		C70AE47E25CA8EC5009920E8 /* VerifyPhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyPhoneNumber.swift; sourceTree = "<group>"; };
 		C70AE48325CA8FA9009920E8 /* LargeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeButton.swift; sourceTree = "<group>"; };
-		C70AF05B282490C700FC7A20 /* View+shareOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+shareOverlay.swift"; sourceTree = "<group>"; };
 		C70E61C626EAE56E00340EEC /* PostComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostComponents.swift; sourceTree = "<group>"; };
 		C70F53BD27F2A42600A15EE2 /* ContactsPermissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsPermissions.swift; sourceTree = "<group>"; };
 		C70F53C127F2ABEF00A15EE2 /* RequestLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestLocation.swift; sourceTree = "<group>"; };
@@ -416,7 +414,6 @@
 				C73ED521260EFE79005CC0B4 /* View+disappear.swift */,
 				C72BB2B228038F6D001997C1 /* View+navigation.swift */,
 				C70367052557629900F970DE /* View+navigationBarColor.swift */,
-				C70AF05B282490C700FC7A20 /* View+shareOverlay.swift */,
 				C7F1EF3E29792488009806F8 /* MKMapItem.swift */,
 				C73BC39E2988D05A00BF85AC /* View+modify.swift */,
 				C73BC3A02988D2D700BF85AC /* View+navDestination.swift */,
@@ -1197,7 +1194,6 @@
 				C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */,
 				C77321DC2557EF390087FAA6 /* URLImage.swift in Sources */,
 				C757F87727F15BE400364EDB /* InvertBindings.swift in Sources */,
-				C70AF05C282490C700FC7A20 /* View+shareOverlay.swift in Sources */,
 				C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */,
 				C7416D0E264793B200FA58EE /* Comment.swift in Sources */,
 				C76A8AFF2596DDD700623DA2 /* ImagePicker.swift in Sources */,

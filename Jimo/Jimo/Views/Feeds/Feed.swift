@@ -23,6 +23,7 @@ struct Feed: View {
     @State private var showFindFriendsSheet = false
     @State private var showEnableLocationButton = false
     @State private var navigationDestination: FeedItem.Destination?
+    @State private var shareAction: ShareAction?
 
     var onCreatePostTap: () -> Void
 
@@ -86,13 +87,14 @@ struct Feed: View {
                 }
             }
         }
+        .sheet(item: $shareAction) { action in
+            ActivityView(
+                shareAction: action,
+                isPresented: Binding(get: { self.shareAction != nil }, set: { self.shareAction = $0 ? shareAction : nil })
+            )
+        }
         .navigation(destination: $navigationDestination)
         .background(Color("background"))
-        .fullScreenCover(isPresented: $showFindFriendsSheet) {
-            SearchUsers()
-                .environmentObject(appState)
-                .environmentObject(viewState)
-        }
         .onAppear {
             showEnableLocationButton = PermissionManager.shared.getLocation() == nil
         }
@@ -109,13 +111,19 @@ struct Feed: View {
             ForEach(feedViewModel.feed) { post in
                 FeedItem(
                     postVM: ModelProvider.getPostModel(for: post),
-                    navigate: { self.navigationDestination = $0 }
+                    navigate: { self.navigationDestination = $0 },
+                    showShareSheet: { shareAction = .post(post) }
                 )
             }
         } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
         } onLoadMore: {
             feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
+        }
+        .fullScreenCover(isPresented: $showFindFriendsSheet) {
+            SearchUsers()
+                .environmentObject(appState)
+                .environmentObject(viewState)
         }
     }
 
@@ -129,7 +137,8 @@ struct Feed: View {
             ForEach(discoverViewModel.posts) { post in
                 FeedItem(
                     postVM: ModelProvider.getPostModel(for: post),
-                    navigate: { self.navigationDestination = $0 }
+                    navigate: { self.navigationDestination = $0 },
+                    showShareSheet: { shareAction = .post(post) }
                 )
             }
         } onRefresh: { onFinish in
