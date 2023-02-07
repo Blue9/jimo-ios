@@ -9,16 +9,17 @@ import SwiftUI
 
 struct ShareButtonView: View {
     @EnvironmentObject var appState: AppState
-    @EnvironmentObject var viewState: GlobalViewState
     var shareAction: ShareAction
     var size: CGFloat = 25
 
+    @State private var isPresented = false
+
     var body: some View {
         Button {
-            viewState.showShareOverlay(for: shareAction)
+            self.isPresented = true
         } label: {
             Group {
-                if viewState.shareAction == shareAction {
+                if isPresented {
                     ProgressView()
                 } else {
                     Image(systemName: "square.and.arrow.up")
@@ -27,6 +28,8 @@ struct ShareButtonView: View {
             }
             .scaledToFit()
             .frame(width: size, height: size)
+        }.sheet(isPresented: $isPresented) {
+            ActivityView(shareAction: shareAction, isPresented: $isPresented)
         }
     }
 }
