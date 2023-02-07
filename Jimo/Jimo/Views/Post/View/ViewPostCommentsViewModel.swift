@@ -105,10 +105,10 @@ class ViewPostCommentsViewModel: ObservableObject {
     }
 
     func deleteComment(commentId: CommentId) {
-        guard let appState = appState, let viewState = viewState else {
+        guard let postId = postId, let appState = appState, let viewState = viewState else {
             return
         }
-        deleteCommentCancellable = appState.deleteComment(commentId: commentId)
+        deleteCommentCancellable = appState.deleteComment(for: postId, commentId: commentId)
             .sink { completion in
                 if case .failure = completion {
                     viewState.setError("Could not delete comment")

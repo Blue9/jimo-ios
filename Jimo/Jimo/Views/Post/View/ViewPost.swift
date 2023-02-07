@@ -79,7 +79,6 @@ struct BaseViewPost: View {
         VStack {
             PostHeader(
                 postVM: postVM,
-                post: post,
                 navigate: { self.destination = .user($0) },
                 showShareSheet: { self.isShareSheetPresented = true }
             )
@@ -94,7 +93,6 @@ struct BaseViewPost: View {
             }
             PostFooter(
                 viewModel: postVM,
-                post: post,
                 showSaveButton: showSaveButton,
                 showZeroCommentCount: true,
                 onCommentTap: { commentFieldFocused = true }

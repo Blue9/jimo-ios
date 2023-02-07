@@ -76,37 +76,24 @@ class OnboardingModel: ObservableObject {
 
 class AppState: ObservableObject {
     var cancelBag: Set<AnyCancellable> = .init()
-
-    var apiClient: APIClient
-    var dateTimeFormatter = RelativeDateTimeFormatter()
-
-    @Published var currentUser: CurrentUser = .loading
-
-    @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
-        didSet {
-            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
-        }
-    }
+    let apiClient: APIClient
+    let dateTimeFormatter = RelativeDateTimeFormatter()
 
     let onboardingModel = OnboardingModel()
-
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()
-    let placePublisher = PlacePublisher()
     let commentPublisher = CommentPublisher()
+    let locationPingService: LocationPingService
 
     // If we're signing out don't register any new FCM tokens
     var signingOut = false
     var registeringToken = false
 
-    var locationPingTimer: Timer?
-    var locationPingCancellable: AnyCancellable?
-
-    var me: PublicUser? {
-        if case let .user(user) = currentUser {
-            return user
+    @Published var currentUser: CurrentUser = .loading
+    @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
+        didSet {
+            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
         }
-        return nil
     }
 
     init(apiClient: APIClient) {
@@ -114,6 +101,7 @@ class AppState: ObservableObject {
         // SDImageCache.shared.clearMemory()
         // SDImageCache.shared.clearDisk()
         self.apiClient = apiClient
+        self.locationPingService = .init(apiClient: apiClient)
         Auth.auth().addStateDidChangeListener(self.authHandler)
         updateTokenOnUserChange()
         NotificationCenter.default.addObserver(
@@ -124,31 +112,11 @@ class AppState: ObservableObject {
         self.initializeRemoteConfig()
     }
 
-    func locationPingBackground() {
-        self.locationPingTimer?.invalidate()
-        let pingConfig = RemoteConfig.remoteConfig().configValue(forKey: "locationPingInterval").numberValue.doubleValue
-        let pingInterval = pingConfig == 0 ? 120.0 : pingConfig
-        let timer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] timer in
-            guard let location = PermissionManager.shared.locationManager.location else {
-                return
-            }
-            guard let self = self else {
-                timer.invalidate()
-                return
-            }
-            let pingConfig = RemoteConfig.remoteConfig().configValue(forKey: "locationPingInterval").numberValue.doubleValue
-            let pingInterval = pingConfig == 0 ? 60.0 : pingConfig
-            if pingInterval != timer.timeInterval {
-                print("Refreshing location ping timer")
-                self.locationPingBackground()
-            }
-            print("Pinging location")
-            self.locationPingCancellable = self.apiClient.pingLocation(Location(coord: location.coordinate))
-                .sink(receiveCompletion: {_ in}, receiveValue: {_ in})
+    var me: PublicUser? {
+        if case let .user(user) = currentUser {
+            return user
         }
-        timer.tolerance = 2
-        RunLoop.current.add(timer, forMode: .common)
-        self.locationPingTimer = timer
+        return nil
     }
 
     func relativeTime(for date: Date) -> String {
@@ -385,24 +353,12 @@ class AppState: ObservableObject {
             .store(in: &self.cancelBag)
     }
 
-    func getSavedPosts(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
-        return self.apiClient.getSavedPosts(cursor: cursor)
-    }
-
-    func refreshFeed() -> AnyPublisher<FeedResponse, APIError> {
-        return self.apiClient.getFeed()
-    }
-
-    func loadMoreFeedItems(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
-        return self.apiClient.getFeed(cursor: cursor)
-    }
-
     func getFollowers(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
-        return self.apiClient.getFollowers(username: username, cursor: cursor)
+        apiClient.getFollowers(username: username, cursor: cursor)
     }
 
     func getFollowing(username: String, cursor: String? = nil) -> AnyPublisher<FollowFeedResponse, APIError> {
-        return self.apiClient.getFollowing(username: username, cursor: cursor)
+        apiClient.getFollowing(username: username, cursor: cursor)
     }
 
     // MARK: - Map endpoints
@@ -453,7 +409,7 @@ class AppState: ObservableObject {
                 note: note
             )
         ).map {
-            self.placePublisher.placeSaved(.init(placeId: $0.save.place.placeId, save: $0.save, createPlaceRequest: maybeCreatePlaceRequest))
+            ModelProvider.postModels.filter({ $0.value.post.place.id == placeId }).forEach({ $1.post.saved = true })
             return $0
         }.eraseToAnyPublisher()
     }
@@ -461,7 +417,7 @@ class AppState: ObservableObject {
     func unsavePlace(_ placeId: PlaceId) -> AnyPublisher<SimpleResponse, APIError> {
         apiClient.unsavePlace(placeId)
             .map {
-                self.placePublisher.placeUnsaved(placeId)
+                ModelProvider.postModels.filter({ $0.value.post.place.id == placeId }).forEach({ $1.post.saved = false })
                 return $0
             }.eraseToAnyPublisher()
     }
@@ -508,11 +464,21 @@ class AppState: ObservableObject {
         return self.apiClient.relation(to: username)
     }
 
-    // MARK: - Post
+    // MARK: - Post+Feed endpoints
+
+    func getFeed(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
+        apiClient.getFeed(cursor: cursor)
+            .map { feed in
+                feed.posts.forEach(ModelProvider.upsertPostModel(_:))
+                return feed
+            }
+            .eraseToAnyPublisher()
+    }
 
     func createPost(_ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
-        return self.apiClient.createPost(request)
+        apiClient.createPost(request)
             .map { post in
+                ModelProvider.upsertPostModel(post)
                 self.postPublisher.postCreated(post: post)
                 Analytics.track(.postCreated, parameters: [
                     "category": request.category,
@@ -525,13 +491,18 @@ class AppState: ObservableObject {
     }
 
     func getPost(_ postId: PostId) -> AnyPublisher<Post, APIError> {
-        return self.apiClient.getPost(postId)
+        apiClient.getPost(postId)
+            .map { post in
+                ModelProvider.upsertPostModel(post)
+                return post
+            }
+            .eraseToAnyPublisher()
     }
 
     func updatePost(_ postId: PostId, _ request: CreatePostRequest) -> AnyPublisher<Post, APIError> {
-        return self.apiClient.updatePost(postId, request)
+        apiClient.updatePost(postId, request)
             .map { post in
-                self.postPublisher.postUpdated(post: post)
+                ModelProvider.upsertPostModel(post)
                 Analytics.track(.postUpdated, parameters: [
                     "category": request.category,
                     "hasCaption": request.content.count > 0,
@@ -543,7 +514,7 @@ class AppState: ObservableObject {
     }
 
     func deletePost(postId: PostId) -> AnyPublisher<Void, APIError> {
-        return self.apiClient.deletePost(postId: postId)
+        apiClient.deletePost(postId: postId)
             .map { _ in
                 self.postPublisher.postDeleted(postId: postId)
                 Analytics.track(.postDeleted)
@@ -552,13 +523,18 @@ class AppState: ObservableObject {
     }
 
     func getPosts(username: String, cursor: String? = nil, limit: Int? = nil) -> AnyPublisher<FeedResponse, APIError> {
-        return self.apiClient.getPosts(username: username, cursor: cursor, limit: limit)
+        apiClient.getPosts(username: username, cursor: cursor, limit: limit)
+            .map { page in
+                page.posts.forEach(ModelProvider.upsertPostModel(_:))
+                return page
+            }
+            .eraseToAnyPublisher()
     }
 
     func likePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
-        return self.apiClient.likePost(postId: postId)
+        apiClient.likePost(postId: postId)
             .map { like in
-                self.postPublisher.postLiked(postId: postId, likeCount: like.likes)
+                ModelProvider.postModels[postId]?.post.likeCount = like.likes
                 Analytics.track(.postLiked)
                 return like
             }
@@ -566,9 +542,9 @@ class AppState: ObservableObject {
     }
 
     func unlikePost(postId: PostId) -> AnyPublisher<LikePostResponse, APIError> {
-        return self.apiClient.unlikePost(postId: postId)
+        apiClient.unlikePost(postId: postId)
             .map { like in
-                self.postPublisher.postUnliked(postId: postId, likeCount: like.likes)
+                ModelProvider.postModels[postId]?.post.likeCount = like.likes
                 Analytics.track(.postUnliked)
                 return like
             }
@@ -576,7 +552,7 @@ class AppState: ObservableObject {
     }
 
     func reportPost(postId: PostId, details: String) -> AnyPublisher<SimpleResponse, APIError> {
-        return self.apiClient.reportPost(postId: postId, details: details)
+        apiClient.reportPost(postId: postId, details: details)
     }
 
     // MARK: - Comment
@@ -588,6 +564,7 @@ class AppState: ObservableObject {
     func createComment(for postId: PostId, content: String) -> AnyPublisher<Comment, APIError> {
         apiClient.createComment(for: postId, content: content)
             .map { comment in
+                ModelProvider.postModels[postId]?.post.commentCount += 1
                 self.commentPublisher.commentCreated(comment: comment)
                 Analytics.track(.commentCreated)
                 return comment
@@ -595,9 +572,10 @@ class AppState: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    func deleteComment(commentId: CommentId) -> AnyPublisher<SimpleResponse, APIError> {
+    func deleteComment(for postId: PostId, commentId: CommentId) -> AnyPublisher<SimpleResponse, APIError> {
         apiClient.deleteComment(commentId: commentId)
             .map { response in
+                ModelProvider.postModels[postId]?.post.commentCount -= 1
                 self.commentPublisher.commentDeleted(commentId: commentId)
                 Analytics.track(.commentDeleted)
                 return response
@@ -632,10 +610,12 @@ class AppState: ObservableObject {
     // MARK: - Discover
 
     func discoverFeedV2(location: Location? = nil) -> AnyPublisher<FeedResponse, APIError> {
-        guard case .user = currentUser else {
-            return Fail(error: APIError.authError).eraseToAnyPublisher()
-        }
-        return self.apiClient.getDiscoverFeedV2(location: location)
+        apiClient.getDiscoverFeedV2(location: location)
+            .map { page in
+                page.posts.forEach(ModelProvider.upsertPostModel(_:))
+                return page
+            }
+            .eraseToAnyPublisher()
     }
 
     // MARK: - Feedback
@@ -647,7 +627,11 @@ class AppState: ObservableObject {
     // MARK: - Notifications
 
     func getNotificationsFeed(token: String?) -> AnyPublisher<NotificationFeedResponse, APIError> {
-        return self.apiClient.getNotificationsFeed(token: token)
+        apiClient.getNotificationsFeed(token: token)
+            .map { response in
+                response.notifications.compactMap({ $0.post }).forEach(ModelProvider.upsertPostModel(_:))
+                return response
+            }
             .eraseToAnyPublisher()
     }
 
@@ -750,14 +734,14 @@ class AppState: ObservableObject {
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         DispatchQueue.main.async {
             if let user = user {
-                self.locationPingBackground()
+                self.locationPingService.locationPingBackground()
                 if user.isAnonymous {
                     self.currentUser = .anonymous
                 } else {
                     self.refreshCurrentUser()
                 }
             } else {
-                self.locationPingTimer?.invalidate()
+                self.locationPingService.invalidate()
                 if self.signingOut {
                     self.signingOut = false
                 }

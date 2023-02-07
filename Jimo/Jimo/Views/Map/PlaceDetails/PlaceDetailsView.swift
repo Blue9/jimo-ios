@@ -124,7 +124,7 @@ private struct BasePlaceDetailsView: View {
                     MaybeGuestPostPage(
                         // Don't update model store if we're using cached post
                         // data because newer data may already be in the store
-                        postVM: ModelProvider.getPostModel(for: post, shouldWrite: viewModel.loadStatus == .loaded),
+                        postVM: ModelProvider.getPostModel(for: post),
                         showSignUpAlert: showSignUpAlert
                     )
                 }
@@ -361,7 +361,7 @@ private struct PostCarousel: View {
             MaybeGuestPostPage(
                 // Don't update model store if we're using cached post
                 // data because newer data may already be in the store
-                postVM: ModelProvider.getPostModel(for: post, shouldWrite: placeDetailsViewModel.loadStatus == .loaded),
+                postVM: ModelProvider.getPostModel(for: post),
                 showSignUpAlert: showSignUpAlert
             )
         }

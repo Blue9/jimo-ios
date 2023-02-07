@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct PostGridCell: View {
-    var post: Post
+    @ObservedObject var postVM: PostVM
+    var post: Post { postVM.post }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

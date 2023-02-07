@@ -137,6 +137,7 @@
 		C79EA00225AFD56F00A38DB8 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79EA00125AFD56F00A38DB8 /* AppState.swift */; };
 		C7A118812992D0BD00D54509 /* PlaceDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A118802992D0BD00D54509 /* PlaceDetailsViewModel.swift */; };
 		C7A118832992D0E900D54509 /* MKPointOfInterestCategory+toString.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A118822992D0E900D54509 /* MKPointOfInterestCategory+toString.swift */; };
+		C7A1188D2993011E00D54509 /* LocationPingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A1188C2993011E00D54509 /* LocationPingService.swift */; };
 		C7A9497827C979AE002D89FE /* LiteMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A9497727C979AE002D89FE /* LiteMapView.swift */; };
 		C7AB52832890B8830080DF73 /* DeepLinkProfileLoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AB52822890B8830080DF73 /* DeepLinkProfileLoadingScreen.swift */; };
 		C7AB52852890BBAD0080DF73 /* RaisedButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AB52842890BBAD0080DF73 /* RaisedButtonStyle.swift */; };
@@ -321,6 +322,7 @@
 		C79EA00125AFD56F00A38DB8 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C7A118802992D0BD00D54509 /* PlaceDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailsViewModel.swift; sourceTree = "<group>"; };
 		C7A118822992D0E900D54509 /* MKPointOfInterestCategory+toString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKPointOfInterestCategory+toString.swift"; sourceTree = "<group>"; };
+		C7A1188C2993011E00D54509 /* LocationPingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPingService.swift; sourceTree = "<group>"; };
 		C7A9497727C979AE002D89FE /* LiteMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiteMapView.swift; sourceTree = "<group>"; };
 		C7AB52822890B8830080DF73 /* DeepLinkProfileLoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkProfileLoadingScreen.swift; sourceTree = "<group>"; };
 		C7AB52842890BBAD0080DF73 /* RaisedButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaisedButtonStyle.swift; sourceTree = "<group>"; };
@@ -582,6 +584,7 @@
 			isa = PBXGroup;
 			children = (
 				C79EA00125AFD56F00A38DB8 /* AppState.swift */,
+				C7A1188C2993011E00D54509 /* LocationPingService.swift */,
 				C794A32F298B07E700455972 /* AppState+RemoteConfig.swift */,
 				C74183DF25D6E3A2007F13C1 /* GlobalViewState.swift */,
 				C7F60C3A2991F8F90020AA9F /* ModelProvider.swift */,
@@ -1100,6 +1103,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C7031A7527C5ABE900A90D24 /* MapBottomSheetHeader.swift in Sources */,
+				C7A1188D2993011E00D54509 /* LocationPingService.swift in Sources */,
 				C751769825FEFAE000DCB856 /* FeaturedUserStore.swift in Sources */,
 				C7B32B142876858C009402E8 /* DeactivatedProfileView.swift in Sources */,
 				C791835F2597EC64006B4056 /* Constants.swift in Sources */,

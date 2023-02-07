@@ -9,8 +9,6 @@ import SwiftUI
 import Combine
 
 class PostVM: ObservableObject {
-    let nc = NotificationCenter.default
-
     @Published var post: Post
     @Published var liking = false
     @Published var unliking = false
@@ -20,31 +18,6 @@ class PostVM: ObservableObject {
 
     init(post: Post) {
         self.post = post
-        nc.addObserver(self, selector: #selector(postLiked), name: PostPublisher.postLiked, object: nil)
-        nc.addObserver(self, selector: #selector(placeSaved), name: PlacePublisher.placeSaved, object: nil)
-        nc.addObserver(self, selector: #selector(postUpdated), name: PostPublisher.postUpdated, object: nil)
-    }
-
-    @objc func postLiked(notification: Notification) {
-        let like = notification.object as! PostLikePayload
-        if post.id == like.postId {
-            self.post.liked = like.liked
-            self.post.likeCount = like.likeCount
-        }
-    }
-
-    @objc func placeSaved(notification: Notification) {
-        let payload = notification.object as! PlaceSavePayload
-        if post.place.id == payload.placeId {
-            self.post.saved = payload.save != nil
-        }
-    }
-
-    @objc func postUpdated(notification: Notification) {
-        let updated = notification.object as! Post
-        if updated.postId == post.postId {
-            self.post = updated
-        }
     }
 
     func likePost(postId: PostId, appState: AppState, viewState: GlobalViewState) {

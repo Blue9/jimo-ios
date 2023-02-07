@@ -53,15 +53,6 @@ struct Endpoint {
         return Endpoint(path: "/me")
     }
 
-    static func savedPosts(cursor: String? = nil) -> Endpoint {
-        let path = "/me/saved-posts"
-        var queryItems: [URLQueryItem] = []
-        if let cursor = cursor {
-            queryItems.append(URLQueryItem(name: "cursor", value: cursor))
-        }
-        return Endpoint(path: path, queryItems: queryItems)
-    }
-
     static func profilePicture() -> Endpoint {
         return Endpoint(path: "/me/photo")
     }
@@ -353,13 +344,6 @@ class APIClient: ObservableObject {
      */
     func getMe() -> AnyPublisher<PublicUser, APIError> {
         return doRequest(endpoint: Endpoint.me())
-    }
-
-    /**
-     Get the saved posts by the current user.
-     */
-    func getSavedPosts(cursor: String? = nil) -> AnyPublisher<FeedResponse, APIError> {
-        doRequest(endpoint: Endpoint.savedPosts(cursor: cursor))
     }
 
     /**

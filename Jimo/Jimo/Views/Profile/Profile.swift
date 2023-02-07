@@ -56,7 +56,7 @@ struct Profile: View {
                     Button {
                         self.navigationDestination = .post(post)
                     } label: {
-                        PostGridCell(post: post)
+                        PostGridCell(postVM: ModelProvider.getPostModel(for: post))
                     }
                 }
             }

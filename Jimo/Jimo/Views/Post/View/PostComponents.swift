@@ -136,7 +136,7 @@ struct PostHeader: View {
     @StateObject var editorVM = CreatePostVM()
     @ObservedObject var postVM: PostVM
 
-    var post: Post
+    var post: Post { postVM.post }
 
     @State private var showPostOptions = false
 

@@ -176,7 +176,7 @@ extension Feed {
         }
 
         func refreshFeed(appState: AppState, globalViewState: GlobalViewState, onFinish: OnFinish? = nil) {
-            refreshFeedCancellable = appState.refreshFeed()
+            refreshFeedCancellable = appState.getFeed()
                 .sink(receiveCompletion: { [weak self] completion in
                     onFinish?()
                     guard let self = self else {
@@ -202,7 +202,7 @@ extension Feed {
             }
             loadingMorePosts = true
             print("Loading more posts")
-            refreshFeedCancellable = appState.loadMoreFeedItems(cursor: cursor)
+            refreshFeedCancellable = appState.getFeed(cursor: cursor)
                 .sink(receiveCompletion: { [weak self] completion in
                     guard let self = self else {
                         return
