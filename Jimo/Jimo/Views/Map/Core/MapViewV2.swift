@@ -142,6 +142,7 @@ struct BaseMapViewV2: View {
                 .ignoresSafeArea(.keyboard, edges: .all)
             }
         )
+        .sheetWidth(.absolute(UIScreen.main.bounds.width))
         .enableFlickThrough()
         .customBackground(AnyView(Color("background")).cornerRadius(10))
         .customAnimation(.spring(response: 0.24, dampingFraction: 0.75, blendDuration: 0.1))
@@ -176,6 +177,7 @@ struct BaseMapViewV2: View {
                         .padding(.top, 10)
                 }
             )
+            .sheetWidth(.absolute(UIScreen.main.bounds.width))
             .customAnimation(.spring(response: 0.24, dampingFraction: 0.75, blendDuration: 0.1))
             .customBackground(AnyView(Color("background")).cornerRadius(10))
             .showCloseButton()
