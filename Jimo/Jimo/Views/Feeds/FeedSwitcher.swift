@@ -1,5 +1,5 @@
 //
-//  Feed.swift
+//  FeedSwitcher.swift
 //  Jimo
 //
 //  Created by Gautam Mekkat on 7/26/22.
@@ -12,7 +12,7 @@ private enum FeedType: Equatable {
     case following, forYou
 }
 
-struct Feed: View {
+struct FeedSwitcher: View {
     @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
@@ -139,7 +139,7 @@ struct Feed: View {
     }
 }
 
-extension Feed {
+extension FeedSwitcher {
     class ViewModel: ObservableObject {
         let nc = NotificationCenter.default
 

@@ -48,7 +48,7 @@ struct FeedTab: View {
     var body: some View {
         Navigator {
             if appState.me != nil {
-                Feed(onCreatePostTap: onCreatePostTap)
+                FeedSwitcher(onCreatePostTap: onCreatePostTap)
                     .navDestination(isPresented: $showNotifications) {
                         NotificationFeed(notificationFeedVM: notificationFeedVM)
                             .environmentObject(appState)
