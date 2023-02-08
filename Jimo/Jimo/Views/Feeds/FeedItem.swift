@@ -32,10 +32,11 @@ struct FeedItem: View {
 
     var post: Post
     var navigate: (Destination?) -> Void
+    var showShareSheet: () -> Void
 
     var body: some View {
         VStack {
-            PostHeader(postVM: postVM, post: post, navigate: { self.navigate(.user($0)) })
+            PostHeader(postVM: postVM, post: post, navigate: { self.navigate(.user($0)) }, showShareSheet: showShareSheet)
 
             PostImage(post: post)
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)

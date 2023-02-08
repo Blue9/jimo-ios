@@ -37,6 +37,7 @@ struct ViewPost: View {
     @State private var destination: Destination?
 
     @State private var imageSize: CGSize?
+    @State private var isShareSheetPresented = false
     @FocusState private var commentFieldFocused: Bool
     var focusOnAppear = false
 
@@ -63,7 +64,12 @@ struct ViewPost: View {
     @ViewBuilder
     private func postItem(post: Post) -> some View {
         VStack {
-            PostHeader(postVM: postVM, post: post, navigate: { self.destination = .user($0) })
+            PostHeader(
+                postVM: postVM,
+                post: post,
+                navigate: { self.destination = .user($0) },
+                showShareSheet: { self.isShareSheetPresented = true }
+            )
             PostImageTrackedSize(post: post, imageSize: $imageSize)
                 .frame(width: UIScreen.main.bounds.width)
             VStack(spacing: 5) {
@@ -160,6 +166,9 @@ struct ViewPost: View {
                 Divider()
                 commentField
             }
+        }
+        .sheet(isPresented: $isShareSheetPresented) {
+            ActivityView(shareAction: .post(post), isPresented: $isShareSheetPresented)
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))

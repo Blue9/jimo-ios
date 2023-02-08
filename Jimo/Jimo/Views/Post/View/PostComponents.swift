@@ -144,6 +144,7 @@ struct PostHeader: View {
     @State private var showConfirmDelete = false
     @State private var showConfirmReport = false
     var navigate: (PublicUser) -> Void
+    var showShareSheet: () -> Void
 
     var isMyPost: Bool {
         if case let .user(user) = appState.currentUser {
@@ -206,16 +207,11 @@ struct PostHeader: View {
             Spacer()
 
             Button(action: { self.showPostOptions = true }) {
-                if globalViewState.showShareOverlay {
-                    ProgressView()
-                        .padding(.horizontal, 10)
-                } else {
-                    Image(systemName: "ellipsis")
-                        .font(.subheadline)
-                        .frame(height: 26)
-                        .padding(.horizontal, 10)
-                        .contentShape(Rectangle())
-                }
+                Image(systemName: "ellipsis")
+                    .font(.subheadline)
+                    .frame(height: 26)
+                    .padding(.horizontal, 10)
+                    .contentShape(Rectangle())
             }
         }
         .padding(.leading, 10)
@@ -230,7 +226,7 @@ struct PostHeader: View {
                 title: Text("Post options"),
                 buttons: isMyPost ? [
                     .default(Text("Share"), action: {
-                        globalViewState.showShareOverlay(for: .post(post))
+                        self.showShareSheet()
                     }),
                     .default(Text("Edit"), action: {
                         showEditSheet = true
@@ -241,7 +237,7 @@ struct PostHeader: View {
                     .cancel()
                 ] : [
                     .default(Text("Share"), action: {
-                        globalViewState.showShareOverlay(for: .post(post))
+                        self.showShareSheet()
                     }),
                     .default(Text("Report"), action: {
                         showConfirmReport = true

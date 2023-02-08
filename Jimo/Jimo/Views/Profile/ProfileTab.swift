@@ -29,6 +29,11 @@ struct ProfileTab: View {
                             .environmentObject(appState)
                             .environmentObject(globalViewState)
                     }
+                    .navDestination(isPresented: $showSearchUsers) {
+                        SearchUsers()
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState)
+                    }
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationBarColor(UIColor(Color("background")))
                     .navigationTitle(Text("My Profile"))
@@ -47,11 +52,6 @@ struct ProfileTab: View {
                         }
                     })
                     .trackScreen(.profileTab)
-                    .fullScreenCover(isPresented: $showSearchUsers) {
-                        SearchUsers()
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState)
-                    }
             } else {
                 AnonymousProfilePlaceholder()
                     .redacted(reason: .placeholder)

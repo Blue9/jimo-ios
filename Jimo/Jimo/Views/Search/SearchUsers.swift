@@ -29,14 +29,12 @@ struct SearchUsers: View {
     }
 
     var body: some View {
-        Navigator {
-            mainBody
-        }
-        .accentColor(Color("foreground"))
-        .onAppear {
-            searchBarFocused = true
-            suggestedViewModel.initialize(appState: appState, viewState: viewState)
-        }
+        mainBody
+            .accentColor(Color("foreground"))
+            .onAppear {
+                searchBarFocused = true
+                suggestedViewModel.initialize(appState: appState, viewState: viewState)
+            }
     }
 
     var suggestedUsersCarousel: some View {
@@ -64,13 +62,6 @@ struct SearchUsers: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("background"))
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarColor(UIColor(Color("background")))
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Close", action: { presentationMode.wrappedValue.dismiss() })
-            }
-        }
         .navigationTitle(Text("Search Users"))
         .appear {
             if !initialized {
