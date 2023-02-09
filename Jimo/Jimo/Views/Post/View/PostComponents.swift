@@ -160,12 +160,10 @@ struct PostHeader: View {
             if stars == 0 {
                 Image(systemName: "star.slash.fill")
                     .foregroundColor(.gray)
-                    .font(.system(size: 15))
             } else {
                 ForEach(0..<stars, id: \.self) { _ in
                     Image(systemName: "star.fill")
                         .foregroundColor(.yellow)
-                        .font(.system(size: 15))
                 }
             }
         }

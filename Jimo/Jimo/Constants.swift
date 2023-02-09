@@ -52,3 +52,13 @@ struct Categories {
         Category(name: "Shopping", key: "shopping")
     ]
 }
+
+struct Stars {
+    // Map instead of array so indexing is safe
+    static let names = [
+        0: "Not worth it",
+        1: "Worth a try",
+        2: "Worth a detour",
+        3: "Worth a journey"
+    ]
+}

@@ -83,14 +83,6 @@ struct PostPage: View {
 }
 
 private struct StarsView: View {
-    // Map instead of array so indexing is safe
-    static let names = [
-        0: "Not worth",
-        1: "Worth trying",
-        2: "Worth a detour",
-        3: "Worth a journey"
-    ]
-
     var stars: Int
 
     var body: some View {
@@ -104,7 +96,7 @@ private struct StarsView: View {
                         .foregroundColor(.yellow)
                 }
             }
-            if let name = StarsView.names[stars] {
+            if let name = Stars.names[stars] {
                 Text("· \(name)").foregroundColor(.gray)
             }
         }

@@ -36,16 +36,23 @@ enum CurrentUser {
 enum OnboardingStep: Int {
     case completed = -1,
     requestLocation = 1,
-    followFeatured = 2,
-    requestContacts = 3,
-    followContacts = 4,
-    requestNotifications = 5
+    followFeatured = 2
+}
+
+class NotificationBadgeModel: ObservableObject {
+    @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
+        didSet {
+            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
+        }
+    }
 }
 
 class OnboardingModel: ObservableObject {
     @AppStorage("onboardingStep") var onboardingStep: OnboardingStep = .requestLocation
+    let notificationsModel: NotificationBadgeModel
 
-    init() {
+    init(notificationsModel: NotificationBadgeModel) {
+        self.notificationsModel = notificationsModel
         // Uncomment to reset onboarding view
 //        onboardingStep = .requestLocation
         self.skipLocationIfGranted()
@@ -63,12 +70,9 @@ class OnboardingModel: ObservableObject {
 
     func step() {
         withAnimation {
-            if self.onboardingStep == .requestContacts && PermissionManager.shared.contactsAuthStatus() != .authorized {
-                // Didn't receive contacts permission, skip followContacts
-                self.onboardingStep = .requestNotifications
-            } else {
-                // Go to next step
-                self.onboardingStep = .init(rawValue: self.onboardingStep.rawValue + 1) ?? .completed
+            self.onboardingStep = .init(rawValue: self.onboardingStep.rawValue + 1) ?? .completed
+            if self.onboardingStep == .completed {
+                self.notificationsModel.unreadNotifications += 1
             }
         }
     }
@@ -82,13 +86,8 @@ class AppState: ObservableObject {
 
     @Published var currentUser: CurrentUser = .loading
 
-    @Published var unreadNotifications: Int = UIApplication.shared.applicationIconBadgeNumber {
-        didSet {
-            UIApplication.shared.applicationIconBadgeNumber = unreadNotifications
-        }
-    }
-
-    let onboardingModel = OnboardingModel()
+    let onboardingModel: OnboardingModel
+    let notificationsModel: NotificationBadgeModel
 
     let userPublisher = UserPublisher()
     let postPublisher = PostPublisher()
@@ -109,10 +108,12 @@ class AppState: ObservableObject {
         return nil
     }
 
-    init(apiClient: APIClient) {
+    init(apiClient: APIClient, notificationsModel: NotificationBadgeModel) {
         // Uncomment the two lines below to clear the image cache
         // SDImageCache.shared.clearMemory()
         // SDImageCache.shared.clearDisk()
+        self.notificationsModel = notificationsModel
+        self.onboardingModel = OnboardingModel(notificationsModel: notificationsModel)
         self.apiClient = apiClient
         Auth.auth().addStateDidChangeListener(self.authHandler)
         updateTokenOnUserChange()
