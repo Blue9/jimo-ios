@@ -15,19 +15,20 @@ struct MainAppView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
     @EnvironmentObject var deepLinkManager: DeepLinkManager
+    @ObservedObject var notificationsModel: NotificationBadgeModel
     @StateObject private var viewModel = ViewModel()
     @State private var signUpAlert: SignUpAlert = .init(isPresented: false, source: .none)
     let currentUser: PublicUser?
 
     var mainBody: some View {
         UITabView(selection: viewModel.selectionIndex) {
-            FeedTab(onCreatePostTap: { globalViewState.createPostPresented = true })
+            FeedTab(notificationsModel: notificationsModel, onCreatePostTap: { globalViewState.createPostPresented = true })
                 .environmentObject(appState)
                 .environmentObject(globalViewState)
                 .tabItem(
                     "",
                     image: UIImage(named: "feedIcon"),
-                    badgeValue: appState.unreadNotifications > 0 ? String(appState.unreadNotifications) : nil
+                    badgeValue: notificationsModel.unreadNotifications > 0 ? String(notificationsModel.unreadNotifications) : nil
                 )
 
             MapTab()
@@ -46,6 +47,7 @@ struct MainAppView: View {
                 CreatePost(presented: $globalViewState.createPostPresented)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
+                    .environmentObject(deepLinkManager)
                     .disabled(true)
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -59,6 +61,7 @@ struct MainAppView: View {
                     .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
+                    .environmentObject(deepLinkManager)
             }
         }
         .accentColor(Color("foreground"))

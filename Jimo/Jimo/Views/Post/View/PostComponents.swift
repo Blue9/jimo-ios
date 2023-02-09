@@ -101,7 +101,6 @@ struct PostSaveButton: View {
 
 struct PostCommentsIcon: View {
     var post: Post
-    var showZeroCommentCount: Bool
 
     var onTap: (() -> Void)?
 
@@ -154,6 +153,21 @@ struct PostHeader: View {
         return false
     }
 
+    @ViewBuilder
+    func starsView(stars: Int) -> some View {
+        HStack(spacing: 2) {
+            if stars == 0 {
+                Image(systemName: "star.slash.fill")
+                    .foregroundColor(.gray)
+            } else {
+                ForEach(0..<stars, id: \.self) { _ in
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                }
+            }
+        }
+    }
+
     var body: some View {
         HStack {
             profilePicture.onTapGesture {
@@ -175,6 +189,11 @@ struct PostHeader: View {
                         .bold()
                     Text(" · ")
                         .foregroundColor(.gray)
+                    if let stars = post.stars {
+                        starsView(stars: stars)
+                        Text(" · ")
+                            .foregroundColor(.gray)
+                    }
                     Text(appState.relativeTime(for: post.createdAt))
                         .foregroundColor(.gray)
                 }
@@ -325,7 +344,6 @@ struct PostFooter: View {
     @ObservedObject var viewModel: PostVM
     var post: Post
     var showSaveButton = true
-    var showZeroCommentCount: Bool
 
     var onCommentTap: (() -> Void)?
 
@@ -339,13 +357,24 @@ struct PostFooter: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(likeCountText) · \(commentCountText)").font(.caption)
-                .padding(.horizontal, 10)
+            Group {
+                if post.likeCount > 0 && post.commentCount > 0 {
+                    Text("\(likeCountText) · \(commentCountText)")
+                } else if post.likeCount > 0 {
+                    Text(likeCountText)
+                } else if post.commentCount > 0 {
+                    Text(commentCountText)
+                } else {
+                    Text(" ") // Keep spacing consistent
+                }
+            }
+            .font(.caption)
+            .padding(.horizontal, 10)
 
             HStack(spacing: 0) {
                 PostLikeButton(postVM: viewModel, post: post)
                 Divider().padding(.vertical, 5)
-                PostCommentsIcon(post: post, showZeroCommentCount: showZeroCommentCount, onTap: onCommentTap)
+                PostCommentsIcon(post: post, onTap: onCommentTap)
                 if showSaveButton {
                     Divider().padding(.vertical, 5)
                     PostSaveButton(postVM: viewModel, post: post)

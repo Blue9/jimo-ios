@@ -11,15 +11,16 @@ struct FeedTab: View {
     @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @ObservedObject var notificationsModel: NotificationBadgeModel
 
     @State private var showFeedback = false
-    @State private var showInvite = false
+    @State private var showSearchUsers = false
     @State private var showNotifications = false
 
     @StateObject private var notificationFeedVM = NotificationFeedViewModel()
 
     var notificationBellBadgePresent: Bool {
-        appState.unreadNotifications > 0 || notificationFeedVM.shouldRequestNotificationPermissions
+        notificationsModel.unreadNotifications > 0 || notificationFeedVM.shouldRequestNotificationPermissions
     }
 
     var onCreatePostTap: () -> Void
@@ -36,6 +37,13 @@ struct FeedTab: View {
                     .offset(x: -1)
             }
         }
+        .onAppear {
+            PermissionManager.shared.getNotificationAuthStatus { status in
+                DispatchQueue.main.async {
+                    notificationFeedVM.shouldRequestNotificationPermissions = status != .authorized
+                }
+            }
+        }
         .onChange(of: scenePhase) { _ in
             PermissionManager.shared.getNotificationAuthStatus { status in
                 DispatchQueue.main.async {
@@ -49,8 +57,16 @@ struct FeedTab: View {
         Navigator {
             if appState.me != nil {
                 FeedSwitcher(onCreatePostTap: onCreatePostTap)
+                    // When swiping back from search users sometimes adds a black bar where keyboard would be
+                    // This fixes that
+                    .ignoresSafeArea(.keyboard, edges: .all)
                     .navDestination(isPresented: $showNotifications) {
                         NotificationFeed(notificationFeedVM: notificationFeedVM)
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState)
+                    }
+                    .navDestination(isPresented: $showSearchUsers) {
+                        SearchUsers()
                             .environmentObject(appState)
                             .environmentObject(globalViewState)
                     }
@@ -64,6 +80,12 @@ struct FeedTab: View {
                                 .foregroundColor(Color("foreground"))
                                 .scaledToFit()
                                 .frame(width: 50)
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: { self.showSearchUsers = true }) {
+                                Image(systemName: "magnifyingglass")
+                                    .contentShape(Rectangle())
+                            }
                         }
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {

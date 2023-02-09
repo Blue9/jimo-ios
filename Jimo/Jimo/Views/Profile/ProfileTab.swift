@@ -24,8 +24,16 @@ struct ProfileTab: View {
             if let currentUser = currentUser {
                 Profile(initialUser: currentUser)
                     .background(Color("background"))
+                    // When swiping back from search users sometimes adds a black bar where keyboard would be
+                    // This fixes that (this didn't happen on profile, only feed, but this is extra safe
+                    .ignoresSafeArea(.keyboard, edges: .all)
                     .navDestination(isPresented: $showSettings) {
                         Settings(settingsViewModel: settingsViewModel)
+                            .environmentObject(appState)
+                            .environmentObject(globalViewState)
+                    }
+                    .navDestination(isPresented: $showSearchUsers) {
+                        SearchUsers()
                             .environmentObject(appState)
                             .environmentObject(globalViewState)
                     }
@@ -47,11 +55,6 @@ struct ProfileTab: View {
                         }
                     })
                     .trackScreen(.profileTab)
-                    .fullScreenCover(isPresented: $showSearchUsers) {
-                        SearchUsers()
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState)
-                    }
             } else {
                 AnonymousProfilePlaceholder()
                     .redacted(reason: .placeholder)

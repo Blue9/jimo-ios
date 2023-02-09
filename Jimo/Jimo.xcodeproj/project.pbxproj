@@ -128,6 +128,10 @@
 		C78653E827D8476000A0D1A0 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78653E727D8476000A0D1A0 /* Analytics.swift */; };
 		C79183482597DABF006B4056 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79183472597DABF006B4056 /* PopupView.swift */; };
 		C791835F2597EC64006B4056 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791835E2597EC64006B4056 /* Constants.swift */; };
+		C79459082991635C00A7E4F6 /* CreatePostCategoryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79459072991635C00A7E4F6 /* CreatePostCategoryPicker.swift */; };
+		C794590A299163D000A7E4F6 /* ImageSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7945909299163D000A7E4F6 /* ImageSelectionView.swift */; };
+		C794590C299163F600A7E4F6 /* CreatePostStarPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C794590B299163F600A7E4F6 /* CreatePostStarPicker.swift */; };
+		C794590E2991658000A7E4F6 /* FormInputText.swift in Sources */ = {isa = PBXBuildFile; fileRef = C794590D2991658000A7E4F6 /* FormInputText.swift */; };
 		C794A32C298AF26400455972 /* MaybeGuestPostPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C794A32B298AF26400455972 /* MaybeGuestPostPage.swift */; };
 		C794A32E298AF27100455972 /* PostPagePlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C794A32D298AF27100455972 /* PostPagePlaceholder.swift */; };
 		C794A330298B07E700455972 /* AppState+RemoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C794A32F298B07E700455972 /* AppState+RemoteConfig.swift */; };
@@ -167,6 +171,7 @@
 		C7EAD4D425ABBDCC004A9F53 /* PostVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D325ABBDCC004A9F53 /* PostVM.swift */; };
 		C7EAD4D925AC1D49004A9F53 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4D825AC1D49004A9F53 /* APIClient.swift */; };
 		C7EAD4DE25AC1DD0004A9F53 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */; };
+		C7EB26E82994AB92009BBAB1 /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EB26E72994AB92009BBAB1 /* NotificationSettings.swift */; };
 		C7EF8E6A296E699E00892BA0 /* CustomUserFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */; };
 		C7F1EF3F29792488009806F8 /* MKMapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F1EF3E29792488009806F8 /* MKMapItem.swift */; };
 		C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F6D502255A42BA00E8D216 /* SearchBar.swift */; };
@@ -310,6 +315,10 @@
 		C78653E727D8476000A0D1A0 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		C79183472597DABF006B4056 /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
 		C791835E2597EC64006B4056 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C79459072991635C00A7E4F6 /* CreatePostCategoryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostCategoryPicker.swift; sourceTree = "<group>"; };
+		C7945909299163D000A7E4F6 /* ImageSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSelectionView.swift; sourceTree = "<group>"; };
+		C794590B299163F600A7E4F6 /* CreatePostStarPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostStarPicker.swift; sourceTree = "<group>"; };
+		C794590D2991658000A7E4F6 /* FormInputText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormInputText.swift; sourceTree = "<group>"; };
 		C794A32B298AF26400455972 /* MaybeGuestPostPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaybeGuestPostPage.swift; sourceTree = "<group>"; };
 		C794A32D298AF27100455972 /* PostPagePlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostPagePlaceholder.swift; sourceTree = "<group>"; };
 		C794A32F298B07E700455972 /* AppState+RemoteConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppState+RemoteConfig.swift"; sourceTree = "<group>"; };
@@ -346,6 +355,7 @@
 		C7EAD4D325ABBDCC004A9F53 /* PostVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostVM.swift; sourceTree = "<group>"; };
 		C7EAD4D825AC1D49004A9F53 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		C7EAD4DD25AC1DD0004A9F53 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
+		C7EB26E72994AB92009BBAB1 /* NotificationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettings.swift; sourceTree = "<group>"; };
 		C7EF8E69296E699E00892BA0 /* CustomUserFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUserFilter.swift; sourceTree = "<group>"; };
 		C7F1EF3E29792488009806F8 /* MKMapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKMapItem.swift; sourceTree = "<group>"; };
 		C7F6D502255A42BA00E8D216 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
@@ -603,6 +613,7 @@
 				C773DFBC25DF90FA00E40102 /* TextAlert.swift */,
 				C71B1B142599B7FE004BF1CD /* Toast.swift */,
 				C77321DB2557EF390087FAA6 /* URLImage.swift */,
+				C794590D2991658000A7E4F6 /* FormInputText.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -805,9 +816,12 @@
 			children = (
 				C7EAD4CE25ABBD9A004A9F53 /* CreatePostVM.swift */,
 				C75C2F3E255617CA009B6ADA /* CreatePost.swift */,
+				C794590B299163F600A7E4F6 /* CreatePostStarPicker.swift */,
+				C79459072991635C00A7E4F6 /* CreatePostCategoryPicker.swift */,
 				C749397B255659AE00D1E8D3 /* MultilineTextField.swift */,
 				C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */,
 				C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */,
+				C7945909299163D000A7E4F6 /* ImageSelectionView.swift */,
 			);
 			path = Create;
 			sourceTree = "<group>";
@@ -893,6 +907,7 @@
 				C7AEACFC25D8720E00EDEB7D /* Settings.swift */,
 				C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */,
 				C7315BC0266AD7D50086BD52 /* EditPreferences.swift */,
+				C7EB26E72994AB92009BBAB1 /* NotificationSettings.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1164,6 +1179,7 @@
 				C7318C912560E1F000E75BE6 /* HideKeyboard.swift in Sources */,
 				C7493981255663E100D1E8D3 /* RoundedButton.swift in Sources */,
 				C76E913825D20F6E00762803 /* FollowContacts.swift in Sources */,
+				C794590C299163F600A7E4F6 /* CreatePostStarPicker.swift in Sources */,
 				C7B91FE928245D2400F383BC /* SharePostButton.swift in Sources */,
 				1FC816C625E34249009B803F /* Feedback.swift in Sources */,
 				C7D73FD725A7BCDD007699AF /* ProfileTab.swift in Sources */,
@@ -1181,6 +1197,7 @@
 				C7E7F68427F3C09800F9D598 /* Screens.swift in Sources */,
 				C7317F3F25E5C5840070E938 /* ImageUploadService.swift in Sources */,
 				C7315BC1266AD7D50086BD52 /* EditPreferences.swift in Sources */,
+				C794590A299163D000A7E4F6 /* ImageSelectionView.swift in Sources */,
 				C75465E7298A54C00013B1ED /* SignUpTapSource.swift in Sources */,
 				C7031A7227C5AB5300A90D24 /* MapBottomSheetBody.swift in Sources */,
 				C7031A6B27C5A61400A90D24 /* RegionWrapper.swift in Sources */,
@@ -1189,11 +1206,14 @@
 				C7D2D85C25CE6E4200246BD0 /* MKCoordinateSpan+Equatable.swift in Sources */,
 				C75176A025FEFDEB00DCB856 /* FollowFeatured.swift in Sources */,
 				C707E02227EE565C0077B8DA /* NoButtonStyle.swift in Sources */,
+				C7EB26E82994AB92009BBAB1 /* NotificationSettings.swift in Sources */,
 				C701233427F65C78008F3F21 /* NetworkConnectionMonitor.swift in Sources */,
 				C757F87327F1579500364EDB /* RequestPermission.swift in Sources */,
 				C766903B298094CF0083357D /* PlacePublisher.swift in Sources */,
+				C794590E2991658000A7E4F6 /* FormInputText.swift in Sources */,
 				C73BC3A12988D2D700BF85AC /* View+navDestination.swift in Sources */,
 				C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */,
+				C79459082991635C00A7E4F6 /* CreatePostCategoryPicker.swift in Sources */,
 				C72BB2B128038DEA001997C1 /* PostDestination.swift in Sources */,
 				C7106AF5256084E200C10EFF /* Place.swift in Sources */,
 				C72F3CB92587264A00DDB76C /* FeedTab.swift in Sources */,
@@ -1396,7 +1416,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Jimo/Jimo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Jimo/Preview Content\"";
 				DEVELOPMENT_TEAM = FL6G2R3Q86;
@@ -1407,7 +1427,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.2.1;
+				MARKETING_VERSION = 9.0.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1423,7 +1443,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Jimo/Jimo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Jimo/Preview Content\"";
 				DEVELOPMENT_TEAM = FL6G2R3Q86;
 				ENABLE_PREVIEWS = YES;
@@ -1433,7 +1453,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.2.1;
+				MARKETING_VERSION = 9.0.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jimoapp.jimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
