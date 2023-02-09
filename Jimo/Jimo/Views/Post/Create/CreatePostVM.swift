@@ -71,8 +71,8 @@ enum CreateOrEdit: Equatable {
     }
 }
 
-enum Status {
-    case drafting, loading, success
+enum Status: Equatable, Hashable {
+    case drafting, loading, success(Post)
 }
 
 class CreatePostVM: ObservableObject {
@@ -88,6 +88,7 @@ class CreatePostVM: ObservableObject {
 
     @Published var category: String?
     @Published var content: String = ""
+    @Published var stars: Int?
     @Published var image: CreatePostImage?
 
     /// Only used when editing
@@ -127,6 +128,7 @@ class CreatePostVM: ObservableObject {
         self.name = post.place.name
         self.category = post.category
         self.content = post.content
+        self.stars = post.stars
         self.previewRegion = MKCoordinateRegion(
             center: post.place.location.coordinate(),
             span: MKCoordinateSpan(latitudeDelta: 4, longitudeDelta: 4)
@@ -177,6 +179,7 @@ class CreatePostVM: ObservableObject {
         self.createOrEdit = .create
         self.category = nil
         self.content = ""
+        self.stars = nil
         self.image = nil
         self.placeId = nil
         self.showError = false
@@ -196,13 +199,13 @@ class CreatePostVM: ObservableObject {
     }
 
     func createPost(appState: AppState) {
-        guard let category = category else {
-            errorMessage = "Category is required"
+        guard maybeCreatePlaceRequest != nil || placeId != nil else {
+            errorMessage = "Location is required"
             showError = true
             return
         }
-        guard maybeCreatePlaceRequest != nil || placeId != nil else {
-            errorMessage = "Location is required"
+        guard let category = category else {
+            errorMessage = "Category is required"
             showError = true
             return
         }
@@ -214,6 +217,7 @@ class CreatePostVM: ObservableObject {
             place: placeId == nil ? maybeCreatePlaceRequest : nil,
             category: category,
             content: content,
+            stars: stars,
             image: image
         )
         .sink { completion in
@@ -230,7 +234,7 @@ class CreatePostVM: ObservableObject {
                 self.postingStatus = .drafting
             }
         } receiveValue: { post in
-            self.postingStatus = .success
+            self.postingStatus = .success(post)
             self.onCreate?(post)
         }.store(in: &cancelBag)
     }
@@ -241,6 +245,7 @@ class CreatePostVM: ObservableObject {
         place: MaybeCreatePlaceRequest?,
         category: String,
         content: String,
+        stars: Int?,
         image: CreatePostImage?
     ) -> AnyPublisher<Post, APIError> {
         let action = self.createOrEdit.action(appState: appState)
@@ -251,6 +256,7 @@ class CreatePostVM: ObservableObject {
                     place: place,
                     category: category,
                     content: content,
+                    stars: stars,
                     imageId: image?.imageId)
             )
         }
@@ -261,6 +267,7 @@ class CreatePostVM: ObservableObject {
                     place: place,
                     category: category,
                     content: content,
+                    stars: stars,
                     imageId: imageId
                 )
             )

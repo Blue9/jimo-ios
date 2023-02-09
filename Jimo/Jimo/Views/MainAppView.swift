@@ -46,6 +46,7 @@ struct MainAppView: View {
                 CreatePost(presented: $globalViewState.createPostPresented)
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
+                    .environmentObject(deepLinkManager)
                     .disabled(true)
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -59,6 +60,7 @@ struct MainAppView: View {
                     .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
+                    .environmentObject(deepLinkManager)
             }
         }
         .accentColor(Color("foreground"))
