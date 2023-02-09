@@ -369,7 +369,7 @@ struct PostFooter: View {
                 } else if post.commentCount > 0 {
                     Text(commentCountText)
                 } else {
-                    Text("") // Keep spacing consistent
+                    Text(" ") // Keep spacing consistent
                 }
             }
             .font(.caption)

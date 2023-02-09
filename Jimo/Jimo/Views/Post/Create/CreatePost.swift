@@ -68,7 +68,10 @@ struct CreatePostWithModel: View {
                         HStack {
                             ImageSelectionView(createPostVM: createPostVM, buttonColor: buttonColor)
 
-                            FormInputText(name: "Write a note (recommended)", text: $createPostVM.content)
+                            FormInputText(
+                                name: "Write a note (Recommended)",
+                                text: $createPostVM.content
+                            )
                         }
                         .padding(10)
                         .ignoresSafeArea(.keyboard, edges: .bottom)

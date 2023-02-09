@@ -199,13 +199,13 @@ class CreatePostVM: ObservableObject {
     }
 
     func createPost(appState: AppState) {
-        guard let category = category else {
-            errorMessage = "Category is required"
+        guard maybeCreatePlaceRequest != nil || placeId != nil else {
+            errorMessage = "Location is required"
             showError = true
             return
         }
-        guard maybeCreatePlaceRequest != nil || placeId != nil else {
-            errorMessage = "Location is required"
+        guard let category = category else {
+            errorMessage = "Category is required"
             showError = true
             return
         }

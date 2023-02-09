@@ -34,31 +34,16 @@ struct PostPage: View {
             .cornerRadius(2)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(post.place.name)
-                    .font(.caption)
-                    .fontWeight(.black)
-                    .lineLimit(1)
-
                 if let stars = post.stars {
-                    VStack(alignment: .leading) {
-                        HStack(spacing: 2) {
-                            Text(post.user.username.lowercased() + " ")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                            StarsView(stars: stars)
-                        }
-                        Text(post.content)
-                            .font(.caption)
-                    }
-                } else {
-                    Group {
-                        Text(post.user.username.lowercased() + " ")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                        +
-                        Text(post.content)
-                            .font(.caption)
-                    }
+                    StarsView(stars: stars)
+                }
+                Group {
+                    Text(post.user.username.lowercased() + " ")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                    +
+                    Text(post.content)
+                        .font(.caption)
                 }
 
                 Spacer()
@@ -98,6 +83,14 @@ struct PostPage: View {
 }
 
 private struct StarsView: View {
+    // Map instead of array so indexing is safe
+    static let names = [
+        0: "Not worth",
+        1: "Worth trying",
+        2: "Worth a detour",
+        3: "Worth a journey"
+    ]
+
     var stars: Int
 
     var body: some View {
@@ -110,6 +103,9 @@ private struct StarsView: View {
                     Image(systemName: "star.fill")
                         .foregroundColor(.yellow)
                 }
+            }
+            if let name = StarsView.names[stars] {
+                Text("· \(name)").foregroundColor(.gray)
             }
         }
         .font(.caption)

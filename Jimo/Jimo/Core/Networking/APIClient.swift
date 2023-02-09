@@ -17,9 +17,9 @@ struct Endpoint {
 
     var url: URL? {
         var apiURL = URLComponents()
-        apiURL.scheme = "http"
-        apiURL.host = "192.168.1.155"
-        apiURL.port = 80
+        apiURL.scheme = "https"
+        apiURL.host = "api.jimoapp.com"
+        apiURL.port = 443
         apiURL.path = path
         apiURL.queryItems = queryItems
         return apiURL.url
