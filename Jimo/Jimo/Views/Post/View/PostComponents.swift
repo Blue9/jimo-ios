@@ -101,7 +101,6 @@ struct PostSaveButton: View {
 
 struct PostCommentsIcon: View {
     var post: Post
-    var showZeroCommentCount: Bool
 
     var onTap: (() -> Void)?
 
@@ -345,7 +344,6 @@ struct PostFooter: View {
     @ObservedObject var viewModel: PostVM
     var post: Post
     var showSaveButton = true
-    var showZeroCommentCount: Bool
 
     var onCommentTap: (() -> Void)?
 
@@ -376,7 +374,7 @@ struct PostFooter: View {
             HStack(spacing: 0) {
                 PostLikeButton(postVM: viewModel, post: post)
                 Divider().padding(.vertical, 5)
-                PostCommentsIcon(post: post, showZeroCommentCount: showZeroCommentCount, onTap: onCommentTap)
+                PostCommentsIcon(post: post, onTap: onCommentTap)
                 if showSaveButton {
                     Divider().padding(.vertical, 5)
                     PostSaveButton(postVM: viewModel, post: post)

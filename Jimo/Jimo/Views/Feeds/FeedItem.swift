@@ -59,7 +59,6 @@ struct FeedItem: View {
             PostFooter(
                 viewModel: postVM,
                 post: post,
-                showZeroCommentCount: false,
                 onCommentTap: { self.navigate(.post(post)) }
             )
 

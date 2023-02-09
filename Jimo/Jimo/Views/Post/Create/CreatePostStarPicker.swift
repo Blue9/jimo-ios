@@ -41,7 +41,7 @@ struct CreatePostStarPicker: View {
             HStack(spacing: 0) {
                 Text("Not worth it").frame(maxWidth: .infinity)
                 Spacer()
-                Text("Worth a try").frame(maxWidth: .infinity)
+                Text("Worth a stop").frame(maxWidth: .infinity)
                 Spacer()
                 Text("Worth a detour").frame(maxWidth: .infinity)
                 Spacer()

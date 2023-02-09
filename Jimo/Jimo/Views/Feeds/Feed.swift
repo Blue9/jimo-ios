@@ -105,9 +105,6 @@ struct Feed: View {
 
     var initializedFeed: some View {
         RefreshableScrollView {
-            FindFriendsButton(showFindFriendsSheet: $showFindFriendsSheet)
-                .padding(.bottom, 10)
-
             ForEach(feedViewModel.feed) { post in
                 FeedItem(post: post, navigate: { self.navigationDestination = $0 }, showShareSheet: { shareAction = .post(post) })
             }
@@ -238,27 +235,6 @@ extension Feed {
         }
     }
 
-}
-
-private struct FindFriendsButton: View {
-    @Binding var showFindFriendsSheet: Bool
-
-    var body: some View {
-        Button(action: {
-            Analytics.track(.feedFindFriendsTapped)
-            showFindFriendsSheet = true
-        }) {
-            Text("Find more people to follow")
-                .padding(10)
-                .font(.system(size: 15))
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .cornerRadius(10)
-                .foregroundColor(.white)
-                .frame(height: 50)
-        }
-        .padding(.horizontal, 20)
-    }
 }
 
 private struct EnableLocationButton: View {

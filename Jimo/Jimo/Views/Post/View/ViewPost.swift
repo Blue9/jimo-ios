@@ -83,7 +83,6 @@ struct ViewPost: View {
                 viewModel: postVM,
                 post: post,
                 showSaveButton: showSaveButton,
-                showZeroCommentCount: true,
                 onCommentTap: { commentFieldFocused = true }
             ).padding(.bottom, 10)
         }
