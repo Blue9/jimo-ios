@@ -37,6 +37,9 @@
 //   - Listen to post updates
 //   - Listen to place save updates
 
+// SearchUsers
+//  - Doesn't listen to anything
+
 // - Map
 //   - Doesn't listen to anything
 
