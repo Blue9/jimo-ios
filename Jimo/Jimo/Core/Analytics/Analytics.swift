@@ -130,6 +130,9 @@ enum AnalyticsName: Equatable {
     case feedFindFriendsTapped
     case profileNewPostTapped
 
+    // Notifications
+    case notificationFeedEnableTap
+    case notificationFeedShareTap
     case notificationPermissionsAllowed
     case notificationPermissionsDenied
 

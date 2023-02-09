@@ -14,13 +14,14 @@ extension PermissionManager {
                 DispatchQueue.main.async {
                     UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, completionHandler: { (_) in })
                 }
+            } else if settings.authorizationStatus != .authorized {
+                UNUserNotificationCenter.current().requestAuthorization(
+                    options: [.alert, .badge, .sound],
+                    completionHandler: { (success, _) in
+                        Analytics.track(success ? .notificationPermissionsAllowed : .notificationPermissionsDenied)
+                    })
             }
         }
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: [.alert, .badge, .sound],
-            completionHandler: { (success, _) in
-                Analytics.track(success ? .notificationPermissionsAllowed : .notificationPermissionsDenied)
-            })
     }
 
     func getNotificationAuthStatus(callback: @escaping (UNAuthorizationStatus) -> Void) {

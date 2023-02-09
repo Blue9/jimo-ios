@@ -12,6 +12,7 @@ struct NotificationFeed: View {
     @EnvironmentObject var globalViewState: GlobalViewState
 
     @ObservedObject var notificationFeedVM: NotificationFeedViewModel
+    @State private var showShareProfileOverlay = false
 
     var body: some View {
         RefreshableScrollView(spacing: 10) {
@@ -25,10 +26,35 @@ struct NotificationFeed: View {
                     .environmentObject(globalViewState)
                     .padding(.horizontal, 10)
             }
+
+            HStack {
+                Image("icon")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(3)
+                    .frame(width: 40, height: 40, alignment: .center)
+                    .cornerRadius(20)
+                    .padding(.trailing, 5)
+                VStack(alignment: .leading) {
+                    Text("Welcome! Jimo is more fun with friends. If you'd like, tap here to share your profile.")
+                }
+                .font(.system(size: 14))
+                Spacer()
+            }.onTapGesture {
+                Analytics.track(.notificationFeedShareTap)
+                self.showShareProfileOverlay = true
+            }.padding(.horizontal, 10)
         } onRefresh: { onFinish in
             notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState, onFinish: onFinish)
         } onLoadMore: {
             notificationFeedVM.loadMoreNotifications(appState: appState, viewState: globalViewState)
+        }
+        .sheet(isPresented: $showShareProfileOverlay) {
+            if let me = appState.me {
+                ActivityView(shareAction: .profile(me), isPresented: $showShareProfileOverlay)
+            } else {
+                // This should never happen but it probably will because nothing ever makes sense
+            }
         }
         .foregroundColor(Color("foreground"))
         .background(Color("background").edgesIgnoringSafeArea(.all))
@@ -40,7 +66,7 @@ struct NotificationFeed: View {
         .navigationTitle(Text("Notifications"))
         .onChange(of: notificationFeedVM.loading) { loading in
             if !loading {
-                appState.unreadNotifications = 0
+                appState.notificationsModel.unreadNotifications = 0
             }
         }
         .trackScreen(.notificationFeed)
@@ -142,6 +168,7 @@ private struct NotificationFeedItem: View {
 private struct EnableNotificationsButton: View {
     var body: some View {
         Button(action: {
+            Analytics.track(.notificationFeedEnableTap)
             PermissionManager.shared.requestNotifications()
         }) {
             Text("Tap to enable push notifications")

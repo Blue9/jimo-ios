@@ -11,10 +11,13 @@ import FirebaseRemoteConfig
 
 private let gcmMessageIDKey = "gcm.message_id"
 
-private let appState = AppState(apiClient: APIClient())
+private let notificationsModel = NotificationBadgeModel()
+private let appState = AppState(apiClient: APIClient(), notificationsModel: notificationsModel)
 private let globalViewState = GlobalViewState()
 private let deepLinkManager = DeepLinkManager()
 
+// If you see `This method should not be called on the main thread as it may lead to UI unresponsiveness.`
+// It's probably because of the share overlay or the way we are reading the location (could be something else not 100% sure)
 @main
 struct JimoApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -27,11 +30,11 @@ struct JimoApp: App {
                 .environmentObject(deepLinkManager)
                 .onAppear {
                     appState.refreshRemoteConfig()
-                    appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+                    notificationsModel.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                     appState.refreshRemoteConfig()
-                    appState.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
+                    notificationsModel.unreadNotifications = UIApplication.shared.applicationIconBadgeNumber
                 }
                 .onOpenURL { url in
                     deepLinkManager.presentableEntity = url.entityType
@@ -149,10 +152,10 @@ extension AppDelegate {
 
         // Print full message.
         if let postId = userInfo["post_id"] as? PostId {
-            appState.unreadNotifications = 0
+            notificationsModel.unreadNotifications = 0
             deepLinkManager.presentableEntity = .post(postId)
         } else if let username = userInfo["username"] as? String {
-            appState.unreadNotifications = 0
+            notificationsModel.unreadNotifications = 0
             deepLinkManager.presentableEntity = .profile(username)
         }
 

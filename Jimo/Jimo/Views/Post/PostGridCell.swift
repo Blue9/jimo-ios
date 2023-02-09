@@ -28,15 +28,36 @@ struct PostGridCell: View {
             .cornerRadius(2)
             .padding(.bottom, 5)
 
-            Text(post.place.name)
-                .font(.system(size: 12))
-                .bold()
-                .lineLimit(1)
-
-            Text(post.place.city ?? "")
-                .font(.system(size: 12))
-                .lineLimit(1)
+            caption
         }
         .padding(.bottom, 10)
+    }
+
+    @ViewBuilder
+    var caption: some View {
+        if let stars = post.stars {
+            HStack(spacing: 1) {
+                if stars == 0 {
+                    Image(systemName: "star.slash.fill")
+                        .foregroundColor(.gray)
+                } else {
+                    ForEach(0..<stars, id: \.self) { _ in
+                        Image(systemName: "star.fill")
+                            .foregroundColor(.yellow)
+                    }
+                }
+            }.font(.caption)
+        }
+        Text(post.place.name)
+            .font(.caption)
+            .bold()
+            .lineLimit(1)
+
+        Text(post.place.city ?? "")
+            .font(.caption)
+            .lineLimit(1)
+        if post.stars == nil {
+            Text(" ").font(.caption) // Spacer to keep grid rows even height
+        }
     }
 }

@@ -16,7 +16,7 @@ struct LoggedInView: View {
 
     var body: some View {
         if onboardingModel.isUserOnboarded {
-            MainAppView(currentUser: currentUser)
+            MainAppView(notificationsModel: appState.notificationsModel, currentUser: currentUser)
         } else {
             OnboardingView(onboardingModel: appState.onboardingModel)
         }

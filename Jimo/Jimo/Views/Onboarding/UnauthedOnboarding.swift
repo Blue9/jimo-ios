@@ -32,7 +32,7 @@ struct UnauthedOnboarding: View {
                 .trackScreen(.guestLocationOnboarding)
             }
         } else {
-            MainAppView(currentUser: nil)
+            MainAppView(notificationsModel: appState.notificationsModel, currentUser: nil)
         }
     }
 }

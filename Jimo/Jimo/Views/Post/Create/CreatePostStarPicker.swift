@@ -39,9 +39,9 @@ struct CreatePostStarPicker: View {
             }
 
             HStack(spacing: 0) {
-                Text("Not worth").frame(maxWidth: .infinity)
+                Text("Not worth it").frame(maxWidth: .infinity)
                 Spacer()
-                Text("Worth trying").frame(maxWidth: .infinity)
+                Text("Worth a try").frame(maxWidth: .infinity)
                 Spacer()
                 Text("Worth a detour").frame(maxWidth: .infinity)
                 Spacer()
@@ -75,7 +75,7 @@ private struct Star: View {
             Image(systemName: systemImageName)
                 .resizable()
                 .font(.system(size: 15, weight: .regular))
-                .foregroundColor(.yellow)
+                .foregroundColor(selected && systemImagePrefix == "star" ? .yellow : .gray)
                 .scaledToFit()
                 .contentShape(Rectangle())
                 .onTapGesture {
