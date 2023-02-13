@@ -24,7 +24,7 @@ struct EditPreferences: View {
             Section(header: Text("Privacy")) {
                 Toggle(isOn: $settingsViewModel.searchableByPhoneNumber) {
                     VStack(alignment: .leading) {
-                        Text("Searchable by phone number")
+                        Text("Discoverable by contacts")
 
                         Text("Allow friends who have you in their contacts to add you")
                             .foregroundColor(.gray)

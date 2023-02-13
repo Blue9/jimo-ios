@@ -54,7 +54,7 @@ class OnboardingModel: ObservableObject {
     init(notificationsModel: NotificationBadgeModel) {
         self.notificationsModel = notificationsModel
         // Uncomment to reset onboarding view
-        onboardingStep = .cityOnboarding
+        onboardingStep = .requestLocation
         self.skipLocationIfGranted()
     }
 
