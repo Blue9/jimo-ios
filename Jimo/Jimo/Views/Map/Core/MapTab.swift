@@ -8,44 +8,11 @@
 import SwiftUI
 
 struct MapTab: View {
-    @EnvironmentObject var deepLinkManager: DeepLinkManager
-    @State private var isDeepLinkPresented = false
-
     var body: some View {
         Navigator {
             MapViewV2()
-            // Workaround for iOS 15 vs 16 navigation discrepancies
-            // Previously was simply `.navigation(destination: $deepLinkManager.presentableEntity)`.
-            // For some reason the deep link opens fine when running through Xcode
-            // but it doesn't work on its own. I think this is because presentableEntity is non-nil
-            // by the time this view is built, so the navigation destination's `isPresented` is already true
-            // and SwiftUI doesn't properly open. So I use a separate variable that's initially false and
-            // set it to true after the view has loaded
-                .navDestination(
-                    isPresented: Binding(
-                        get: { isDeepLinkPresented },
-                        set: { presented in
-                            isDeepLinkPresented = presented
-                            if !presented {
-                                deepLinkManager.presentableEntity = nil
-                            }
-                        }
-                    )
-                ) {
-                    if let entity = deepLinkManager.presentableEntity {
-                        entity.view().id(entity.hashValue)
-                    } else {
-                        ProgressView()
-                    }
-                }
                 .navigationBarHidden(true)
                 .trackScreen(.mapTab)
-                .onAppear {
-                    isDeepLinkPresented = deepLinkManager.presentableEntity != nil
-                }
-                .onChange(of: deepLinkManager.presentableEntity) { _ in
-                    isDeepLinkPresented = deepLinkManager.presentableEntity != nil
-                }
         }
     }
 }

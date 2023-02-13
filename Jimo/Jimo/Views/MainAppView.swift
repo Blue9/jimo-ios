@@ -16,22 +16,38 @@ struct MainAppView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
     @EnvironmentObject var deepLinkManager: DeepLinkManager
     @ObservedObject var notificationsModel: NotificationBadgeModel
-    @StateObject private var viewModel = ViewModel()
     @State private var signUpAlert: SignUpAlert = .init(isPresented: false, source: .none)
     @State private var showWelcomeAlert = false
+    @State var selection: Tab = Tab.map
+
+    var currentTab: Screen? {
+        switch selection {
+        case .feed:
+            return .feedTab
+        case .map:
+            return .mapTab
+        case .create:
+            return nil // Special cased
+        case .search:
+            return .searchTab
+        case .profile:
+            return .profileTab
+        }
+    }
+
     @AppStorage("firstOpen") var firstOpen = true
     let currentUser: PublicUser?
 
     var selectionIndex: Binding<Int> {
         Binding<Int>(
-            get: { viewModel.selection.rawValue },
+            get: { selection.rawValue },
             set: {
                 if $0 == Tab.create.rawValue {
                     globalViewState.createPostPresented = true
                 } else if $0 == Tab.search.rawValue  && appState.currentUser.isAnonymous {
                     signUpAlert = .init(isPresented: true, source: .searchUsers)
                 } else {
-                    viewModel.selection = Tab(rawValue: $0)!
+                    selection = Tab(rawValue: $0)!
                 }
             }
         )
@@ -61,7 +77,7 @@ struct MainAppView: View {
         .popup(isPresented: $showWelcomeAlert) {
             FirstOpenPopup(
                 isPresented: $showWelcomeAlert,
-                goToProfile: { viewModel.selection = .profile }
+                goToProfile: { selection = .profile }
             )
         } customize: {
             $0
@@ -74,23 +90,24 @@ struct MainAppView: View {
 
     var mainBody: some View {
         UITabView(selection: selectionIndex) {
-            FeedTab(
+            DeepLinkableFeedTab(
                 notificationsModel: notificationsModel,
                 onCreatePostTap: { globalViewState.createPostPresented = true }
             )
             .environmentObject(appState)
             .environmentObject(globalViewState)
+            .environmentObject(deepLinkManager)
             .tabItem(
                 "Feed",
                 image: UIImage(named: "feedIcon"),
-                badgeValue: notificationsModel.unreadNotifications > 0 ? String(notificationsModel.unreadNotifications) : nil
+                badgeValue: notificationsModel.unreadNotifications > 0 ?
+                    String(notificationsModel.unreadNotifications) : nil
             )
 
             MapTab(
             )
             .environmentObject(appState)
             .environmentObject(globalViewState)
-            .environmentObject(deepLinkManager)
             .tabItem("Map", image: UIImage(named: "mapIcon"))
 
             Text("")
@@ -125,7 +142,7 @@ struct MainAppView: View {
                     }
             } else {
                 CreatePost(presented: $globalViewState.createPostPresented)
-                    .trackSheet(.createPostSheet, screenAfterDismiss: { viewModel.currentTab })
+                    .trackSheet(.createPostSheet, screenAfterDismiss: { currentTab })
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
                     .environmentObject(deepLinkManager)
@@ -141,28 +158,7 @@ struct MainAppView: View {
         .onChange(of: deepLinkManager.presentableEntity) { item in
             if item != .none {
                 globalViewState.createPostPresented = false
-                viewModel.selection = .map
-            }
-        }
-    }
-}
-
-fileprivate extension MainAppView {
-    class ViewModel: ObservableObject {
-        @Published var selection: Tab = Tab.map
-
-        var currentTab: Screen? {
-            switch selection {
-            case .feed:
-                return .feedTab
-            case .map:
-                return .mapTab
-            case .create:
-                return nil // Special cased
-            case .search:
-                return .searchTab
-            case .profile:
-                return .profileTab
+                selection = .feed
             }
         }
     }
