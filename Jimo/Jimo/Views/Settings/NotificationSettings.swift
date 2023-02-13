@@ -20,7 +20,7 @@ struct NotificationSettings: View {
                 Button {
                     PermissionManager.shared.requestNotifications()
                 } label: {
-                    Text("Allow notification permissions to update").foregroundColor(.blue)
+                    Text("Allow notification permissions to edit").foregroundColor(.blue)
                 }
             }
             mainBody.disabled(shouldRequestNotifications)
