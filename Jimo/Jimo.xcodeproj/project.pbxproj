@@ -152,6 +152,7 @@
 		C7AEACF425D86F5B00EDEB7D /* EditProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */; };
 		C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACFC25D8720E00EDEB7D /* Settings.swift */; };
 		C7B32B142876858C009402E8 /* DeactivatedProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B32B132876858C009402E8 /* DeactivatedProfileView.swift */; };
+		C7B6E7272999DB5500B6C017 /* SearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B6E7262999DB5500B6C017 /* SearchTab.swift */; };
 		C7B91FE5282448BA00F383BC /* ShareButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE4282448BA00F383BC /* ShareButtonView.swift */; };
 		C7B91FE7282449C700F383BC /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE6282449C700F383BC /* ActivityView.swift */; };
 		C7B91FE928245D2400F383BC /* SharePostButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE828245D2400F383BC /* SharePostButton.swift */; };
@@ -343,6 +344,7 @@
 		C7AEACF325D86F5B00EDEB7D /* EditProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfile.swift; sourceTree = "<group>"; };
 		C7AEACFC25D8720E00EDEB7D /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		C7B32B132876858C009402E8 /* DeactivatedProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeactivatedProfileView.swift; sourceTree = "<group>"; };
+		C7B6E7262999DB5500B6C017 /* SearchTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTab.swift; sourceTree = "<group>"; };
 		C7B91FE4282448BA00F383BC /* ShareButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareButtonView.swift; sourceTree = "<group>"; };
 		C7B91FE6282449C700F383BC /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		C7B91FE828245D2400F383BC /* SharePostButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePostButton.swift; sourceTree = "<group>"; };
@@ -443,6 +445,7 @@
 			isa = PBXGroup;
 			children = (
 				842B0F662923667700828F42 /* SearchUsers.swift */,
+				C7B6E7262999DB5500B6C017 /* SearchTab.swift */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -1140,6 +1143,7 @@
 				84BE5D1E29275A9200240B01 /* MapSearchResults.swift in Sources */,
 				C7AB52872890BD280080DF73 /* Feed.swift in Sources */,
 				C70DCCC129970893001BCB67 /* Onboarding.swift in Sources */,
+				C7B6E7272999DB5500B6C017 /* SearchTab.swift in Sources */,
 				84747AA3295BA44700327475 /* MapViewModel.swift in Sources */,
 				C751768A25FEFAA300DCB856 /* ExistingContactStore.swift in Sources */,
 				C75465E9298A66D50013B1ED /* SignUpAlert.swift in Sources */,
@@ -1237,7 +1241,6 @@
 				5ACBEC96281083D400A47948 /* DeepLinkManager.swift in Sources */,
 				C75465D7298A03470013B1ED /* UnauthedMapUserFilter.swift in Sources */,
 				5AE22D8928245AA1004DA2AA /* String+Extension.swift in Sources */,
-				C79183482597DABF006B4056 /* PopupView.swift in Sources */,
 				C753CF7527C327C000B1EEA3 /* Map.swift in Sources */,
 				C7D2D84A25CE55C600246BD0 /* UINavigationController+UIGestureRecognizerDelegate.swift in Sources */,
 				C703670E255764FD00F970DE /* Profile.swift in Sources */,

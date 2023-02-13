@@ -176,9 +176,6 @@ struct CreatePostWithModel: View {
                     self.presented = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         globalViewState.setSuccess("Success!")
-                        if createPostVM.createOrEdit == .create {
-                            deepLinkManager.presentableEntity = .loadedPost(post)
-                        }
                     }
                 }
             }

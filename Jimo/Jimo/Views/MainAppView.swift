@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum Tab: Int {
-    case feed = 0, map = 1, profile = 2
+    case feed = 0, map = 1, create = 2, search = 3, profile = 4
 }
 
 struct MainAppView: View {
@@ -20,27 +20,73 @@ struct MainAppView: View {
     @State private var signUpAlert: SignUpAlert = .init(isPresented: false, source: .none)
     let currentUser: PublicUser?
 
+    var selectionIndex: Binding<Int> {
+        Binding<Int>(
+            get: { viewModel.selection.rawValue },
+            set: {
+                if $0 == Tab.create.rawValue {
+                    globalViewState.createPostPresented = true
+                } else if $0 == Tab.search.rawValue  && appState.currentUser.isAnonymous {
+                    signUpAlert = .init(isPresented: true, source: .searchUsers)
+                } else {
+                    viewModel.selection = Tab(rawValue: $0)!
+                }
+            }
+        )
+    }
+
+    var body: some View {
+        ZStack {
+            mainBody
+        }.alert("Account required", isPresented: $signUpAlert.isPresented) {
+            Button("Later", action: {
+                signUpAlert = .init(isPresented: false, source: .none)
+            })
+
+            Button("Sign up", action: {
+                globalViewState.showSignUpPage(signUpAlert.source)
+            })
+        } message: {
+            Text(signUpAlert.source.signUpNudgeText ?? "Sign up for the full experience")
+        }
+    }
+
     var mainBody: some View {
-        UITabView(selection: viewModel.selectionIndex) {
-            FeedTab(notificationsModel: notificationsModel, onCreatePostTap: { globalViewState.createPostPresented = true })
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
-                .tabItem(
-                    "",
-                    image: UIImage(named: "feedIcon"),
-                    badgeValue: notificationsModel.unreadNotifications > 0 ? String(notificationsModel.unreadNotifications) : nil
-                )
+        UITabView(selection: selectionIndex) {
+            FeedTab(
+                notificationsModel: notificationsModel,
+                onCreatePostTap: { globalViewState.createPostPresented = true }
+            )
+            .environmentObject(appState)
+            .environmentObject(globalViewState)
+            .tabItem(
+                "Feed",
+                image: UIImage(named: "feedIcon"),
+                badgeValue: notificationsModel.unreadNotifications > 0 ? String(notificationsModel.unreadNotifications) : nil
+            )
 
-            MapTab()
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
-                .environmentObject(deepLinkManager)
-                .tabItem("", image: UIImage(named: "mapIcon"))
+            MapTab(
+            )
+            .environmentObject(appState)
+            .environmentObject(globalViewState)
+            .environmentObject(deepLinkManager)
+            .tabItem("Map", image: UIImage(named: "mapIcon"))
 
-            ProfileTab(currentUser: currentUser)
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
-                .tabItem("", image: UIImage(named: "profileIcon"))
+            Text("")
+                .tabItem("Create", image: UIImage(named: "postIcon"))
+
+            SearchTab(
+            )
+            .environmentObject(appState)
+            .environmentObject(globalViewState)
+            .tabItem("Search", image: UIImage(named: "searchIcon"))
+
+            ProfileTab(
+                currentUser: currentUser
+            )
+            .environmentObject(appState)
+            .environmentObject(globalViewState)
+            .tabItem("Profile", image: UIImage(named: "profileIcon"))
         }
         .sheet(isPresented: $globalViewState.createPostPresented) {
             if appState.currentUser.isAnonymous {
@@ -78,68 +124,22 @@ struct MainAppView: View {
             }
         }
     }
-
-    @ViewBuilder
-    var newPostButton: some View {
-        ZStack {
-            Circle()
-                .fill()
-                .foregroundColor(.white)
-                .frame(width: 55, height: 55)
-            Button(action: {
-                globalViewState.createPostPresented = true
-            }) {
-                ZStack {
-                    Circle()
-                        .fill()
-                        .foregroundColor(.blue)
-                        .frame(width: 55, height: 55)
-                    Image(systemName: "plus")
-                        .foregroundColor(.white)
-                        .font(.system(size: 30))
-                }
-            }
-        }
-    }
-
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            mainBody
-
-            newPostButton
-                .opacity(viewModel.selection == .map ? 1 : 0)
-                .alert("Account required", isPresented: $signUpAlert.isPresented) {
-                    Button("Later", action: {
-                        signUpAlert = .init(isPresented: false, source: .none)
-                    })
-
-                    Button("Sign up", action: {
-                        globalViewState.showSignUpPage(signUpAlert.source)
-                    })
-                } message: {
-                    Text(signUpAlert.source.signUpNudgeText ?? "Sign up for the full experience")
-                }
-        }
-    }
 }
 
 fileprivate extension MainAppView {
     class ViewModel: ObservableObject {
         @Published var selection: Tab = Tab.map
 
-        var selectionIndex: Binding<Int> {
-            Binding<Int>(
-                get: { self.selection.rawValue },
-                set: { self.selection = Tab(rawValue: $0)! }
-            )
-        }
-
-        var currentTab: Screen {
+        var currentTab: Screen? {
             switch selection {
             case .feed:
                 return .feedTab
             case .map:
                 return .mapTab
+            case .create:
+                return nil // Special cased
+            case .search:
+                return .searchTab
             case .profile:
                 return .profileTab
             }

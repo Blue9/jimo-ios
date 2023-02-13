@@ -12,15 +12,19 @@ import FirebaseAnalytics
 extension View {
     /// Mark the given view as a screen and track when it appears.
     func trackScreen(_ screen: Screen) -> some View {
-        self.appear { Analytics.currentScreen = screen }
+        self.onAppear { Analytics.trackScreen(screen) }
     }
 
     /// Track the given sheet as a screen, screenAfterDismiss is necessary
     /// because the previous screen's appear isn't called when the sheet is dismissed.
-    func trackSheet(_ screen: Screen, screenAfterDismiss: @escaping () -> Screen) -> some View {
+    func trackSheet(_ screen: Screen, screenAfterDismiss: @escaping () -> Screen?) -> some View {
         self
-            .appear { Analytics.currentScreen = screen }
-            .disappear { Analytics.currentScreen = screenAfterDismiss() }
+            .onAppear { Analytics.trackScreen(screen) }
+            .onDisappear {
+                if let screen = screenAfterDismiss() {
+                    Analytics.trackScreen(screen)
+                }
+            }
     }
 }
 
@@ -31,22 +35,22 @@ class Analytics {
     static let analyticsEnabled = true
     #endif
 
-    static var currentScreen: Screen? {
-        didSet {
-            guard currentScreen != oldValue else {
-                return
-            }
-            Analytics.track(.screenView, parameters: [
-                AnalyticsParameterScreenName: (currentScreen ?? .unknown).rawValue,
-                AnalyticsParameterScreenClass: (currentScreen ?? .unknown).rawValue
-            ])
-        }
-    }
+    private(set) static var currentScreen: Screen?
 
     static func initialize() {
         print("ANALYTICS_ENABLED == \(analyticsEnabled)")
         FirebaseAnalytics.Analytics.setAnalyticsCollectionEnabled(analyticsEnabled)
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(analyticsEnabled)
+    }
+
+    static func trackScreen(_ screen: Screen) {
+        if screen != self.currentScreen {
+            Analytics.track(.screenView, parameters: [
+                AnalyticsParameterScreenName: (screen).rawValue,
+                AnalyticsParameterScreenClass: (screen).rawValue
+            ])
+            self.currentScreen = screen
+        }
     }
 
     /// Used to track a given event.

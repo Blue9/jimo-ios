@@ -8,6 +8,7 @@
 enum SignUpTapSource: String {
     case none,
          feed,
+         searchUsers,
          profile,
          filterSaves,
          filterMe,
@@ -28,6 +29,7 @@ enum SignUpTapSource: String {
         switch self {
         case .none: return nil
         case .feed: return nil
+        case .searchUsers: return "Sign up to search and add friends."
         case .profile: return nil
         case .filterSaves: return "Sign up to start saving places."
         case .filterMe: return "Sign up to start posting places."

@@ -32,8 +32,11 @@ struct SearchUsers: View {
         mainBody
             .accentColor(Color("foreground"))
             .onAppear {
-                searchBarFocused = true
                 suggestedViewModel.initialize(appState: appState, viewState: viewState)
+                DispatchQueue.main.async {
+                    searchBarFocused = true
+                }
+
             }
     }
 

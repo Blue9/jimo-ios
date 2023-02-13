@@ -78,10 +78,10 @@ struct Feed: View {
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     .onAppear {
-                        Analytics.currentScreen = feedType == .following ? .feedTab : .forYouFeed
+                        Analytics.trackScreen(feedType == .following ? .feedTab : .forYouFeed)
                     }
                     .onChange(of: feedType) { feedType in
-                        Analytics.currentScreen = feedType == .following ? .feedTab : .forYouFeed
+                        Analytics.trackScreen(feedType == .following ? .feedTab : .forYouFeed)
                     }
                     .animation(.linear, value: feedType)
                 }
