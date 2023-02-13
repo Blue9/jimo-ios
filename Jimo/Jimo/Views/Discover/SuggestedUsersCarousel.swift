@@ -208,7 +208,7 @@ private struct SuggestedUserCard: View {
 
     var body: some View {
         NavigationLink {
-            Profile(initialUser: user)
+            ProfileScreen(initialUser: user)
         } label: {
             VStack {
                 profilePicture

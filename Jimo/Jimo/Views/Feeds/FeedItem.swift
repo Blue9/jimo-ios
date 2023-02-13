@@ -48,6 +48,7 @@ struct FeedItem: View {
 
             VStack(spacing: 5) {
                 PostPlaceName(post: post).onTapGesture {
+                    Analytics.track(.postPlaceNameTap)
                     self.navigate(.map(post))
                 }
                 PostCaption(post: post)

@@ -282,13 +282,16 @@ struct PostPlaceName: View {
     }
 
     var body: some View {
-        Text(placeName)
-            .font(.system(size: 16))
-            .bold()
-            .foregroundColor(Color("foreground"))
-            .padding(.horizontal, 10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .multilineTextAlignment(.leading)
+        HStack(spacing: 5) {
+            Text(placeName)
+                .font(.system(size: 16))
+                .bold()
+                .lineLimit(1)
+            Image(systemName: "arrow.right.circle")
+                .font(.system(size: 14))
+        }
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

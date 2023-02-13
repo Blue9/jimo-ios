@@ -28,9 +28,11 @@ struct PostGridCell: View {
             .cornerRadius(2)
             .padding(.bottom, 5)
 
-            caption
+            VStack(alignment: .leading, spacing: 0) {
+                caption
+                Spacer()
+            }.frame(height: 60)
         }
-        .padding(.bottom, 10)
     }
 
     @ViewBuilder

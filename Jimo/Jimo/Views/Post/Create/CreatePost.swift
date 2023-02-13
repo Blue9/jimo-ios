@@ -105,6 +105,7 @@ struct CreatePostWithModel: View {
                             .font(.system(size: 15))
                             .bold()
                             .padding(.bottom, 8)
+                            .padding(.horizontal, 10)
                         CreatePostStarPicker(stars: $createPostVM.stars)
 
                         Spacer()

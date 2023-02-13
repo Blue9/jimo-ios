@@ -14,35 +14,43 @@ struct ProfileTab: View {
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject private var searchViewModel = SearchViewModel()
     @StateObject private var suggestedViewModel = SuggestedUserCarouselViewModel()
+    @StateObject private var createPostVM = CreatePostVM()
 
     let currentUser: PublicUser?
 
     @State private var showSettings = false
+    @State private var showCreatePost = false
 
     var body: some View {
         Navigator {
             if let currentUser = currentUser {
-                Profile(initialUser: currentUser)
-                    .background(Color("background"))
-                    // When swiping back from search users sometimes adds a black bar where keyboard would be
-                    // This fixes that (this didn't happen on profile, only feed, but this is extra safe
-                    .ignoresSafeArea(.keyboard, edges: .all)
-                    .navDestination(isPresented: $showSettings) {
-                        Settings(settingsViewModel: settingsViewModel)
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState)
-                    }
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationBarColor(UIColor(Color("background")))
-                    .navigationTitle(Text("My Profile"))
-                    .toolbar(content: {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button { self.showSettings = true } label: {
-                                Image(systemName: "gearshape")
-                            }
+                Profile(
+                    initialUser: currentUser,
+                    editPost: self.editPost(_:)
+                )
+                .sheet(isPresented: $showCreatePost, onDismiss: createPostVM.resetAll) {
+                    CreatePostWithModel(createPostVM: createPostVM, presented: $showCreatePost)
+                }
+                .background(Color("background"))
+                // When swiping back from search users sometimes adds a black bar where keyboard would be
+                // This fixes that (this didn't happen on profile, only feed, but this is extra safe
+                .ignoresSafeArea(.keyboard, edges: .all)
+                .navDestination(isPresented: $showSettings) {
+                    Settings(settingsViewModel: settingsViewModel)
+                        .environmentObject(appState)
+                        .environmentObject(globalViewState)
+                }
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarColor(UIColor(Color("background")))
+                .navigationTitle(Text("My Profile"))
+                .toolbar(content: {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button { self.showSettings = true } label: {
+                            Image(systemName: "gearshape")
                         }
-                    })
-                    .trackScreen(.profileTab)
+                    }
+                })
+                .trackScreen(.profileTab)
             } else {
                 AnonymousProfilePlaceholder()
                     .redacted(reason: .placeholder)
@@ -71,6 +79,12 @@ struct ProfileTab: View {
             .background(Color.white)
             .cornerRadius(50)
             .padding(.trailing)
+    }
+
+    private func editPost(_ post: Post) {
+        createPostVM.resetAll()
+        createPostVM.initAsEditor(post)
+        self.showCreatePost = true
     }
 }
 

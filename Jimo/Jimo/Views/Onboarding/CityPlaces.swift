@@ -153,18 +153,12 @@ private struct LoadedCityPlaces: View {
 
     var body: some View {
         VStack {
-            Text("Tell us what you think of these places")
+            Text("Here are some popular places in \(city)")
                 .bold()
                 .foregroundColor(.white)
-
-            Text("These places (and more) are available in the Map tab at any time")
-                .font(.caption)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.gray)
-                .padding(.horizontal)
+                .padding(.top, 10)
 
             mainBody
-
             Spacer()
         }.background(
             URLImage(url: currentPlace.tile.imageUrl)
@@ -213,23 +207,37 @@ private struct LoadedCityPlaces: View {
             .itemSpacing(10)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * scale + 40)
 
-            HStack(spacing: 50) {
-                LikeButton(liked: currentPlace.post, tap: {
-                    places[page.index].post = !places[page.index].post
-                })
+            if currentPlace.post {
+                HStack {
+                    Button {
+                        places[page.index].post = false
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .resizable()
+                            .foregroundColor(.gray)
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .contentShape(Rectangle())
+                    }
 
-                SaveButton(saved: currentPlace.saved, tap: {
-                    places[page.index].saved = !places[page.index].saved
-                })
+                    CreatePostStarPicker(
+                        showZeroStars: false,
+                        stars: $places[page.index].stars
+                    )
+                    .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+            } else {
+                HStack(spacing: 50) {
+                    LikeButton(liked: currentPlace.post, tap: {
+                        places[page.index].post = !places[page.index].post
+                    })
+
+                    SaveButton(saved: currentPlace.saved, tap: {
+                        places[page.index].saved = !places[page.index].saved
+                    })
+                }
             }
-
-            CreatePostStarPicker(
-                showZeroStars: false,
-                stars: $places[page.index].stars
-            )
-            .foregroundColor(.white)
-            .padding(.horizontal, 20)
-            .opacity(currentPlace.post ? 1.0 : 0)
         }
     }
 }
@@ -252,7 +260,7 @@ private struct LikeButton: View {
                     .contentShape(Rectangle())
             }
             .frame(height: 70)
-            Text("Liked it").foregroundColor(.white)
+            Text("Like it").foregroundColor(.white)
         }
     }
 }

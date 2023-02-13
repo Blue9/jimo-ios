@@ -75,6 +75,7 @@ struct ViewPost: View {
             VStack(spacing: 5) {
                 PostPlaceName(post: post)
                     .onTapGesture {
+                        Analytics.track(.postPlaceNameTap)
                         self.destination = .pinView(post)
                     }
                 PostCaption(post: post)

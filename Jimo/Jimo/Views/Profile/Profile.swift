@@ -29,6 +29,8 @@ struct Profile: View {
     @StateObject var profileVM = ProfileVM()
 
     let initialUser: User
+    var editPost: ((Post) -> Void)?
+
     private let columns: [GridItem] = [
         GridItem(.flexible(minimum: 50), spacing: 2),
         GridItem(.flexible(minimum: 50), spacing: 2),
@@ -43,6 +45,7 @@ struct Profile: View {
         initialUser.username
     }
 
+    @ViewBuilder
     var profileGrid: some View {
         RefreshableScrollView(spacing: 0) {
             ProfileHeaderView(
@@ -52,11 +55,29 @@ struct Profile: View {
             ).padding(.bottom, 10)
 
             LazyVGrid(columns: columns, spacing: 2) {
+                if profileVM.loadStatus == .success
+                    && appState.me?.id == initialUser.id
+                    && profileVM.posts.isEmpty {
+                    createPostButton
+                }
+
                 ForEach(profileVM.posts) { post in
                     Button {
                         self.navigationDestination = .post(post)
                     } label: {
-                        PostGridCell(post: post)
+                        if let editPost = editPost {
+                            PostGridCell(post: post)
+                                .background(Color("background"))
+                                .contextMenu {
+                                    Button {
+                                        editPost(post)
+                                    } label: {
+                                        Label("Edit", systemImage: "square.and.pencil")
+                                    }
+                                }
+                        } else {
+                            PostGridCell(post: post)
+                        }
                     }
                 }
             }
@@ -68,6 +89,32 @@ struct Profile: View {
         .font(.system(size: 15))
         .navigation(destination: $navigationDestination) {
             navigationDestination?.view()
+        }
+    }
+
+    @ViewBuilder
+    var createPostButton: some View {
+        Button {
+            Analytics.track(.profileNewPostTapped)
+            viewState.createPostPresented = true
+        } label: {
+            VStack(spacing: 0) {
+                GeometryReader { geometry in
+                    Rectangle()
+                        .fill()
+                        .foregroundColor(.gray)
+                        .overlay(
+                            Image(systemName: "plus")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white)
+                        )
+                        .frame(width: geometry.size.width, height: geometry.size.width)
+                }
+                .aspectRatio(1, contentMode: .fit)
+                .cornerRadius(2)
+
+                Spacer().frame(height: 60)
+            }
         }
     }
 
@@ -122,15 +169,30 @@ struct Profile: View {
 }
 
 struct ProfileScreen: View {
+    @EnvironmentObject var appState: AppState
+    @StateObject private var createPostVM = CreatePostVM()
+    @State private var showCreatePostSheet = false
     var initialUser: User
 
     var body: some View {
-        Profile(initialUser: initialUser)
-            .background(Color("background"))
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarColor(UIColor(Color("background")))
-            .navigationTitle(Text("Profile"))
-            .trackScreen(.profileView)
+        Profile(
+            initialUser: initialUser,
+            editPost: appState.me?.id == initialUser.id ? self.editPost(_:) : nil
+        )
+        .sheet(isPresented: $showCreatePostSheet, onDismiss: createPostVM.resetAll) {
+            CreatePostWithModel(createPostVM: createPostVM, presented: $showCreatePostSheet)
+        }
+        .background(Color("background"))
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarColor(UIColor(Color("background")))
+        .navigationTitle(Text("Profile"))
+        .trackScreen(.profileView)
+    }
+
+    func editPost(_ post: Post) {
+        createPostVM.resetAll()
+        createPostVM.initAsEditor(post)
+        showCreatePostSheet = true
     }
 }
 
@@ -323,9 +385,7 @@ struct ProfileActionButtonView: View {
     var body: some View {
         VStack {
             if isCurrentUser {
-                ProfileButton(textType: .create) {
-                    viewState.createPostPresented = true
-                }
+                Spacer().frame(height: 30)
             } else if !profileVM.loadedRelation {
                 Text("Loading...")
                     .padding(10)
@@ -361,7 +421,7 @@ struct ProfileActionButtonView: View {
 }
 
 private enum TextType {
-    case follow, unfollow, unblock, loading, create
+    case follow, unfollow, unblock, loading
 
     var text: String {
         switch self {
@@ -369,7 +429,6 @@ private enum TextType {
         case .unfollow: return "Unfollow"
         case .unblock: return "Unblock"
         case .loading: return "Loading..."
-        case .create: return "New Post"
         }
     }
 
@@ -379,7 +438,6 @@ private enum TextType {
         case .unfollow: return .userUnfollowed
         case .unblock: return nil
         case .loading: return nil
-        case .create: return .profileNewPostTapped
         }
     }
 
@@ -387,7 +445,7 @@ private enum TextType {
         switch self {
         case .loading, .unfollow: return .white
         case .unblock: return .red
-        case .follow, .create: return .blue
+        case .follow: return .blue
         }
     }
 

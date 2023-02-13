@@ -98,9 +98,6 @@ enum AnalyticsName: Equatable {
     /// Track when notification bell tapped
     case tapNotificationBell
 
-    /// Track when contact was invited to app
-    case inviteContact
-
     /// Share sheet presented
     case shareProfilePresented
     /// Share sheet cancelled
@@ -115,6 +112,7 @@ enum AnalyticsName: Equatable {
     /// Share sheet completed
     case sharePostCompleted
 
+    case postPlaceNameTap
     case postCreated
     case postUpdated
     case postDeleted
@@ -124,9 +122,6 @@ enum AnalyticsName: Equatable {
 
     case commentCreated
     case commentDeleted
-
-    case postSaved
-    case postUnsaved
 
     // Profile action button events
     case userFollowed
@@ -152,6 +147,5 @@ enum AnalyticsName: Equatable {
     case mapSearchResultTapped
 
     case updateAppVersionTapped
-
     case guestAccountSignUpTap
 }
