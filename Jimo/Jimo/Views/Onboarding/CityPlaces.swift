@@ -146,6 +146,7 @@ private struct LoadedCityPlaces: View {
 
     @StateObject var page: Page = .first()
     @State var places: [PlaceTileState]
+    @State private var isAwarding = false
     var city: String
     var submit: (_ places: [PlaceTileState]) -> Void
 
@@ -157,7 +158,7 @@ private struct LoadedCityPlaces: View {
                 .bold()
                 .foregroundColor(.white)
                 .padding(.top, 10)
-            Spacer()
+            Spacer().frame(maxHeight: 50)
             mainBody
             Spacer()
         }.background(
@@ -208,20 +209,21 @@ private struct LoadedCityPlaces: View {
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * scale + 40)
 
             VStack {
-                if currentPlace.post {
+                if isAwarding {
                     HStack {
                         Button {
-                            places[page.index].post = false
+                            isAwarding = false
                         } label: {
                             Image(systemName: "chevron.left")
                                 .resizable()
-                                .foregroundColor(.gray)
+                                .foregroundColor(.white)
                                 .scaledToFit()
                                 .frame(width: 40, height: 40)
                                 .contentShape(Rectangle())
                         }
 
                         CreatePostStarPicker(
+                            unselectedOutline: .white,
                             showZeroStars: false,
                             stars: $places[page.index].stars
                         )
@@ -229,24 +231,34 @@ private struct LoadedCityPlaces: View {
                     }
                     .padding(.horizontal, 20)
                 } else {
-                    HStack(spacing: 50) {
-                        LikeButton(liked: currentPlace.post, tap: {
-                            places[page.index].post = !places[page.index].post
-                        })
+                    HStack(alignment: .top, spacing: 50) {
+                        LikeButton(liked: currentPlace.post, stars: currentPlace.stars) {
+                            if places[page.index].post {
+                                places[page.index].post = false
+                                places[page.index].stars = nil
+                            } else {
+                                places[page.index].post = true
+                                isAwarding = true
+                            }
+                        } tapStars: {
+                            isAwarding = true
+                        }
 
-                        SaveButton(saved: currentPlace.saved, tap: {
+                        SaveButton(saved: currentPlace.saved) {
                             places[page.index].saved = !places[page.index].saved
-                        })
+                        }
                     }
                 }
-            }.frame(height: 70)
+            }.frame(height: 100)
         }
     }
 }
 
 private struct LikeButton: View {
     var liked: Bool
+    var stars: Int?
     var tap: () -> Void
+    var tapStars: () -> Void
 
     var body: some View {
         VStack {
@@ -257,13 +269,25 @@ private struct LikeButton: View {
                 Image(liked ? "icon" : "icon_white")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 70)
+                    .frame(height: 65)
                     .grayscale(liked ? 0.0 : 1.0)
                     .contentShape(Rectangle())
             }
             .frame(height: 70)
-            Text("Like it").foregroundColor(.white)
-        }
+            Text("Liked it").foregroundColor(.white)
+            if let stars = stars {
+                Button(action: tapStars) {
+                    HStack(spacing: 2) {
+                        ForEach(0..<stars, id: \.self) { _ in
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                                .font(.caption)
+                        }
+                    }
+                }
+            }
+            Spacer()
+        }.frame(height: 120)
     }
 }
 
@@ -279,12 +303,13 @@ private struct SaveButton: View {
             } label: {
                 Image(systemName: "bookmark")
                     .resizable()
-                    .frame(width: 48, height: 63)
+                    .frame(width: 44, height: 60)
                     .foregroundColor(saved ? .orange : .white)
                     .contentShape(Rectangle())
             }
             .frame(height: 70)
             Text("Want to go").foregroundColor(.white)
-        }
+            Spacer()
+        }.frame(height: 120)
     }
 }

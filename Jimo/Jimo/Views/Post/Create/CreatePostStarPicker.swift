@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CreatePostStarPicker: View {
+    var unselectedOutline: Color = .gray
     var showZeroStars: Bool = true
     @Binding var stars: Int?
 
@@ -20,20 +21,20 @@ struct CreatePostStarPicker: View {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
                 if showZeroStars {
-                    Star(systemImagePrefix: "star.slash", selected: effectiveStars == 0) {
+                    Star(fg: unselectedOutline, systemImagePrefix: "star.slash", selected: effectiveStars == 0) {
                         stars = stars == 0 ? nil : 0
                     }
                     Spacer()
                 }
-                Star(selected: effectiveStars >= 1) {
+                Star(fg: unselectedOutline, selected: effectiveStars >= 1) {
                     stars = stars == 1 ? nil : 1
                 }
                 Spacer()
-                Star(selected: effectiveStars >= 2) {
+                Star(fg: unselectedOutline, selected: effectiveStars >= 2) {
                     stars = stars == 2 ? nil : 2
                 }
                 Spacer()
-                Star(selected: effectiveStars >= 3) {
+                Star(fg: unselectedOutline, selected: effectiveStars >= 3) {
                     stars = stars == 3 ? nil : 3
                 }
             }
@@ -58,16 +59,10 @@ struct CreatePostStarPicker: View {
 }
 
 private struct Star: View {
-    var foregroundColor = Color.gray
-    let systemImagePrefix: String
+    let fg: Color
+    var systemImagePrefix: String = "star"
     let selected: Bool
     let onTap: () -> Void
-
-    init(systemImagePrefix: String = "star", selected: Bool, onTap: @escaping () -> Void) {
-        self.systemImagePrefix = systemImagePrefix
-        self.selected = selected
-        self.onTap = onTap
-    }
 
     var systemImageName: String {
         selected ? systemImagePrefix + ".fill" : systemImagePrefix
@@ -78,7 +73,7 @@ private struct Star: View {
             Image(systemName: systemImageName)
                 .resizable()
                 .font(.system(size: 15, weight: .regular))
-                .foregroundColor(selected && systemImagePrefix == "star" ? .yellow : foregroundColor)
+                .foregroundColor(selected && systemImagePrefix == "star" ? .yellow : fg)
                 .scaledToFit()
                 .contentShape(Rectangle())
                 .onTapGesture {
