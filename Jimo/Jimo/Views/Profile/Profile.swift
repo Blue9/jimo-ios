@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct Profile: View {
-    enum Destination: NavigationDestinationEnum {
+    enum Destination: Hashable {
         case editProfile, submitFeedback, post(Post)
 
         @ViewBuilder
@@ -66,15 +66,16 @@ struct Profile: View {
             profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
         }
         .font(.system(size: 15))
-        .navigation(destination: $navigationDestination)
+        .navigation(destination: $navigationDestination) {
+            navigationDestination?.view()
+        }
     }
 
     var body: some View {
         profileGrid
             .appear {
                 if profileVM.loadStatus == .notInitialized {
-                    profileVM.loadRelation(username: username, appState: appState, viewState: viewState)
-                    profileVM.loadPosts(username: username, appState: appState, viewState: viewState)
+                    profileVM.refresh(username: username, appState: appState, viewState: viewState)
                 }
             }
             .toolbar {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 
 struct FollowFeatured: View {
     @EnvironmentObject var appState: AppState
@@ -62,8 +63,10 @@ struct FollowFeatured: View {
             ZStack {
                 viewBody
             }
-            .popup(isPresented: $featuredUserStore.followManyFailed, type: .toast, autohideIn: 2) {
+            .popup(isPresented: $featuredUserStore.followManyFailed) {
                 Toast(text: "Failed to follow users", type: .error)
+            } customize: {
+                $0.type(.toast).autohideIn(2)
             }
         }
     }

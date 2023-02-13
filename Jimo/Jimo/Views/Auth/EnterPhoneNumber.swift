@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 import Combine
 import PhoneNumberKit
 
@@ -81,8 +82,10 @@ struct EnterPhoneNumber: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(.clear)
-        .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 4) {
+        .popup(isPresented: $viewModel.showError) {
             Toast(text: viewModel.error, type: .error)
+        } customize: {
+            $0.type(.toast).autohideIn(4)
         }
         .trackScreen(.enterPhoneNumber)
     }

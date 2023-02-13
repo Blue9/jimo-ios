@@ -14,6 +14,27 @@ struct NotificationFeed: View {
     @ObservedObject var notificationFeedVM: NotificationFeedViewModel
     @State private var showShareProfileOverlay = false
 
+    @ViewBuilder
+    var shareProfileSticky: some View {
+        HStack {
+            Image("icon")
+                .resizable()
+                .scaledToFit()
+                .padding(3)
+                .frame(width: 40, height: 40, alignment: .center)
+                .cornerRadius(20)
+                .padding(.trailing, 5)
+            VStack(alignment: .leading) {
+                Text("Welcome! Jimo is more fun with friends. If you'd like, tap here to share your profile.")
+            }
+            .font(.system(size: 14))
+            Spacer()
+        }.onTapGesture {
+            Analytics.track(.notificationFeedShareTap)
+            self.showShareProfileOverlay = true
+        }.padding(.horizontal, 10)
+    }
+
     var body: some View {
         RefreshableScrollView(spacing: 10) {
             if notificationFeedVM.shouldRequestNotificationPermissions {
@@ -27,23 +48,9 @@ struct NotificationFeed: View {
                     .padding(.horizontal, 10)
             }
 
-            HStack {
-                Image("icon")
-                    .resizable()
-                    .scaledToFit()
-                    .padding(3)
-                    .frame(width: 40, height: 40, alignment: .center)
-                    .cornerRadius(20)
-                    .padding(.trailing, 5)
-                VStack(alignment: .leading) {
-                    Text("Welcome! Jimo is more fun with friends. If you'd like, tap here to share your profile.")
-                }
-                .font(.system(size: 14))
-                Spacer()
-            }.onTapGesture {
-                Analytics.track(.notificationFeedShareTap)
-                self.showShareProfileOverlay = true
-            }.padding(.horizontal, 10)
+            if !notificationFeedVM.loading {
+                shareProfileSticky
+            }
         } onRefresh: { onFinish in
             notificationFeedVM.refreshFeed(appState: appState, viewState: globalViewState, onFinish: onFinish)
         } onLoadMore: {

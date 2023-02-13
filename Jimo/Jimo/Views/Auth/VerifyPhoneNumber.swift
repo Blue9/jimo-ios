@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 import Combine
 
 struct VerifyPhoneNumber: View {
@@ -68,8 +69,10 @@ struct VerifyPhoneNumber: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(.clear)
-        .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 2) {
+        .popup(isPresented: $viewModel.showError) {
             Toast(text: viewModel.error, type: .error)
+        } customize: {
+            $0.type(.toast).autohideIn(2)
         }
         .trackScreen(.enterVerificationCode)
     }

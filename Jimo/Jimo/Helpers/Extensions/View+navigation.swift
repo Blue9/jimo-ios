@@ -8,8 +8,9 @@
 import SwiftUI
 
 extension View {
-    @ViewBuilder func navigation<D: NavigationDestinationEnum>(
-        destination: Binding<D?>
+    @ViewBuilder func navigation<D: Hashable, Content: View>(
+        destination: Binding<D?>,
+        view: () -> Content
     ) -> some View {
         self.navDestination(
             isPresented: Binding(
@@ -21,7 +22,7 @@ extension View {
                     }
                 }
             ),
-            destination: { destination.wrappedValue?.view() }
+            destination: { view() }
         )
     }
 }

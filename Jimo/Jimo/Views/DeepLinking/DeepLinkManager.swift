@@ -12,7 +12,7 @@ class DeepLinkManager: ObservableObject {
 }
 
 /// What type of detail page we want to open based on the deeplink URL
-enum DeepLinkEntity: Identifiable, NavigationDestinationEnum {
+enum DeepLinkEntity: Identifiable, Hashable {
     case profile(String), post(PostId), loadedPost(Post)
 
     @ViewBuilder

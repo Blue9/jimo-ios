@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 
 struct FollowContacts: View {
     @EnvironmentObject var appState: AppState
@@ -93,8 +94,10 @@ struct FollowContacts: View {
         ZStack {
             viewBody
         }
-        .popup(isPresented: $contactStore.followManyFailed, type: .toast, autohideIn: 2) {
+        .popup(isPresented: $contactStore.followManyFailed) {
             Toast(text: "Failed to follow contacts", type: .error)
+        } customize: {
+            $0.type(.toast).autohideIn(2)
         }
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 import FirebaseRemoteConfig
 
 struct ContentView: View {
@@ -62,47 +63,47 @@ struct ContentView: View {
                 }
             }
         }
-        .popup(
-            isPresented: !$networkMonitor.connected,
-            type: .toast,
-            position: .bottom,
-            autohideIn: nil,
-            closeOnTap: true
-        ) {
+        .popup(isPresented: !$networkMonitor.connected) {
             Toast(text: "No internet connection", type: .error)
+        } customize: {
+            $0
+                .type(.toast)
+                .position(.bottom)
+                .autohideIn(nil)
+                .closeOnTap(true)
         }
-        .popup(
-            isPresented: $globalViewState.showError,
-            type: .toast,
-            position: .bottom,
-            autohideIn: 4,
-            closeOnTap: true,
-            closeOnTapOutside: false
-        ) {
+        .popup(isPresented: $globalViewState.showError) {
             Toast(text: globalViewState.errorMessage, type: .error)
                 .padding(.bottom, 50)
+        } customize: {
+            $0
+                .type(.toast)
+                .position(.bottom)
+                .autohideIn(4)
+                .closeOnTap(true)
+                .closeOnTapOutside(false)
         }
-        .popup(
-            isPresented: $globalViewState.showWarning,
-            type: .toast,
-            position: .bottom,
-            autohideIn: 2,
-            closeOnTap: true,
-            closeOnTapOutside: false
-        ) {
+        .popup(isPresented: $globalViewState.showWarning) {
             Toast(text: globalViewState.warningMessage, type: .warning)
                 .padding(.bottom, 50)
+        } customize: {
+            $0
+                .type(.toast)
+                .position(.bottom)
+                .autohideIn(2)
+                .closeOnTap(true)
+                .closeOnTapOutside(false)
         }
-        .popup(
-            isPresented: $globalViewState.showSuccess,
-            type: .toast,
-            position: .bottom,
-            autohideIn: 2,
-            closeOnTap: true,
-            closeOnTapOutside: false
-        ) {
+        .popup(isPresented: $globalViewState.showSuccess) {
             Toast(text: globalViewState.successMessage, type: .success)
                 .padding(.bottom, 50)
+        } customize: {
+            $0
+                .type(.toast)
+                .position(.bottom)
+                .autohideIn(2)
+                .closeOnTap(true)
+                .closeOnTapOutside(false)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {

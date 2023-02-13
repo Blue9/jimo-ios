@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
@@ -42,14 +43,14 @@ struct ProfileTab: View {
                     .navigationTitle(Text("My Profile"))
                     .toolbar(content: {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(action: { self.showSearchUsers = true }) {
+                            Button { self.showSearchUsers = true } label: {
                                 Image(systemName: "magnifyingglass")
                                     .contentShape(Rectangle())
                             }
                         }
 
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(action: { self.showSettings = true }) {
+                            Button { self.showSettings = true } label: {
                                 Image(systemName: "gearshape")
                             }
                         }

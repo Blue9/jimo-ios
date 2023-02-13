@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 import Combine
 
 private let usernameRegex = #"[a-zA-Z0-9_]+"#
@@ -117,11 +118,15 @@ struct CreateProfileView: View {
             ImagePicker(image: $viewModel.profilePicture, allowsEditing: true)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
         }
-        .popup(isPresented: $viewModel.showServerError, type: .toast, position: .bottom, autohideIn: 2) {
+        .popup(isPresented: $viewModel.showServerError) {
             Toast(text: "Unknown server error. Try again later.", type: .error)
+        } customize: {
+            $0.type(.toast).position(.bottom).autohideIn(2)
         }
-        .popup(isPresented: $viewModel.showRequestError, type: .toast, position: .bottom, autohideIn: 2) {
+        .popup(isPresented: $viewModel.showRequestError) {
             Toast(text: viewModel.requestError, type: .warning)
+        } customize: {
+            $0.type(.toast).position(.bottom).autohideIn(2)
         }
         .navigationBarHidden(true)
         .trackScreen(.createProfile)
