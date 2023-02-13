@@ -153,6 +153,8 @@
 		C7AEACFD25D8720E00EDEB7D /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AEACFC25D8720E00EDEB7D /* Settings.swift */; };
 		C7B32B142876858C009402E8 /* DeactivatedProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B32B132876858C009402E8 /* DeactivatedProfileView.swift */; };
 		C7B6E7272999DB5500B6C017 /* SearchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B6E7262999DB5500B6C017 /* SearchTab.swift */; };
+		C7B6E7292999E7F300B6C017 /* SelectedCity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B6E7282999E7F300B6C017 /* SelectedCity.swift */; };
+		C7B6E72B2999F13A00B6C017 /* FirstOpenPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B6E72A2999F13A00B6C017 /* FirstOpenPopup.swift */; };
 		C7B91FE5282448BA00F383BC /* ShareButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE4282448BA00F383BC /* ShareButtonView.swift */; };
 		C7B91FE7282449C700F383BC /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE6282449C700F383BC /* ActivityView.swift */; };
 		C7B91FE928245D2400F383BC /* SharePostButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE828245D2400F383BC /* SharePostButton.swift */; };
@@ -345,6 +347,8 @@
 		C7AEACFC25D8720E00EDEB7D /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		C7B32B132876858C009402E8 /* DeactivatedProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeactivatedProfileView.swift; sourceTree = "<group>"; };
 		C7B6E7262999DB5500B6C017 /* SearchTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTab.swift; sourceTree = "<group>"; };
+		C7B6E7282999E7F300B6C017 /* SelectedCity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedCity.swift; sourceTree = "<group>"; };
+		C7B6E72A2999F13A00B6C017 /* FirstOpenPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstOpenPopup.swift; sourceTree = "<group>"; };
 		C7B91FE4282448BA00F383BC /* ShareButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareButtonView.swift; sourceTree = "<group>"; };
 		C7B91FE6282449C700F383BC /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		C7B91FE828245D2400F383BC /* SharePostButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePostButton.swift; sourceTree = "<group>"; };
@@ -485,6 +489,7 @@
 				C751769225FEFACB00DCB856 /* SuggestedUserStore.swift */,
 				C751768925FEFAA300DCB856 /* ExistingContactStore.swift */,
 				C751769725FEFAE000DCB856 /* FeaturedUserStore.swift */,
+				C7B6E7282999E7F300B6C017 /* SelectedCity.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -673,6 +678,7 @@
 				C75C2EE025561309009B6ADA /* ContentView.swift */,
 				C72F3CBD258726BA00DDB76C /* MainAppView.swift */,
 				C712B6E8262E497900DAEB1D /* UITabView.swift */,
+				C7B6E72A2999F13A00B6C017 /* FirstOpenPopup.swift */,
 				C7AB52812890B7E20080DF73 /* Share */,
 				C7AB52802890B7D20080DF73 /* DeepLinking */,
 				C7AB527B2890B5BE0080DF73 /* Auth */,
@@ -1152,6 +1158,7 @@
 				C70F53C227F2ABEF00A15EE2 /* RequestLocation.swift in Sources */,
 				C7F6D503255A42BA00E8D216 /* SearchBar.swift in Sources */,
 				C7AB52832890B8830080DF73 /* DeepLinkProfileLoadingScreen.swift in Sources */,
+				C7B6E7292999E7F300B6C017 /* SelectedCity.swift in Sources */,
 				C751768025FEFA5A00DCB856 /* SuggestedUserView.swift in Sources */,
 				C3573075281B396500E5D6C3 /* EmailLogin.swift in Sources */,
 				C75C2EE125561309009B6ADA /* ContentView.swift in Sources */,
@@ -1204,6 +1211,7 @@
 				C74183E025D6E3A2007F13C1 /* GlobalViewState.swift in Sources */,
 				C712B6E9262E497900DAEB1D /* UITabView.swift in Sources */,
 				C75465E0298A36320013B1ED /* UnauthedOnboarding.swift in Sources */,
+				C7B6E72B2999F13A00B6C017 /* FirstOpenPopup.swift in Sources */,
 				C70DCCC529980E09001BCB67 /* AppState+Onboarding.swift in Sources */,
 				C7E7F68427F3C09800F9D598 /* Screens.swift in Sources */,
 				C7317F3F25E5C5840070E938 /* ImageUploadService.swift in Sources */,

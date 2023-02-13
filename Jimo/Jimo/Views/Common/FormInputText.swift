@@ -13,22 +13,17 @@ struct FormInputText: View {
     @Binding var text: String
 
     var body: some View {
-        if #available(iOS 15.0, *) {
-            MultilineTextField(name, text: $text, height: height)
-                .font(.system(size: 15))
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
+        MultilineTextField(name, text: $text, height: height)
+            .font(.system(size: 15))
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
 
-                        Button("Done") {
-                            hideKeyboard()
-                        }
-                        .foregroundColor(.blue)
+                    Button("Done") {
+                        hideKeyboard()
                     }
+                    .foregroundColor(.blue)
                 }
-        } else {
-            MultilineTextField(name, text: $text, height: height)
-                .font(.system(size: 15))
-        }
+            }
     }
 }

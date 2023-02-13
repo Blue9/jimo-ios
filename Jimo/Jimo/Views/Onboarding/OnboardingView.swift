@@ -23,7 +23,11 @@ struct OnboardingView: View {
                 case .cityOnboarding:
                     CityOnboarding(selectCity: { city in
                         DispatchQueue.main.async {
-                            self.city = city
+                            if city == .other {
+                                onboardingModel.step()
+                            } else {
+                                self.city = city?.name
+                            }
                         }
                     })
                 case .completed:

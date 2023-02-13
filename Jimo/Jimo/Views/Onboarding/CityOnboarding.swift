@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct CityOnboarding: View {
-    @State private var selectedCity: String?
+    @State private var selectedCity: SelectedCity?
 
-    var selectCity: (String) -> Void
+    var selectCity: (SelectedCity?) -> Void
 
     var body: some View {
         VStack {
@@ -19,23 +19,26 @@ struct CityOnboarding: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
 
+            Text(
+                "On the next page, we'll show you popular places from your city " +
+                "to help you get started with your profile."
+            )
+            .font(.caption)
+            .multilineTextAlignment(.center)
+            .foregroundColor(.gray)
+            .padding(.top)
+            .padding(.horizontal)
+
             Spacer()
 
             VStack {
-                cityButton("New York", color: .green)
-                cityButton("Los Angeles", color: .orange)
-                cityButton("Chicago", color: .blue)
-                cityButton("London", color: .purple)
+                cityButton(.nyc, color: .green)
+                cityButton(.la, color: .orange)
+                cityButton(.chicago, color: .blue)
+                cityButton(.london, color: .purple)
+                cityButton(.other, color: .black)
+
             }
-
-            Spacer()
-
-            Text(
-                "Not from any of these cities?\nAll good—you can Jimo anywhere in the world!"
-            )
-            .frame(width: 240)
-            .multilineTextAlignment(.center)
-            .foregroundColor(.gray)
 
             Spacer()
 
@@ -65,7 +68,7 @@ struct CityOnboarding: View {
     }
 
     @ViewBuilder
-    func cityButton(_ city: String, color: Color) -> some View {
+    private func cityButton(_ city: SelectedCity, color: Color) -> some View {
         Button {
             if selectedCity == city {
                 selectedCity = nil
@@ -73,7 +76,7 @@ struct CityOnboarding: View {
                 selectedCity = city
             }
         } label: {
-            Text(city)
+            Text(city.name)
                 .bold()
                 .frame(width: 240, height: 50)
                 .foregroundColor(

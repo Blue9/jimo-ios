@@ -166,6 +166,7 @@ private struct MapUserFilterButton: View {
             Text(mapType.buttonName)
                 .lineLimit(1)
                 .font(.caption)
+                .minimumScaleFactor(0.5)
         }
         .padding(5)
         .background(selected ? Color("foreground").opacity(0.1) : nil)

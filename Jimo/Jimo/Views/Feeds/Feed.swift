@@ -20,7 +20,6 @@ struct Feed: View {
     @StateObject var discoverViewModel = DiscoverViewModel()
 
     @State private var feedType: FeedType = .following
-    @State private var showFindFriendsSheet = false
     @State private var showEnableLocationButton = false
     @State private var navigationDestination: FeedItem.Destination?
     @State private var shareAction: ShareAction?
@@ -114,11 +113,6 @@ struct Feed: View {
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
         } onLoadMore: {
             feedViewModel.loadMorePosts(appState: appState, globalViewState: viewState)
-        }
-        .fullScreenCover(isPresented: $showFindFriendsSheet) {
-            SearchUsers()
-                .environmentObject(appState)
-                .environmentObject(viewState)
         }
     }
 

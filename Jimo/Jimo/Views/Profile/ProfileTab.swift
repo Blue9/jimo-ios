@@ -18,7 +18,6 @@ struct ProfileTab: View {
     let currentUser: PublicUser?
 
     @State private var showSettings = false
-    @State private var showSearchUsers = false
 
     var body: some View {
         Navigator {
@@ -33,22 +32,10 @@ struct ProfileTab: View {
                             .environmentObject(appState)
                             .environmentObject(globalViewState)
                     }
-                    .navDestination(isPresented: $showSearchUsers) {
-                        SearchUsers()
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState)
-                    }
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationBarColor(UIColor(Color("background")))
                     .navigationTitle(Text("My Profile"))
                     .toolbar(content: {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button { self.showSearchUsers = true } label: {
-                                Image(systemName: "magnifyingglass")
-                                    .contentShape(Rectangle())
-                            }
-                        }
-
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button { self.showSettings = true } label: {
                                 Image(systemName: "gearshape")

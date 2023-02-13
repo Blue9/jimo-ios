@@ -14,7 +14,6 @@ struct FeedTab: View {
     @ObservedObject var notificationsModel: NotificationBadgeModel
 
     @State private var showFeedback = false
-    @State private var showSearchUsers = false
     @State private var showNotifications = false
 
     @StateObject private var notificationFeedVM = NotificationFeedViewModel()
@@ -65,11 +64,6 @@ struct FeedTab: View {
                             .environmentObject(appState)
                             .environmentObject(globalViewState)
                     }
-                    .navDestination(isPresented: $showSearchUsers) {
-                        SearchUsers()
-                            .environmentObject(appState)
-                            .environmentObject(globalViewState)
-                    }
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationBarColor(UIColor(Color("background")))
                     .toolbar(content: {
@@ -80,12 +74,6 @@ struct FeedTab: View {
                                 .foregroundColor(Color("foreground"))
                                 .scaledToFit()
                                 .frame(width: 50)
-                        }
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button(action: { self.showSearchUsers = true }) {
-                                Image(systemName: "magnifyingglass")
-                                    .contentShape(Rectangle())
-                            }
                         }
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {

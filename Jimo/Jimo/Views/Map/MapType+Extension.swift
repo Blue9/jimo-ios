@@ -12,7 +12,7 @@ extension MapType {
         switch self {
         case .saved: return "Saved"
         case .me: return "My Posts"
-        case .following: return "Friends"
+        case .following: return "Following"
         case .community: return "Everyone"
         case .custom: return "Custom"
         }

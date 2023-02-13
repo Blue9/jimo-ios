@@ -18,6 +18,8 @@ struct MainAppView: View {
     @ObservedObject var notificationsModel: NotificationBadgeModel
     @StateObject private var viewModel = ViewModel()
     @State private var signUpAlert: SignUpAlert = .init(isPresented: false, source: .none)
+    @State private var showWelcomeAlert = false
+    @AppStorage("firstOpen") var firstOpen = true
     let currentUser: PublicUser?
 
     var selectionIndex: Binding<Int> {
@@ -48,6 +50,25 @@ struct MainAppView: View {
             })
         } message: {
             Text(signUpAlert.source.signUpNudgeText ?? "Sign up for the full experience")
+        }
+        .onAppear {
+            firstOpen = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                showWelcomeAlert = firstOpen
+                firstOpen = false
+            }
+        }
+        .popup(isPresented: $showWelcomeAlert) {
+            FirstOpenPopup(
+                isPresented: $showWelcomeAlert,
+                goToProfile: { viewModel.selection = .profile }
+            )
+        } customize: {
+            $0
+                .type(.floater(verticalPadding: 80))
+                .position(.bottom)
+                .closeOnTap(false)
+                .backgroundColor(.black.opacity(0.4))
         }
     }
 
