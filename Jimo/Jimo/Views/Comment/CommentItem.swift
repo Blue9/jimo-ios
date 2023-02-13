@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 struct CommentItem: View {
-    enum Destination: NavigationDestinationEnum {
+    enum Destination: Hashable {
         case profile(PublicUser)
 
         func view() -> some View {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FeedItem: View {
-    enum Destination: NavigationDestinationEnum {
+    enum Destination: Hashable {
         case post(Post)
         case user(PublicUser)
         case map(Post)

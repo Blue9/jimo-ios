@@ -64,7 +64,7 @@ class MapViewModel: ObservableObject {
 
     /// Request types
     @Published var categories: Set<Category> = Set(Categories.categories)
-    @Published var mapType: MapType = .following
+    @Published var mapType: MapType = .me
     @Published var userIds: Set<UserId> = Set()
     @Published var pins: [MKJimoPinAnnotation] = []
 

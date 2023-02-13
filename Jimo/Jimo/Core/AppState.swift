@@ -36,7 +36,7 @@ enum CurrentUser {
 enum OnboardingStep: Int {
     case completed = -1,
     requestLocation = 1,
-    followFeatured = 2
+    cityOnboarding = 2
 }
 
 class NotificationBadgeModel: ObservableObject {
@@ -54,13 +54,13 @@ class OnboardingModel: ObservableObject {
     init(notificationsModel: NotificationBadgeModel) {
         self.notificationsModel = notificationsModel
         // Uncomment to reset onboarding view
-//        onboardingStep = .requestLocation
+        onboardingStep = .cityOnboarding
         self.skipLocationIfGranted()
     }
 
     func skipLocationIfGranted() {
         if PermissionManager.shared.locationManager.location != nil && self.onboardingStep == .requestLocation {
-            self.onboardingStep = .followFeatured
+            self.onboardingStep = .cityOnboarding
         }
     }
 
@@ -72,7 +72,7 @@ class OnboardingModel: ObservableObject {
         withAnimation {
             self.onboardingStep = .init(rawValue: self.onboardingStep.rawValue + 1) ?? .completed
             if self.onboardingStep == .completed {
-                self.notificationsModel.unreadNotifications += 1
+                self.notificationsModel.unreadNotifications = 1
             }
         }
     }
@@ -751,7 +751,9 @@ class AppState: ObservableObject {
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         DispatchQueue.main.async {
             if let user = user {
+                #if !DEBUG
                 self.locationPingBackground()
+                #endif
                 if user.isAnonymous {
                     self.currentUser = .anonymous
                 } else {

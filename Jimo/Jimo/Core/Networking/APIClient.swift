@@ -17,9 +17,9 @@ struct Endpoint {
 
     var url: URL? {
         var apiURL = URLComponents()
-        apiURL.scheme = "https"
-        apiURL.host = "api.jimoapp.com"
-        apiURL.port = 443
+        apiURL.scheme = "http"
+        apiURL.host = "192.168.1.108"
+        apiURL.port = 80
         apiURL.path = path
         apiURL.queryItems = queryItems
         return apiURL.url
@@ -663,7 +663,7 @@ class APIClient: ObservableObject {
      
      - Parameter endpoint: The endpoint.
      */
-    private func doRequest<Response: Decodable>(
+    func doRequest<Response: Decodable>(
         endpoint: Endpoint,
         httpMethod: String = "GET"
     ) -> AnyPublisher<Response, APIError> {
@@ -675,7 +675,7 @@ class APIClient: ObservableObject {
      
      - Parameter endpoint: The endpoint.
      */
-    private func doRequest<Request: Encodable, Response: Decodable>(
+    func doRequest<Request: Encodable, Response: Decodable>(
         endpoint: Endpoint,
         httpMethod: String = "GET",
         body: Request? = nil

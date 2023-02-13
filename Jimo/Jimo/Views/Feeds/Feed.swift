@@ -93,7 +93,9 @@ struct Feed: View {
                 isPresented: Binding(get: { self.shareAction != nil }, set: { self.shareAction = $0 ? shareAction : nil })
             )
         }
-        .navigation(destination: $navigationDestination)
+        .navigation(destination: $navigationDestination) {
+            navigationDestination?.view()
+        }
         .background(Color("background"))
         .onAppear {
             showEnableLocationButton = PermissionManager.shared.getLocation() == nil

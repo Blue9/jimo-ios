@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ViewPost: View {
-    enum Destination: NavigationDestinationEnum {
+    enum Destination: Hashable {
         case user(PublicUser)
         case pinView(Post)
         case commentItemDestination(CommentItem.Destination)
@@ -154,7 +154,9 @@ struct ViewPost: View {
                 commentsViewModel.loadComments()
             }
         }
-        .navigation(destination: $destination)
+        .navigation(destination: $destination) {
+            destination?.view()
+        }
     }
 
     var body: some View {

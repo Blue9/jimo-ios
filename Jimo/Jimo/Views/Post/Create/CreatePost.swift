@@ -8,6 +8,7 @@
 import SwiftUI
 import MapKit
 import Combine
+import PopupView
 
 struct CreatePost: View {
     @StateObject var createPostVM = CreatePostVM()
@@ -100,6 +101,10 @@ struct CreatePostWithModel: View {
 //                            .id(createPostVM.previewRegion)
 //                        }
 
+                        Text("Award stars (Optional)")
+                            .font(.system(size: 15))
+                            .bold()
+                            .padding(.bottom, 8)
                         CreatePostStarPicker(stars: $createPostVM.stars)
 
                         Spacer()
@@ -143,9 +148,11 @@ struct CreatePostWithModel: View {
                     }.disabled(createPostVM.postingStatus == .loading)
                 }
             }
-            .popup(isPresented: $createPostVM.showError, type: .toast, autohideIn: 2) {
+            .popup(isPresented: $createPostVM.showError) {
                 Toast(text: createPostVM.errorMessage, type: .error)
                     .opacity(createPostVM.showError ? 1 : 0)
+            } customize: {
+                $0.type(.toast).autohideIn(2)
             }
             .sheet(item: $createPostVM.activeSheet) { (activeSheet: CreatePostActiveSheet) in
                 Group {

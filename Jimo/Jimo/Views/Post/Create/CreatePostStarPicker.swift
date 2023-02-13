@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CreatePostStarPicker: View {
+    var showZeroStars: Bool = true
     @Binding var stars: Int?
 
     // Makes comparisons easier
@@ -17,14 +18,13 @@ struct CreatePostStarPicker: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Award stars (Optional)")
-                .font(.system(size: 15))
-                .bold()
             HStack(spacing: 0) {
-                Star(systemImagePrefix: "star.slash", selected: effectiveStars == 0) {
-                    stars = stars == 0 ? nil : 0
+                if showZeroStars {
+                    Star(systemImagePrefix: "star.slash", selected: effectiveStars == 0) {
+                        stars = stars == 0 ? nil : 0
+                    }
+                    Spacer()
                 }
-                Spacer()
                 Star(selected: effectiveStars >= 1) {
                     stars = stars == 1 ? nil : 1
                 }
@@ -39,8 +39,10 @@ struct CreatePostStarPicker: View {
             }
 
             HStack(spacing: 0) {
-                Text("Not worth it").frame(maxWidth: .infinity)
-                Spacer()
+                if showZeroStars {
+                    Text("Not worth it").frame(maxWidth: .infinity)
+                    Spacer()
+                }
                 Text("Worth a stop").frame(maxWidth: .infinity)
                 Spacer()
                 Text("Worth a detour").frame(maxWidth: .infinity)
@@ -56,6 +58,7 @@ struct CreatePostStarPicker: View {
 }
 
 private struct Star: View {
+    var foregroundColor = Color.gray
     let systemImagePrefix: String
     let selected: Bool
     let onTap: () -> Void
@@ -75,7 +78,7 @@ private struct Star: View {
             Image(systemName: systemImageName)
                 .resizable()
                 .font(.system(size: 15, weight: .regular))
-                .foregroundColor(selected && systemImagePrefix == "star" ? .yellow : .gray)
+                .foregroundColor(selected && systemImagePrefix == "star" ? .yellow : foregroundColor)
                 .scaledToFit()
                 .contentShape(Rectangle())
                 .onTapGesture {

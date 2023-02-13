@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PopupView
 import Combine
 
 struct EmailLogin: View {
@@ -47,8 +48,10 @@ struct EmailLogin: View {
             }
             .padding(.horizontal, 24)
         }
-        .popup(isPresented: $viewModel.showError, type: .toast, autohideIn: 2) {
+        .popup(isPresented: $viewModel.showError) {
             Toast(text: viewModel.error, type: .error)
+        } customize: {
+            $0.type(.toast).position(.bottom).autohideIn(2)
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(Text("Super secret menu"))
