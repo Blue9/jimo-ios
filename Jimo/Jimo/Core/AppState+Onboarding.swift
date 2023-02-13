@@ -9,10 +9,6 @@ import Combine
 
 extension AppState {
     // MARK: - Onboarding routes
-    func getOnboardingCities() -> AnyPublisher<[String], APIError> {
-        apiClient.getOnboardingCities()
-    }
-
     func getOnboardingPlaces(for city: String) -> AnyPublisher<PlaceTilePage, APIError> {
         apiClient.getOnboardingPlaces(for: city)
     }

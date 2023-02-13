@@ -9,10 +9,6 @@ import Combine
 import Foundation
 
 extension Endpoint {
-    static func getOnboardingCities() -> Endpoint {
-        .init(path: "/onboarding/cities")
-    }
-
     static func onboardingPlaces(city: String? = nil) -> Endpoint {
         .init(
             path: "/onboarding/places",
@@ -22,10 +18,6 @@ extension Endpoint {
 }
 
 extension APIClient {
-    func getOnboardingCities() -> AnyPublisher<[String], APIError> {
-        doRequest(endpoint: .getOnboardingCities())
-    }
-
     func getOnboardingPlaces(for city: String) -> AnyPublisher<PlaceTilePage, APIError> {
         doRequest(endpoint: .onboardingPlaces(city: city))
     }
