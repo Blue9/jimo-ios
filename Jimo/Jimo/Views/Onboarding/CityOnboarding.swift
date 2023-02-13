@@ -36,8 +36,7 @@ struct CityOnboarding: View {
                 cityButton(.la, color: .orange)
                 cityButton(.chicago, color: .blue)
                 cityButton(.london, color: .purple)
-                cityButton(.other, color: .black)
-
+                cityButton(.other, color: .gray)
             }
 
             Spacer()
