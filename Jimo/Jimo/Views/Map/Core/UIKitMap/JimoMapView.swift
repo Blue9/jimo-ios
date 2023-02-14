@@ -10,12 +10,14 @@ import MapKit
 import Collections
 
 struct JimoMapView: UIViewRepresentable {
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
     @ObservedObject var mapViewModel: MapViewModel
 
     var tappedPin: (MKJimoPinAnnotation?) -> Void
 
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
+        mapView.mapType = colorScheme == .light ? .standard : .mutedStandard
         mapView.showsCompass = false
         mapView.pointOfInterestFilter = .excludingAll
         mapView.addAnnotations(mapViewModel.pins)

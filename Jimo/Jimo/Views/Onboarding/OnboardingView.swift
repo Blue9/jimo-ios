@@ -20,6 +20,8 @@ struct OnboardingView: View {
                 switch onboardingModel.onboardingStep {
                 case .requestLocation:
                     RequestLocation(onCompleteRequest: onboardingModel.step)
+                case .followFeatured:
+                    FollowFeatured(onboardingModel: onboardingModel)
                 case .cityOnboarding:
                     CityOnboarding(selectCity: { city in
                         DispatchQueue.main.async {

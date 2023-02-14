@@ -36,7 +36,8 @@ enum CurrentUser {
 enum OnboardingStep: Int {
     case completed = -1,
     requestLocation = 1,
-    cityOnboarding = 2
+    followFeatured = 2,
+    cityOnboarding = 3
 }
 
 class NotificationBadgeModel: ObservableObject {
@@ -60,7 +61,7 @@ class OnboardingModel: ObservableObject {
 
     func skipLocationIfGranted() {
         if PermissionManager.shared.locationManager.location != nil && self.onboardingStep == .requestLocation {
-            self.onboardingStep = .cityOnboarding
+            self.onboardingStep = .followFeatured
         }
     }
 

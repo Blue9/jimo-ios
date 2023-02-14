@@ -14,8 +14,20 @@ struct HomeMenu: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
+    @State private var currentWallpaperIndex = 0
 
     let height = UIScreen.main.bounds.height
+
+    let wallpapers = [
+        "wallpaper.nyc",
+        "wallpaper.chicago",
+        "wallpaper.london",
+        "wallpaper.la",
+        "wallpaper.tokyo",
+        "wallpaper.madrid",
+        "wallpaper.paris"
+    ].shuffled()
+    let wallpaperTimer = Timer.publish(every: 6, on: .main, in: .common).autoconnect()
 
     var body: some View {
         Navigator {
@@ -25,8 +37,6 @@ struct HomeMenu: View {
 
     var mainBody: some View {
         VStack(spacing: 0) {
-            Spacer().frame(maxHeight: height * 0.22)
-
             VStack(spacing: 0) {
                 Image("logo")
                     .resizable()
@@ -35,13 +45,30 @@ struct HomeMenu: View {
                     .scaledToFit()
                     .frame(width: 175)
                 Text("The social maps platform.")
+                    .bold()
                     .multilineTextAlignment(.center)
                     .font(.system(size: 16))
             }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 100)
+            .contentShape(Rectangle())
+            .background(
+                Color("background")
+                    .ignoresSafeArea()
+                    .mask(
+                        LinearGradient(
+                            colors: [
+                                Color("background").opacity(0.8),
+                                Color("background").opacity(0.7),
+                                Color.clear
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ).ignoresSafeArea()
+                    )
+            )
             .scaledToFit()
-
-            Spacer().frame(maxHeight: height * 0.23)
-
+            Spacer()
             VStack(spacing: 5) {
                 NavigationLink {
                     EnterPhoneNumber(onVerify: {})
@@ -83,13 +110,40 @@ struct HomeMenu: View {
                         .foregroundColor(Color("foreground"))
                 }
             }
-            .padding(.bottom, 50)
-
-            Spacer()
+            .padding(.horizontal, 50)
+            .padding(.top, 60)
+            .contentShape(Rectangle())
+            .background(
+                Color("background")
+                    .ignoresSafeArea()
+                    .mask(
+                        LinearGradient(
+                            colors: [
+                                Color("background").opacity(0.8),
+                                Color("background").opacity(0.8),
+                                Color("background").opacity(0.7),
+                                Color.clear
+                            ],
+                            startPoint: .bottom,
+                            endPoint: .top
+                        ).ignoresSafeArea()
+                    )
+            )
+            .ignoresSafeArea()
         }
-        .padding(.horizontal, 50)
         .frame(maxHeight: .infinity)
-        .edgesIgnoringSafeArea(.all)
+        .background(
+            Image(wallpapers[currentWallpaperIndex])
+                .resizable()
+                .scaledToFill()
+                .frame(height: UIScreen.main.bounds.height)
+                .ignoresSafeArea()
+        )
+        .onReceive(wallpaperTimer) { _ in
+            withAnimation(.linear(duration: 1)) {
+                currentWallpaperIndex = currentWallpaperIndex < wallpapers.count - 1 ? currentWallpaperIndex + 1 : 0
+            }
+        }
         .trackScreen(.landing)
     }
 }

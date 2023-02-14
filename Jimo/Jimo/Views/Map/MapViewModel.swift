@@ -64,7 +64,7 @@ class MapViewModel: ObservableObject {
 
     /// Request types
     @Published var categories: Set<Category> = Set(Categories.categories)
-    @Published var mapType: MapType = .following
+    @Published var mapType: MapType = .me
     @Published var userIds: Set<UserId> = Set()
     @Published var pins: [MKJimoPinAnnotation] = []
 
@@ -98,6 +98,10 @@ class MapViewModel: ObservableObject {
             self.regionToLoad = cache.rectangularRegion
             self._mkCoordinateRegion = cache.mkCoordinateRegion
             self.initializedFromCache = true
+        }
+        if let savedMapType = UserDefaults.standard.string(forKey: "savedMapType"),
+           let mapType = MapType.init(rawValue: savedMapType) {
+            self.mapType = mapType
         }
     }
 
@@ -153,6 +157,7 @@ class MapViewModel: ObservableObject {
                 guard let self = self, let region = region else {
                     return
                 }
+                UserDefaults.standard.set(mapType.rawValue, forKey: "savedMapType")
                 let request = MapRequestState(
                     region: region,
                     categories: categories,
@@ -241,7 +246,12 @@ class MapViewModel: ObservableObject {
         )
     }
 
-    private func loadMap(_ request: MapRequestState, appState: AppState, viewState: GlobalViewState, onLoad: OnMapLoadCallback?) {
+    private func loadMap(
+        _ request: MapRequestState,
+        appState: AppState,
+        viewState: GlobalViewState,
+        onLoad: OnMapLoadCallback?
+    ) {
         self.isLoading = true
         self.latestMapRequest = request
         // Note that re-assigning this cancels previous requests so we always use the latest request

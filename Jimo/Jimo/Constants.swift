@@ -23,9 +23,6 @@ struct Colors {
         gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
 
     static let angularGradient = AngularGradient(colors: colors + [Color("food")], center: .center)
-
-    static let linearGradientReversed = LinearGradient(
-        gradient: gradientColors, startPoint: .leading, endPoint: .trailing)
 }
 
 struct Category: Identifiable, Hashable {

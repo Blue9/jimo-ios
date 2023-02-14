@@ -1,0 +1,22 @@
+{
+  "images" : [
+    {
+      "filename" : "wallpaper.nyc.heic",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "nyc.dark.heic",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
