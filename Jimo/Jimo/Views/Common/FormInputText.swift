@@ -15,15 +15,5 @@ struct FormInputText: View {
     var body: some View {
         MultilineTextField(name, text: $text, height: height)
             .font(.system(size: 15))
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-
-                    Button("Done") {
-                        hideKeyboard()
-                    }
-                    .foregroundColor(.blue)
-                }
-            }
     }
 }

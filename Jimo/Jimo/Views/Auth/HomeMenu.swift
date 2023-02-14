@@ -20,13 +20,13 @@ struct HomeMenu: View {
 
     let wallpapers = [
         "wallpaper.nyc",
-        "wallpaper.chicago",
-        "wallpaper.london",
         "wallpaper.la",
         "wallpaper.tokyo",
-        "wallpaper.madrid",
-        "wallpaper.paris"
-    ].shuffled()
+        "wallpaper.chicago",
+        "wallpaper.london",
+        "wallpaper.paris",
+        "wallpaper.madrid"
+    ]
     let wallpaperTimer = Timer.publish(every: 6, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -44,16 +44,17 @@ struct HomeMenu: View {
                     .foregroundColor(Color("foreground"))
                     .scaledToFit()
                     .frame(width: 175)
-                Text("The social maps platform.")
+                Text("Your favorite spots,\nyour favorite people,\nyour favorite app.")
                     .bold()
                     .multilineTextAlignment(.center)
                     .font(.system(size: 16))
             }
-            .frame(maxWidth: .infinity)
+            .frame(width: UIScreen.main.bounds.width)
+            .padding(.top, 30)
             .padding(.bottom, 100)
             .contentShape(Rectangle())
             .background(
-                Color("background")
+                Color("wallpaper.bg")
                     .ignoresSafeArea()
                     .mask(
                         LinearGradient(
@@ -69,19 +70,19 @@ struct HomeMenu: View {
             )
             .scaledToFit()
             Spacer()
-            VStack(spacing: 5) {
+            VStack(spacing: 3) {
                 NavigationLink {
                     EnterPhoneNumber(onVerify: {})
                 } label: {
                     LargeButton("Sign Up")
                 }
                 .buttonStyle(RaisedButtonStyle())
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
 
                 HStack(spacing: 10) {
                     VStack { Divider().frame(maxWidth: 100) }
                     Text("OR").opacity(0.5)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 6)
                     VStack { Divider().frame(maxWidth: 100) }
                 }
 
@@ -91,7 +92,7 @@ struct HomeMenu: View {
                     Text("Sign in to an existing account")
                         .font(.system(size: 16))
                         .frame(minWidth: 0, maxWidth: .infinity)
-                        .padding(.bottom, 8)
+                        .padding(.bottom, 6)
                         .contentShape(Rectangle())
                         .foregroundColor(Color("foreground"))
                 }
@@ -105,16 +106,17 @@ struct HomeMenu: View {
                     Text("Explore Jimo first")
                         .font(.system(size: 16))
                         .frame(minWidth: 0, maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 6)
                         .contentShape(Rectangle())
                         .foregroundColor(Color("foreground"))
                 }
             }
+            .padding(.bottom, 10)
             .padding(.horizontal, 50)
             .padding(.top, 60)
             .contentShape(Rectangle())
             .background(
-                Color("background")
+                Color("wallpaper.bg")
                     .ignoresSafeArea()
                     .mask(
                         LinearGradient(

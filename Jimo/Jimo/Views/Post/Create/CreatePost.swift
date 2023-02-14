@@ -120,6 +120,15 @@ struct CreatePostWithModel: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarColor(UIColor(Color("background")))
             .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+
+                    Button("Done") {
+                        hideKeyboard()
+                    }
+                    .foregroundColor(.blue)
+                }
+
                 ToolbarItem(placement: .principal) {
                     Image("logo")
                         .renderingMode(.template)

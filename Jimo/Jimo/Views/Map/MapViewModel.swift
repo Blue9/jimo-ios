@@ -101,7 +101,8 @@ class MapViewModel: ObservableObject {
         }
         if let savedMapType = UserDefaults.standard.string(forKey: "savedMapType"),
            let mapType = MapType.init(rawValue: savedMapType) {
-            self.mapType = mapType
+            // We can't restore a custom filter (yet) because we don't save the list of user IDs
+            self.mapType = mapType == .custom ? .following : mapType
         }
     }
 
