@@ -30,6 +30,10 @@ struct JimoMapView: UIViewRepresentable {
     }
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
+        let expectedMapType: MKMapType = colorScheme == .light ? .standard : .mutedStandard
+        if mapView.mapType != expectedMapType {
+            mapView.mapType = expectedMapType
+        }
         // Handle region, don't change if the region is already changing
         if !context.coordinator.isRegionChanging && mapView.region != mapViewModel._mkCoordinateRegion {
             mapView.setRegion(mapViewModel._mkCoordinateRegion, animated: true)
