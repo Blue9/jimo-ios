@@ -32,6 +32,7 @@ struct ContentView: View {
                         .id("loading")
                 case let .user(user):
                     LoggedInView(onboardingModel: appState.onboardingModel, currentUser: user)
+                        .id(user)
                 case .anonymous:
                     UnauthedOnboarding()
                 case .signedOut:

@@ -32,7 +32,7 @@ struct Profile: View {
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var profileVM = ProfileVM()
 
-    let initialUser: User
+    let initialUser: PublicUser
     var editPost: ((Post) -> Void)?
 
     private let columns: [GridItem] = [
@@ -44,9 +44,14 @@ struct Profile: View {
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
     @State private var navigationDestination: Destination?
+    @State private var isShareSheetPresented = false
+
+    var user: PublicUser {
+        profileVM.user ?? initialUser
+    }
 
     var username: String {
-        initialUser.username
+        user.username
     }
 
     @ViewBuilder
@@ -54,6 +59,7 @@ struct Profile: View {
         RefreshableScrollView(spacing: 0) {
             ProfileHeaderView(
                 profileVM: profileVM,
+                shareProfile: { self.isShareSheetPresented = true },
                 navigate: { self.navigationDestination = $0 },
                 initialUser: initialUser
             ).padding(.bottom, 10)
@@ -89,6 +95,9 @@ struct Profile: View {
             profileVM.refresh(username: username, appState: appState, viewState: viewState, onFinish: onFinish)
         } onLoadMore: {
             profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
+        }
+        .sheet(isPresented: $isShareSheetPresented) {
+            ActivityView(shareAction: .profile(user), isPresented: $isShareSheetPresented)
         }
         .font(.system(size: 15))
         .navigation(destination: $navigationDestination) {
@@ -176,7 +185,7 @@ struct ProfileScreen: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var createPostVM = CreatePostVM()
     @State private var showCreatePostSheet = false
-    var initialUser: User
+    var initialUser: PublicUser
 
     var body: some View {
         Profile(
@@ -208,6 +217,7 @@ private struct ProfileHeaderView: View {
 
     @State private var showCreatePostView = false
 
+    var shareProfile: () -> Void
     var navigate: (Profile.Destination?) -> Void
 
     let initialUser: User
@@ -254,7 +264,12 @@ private struct ProfileHeaderView: View {
 
                 Spacer()
 
-                ProfileActionButtonView(profileVM: profileVM, initialUser: initialUser, navigate: navigate)
+                ProfileActionButtonView(
+                    profileVM: profileVM,
+                    initialUser: initialUser,
+                    shareProfile: shareProfile,
+                    navigate: navigate
+                )
 
                 // Cannot share blocked user profile
                 if profileVM.relationToUser != .blocked {
@@ -362,9 +377,9 @@ struct ProfileActionButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
-    @State private var isShareSheetPresented = false
 
     let initialUser: User
+    let shareProfile: () -> Void
     let navigate: (Profile.Destination) -> Void
 
     var user: User {
@@ -383,9 +398,7 @@ struct ProfileActionButtonView: View {
             if isCurrentUser {
                 ProfileButton(textType: .share) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    isShareSheetPresented = true
-                }.sheet(isPresented: $isShareSheetPresented) {
-                    ActivityView(shareAction: .profile(user), isPresented: $isShareSheetPresented)
+                    shareProfile()
                 }
             } else if !profileVM.loadedRelation {
                 Text("Loading...")

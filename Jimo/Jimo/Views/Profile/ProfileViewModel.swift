@@ -242,7 +242,7 @@ class ProfileVM: ObservableObject {
 
 extension DeepLinkProfileLoadingScreen {
     class ViewModel: ObservableObject {
-        @Published var initialUser: User?
+        @Published var initialUser: PublicUser?
         @Published var loadStatus: ProfileLoadStatus = .notInitialized
 
         var loadUserCancellable: Cancellable?
