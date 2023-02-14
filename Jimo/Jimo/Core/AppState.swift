@@ -55,7 +55,7 @@ class OnboardingModel: ObservableObject {
     init(notificationsModel: NotificationBadgeModel) {
         self.notificationsModel = notificationsModel
         // Uncomment to reset onboarding view
-        onboardingStep = .requestLocation
+        // onboardingStep = .requestLocation
         self.skipLocationIfGranted()
     }
 
@@ -766,6 +766,7 @@ class AppState: ObservableObject {
                     self.signingOut = false
                 }
                 self.currentUser = .signedOut
+                self.notificationsModel.unreadNotifications = 0
             }
         }
     }

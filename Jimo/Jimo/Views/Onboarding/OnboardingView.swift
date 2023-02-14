@@ -24,11 +24,12 @@ struct OnboardingView: View {
                     FollowFeatured(onboardingModel: onboardingModel)
                 case .cityOnboarding:
                     CityOnboarding(selectCity: { city in
+                        Analytics.track(.onboardingCitySelected, parameters: ["city": city.name])
                         DispatchQueue.main.async {
                             if city == .other {
                                 onboardingModel.step()
                             } else {
-                                self.city = city?.name
+                                self.city = city.name
                             }
                         }
                     })

@@ -10,7 +10,7 @@ import SwiftUI
 struct CityOnboarding: View {
     @State private var selectedCity: SelectedCity?
 
-    var selectCity: (SelectedCity?) -> Void
+    var selectCity: (SelectedCity) -> Void
 
     var body: some View {
         VStack {

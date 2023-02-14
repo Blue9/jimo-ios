@@ -68,7 +68,6 @@ struct MainAppView: View {
             Text(signUpAlert.source.signUpNudgeText ?? "Sign up for the full experience")
         }
         .onAppear {
-            firstOpen = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 showWelcomeAlert = firstOpen
                 firstOpen = false

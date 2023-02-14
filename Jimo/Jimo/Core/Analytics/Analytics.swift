@@ -90,62 +90,62 @@ enum AnalyticsName: Equatable {
         return name
     }
 
-    case signInAnonymous
-
     /// Track when new screen is viewed
     case screenView
+
+    /// Onboarding
+    case onboardingCitySelected
 
     /// Track when notification bell tapped
     case tapNotificationBell
 
-    /// Share sheet presented
+    /// Share profile
     case shareProfilePresented
-    /// Share sheet cancelled
     case shareProfileCancelled
-    /// Share sheet completed
     case shareProfileCompleted
 
-    /// Share sheet presented
+    /// Share post
     case sharePostPresented
-    /// Share sheet cancelled
     case sharePostCancelled
-    /// Share sheet completed
     case sharePostCompleted
 
+    /// Post actions
     case postPlaceNameTap
     case postCreated
     case postUpdated
     case postDeleted
-
     case postLiked
     case postUnliked
 
+    /// Comment actions
     case commentCreated
     case commentDeleted
 
-    // Profile action button events
+    /// Profile actions
     case userFollowed
     case userUnfollowed
-    case feedFindFriendsTapped
     case profileNewPostTapped
 
-    // Notifications
-    case notificationFeedEnableTap
-    case notificationFeedShareTap
-    case notificationPermissionsAllowed
-    case notificationPermissionsDenied
-
-    case locationPermissionsAllowed
-    case locationPermissionsDenied
-
-    case contactsPermissionsAllowed
-    case contactsPermissionsDenied
-
+    /// Map actions
     case mapCreatePostTapped
     case mapSavePlace
     case mapPinTapped
     case mapSearchResultTapped
 
-    case updateAppVersionTapped
+    /// Notifications
+    case notificationFeedEnableTap
+    case notificationFeedShareTap
+    case notificationPermissionsAllowed
+    case notificationPermissionsDenied
+
+    /// Permissions
+    case locationPermissionsAllowed
+    case locationPermissionsDenied
+    case contactsPermissionsAllowed
+    case contactsPermissionsDenied
+
+    /// Misc
+    case signInAnonymous
     case guestAccountSignUpTap
+    case updateAppVersionTapped
 }
