@@ -320,7 +320,8 @@ private struct ProfileHeaderView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 headerButtonText(.editProfile, "Edit profile", "square.and.pencil")
-                headerButtonText(.submitFeedback, "Submit feedback", nil)
+                headerButtonText(.submitFeedback, "Submit feedback", "exclamationmark.bubble")
+                headerButtonText(.submitFeedback, "Report a problem", "exclamationmark.triangle")
             }
             .padding(.horizontal, 20)
         }

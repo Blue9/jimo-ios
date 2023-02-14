@@ -21,16 +21,19 @@ struct Feedback: View {
             VStack(spacing: 0) {
                 Group {
                     FormInputText(
-                        name: "Submit your questions, comments, feedback, bugs, or anything else you would like to share with the Jimo team.",
+                        name: "Submit your questions, comments, feedback, bugs, or anything else " +
+                            "you would like to share with the Jimo team. You can also reach us on Instagram @jimoapp " +
+                            "or email us at hello@jimoapp.com.",
                         height: 300,
                         text: $viewModel.content
-                    )
+                    ).padding(.horizontal, 10)
 
                     Divider()
                         .padding(.all, 10)
 
                     Checkbox(
-                        label: "Would you like us to follow up with you through the phone number associated with your account?",
+                        label: "Would you like us to follow up with you? " +
+                            "Someone on our team will text you using the phone number associated with your account.",
                         boxSize: 32,
                         selected: $viewModel.followUp
                     )
