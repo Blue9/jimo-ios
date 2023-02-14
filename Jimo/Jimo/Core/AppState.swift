@@ -375,12 +375,15 @@ class AppState: ObservableObject {
             .catch({ error -> Just<CurrentUser> in
                 print("catching error when getting Me: \(error.localizedDescription)")
                 switch error {
+                case .tokenError:
+                    self.signOutFirebase()
+                    return Just(.failed)
                 case .notFound:
-                    return Just(CurrentUser.phoneAuthed)
+                    return Just(.phoneAuthed)
                 case .gone:
-                    return Just(CurrentUser.deactivated)
+                    return Just(.deactivated)
                 default:
-                    return Just(CurrentUser.failed)
+                    return Just(.failed)
                 }
             })
             .assign(to: \.currentUser, on: self)
