@@ -67,10 +67,21 @@ struct MainAppView: View {
         } message: {
             Text(signUpAlert.source.signUpNudgeText ?? "Sign up for the full experience")
         }
+        .onChange(of: deepLinkManager.presentableEntity) { item in
+            if item != .none {
+                globalViewState.createPostPresented = false
+                selection = .feed
+            }
+        }
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                showWelcomeAlert = firstOpen
-                firstOpen = false
+            if deepLinkManager.presentableEntity != nil {
+                globalViewState.createPostPresented = false
+                selection = .feed
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    showWelcomeAlert = firstOpen
+                    firstOpen = false
+                }
             }
         }
         .popup(isPresented: $showWelcomeAlert) {
@@ -141,6 +152,7 @@ struct MainAppView: View {
                     }
             } else {
                 CreatePost(presented: $globalViewState.createPostPresented)
+                    .interactiveDismissDisabled(true)
                     .trackSheet(.createPostSheet, screenAfterDismiss: { currentTab })
                     .environmentObject(appState)
                     .environmentObject(globalViewState)
@@ -153,12 +165,6 @@ struct MainAppView: View {
             UITabBar.appearance().backgroundImage = UIImage()
             UITabBar.appearance().barTintColor = UIColor(Color("background"))
             UITabBar.appearance().backgroundColor = UIColor(Color("background"))
-        }
-        .onChange(of: deepLinkManager.presentableEntity) { item in
-            if item != .none {
-                globalViewState.createPostPresented = false
-                selection = .feed
-            }
         }
     }
 }

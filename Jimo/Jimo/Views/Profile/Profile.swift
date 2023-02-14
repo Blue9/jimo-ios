@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Profile: View {
     enum Destination: Hashable {
-        case editProfile, submitFeedback, post(Post)
+        case editProfile, submitFeedback, post(Post), followers(username: String), following(username: String)
 
         @ViewBuilder
         func view() -> some View {
@@ -20,6 +20,10 @@ struct Profile: View {
                 Feedback()
             case let .post(post):
                 ViewPost(initialPost: post)
+            case let .followers(username):
+                FollowFeed(navTitle: "Followers", type: .followers, username: username)
+            case let .following(username):
+                FollowFeed(navTitle: "Following", type: .following, username: username)
             }
         }
     }
@@ -229,7 +233,7 @@ private struct ProfileHeaderView: View {
                     .background(Color.white)
                     .cornerRadius(40)
                     .padding(.trailing)
-                ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
+                ProfileStatsView(profileVM: profileVM, initialUser: initialUser, navigate: navigate)
             }.padding(.leading, 20)
 
             HStack(spacing: 0) {
@@ -257,6 +261,8 @@ private struct ProfileHeaderView: View {
                     ShareButtonView(shareAction: .profile(user))
                         .offset(y: -2)
                         .padding(.horizontal)
+                } else {
+                    Spacer().frame(width: 25)
                 }
             }.padding(.leading, 20)
 
@@ -314,8 +320,7 @@ struct ProfileStatsView: View {
 
     let initialUser: User
 
-    @State private var showFollowers = false
-    @State private var showFollowing = false
+    var navigate: (Profile.Destination?) -> Void
 
     var user: User {
         profileVM.user ?? initialUser
@@ -331,7 +336,7 @@ struct ProfileStatsView: View {
             .padding(.trailing, 10)
             Spacer()
 
-            Button(action: { showFollowers.toggle() }) {
+            Button { navigate(.followers(username: user.username)) } label: {
                 VStack {
                     Text(user.followerCount.kFormatted).bold()
                     Text("Followers")
@@ -340,7 +345,7 @@ struct ProfileStatsView: View {
             .padding(.trailing, 10)
             Spacer()
 
-            Button(action: { showFollowing.toggle()}) {
+            Button { navigate(.following(username: user.username)) } label: {
                 VStack {
                     Text(user.followingCount.kFormatted).bold()
                     Text("Following")
@@ -350,16 +355,6 @@ struct ProfileStatsView: View {
         }
         .font(.system(size: 15))
         .foregroundColor(Color("foreground"))
-        .navDestination(isPresented: $showFollowers) {
-            FollowFeed(navTitle: "Followers", type: .followers, username: user.username)
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
-        }
-        .navDestination(isPresented: $showFollowing) {
-            FollowFeed(navTitle: "Following", type: .following, username: user.username)
-                .environmentObject(appState)
-                .environmentObject(globalViewState)
-        }
     }
 }
 
@@ -367,6 +362,7 @@ struct ProfileActionButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var profileVM: ProfileVM
+    @State private var isShareSheetPresented = false
 
     let initialUser: User
     let navigate: (Profile.Destination) -> Void
@@ -385,7 +381,12 @@ struct ProfileActionButtonView: View {
     var body: some View {
         VStack {
             if isCurrentUser {
-                Spacer().frame(height: 30)
+                ProfileButton(textType: .share) {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    isShareSheetPresented = true
+                }.sheet(isPresented: $isShareSheetPresented) {
+                    ActivityView(shareAction: .profile(user), isPresented: $isShareSheetPresented)
+                }
             } else if !profileVM.loadedRelation {
                 Text("Loading...")
                     .padding(10)
@@ -421,14 +422,16 @@ struct ProfileActionButtonView: View {
 }
 
 private enum TextType {
-    case follow, unfollow, unblock, loading
+    case follow, unfollow, unblock, loading, share
 
     var text: String {
         switch self {
         case .follow: return "Follow"
         case .unfollow: return "Unfollow"
+
         case .unblock: return "Unblock"
         case .loading: return "Loading..."
+        case .share: return "Share my profile"
         }
     }
 
@@ -438,6 +441,7 @@ private enum TextType {
         case .unfollow: return .userUnfollowed
         case .unblock: return nil
         case .loading: return nil
+        case .share: return .shareMyProfileTapped
         }
     }
 
@@ -446,6 +450,7 @@ private enum TextType {
         case .loading, .unfollow: return .white
         case .unblock: return .red
         case .follow: return .blue
+        case .share: return .blue
         }
     }
 
