@@ -203,11 +203,23 @@ struct PostHeader: View {
 
             Spacer()
 
+            Button {
+                Analytics.track(.postHeaderShareTap)
+                showShareSheet()
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 20)
+                    .padding(.horizontal, 10)
+                    .contentShape(Rectangle())
+            }
+
             Button(action: { self.showPostOptions = true }) {
                 Image(systemName: "ellipsis")
                     .font(.subheadline)
                     .frame(height: 26)
-                    .padding(.horizontal, 10)
+                    .padding(.trailing, 10)
                     .contentShape(Rectangle())
             }
         }

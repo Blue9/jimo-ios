@@ -44,7 +44,7 @@ struct Profile: View {
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
     @State private var navigationDestination: Destination?
-    @State private var isShareSheetPresented = false
+    @State private var shareAction: ShareAction?
 
     var user: PublicUser {
         profileVM.user ?? initialUser
@@ -59,7 +59,7 @@ struct Profile: View {
         RefreshableScrollView(spacing: 0) {
             ProfileHeaderView(
                 profileVM: profileVM,
-                shareProfile: { self.isShareSheetPresented = true },
+                shareProfile: { self.shareAction = .profile(user) },
                 navigate: { self.navigationDestination = $0 },
                 initialUser: initialUser
             ).padding(.bottom, 10)
@@ -84,6 +84,13 @@ struct Profile: View {
                                     } label: {
                                         Label("Edit", systemImage: "square.and.pencil")
                                     }
+
+                                    Button {
+                                        Analytics.track(.profileLongPressPostShareTap)
+                                        shareAction = .post(post)
+                                    } label: {
+                                        Label("Share", systemImage: "square.and.arrow.up")
+                                    }
                                 }
                         } else {
                             PostGridCell(post: post)
@@ -96,8 +103,14 @@ struct Profile: View {
         } onLoadMore: {
             profileVM.loadMorePosts(username: username, appState: appState, viewState: viewState)
         }
-        .sheet(isPresented: $isShareSheetPresented) {
-            ActivityView(shareAction: .profile(user), isPresented: $isShareSheetPresented)
+        .sheet(item: $shareAction) { shareAction in
+            ActivityView(
+                shareAction: shareAction,
+                isPresented: Binding(
+                    get: { self.shareAction != nil },
+                    set: { self.shareAction = $0 ? shareAction : nil }
+                )
+            )
         }
         .font(.system(size: 15))
         .navigation(destination: $navigationDestination) {

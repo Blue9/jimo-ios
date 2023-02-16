@@ -110,6 +110,7 @@ enum AnalyticsName: Equatable {
     case sharePostCompleted
 
     /// Post actions
+    case postHeaderShareTap
     case postPlaceNameTap
     case postCreated
     case postUpdated
@@ -126,6 +127,7 @@ enum AnalyticsName: Equatable {
     case userUnfollowed
     case profileNewPostTapped
     case shareMyProfileTapped
+    case profileLongPressPostShareTap
 
     /// Map actions
     case mapCreatePostTapped
