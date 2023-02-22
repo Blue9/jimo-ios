@@ -54,7 +54,6 @@ struct CreatePostStarPicker: View {
             .lineLimit(1)
             .minimumScaleFactor(0.1)
         }
-        .padding(.horizontal, 10)
     }
 }
 

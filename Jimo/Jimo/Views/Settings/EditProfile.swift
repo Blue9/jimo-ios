@@ -91,8 +91,9 @@ struct EditProfile: View {
             viewModel.initialize(appState: appState)
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
-            ImagePicker(image: $viewModel.image, allowsEditing: true)
-                .ignoresSafeArea(.keyboard, edges: .bottom)
+            ImagePicker { image in
+                viewModel.image = image
+            }.ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))

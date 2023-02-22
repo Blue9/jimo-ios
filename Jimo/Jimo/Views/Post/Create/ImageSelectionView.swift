@@ -10,8 +10,6 @@ import SwiftUI
 struct ImageSelectionView: View {
     @ObservedObject var createPostVM: CreatePostVM
 
-    var buttonColor: Color
-
     func imageView(image: CreatePostImage) -> some View {
         Group {
             switch image {
@@ -20,55 +18,55 @@ struct ImageSelectionView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 100, height: 100)
-                    .onTapGesture {
-                        createPostVM.activeSheet = .imagePicker
-                    }
             case .webImage(_, let url):
                 URLImage(url: url)
                     .scaledToFill()
                     .frame(width: 100, height: 100)
-                    .onTapGesture {
-                        createPostVM.activeSheet = .imagePicker
-                    }
             }
         }
     }
 
     var body: some View {
         Group {
-            if let image = createPostVM.image {
-                ZStack(alignment: .topLeading) {
-                    imageView(image: image)
-
-                    Button {
-                        createPostVM.image = nil
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .foregroundColor(buttonColor)
-                            .background(Color.black)
-                            .cornerRadius(10)
-                            .padding(5)
+            HStack(spacing: 10) {
+                ForEach(createPostVM.images, id: \.self) { image in
+                    ZStack(alignment: .topLeading) {
+                        imageView(image: image)
+                            .frame(width: 100, height: 100)
+                            .cornerRadius(2)
+                        Button {
+                            createPostVM.removeImage(image)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .resizable()
+                                .frame(width: 25, height: 25)
+                                .foregroundColor(Color(white: 0.9))
+                                .background(Color.black)
+                                .cornerRadius(13)
+                                .padding(5)
+                                .contentShape(Rectangle())
+                        }
                     }
                 }
-            } else {
-                ZStack {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.2))
-                        .onTapGesture {
-                            createPostVM.activeSheet = .imagePicker
-                        }
 
-                    Image(systemName: "photo.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30)
-                        .foregroundColor(Color.gray.opacity(0.5))
+                if createPostVM.images.count < 3 {
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .onTapGesture {
+                                createPostVM.activeSheet = .imagePicker
+                            }
+
+                        Image(systemName: "plus")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                            .foregroundColor(Color.gray.opacity(0.5))
+                    }
+                    .frame(width: 100, height: 100)
+                    .cornerRadius(2)
                 }
             }
         }
-        .frame(width: 100, height: 100)
-        .cornerRadius(2)
     }
 }

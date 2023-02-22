@@ -48,7 +48,7 @@ struct FirstOpenPopup: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
                 .foregroundColor(.white)
-                .background(Color("attraction"))
+                .background(Color("lodging"))
                 .cornerRadius(10)
         }
 
@@ -61,9 +61,9 @@ struct FirstOpenPopup: View {
             Text("Go to my profile").bold()
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .foregroundColor(Color("attraction"))
+                .foregroundColor(Color("lodging"))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10).stroke(Color("attraction"), lineWidth: 2)
+                        RoundedRectangle(cornerRadius: 10).stroke(Color("lodging"), lineWidth: 2)
                     )
         }
     }

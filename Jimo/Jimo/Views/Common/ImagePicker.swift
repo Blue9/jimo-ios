@@ -9,9 +9,9 @@ import SwiftUI
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Environment(\.presentationMode) var presentationMode
-    @Binding var image: UIImage?
+    var select: (UIImage) -> Void
 
-    var allowsEditing: Bool = false
+    var allowsEditing: Bool = true
 
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
         let parent: ImagePicker
@@ -20,16 +20,21 @@ struct ImagePicker: UIViewControllerRepresentable {
             self.parent = parent
         }
 
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            if parent.allowsEditing {
-                if let uiImage = info[.editedImage] as? UIImage {
-                    parent.image = uiImage
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        ) {
+            DispatchQueue.main.async {
+                if self.parent.allowsEditing {
+                    if let uiImage = info[.editedImage] as? UIImage {
+                        self.parent.select(uiImage)
+                    }
+                } else if let uiImage = info[.originalImage] as? UIImage {
+                    self.parent.select(uiImage)
                 }
-            } else if let uiImage = info[.originalImage] as? UIImage {
-                parent.image = uiImage
+                hideKeyboard()
+                self.parent.presentationMode.wrappedValue.dismiss()
             }
-            hideKeyboard()
-            parent.presentationMode.wrappedValue.dismiss()
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -42,21 +47,25 @@ struct ImagePicker: UIViewControllerRepresentable {
         Coordinator(self)
     }
 
-    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+    func makeUIViewController(
+        context: UIViewControllerRepresentableContext<ImagePicker>
+    ) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.allowsEditing = allowsEditing
         return picker
     }
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {
-    }
+    func updateUIViewController(
+        _ uiViewController: UIImagePickerController,
+        context: UIViewControllerRepresentableContext<ImagePicker>
+    ) {}
 }
 
 struct ImagePicker_Previews: PreviewProvider {
     @State static var image: UIImage?
 
     static var previews: some View {
-        ImagePicker(image: $image)
+        ImagePicker(select: {_ in})
     }
 }

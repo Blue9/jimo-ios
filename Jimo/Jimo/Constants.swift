@@ -42,9 +42,9 @@ struct Category: Identifiable, Hashable {
 struct Categories {
     static let categories = [
         Category(name: "Food", key: "food"),
+        Category(name: "Cafe", key: "cafe"),
         Category(name: "Things to do", key: "activity"),
         Category(name: "Nightlife", key: "nightlife"),
-        Category(name: "Things to see", key: "attraction"),
         Category(name: "Lodging", key: "lodging"),
         Category(name: "Shopping", key: "shopping")
     ]

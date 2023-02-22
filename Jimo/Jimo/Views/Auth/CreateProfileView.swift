@@ -115,8 +115,9 @@ struct CreateProfileView: View {
             .background(Color("background").edgesIgnoringSafeArea(.all))
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
-            ImagePicker(image: $viewModel.profilePicture, allowsEditing: true)
-                .ignoresSafeArea(.keyboard, edges: .bottom)
+            ImagePicker { image in
+                viewModel.profilePicture = image
+            }.ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .popup(isPresented: $viewModel.showServerError) {
             Toast(text: "Unknown server error. Try again later.", type: .error)

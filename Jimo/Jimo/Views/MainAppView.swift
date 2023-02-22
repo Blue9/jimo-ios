@@ -121,7 +121,7 @@ struct MainAppView: View {
             .tabItem("Map", image: UIImage(named: "mapIcon"))
 
             Text("")
-                .tabItem("Create", image: UIImage(named: "postIcon"))
+                .tabItem("Add", image: UIImage(named: "postIcon"))
 
             SearchTab(
             )

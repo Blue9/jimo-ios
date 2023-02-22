@@ -9,6 +9,8 @@ import SwiftUI
 import Combine
 import MapKit
 
+typealias ImageUrl = String
+
 enum CreatePostActiveSheet: String, Identifiable {
     case placeSearch, imagePicker
 
@@ -17,9 +19,9 @@ enum CreatePostActiveSheet: String, Identifiable {
     }
 }
 
-enum CreatePostImage {
+enum CreatePostImage: Equatable, Hashable {
     case uiImage(UIImage)
-    case webImage(ImageId, String)
+    case webImage(ImageId, ImageUrl)
 
     var uiImage: UIImage? {
         switch self {
@@ -55,7 +57,7 @@ enum CreateOrEdit: Equatable {
     var title: String {
         switch self {
         case .create:
-            return "Post a place"
+            return "Add a place"
         case .edit:
             return "Update"
         }
@@ -89,9 +91,22 @@ class CreatePostVM: ObservableObject {
     @Published var category: String?
     @Published var content: String = ""
     @Published var stars: Int?
-    @Published var image: CreatePostImage?
+    @Published var existingImages: [(ImageId, ImageUrl)] = []
+    @Published var uiImages: [UIImage] = []
 
-    /// Only used when editing
+    var images: [CreatePostImage] {
+        existingImages.map { .webImage($0.0, $0.1) } + uiImages.map { .uiImage($0) }
+    }
+
+    func removeImage(_ image: CreatePostImage) {
+        switch image {
+        case .uiImage(let image):
+            uiImages.removeAll(where: { $0 == image })
+        case .webImage(let imageId, _):
+            existingImages.removeAll(where: { $0.0 == imageId })
+        }
+    }
+
     @Published var placeId: String?
 
     /// View information
@@ -101,19 +116,6 @@ class CreatePostVM: ObservableObject {
     @Published var postingStatus = Status.drafting
 
     var onCreate: ((Post) -> Void)?
-
-    var uiImageBinding: Binding<UIImage?> {
-        Binding<UIImage?>(
-            get: { self.image?.uiImage },
-            set: {
-                if let image = $0 {
-                    self.image = .uiImage(image)
-                } else {
-                    self.image = nil
-                }
-            }
-        )
-    }
 
     var cancelBag: Set<AnyCancellable> = Set()
 
@@ -134,9 +136,7 @@ class CreatePostVM: ObservableObject {
             span: MKCoordinateSpan(latitudeDelta: 4, longitudeDelta: 4)
         )
         if let imageId = post.imageId, let imageUrl = post.imageUrl {
-            self.image = .webImage(imageId, imageUrl)
-        } else {
-            self.image = nil
+            self.existingImages = [(imageId, imageUrl)]
         }
         self.placeId = post.place.placeId
     }
@@ -180,7 +180,8 @@ class CreatePostVM: ObservableObject {
         self.category = nil
         self.content = ""
         self.stars = nil
-        self.image = nil
+        self.uiImages = []
+        self.existingImages = []
         self.placeId = nil
         self.showError = false
         self.errorMessage = ""
@@ -218,7 +219,7 @@ class CreatePostVM: ObservableObject {
             category: category,
             content: content,
             stars: stars,
-            image: image
+            image: images.first
         )
         .sink { completion in
             if case let .failure(error) = completion {
@@ -249,7 +250,7 @@ class CreatePostVM: ObservableObject {
         image: CreatePostImage?
     ) -> AnyPublisher<Post, APIError> {
         let action = self.createOrEdit.action(appState: appState)
-        guard case let .uiImage(imageToUpload) = image else {
+        guard case .uiImage(let imageToUpload) = image else {
             return action(
                 CreatePostRequest(
                     placeId: placeId,

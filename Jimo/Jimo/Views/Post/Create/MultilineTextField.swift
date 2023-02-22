@@ -34,6 +34,7 @@ struct MultilineTextField: View {
     var placeholderView: some View {
         if showingPlaceholder {
             Text(placeholder)
+                .foregroundColor(.gray)
                 .padding(.leading, 4)
                 .padding(.top, 8)
                 .allowsHitTesting(false)

@@ -53,7 +53,7 @@ struct Feed: View {
                     HStack {
                         Image("postIcon")
                             .font(.system(size: 15))
-                        Text("Post a place to get started")
+                        Text("Add a place to get started")
                     }
                     .font(.system(size: 15))
                     .foregroundColor(.white)
