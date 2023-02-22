@@ -33,7 +33,7 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     }
 
     var postUrl: URL {
-        URL(string: "https://api.jimoapp.com/share/post/\(id)")!
+        URL(string: "https://go.jimoapp.com/view-post?id=\(id)")!
     }
 }
 
