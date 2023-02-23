@@ -34,55 +34,52 @@ struct CreatePostWithModel: View {
 
     var body: some View {
         Navigator {
-            ZStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(createPostVM.createOrEdit.title)
-                            .font(.system(size: 28))
-                            .fontWeight(.bold)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(createPostVM.createOrEdit.title)
+                        .font(.system(size: 28))
+                        .fontWeight(.bold)
 
-                        Divider()
+                    Divider()
 
-                        Button { createPostVM.activeSheet = .placeSearch } label: {
-                            FormInputButton(
-                                name: "Enter location",
-                                content: createPostVM.name,
-                                clearAction: createPostVM.resetPlace)
-                        }
-
-                        Divider()
-
-                        CreatePostCategoryPicker(category: $createPostVM.category)
-                            .ignoresSafeArea(.keyboard, edges: .bottom)
-
-                        Group {
-                            Divider()
-                            Text("Add photos (max 3)")
-                                .font(.system(size: 15))
-                                .bold()
-                            ImageSelectionView(createPostVM: createPostVM)
-                        }
-
-                        Group {
-                            Divider()
-                            FormInputText(
-                                name: "How was it? Tag a friend using @username",
-                                text: $createPostVM.content
-                            ).ignoresSafeArea(.keyboard, edges: .bottom)
-                        }
-
-                        Group {
-                            Divider()
-                            Text("Award stars (Optional)")
-                                .font(.system(size: 15))
-                                .bold()
-                            CreatePostStarPicker(stars: $createPostVM.stars)
-                                .padding(.trailing, 10)
-                        }
-
-                        Spacer()
+                    Button { createPostVM.activeSheet = .placeSearch } label: {
+                        FormInputButton(
+                            name: "Enter location",
+                            content: createPostVM.name,
+                            clearAction: createPostVM.resetPlace)
                     }
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
+
+                    Divider()
+
+                    CreatePostCategoryPicker(category: $createPostVM.category)
+                        .ignoresSafeArea(.keyboard, edges: .bottom)
+
+                    Group {
+                        Divider()
+                        FormInputText(
+                            name: "How was it? Tag a friend using @username",
+                            text: $createPostVM.content
+                        ).ignoresSafeArea(.keyboard, edges: .bottom)
+                    }
+
+                    Group {
+                        Divider()
+                        Text("Add photos (max 3)")
+                            .font(.system(size: 15))
+                            .bold()
+                        ImageSelectionView(createPostVM: createPostVM)
+                    }
+
+                    Group {
+                        Divider()
+                        Text("Award stars (Optional)")
+                            .font(.system(size: 15))
+                            .bold()
+                        CreatePostStarPicker(stars: $createPostVM.stars)
+                            .padding(.trailing, 10)
+                    }
+
+                    Spacer()
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             }
