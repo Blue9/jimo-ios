@@ -26,17 +26,11 @@ struct Colors {
 }
 
 struct Category: Identifiable, Hashable {
-    var id: String {
-        key
-    }
+    var id: String { key }
     var name: String
     var key: String
-    var colorName: String {
-        key
-    }
-    var imageName: String {
-        key
-    }
+    var colorName: String { key }
+    var imageName: String { key }
 }
 
 struct Categories {

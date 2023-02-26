@@ -18,8 +18,8 @@ struct ImageSelectionView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 100, height: 100)
-            case .webImage(_, let url):
-                URLImage(url: url)
+            case .webImage(let item):
+                URLImage(url: item.url)
                     .scaledToFill()
                     .frame(width: 100, height: 100)
             }

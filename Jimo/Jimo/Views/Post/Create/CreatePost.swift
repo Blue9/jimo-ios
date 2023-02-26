@@ -57,7 +57,7 @@ struct CreatePostWithModel: View {
                     Group {
                         Divider()
                         FormInputText(
-                            name: "How was it? Tag a friend using @username",
+                            name: "How was it?",
                             text: $createPostVM.content
                         ).ignoresSafeArea(.keyboard, edges: .bottom)
                     }
@@ -123,7 +123,7 @@ struct CreatePostWithModel: View {
                         if createPostVM.postingStatus == .loading {
                             ProgressView()
                         } else {
-                            Text("Add").bold()
+                            Text(createPostVM.createOrEdit == .create ? "Add" : "Done").bold()
                         }
                     }.disabled(createPostVM.postingStatus == .loading)
                 }

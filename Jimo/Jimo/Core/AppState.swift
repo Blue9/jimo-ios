@@ -522,7 +522,7 @@ class AppState: ObservableObject {
                 Analytics.track(.postCreated, parameters: [
                     "category": request.category,
                     "hasCaption": request.content.count > 0,
-                    "hasPhoto": request.imageId != nil
+                    "hasPhoto": request.media.count > 0
                 ])
                 return post
             }
@@ -540,7 +540,7 @@ class AppState: ObservableObject {
                 Analytics.track(.postUpdated, parameters: [
                     "category": request.category,
                     "hasCaption": request.content.count > 0,
-                    "hasPhoto": request.imageId != nil
+                    "hasPhoto": request.media.count > 0
                 ])
                 return post
             }

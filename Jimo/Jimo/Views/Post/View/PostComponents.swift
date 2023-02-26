@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftUIPager
 import MapKit
 
 struct PostLikeButton: View {
@@ -339,18 +340,49 @@ struct PostImageTrackedSize: View {
     @Binding var imageSize: CGSize?
 
     var body: some View {
-        ZStack {
-            if let url = post.imageUrl {
-                URLImage(url: url, imageSize: $imageSize)
+        if let media = post.media, let first = media.first {
+            if media.count > 1 {
+                ImageCarousel(images: media)
             } else {
-                mapSnapshot
+                URLImage(url: first.url)
             }
+        } else {
+            mapSnapshot
         }
     }
 
     @ViewBuilder var mapSnapshot: some View {
         MapSnapshotView(post: post, width: UIScreen.main.bounds.width)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
+    }
+}
+
+struct ImageCarousel: View {
+    @StateObject var page: Page = .first()
+    var images: [PostMediaItem]
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Pager(page: page, data: images) { image in
+                URLImage(url: image.url)
+                    .scaledToFit()
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
+                    .clipped()
+            }
+            .preferredItemSize(.init(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width))
+            .sensitivity(.custom(0.10))
+            .pagingPriority(.high)
+            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
+
+            Text("\(page.index + 1)/\(images.count)")
+                .font(.caption)
+                .foregroundColor(.white)
+                .padding(5)
+                .background(Color.black.opacity(0.5))
+                .cornerRadius(20)
+                .padding(10)
+
+        }.frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
     }
 }
 

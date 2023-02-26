@@ -21,7 +21,7 @@ enum CreatePostActiveSheet: String, Identifiable {
 
 enum CreatePostImage: Equatable, Hashable {
     case uiImage(UIImage)
-    case webImage(ImageId, ImageUrl)
+    case webImage(PostMediaItem)
 
     var uiImage: UIImage? {
         switch self {
@@ -36,8 +36,8 @@ enum CreatePostImage: Equatable, Hashable {
         switch self {
         case .uiImage:
             return nil
-        case .webImage(let imageId, _):
-            return imageId
+        case .webImage(let item):
+            return item.id
         }
     }
 
@@ -45,8 +45,8 @@ enum CreatePostImage: Equatable, Hashable {
         switch self {
         case .uiImage:
             return nil
-        case .webImage(_, let url):
-            return url
+        case .webImage(let item):
+            return item.url
         }
     }
 }
@@ -91,19 +91,19 @@ class CreatePostVM: ObservableObject {
     @Published var category: String?
     @Published var content: String = ""
     @Published var stars: Int?
-    @Published var existingImages: [(ImageId, ImageUrl)] = []
+    @Published var existingImages: [PostMediaItem] = []
     @Published var uiImages: [UIImage] = []
 
     var images: [CreatePostImage] {
-        existingImages.map { .webImage($0.0, $0.1) } + uiImages.map { .uiImage($0) }
+        existingImages.map { .webImage($0) } + uiImages.map { .uiImage($0) }
     }
 
     func removeImage(_ image: CreatePostImage) {
         switch image {
         case .uiImage(let image):
             uiImages.removeAll(where: { $0 == image })
-        case .webImage(let imageId, _):
-            existingImages.removeAll(where: { $0.0 == imageId })
+        case .webImage(let item):
+            existingImages.removeAll(where: { $0 == item })
         }
     }
 
@@ -135,9 +135,8 @@ class CreatePostVM: ObservableObject {
             center: post.place.location.coordinate(),
             span: MKCoordinateSpan(latitudeDelta: 4, longitudeDelta: 4)
         )
-        if let imageId = post.imageId, let imageUrl = post.imageUrl {
-            self.existingImages = [(imageId, imageUrl)]
-        }
+        self.existingImages = post.media ?? []
+        self.uiImages = []
         self.placeId = post.place.placeId
     }
 
@@ -199,6 +198,7 @@ class CreatePostVM: ObservableObject {
         additionalPlaceData = nil
     }
 
+    @MainActor
     func createPost(appState: AppState) {
         guard maybeCreatePlaceRequest != nil || placeId != nil else {
             errorMessage = "Location is required"
@@ -212,90 +212,107 @@ class CreatePostVM: ObservableObject {
         }
         let content = self.content
         self.postingStatus = .loading
-        buildRequest(
+        createOrUpdatePost(
             appState: appState,
             placeId: placeId,
             place: placeId == nil ? maybeCreatePlaceRequest : nil,
             category: category,
             content: content,
             stars: stars,
-            image: images.first
+            images: images
         )
-        .sink { completion in
-            if case let .failure(error) = completion {
-                print("Error when creating post", error)
-                if case let .requestError(maybeErrors) = error,
-                   let errors = maybeErrors,
-                   let first = errors.first {
-                    self.errorMessage = first.value
-                } else {
-                    self.errorMessage = "Could not save place"
-                }
-                self.showError = true
-                self.postingStatus = .drafting
-            }
-        } receiveValue: { post in
-            self.postingStatus = .success(post)
-            self.onCreate?(post)
-        }.store(in: &cancelBag)
     }
 
-    private func buildRequest(
+    @MainActor
+    private func createOrUpdatePost(
         appState: AppState,
         placeId: PlaceId?,
         place: MaybeCreatePlaceRequest?,
         category: String,
         content: String,
         stars: Int?,
-        image: CreatePostImage?
-    ) -> AnyPublisher<Post, APIError> {
-        let action = self.createOrEdit.action(appState: appState)
-        guard case .uiImage(let imageToUpload) = image else {
-            return action(
-                CreatePostRequest(
-                    placeId: placeId,
-                    place: place,
-                    category: category,
-                    content: content,
-                    stars: stars,
-                    imageId: image?.imageId)
-            )
-        }
-        return tryUploadImage(appState: appState, image: imageToUpload) { imageId in
-            action(
-                CreatePostRequest(
-                    placeId: placeId,
-                    place: place,
-                    category: category,
-                    content: content,
-                    stars: stars,
-                    imageId: imageId
-                )
+        images: [CreatePostImage]
+    ) {
+        Task {
+            await createOrUpdatePostAsync(
+                appState: appState,
+                placeId: placeId,
+                place: place,
+                category: category,
+                content: content,
+                stars: stars,
+                images: images
             )
         }
     }
 
-    private func tryUploadImage<R>(
+    @MainActor
+    private func createOrUpdatePostAsync(
         appState: AppState,
-        image: UIImage,
-        then: @escaping (ImageId) -> AnyPublisher<R, APIError>
-    ) -> AnyPublisher<R, APIError> {
-        appState
-            .uploadImageAndGetId(image: image)
-            .catch({ error -> AnyPublisher<ImageId, APIError> in
-                print("Error when uploading image", error)
-                if case let .requestError(error) = error,
-                   let first = error?.first {
-                    self.errorMessage = first.value
-                    self.showError = true
-                } else {
-                    self.errorMessage = "Could not upload image."
-                    self.showError = true
+        placeId: PlaceId?,
+        place: MaybeCreatePlaceRequest?,
+        category: String,
+        content: String,
+        stars: Int?,
+        images: [CreatePostImage]
+    ) async {
+        let action = self.createOrEdit.action(appState: appState)
+        do {
+            var imageIds: [ImageId] = []
+            for image in images {
+                switch image {
+                case .uiImage(let image):
+                    if let imageId = await uploadImage(appState: appState, image: image) {
+                        imageIds.append(imageId)
+                    }
+                case .webImage(let item):
+                    imageIds.append(item.id)
                 }
-                return Empty().eraseToAnyPublisher()
-            }).flatMap({ imageId -> AnyPublisher<R, APIError> in
-                then(imageId)
-            }).eraseToAnyPublisher()
+            }
+            for try await post in action(
+                CreatePostRequest(
+                    placeId: placeId,
+                    place: place,
+                    category: category,
+                    content: content,
+                    stars: stars,
+                    media: imageIds)
+            ).values {
+                self.postingStatus = .success(post)
+                self.onCreate?(post)
+            }
+        } catch APIError.requestError(let error) {
+            if let first = error?.first {
+                self.errorMessage = first.value
+            } else {
+                self.errorMessage = "Could not add place"
+            }
+            self.showError = true
+            self.postingStatus = .drafting
+        } catch {
+            self.errorMessage = "Could not add place"
+            self.showError = true
+            self.postingStatus = .drafting
+        }
+    }
+
+    @MainActor
+    private func uploadImage(appState: AppState, image: UIImage) async -> ImageId? {
+        do {
+            for try await imageId in appState.uploadImageAndGetId(image: image).values {
+                return imageId
+            }
+        } catch APIError.requestError(let error) {
+            print("Error when uploading image", error)
+            if let first = error?.first {
+                self.errorMessage = first.value
+                self.showError = true
+            }
+        } catch {
+            self.errorMessage = "Could not upload image."
+            self.showError = true
+        }
+        return nil
     }
 
     private func toPreviewRegion(_ mapItem: MKMapItem) -> MKCoordinateRegion {

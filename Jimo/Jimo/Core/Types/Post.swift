@@ -20,13 +20,16 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var category: String
     var content: String
     var stars: Int?
-    var imageId: ImageId?
-    var imageUrl: String?
+    var media: [PostMediaItem]?
     var createdAt: Date
     var likeCount: Int
     var commentCount: Int
     var liked: Bool
     var saved: Bool
+
+    var imageUrl: String? {
+        media?.first?.url
+    }
 
     var location: CLLocationCoordinate2D {
         place.location.coordinate()
@@ -35,6 +38,12 @@ struct Post: Codable, Equatable, Identifiable, Hashable {
     var postUrl: URL {
         URL(string: "https://go.jimoapp.com/view-post?id=\(id)")!
     }
+}
+
+struct PostMediaItem: Codable, Equatable, Identifiable, Hashable {
+    var id: String
+    var blobName: String?
+    var url: String
 }
 
 struct FeedResponse: Codable {
@@ -49,7 +58,7 @@ struct CreatePostRequest: Codable {
     var category: String
     var content: String
     var stars: Int?
-    var imageId: String?
+    var media: [String]
 }
 
 struct DeletePostResponse: Codable {
