@@ -225,7 +225,8 @@ private struct LoadedCityPlaces: View {
                         CreatePostStarPicker(
                             unselectedOutline: .white,
                             showZeroStars: false,
-                            stars: $places[page.index].stars
+                            stars: $places[page.index].stars,
+                            onTap: { isAwarding = false }
                         )
                         .foregroundColor(.white)
                     }

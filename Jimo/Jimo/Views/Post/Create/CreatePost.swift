@@ -99,15 +99,6 @@ struct CreatePostWithModel: View {
                     .foregroundColor(.blue)
                 }
 
-                ToolbarItem(placement: .principal) {
-                    Image("logo")
-                        .renderingMode(.template)
-                        .resizable()
-                        .foregroundColor(Color("foreground"))
-                        .scaledToFit()
-                        .frame(width: 50)
-                }
-
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         self.presented = false
@@ -120,12 +111,12 @@ struct CreatePostWithModel: View {
                     Button {
                         self.createPost()
                     } label: {
-                        if createPostVM.postingStatus == .loading {
-                            ProgressView()
+                        if createPostVM.postingStatus.isLoading {
+                            Text(createPostVM.postingStatus.actionText).bold()
                         } else {
                             Text(createPostVM.createOrEdit == .create ? "Add" : "Done").bold()
                         }
-                    }.disabled(createPostVM.postingStatus == .loading)
+                    }.disabled(createPostVM.postingStatus.isLoading)
                 }
             }
             .popup(isPresented: $createPostVM.showError) {
@@ -154,7 +145,7 @@ struct CreatePostWithModel: View {
                 hideKeyboard()
             }
             .onChange(of: createPostVM.postingStatus) { status in
-                if case let .success(post) = status {
+                if case .success = status {
                     self.presented = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         globalViewState.setSuccess("Success!")

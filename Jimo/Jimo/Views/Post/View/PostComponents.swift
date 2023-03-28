@@ -362,7 +362,7 @@ struct ImageCarousel: View {
     var images: [PostMediaItem]
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .topLeading) {
             Pager(page: page, data: images) { image in
                 URLImage(url: image.url)
                     .scaledToFit()

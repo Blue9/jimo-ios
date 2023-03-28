@@ -74,7 +74,24 @@ enum CreateOrEdit: Equatable {
 }
 
 enum Status: Equatable, Hashable {
-    case drafting, loading, success(Post)
+    case drafting, uploadingImage(Int), posting, success(Post)
+
+    var isLoading: Bool {
+        switch self {
+        case .drafting: return false
+        case .uploadingImage: return true
+        case .posting: return true
+        case .success: return false
+        }
+    }
+
+    var actionText: String {
+        switch self {
+        case .uploadingImage(let i): return "Uploading image \(i+1)"
+        case .posting: return "Posting"
+        default: return "Add"
+        }
+    }
 }
 
 class CreatePostVM: ObservableObject {
@@ -211,7 +228,6 @@ class CreatePostVM: ObservableObject {
             return
         }
         let content = self.content
-        self.postingStatus = .loading
         createOrUpdatePost(
             appState: appState,
             placeId: placeId,
@@ -259,7 +275,8 @@ class CreatePostVM: ObservableObject {
         let action = self.createOrEdit.action(appState: appState)
         do {
             var imageIds: [ImageId] = []
-            for image in images {
+            for (i, image) in images.enumerated() {
+                self.postingStatus = .uploadingImage(i)
                 switch image {
                 case .uiImage(let image):
                     if let imageId = await uploadImage(appState: appState, image: image) {
@@ -269,6 +286,7 @@ class CreatePostVM: ObservableObject {
                     imageIds.append(item.id)
                 }
             }
+            self.postingStatus = .posting
             for try await post in action(
                 CreatePostRequest(
                     placeId: placeId,
