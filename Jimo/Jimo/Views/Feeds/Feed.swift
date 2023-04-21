@@ -75,7 +75,7 @@ struct Feed: View {
                         initializedFeed.tag(FeedType.following)
                         forYouFeed.tag(FeedType.forYou)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    // .tabViewStyle(.page(indexDisplayMode: .never))
                     .onAppear {
                         Analytics.trackScreen(feedType == .following ? .feedTab : .forYouFeed)
                     }

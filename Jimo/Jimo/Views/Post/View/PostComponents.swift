@@ -370,8 +370,7 @@ struct ImageCarousel: View {
                     .clipped()
             }
             .preferredItemSize(.init(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width))
-            .sensitivity(.custom(0.10))
-            .pagingPriority(.high)
+            .pagingPriority(.simultaneous)
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
 
             Text("\(page.index + 1)/\(images.count)")
