@@ -27,14 +27,6 @@ struct CreatePostWithModel: View {
 
     @Binding var presented: Bool
 
-    var buttonColor: Color {
-        if let category = createPostVM.category {
-            return Color(category)
-        } else {
-            return Color(#colorLiteral(red: 0.9529411765, green: 0.9529411765, blue: 0.9529411765, alpha: 0.9921568627))
-        }
-    }
-
     func createPost() {
         hideKeyboard()
         createPostVM.createPost(appState: appState)
@@ -42,78 +34,56 @@ struct CreatePostWithModel: View {
 
     var body: some View {
         Navigator {
-            ZStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(createPostVM.createOrEdit.title)
-                            .font(.system(size: 28))
-                            .fontWeight(.bold)
-                            .padding(.horizontal, 10)
-                            .padding(.bottom, 10)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(createPostVM.createOrEdit.title)
+                        .font(.system(size: 28))
+                        .fontWeight(.bold)
 
-                        Divider().padding(.leading, 10)
+                    Divider()
 
-                        Group {
-                            Button(action: { createPostVM.activeSheet = .placeSearch }) {
-                                FormInputButton(
-                                    name: "Enter location",
-                                    content: createPostVM.name,
-                                    clearAction: createPostVM.resetPlace)
-                            }
-                        }
-                        .frame(height: 40)
-                        .padding(.horizontal, 10)
+                    Button { createPostVM.activeSheet = .placeSearch } label: {
+                        FormInputButton(
+                            name: "Enter location",
+                            content: createPostVM.name,
+                            clearAction: createPostVM.resetPlace)
+                    }
 
-                        Divider().padding(.leading, 10)
+                    Divider()
 
-                        HStack {
-                            ImageSelectionView(createPostVM: createPostVM, buttonColor: buttonColor)
-
-                            FormInputText(
-                                name: "Write a note (Recommended)",
-                                text: $createPostVM.content
-                            )
-                        }
-                        .padding(10)
+                    CreatePostCategoryPicker(category: $createPostVM.category)
                         .ignoresSafeArea(.keyboard, edges: .bottom)
 
-                        Divider().padding(.leading, 10)
+                    Group {
+                        Divider()
+                        FormInputText(
+                            name: "How was it?",
+                            text: $createPostVM.content
+                        ).ignoresSafeArea(.keyboard, edges: .bottom)
+                    }
 
-                        CreatePostCategoryPicker(category: $createPostVM.category)
-                            .padding(.vertical, 10)
-                            .ignoresSafeArea(.keyboard, edges: .bottom)
+                    Group {
+                        Divider()
+                        Text("Add photos (max 3)")
+                            .font(.system(size: 15))
+                            .bold()
+                        ImageSelectionView(createPostVM: createPostVM)
+                    }
 
-//                        if let region = createPostVM.previewRegion {
-//                            Group {
-//                                VStack(alignment: .leading, spacing: 0) {
-//                                    Text("Preview")
-//                                        .font(.system(size: 15))
-//                                        .bold()
-//                                        .padding(10)
-//
-//                                    MapPreview(category: createPostVM.category, region: region)
-//                                        .frame(maxWidth: .infinity)
-//                                        .frame(height: 200)
-//                                        .cornerRadius(2)
-//                                        .padding(.horizontal, 10)
-//                                }
-//                            }
-//                            .id(createPostVM.previewRegion)
-//                        }
-
+                    Group {
+                        Divider()
                         Text("Award stars (Optional)")
                             .font(.system(size: 15))
                             .bold()
-                            .padding(.bottom, 8)
-                            .padding(.horizontal, 10)
                         CreatePostStarPicker(stars: $createPostVM.stars)
-
-                        Spacer()
+                            .padding(.trailing, 10)
                     }
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
+
+                    Spacer()
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             }
+            .padding(.leading, 10)
             .foregroundColor(Color("foreground"))
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .background(Color("background").edgesIgnoringSafeArea(.all))
@@ -129,15 +99,6 @@ struct CreatePostWithModel: View {
                     .foregroundColor(.blue)
                 }
 
-                ToolbarItem(placement: .principal) {
-                    Image("logo")
-                        .renderingMode(.template)
-                        .resizable()
-                        .foregroundColor(Color("foreground"))
-                        .scaledToFit()
-                        .frame(width: 50)
-                }
-
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         self.presented = false
@@ -150,12 +111,12 @@ struct CreatePostWithModel: View {
                     Button {
                         self.createPost()
                     } label: {
-                        if createPostVM.postingStatus == .loading {
-                            ProgressView()
+                        if createPostVM.postingStatus.isLoading {
+                            Text(createPostVM.postingStatus.actionText).bold()
                         } else {
-                            Text("Post").bold()
+                            Text(createPostVM.createOrEdit == .create ? "Add" : "Done").bold()
                         }
-                    }.disabled(createPostVM.postingStatus == .loading)
+                    }.disabled(createPostVM.postingStatus.isLoading)
                 }
             }
             .popup(isPresented: $createPostVM.showError) {
@@ -171,7 +132,9 @@ struct CreatePostWithModel: View {
                         PlaceSearch(selectPlace: createPostVM.selectPlace)
                             .trackSheet(.enterLocationView, screenAfterDismiss: { .createPostSheet })
                     case .imagePicker:
-                        ImagePicker(image: createPostVM.uiImageBinding, allowsEditing: true)
+                        ImagePicker { image in
+                            createPostVM.uiImages.append(image)
+                        }
                     }
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -182,7 +145,7 @@ struct CreatePostWithModel: View {
                 hideKeyboard()
             }
             .onChange(of: createPostVM.postingStatus) { status in
-                if case let .success(post) = status {
+                if case .success = status {
                     self.presented = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         globalViewState.setSuccess("Success!")

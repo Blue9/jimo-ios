@@ -190,7 +190,7 @@ private struct CreatePostButton: View {
         } label: {
             HStack {
                 Spacer()
-                Text(viewModel.isPosted ? "Update" : "Post")
+                Text(viewModel.isPosted ? "Update" : "Add")
                     .font(.system(size: 15))
                     .fontWeight(.medium)
                 Image(systemName: "plus.app")
@@ -232,7 +232,7 @@ private struct SavePlaceButton: View {
         } label: {
             HStack {
                 Spacer()
-                Text(viewModel.isSaved ? "Saved" : "Save")
+                Text(viewModel.isSaved ? "Saved" : "Wishlist")
                     .font(.system(size: 15))
                     .fontWeight(.medium)
                 Image(systemName: viewModel.isSaved ? "bookmark.fill" : "bookmark")

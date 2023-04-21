@@ -53,7 +53,7 @@ struct Feed: View {
                     HStack {
                         Image("postIcon")
                             .font(.system(size: 15))
-                        Text("Post a place to get started")
+                        Text("Add a place to get started")
                     }
                     .font(.system(size: 15))
                     .foregroundColor(.white)
@@ -75,7 +75,7 @@ struct Feed: View {
                         initializedFeed.tag(FeedType.following)
                         forYouFeed.tag(FeedType.forYou)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    // .tabViewStyle(.page(indexDisplayMode: .never))
                     .onAppear {
                         Analytics.trackScreen(feedType == .following ? .feedTab : .forYouFeed)
                     }

@@ -50,6 +50,16 @@ struct Feedback: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+
+                Button("Done") {
+                    hideKeyboard()
+                }
+                .foregroundColor(.blue)
+            }
+        }
         .background(Color("background").edgesIgnoringSafeArea(.all))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))

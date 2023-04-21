@@ -19,24 +19,17 @@ struct CreatePostCategoryPicker: View {
                 Spacer()
             }
 
-            VStack {
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     CreatePostCategory(name: "Food", key: "food", selected: $category)
-                    CreatePostCategory(name: "Things to do", key: "activity", selected: $category)
-                }
-
-                HStack {
+                    CreatePostCategory(name: "Cafe", key: "cafe", selected: $category)
                     CreatePostCategory(name: "Nightlife", key: "nightlife", selected: $category)
-                    CreatePostCategory(name: "Things to see", key: "attraction", selected: $category)
-                }
-
-                HStack {
-                    CreatePostCategory(name: "Lodging", key: "lodging", selected: $category)
+                    CreatePostCategory(name: "Activity", key: "activity", selected: $category)
                     CreatePostCategory(name: "Shopping", key: "shopping", selected: $category)
+                    CreatePostCategory(name: "Lodging", key: "lodging", selected: $category)
                 }
             }
         }
-        .padding(.horizontal, 10)
     }
 }
 
@@ -50,26 +43,22 @@ private struct CreatePostCategory: View {
     }
 
     var body: some View {
-        HStack {
+        VStack {
             Image(key)
                 .resizable()
                 .scaledToFit()
-                .frame(maxWidth: 35, maxHeight: 35)
-
-            Spacer()
+                .frame(height: 30)
 
             Text(name)
-                .font(.system(size: 15))
+                .font(.system(size: 10))
                 .foregroundColor(.black)
         }
-        .padding(.horizontal, 10)
         .padding(.vertical, 7.5)
+        .frame(width: 60, height: 60)
         .background(colored ? Color(key) : Color("unselected"))
-        .cornerRadius(2)
-        .shadow(radius: colored ? 5 : 0)
-        .frame(height: 50)
+        .cornerRadius(10)
         .onTapGesture {
-            self.selected = key
+            self.selected = self.selected == key ? nil : key
         }
     }
 }

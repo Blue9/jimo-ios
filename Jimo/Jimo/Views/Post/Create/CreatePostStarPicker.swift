@@ -11,6 +11,7 @@ struct CreatePostStarPicker: View {
     var unselectedOutline: Color = .gray
     var showZeroStars: Bool = true
     @Binding var stars: Int?
+    var onTap: (() -> Void)?
 
     // Makes comparisons easier
     var effectiveStars: Int {
@@ -23,19 +24,23 @@ struct CreatePostStarPicker: View {
                 if showZeroStars {
                     Star(fg: unselectedOutline, systemImagePrefix: "star.slash", selected: effectiveStars == 0) {
                         stars = stars == 0 ? nil : 0
+                        onTap?()
                     }
                     Spacer()
                 }
                 Star(fg: unselectedOutline, selected: effectiveStars >= 1) {
                     stars = stars == 1 ? nil : 1
+                    onTap?()
                 }
                 Spacer()
                 Star(fg: unselectedOutline, selected: effectiveStars >= 2) {
                     stars = stars == 2 ? nil : 2
+                    onTap?()
                 }
                 Spacer()
                 Star(fg: unselectedOutline, selected: effectiveStars >= 3) {
                     stars = stars == 3 ? nil : 3
+                    onTap?()
                 }
             }
 
@@ -54,7 +59,6 @@ struct CreatePostStarPicker: View {
             .lineLimit(1)
             .minimumScaleFactor(0.1)
         }
-        .padding(.horizontal, 10)
     }
 }
 

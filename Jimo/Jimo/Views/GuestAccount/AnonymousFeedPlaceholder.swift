@@ -11,7 +11,7 @@ struct AnonymousFeedPlaceholder: View {
     @State private var posts = [
         "nightlife",
         "shopping",
-        "attraction",
+        "cafe",
         "lodging"
     ]
 
