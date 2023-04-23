@@ -14,7 +14,9 @@ extension View {
         @ViewBuilder destination: () -> Content
     ) -> some View {
         if #available(iOS 16, *) {
-            self.navigationDestination(isPresented: isPresented, destination: destination)
+            // App is freezing when using this type of navigation link, idk why, it didn't used to
+            // self.navigationDestination(isPresented: isPresented, destination: destination)
+            self.background(NavigationLink(isActive: isPresented, destination: destination, label: {}))
         } else {
             self.background(NavigationLink(isActive: isPresented, destination: destination, label: {}))
         }
