@@ -327,18 +327,6 @@ struct PostCaption: View {
 struct PostImage: View {
     var post: Post
 
-    @State private var imageSize: CGSize?
-
-    var body: some View {
-        PostImageTrackedSize(post: post, imageSize: $imageSize)
-    }
-}
-
-struct PostImageTrackedSize: View {
-    var post: Post
-
-    @Binding var imageSize: CGSize?
-
     var body: some View {
         if let media = post.media, let first = media.first {
             if media.count > 1 {

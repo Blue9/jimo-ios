@@ -36,7 +36,6 @@ struct ViewPost: View {
 
     @State private var destination: Destination?
 
-    @State private var imageSize: CGSize?
     @State private var isShareSheetPresented = false
     @FocusState private var commentFieldFocused: Bool
     var focusOnAppear = false
@@ -70,8 +69,7 @@ struct ViewPost: View {
                 navigate: { self.destination = .user($0) },
                 showShareSheet: { self.isShareSheetPresented = true }
             )
-            PostImageTrackedSize(post: post, imageSize: $imageSize)
-                .frame(width: UIScreen.main.bounds.width)
+            PostImage(post: post).frame(width: UIScreen.main.bounds.width)
             VStack(spacing: 5) {
                 PostPlaceName(post: post)
                     .onTapGesture {

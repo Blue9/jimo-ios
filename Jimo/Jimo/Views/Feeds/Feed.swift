@@ -71,18 +71,13 @@ struct Feed: View {
                         .pickerStyle(.segmented)
                     }
                     .padding(.horizontal, 10)
-                    TabView(selection: $feedType) {
-                        initializedFeed.tag(FeedType.following)
-                        forYouFeed.tag(FeedType.forYou)
+                    Group {
+                        if feedType == .following {
+                            initializedFeed.trackScreen(.feedTab)
+                        } else {
+                            forYouFeed.trackScreen(.forYouFeed)
+                        }
                     }
-                    // .tabViewStyle(.page(indexDisplayMode: .never))
-                    .onAppear {
-                        Analytics.trackScreen(feedType == .following ? .feedTab : .forYouFeed)
-                    }
-                    .onChange(of: feedType) { feedType in
-                        Analytics.trackScreen(feedType == .following ? .feedTab : .forYouFeed)
-                    }
-                    .animation(.linear, value: feedType)
                 }
             }
         }
