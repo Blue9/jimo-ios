@@ -11,6 +11,7 @@ struct SearchUsers: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
     @StateObject var searchViewModel = SearchViewModel()
     @StateObject var suggestedViewModel = SuggestedUserCarouselViewModel()
     @State private var initialized = false
@@ -37,9 +38,12 @@ struct SearchUsers: View {
     }
 
     var suggestedUsersCarousel: some View {
-        SuggestedUsersCarousel(viewModel: suggestedViewModel)
-            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width / 3 * 1.3)
-            .fixedSize(horizontal: true, vertical: true)
+        SuggestedUsersCarousel(
+            viewModel: suggestedViewModel,
+            navigate: { navigationState.push($0) }
+        )
+        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width / 3 * 1.3)
+        .fixedSize(horizontal: true, vertical: true)
     }
 
     var mainBody: some View {
@@ -81,8 +85,8 @@ struct SearchUsers: View {
             LazyVStack(alignment: .leading) {
                 Divider()
                 ForEach(searchViewModel.userResults, id: \.username) { (user: PublicUser) in
-                    NavigationLink {
-                        ProfileScreen(initialUser: user)
+                    Button {
+                        navigationState.push(.profile(user: user))
                     } label: {
                         HStack {
                             profilePicture(user: user)

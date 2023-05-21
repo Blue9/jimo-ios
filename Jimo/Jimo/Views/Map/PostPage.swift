@@ -74,11 +74,7 @@ struct PostPage: View {
     }
 
     var body: some View {
-        NavigationLink {
-            ViewPost(initialPost: postViewModel.post ?? post, showSaveButton: false)
-        } label: {
-            mainBody.contentShape(Rectangle())
-        }.buttonStyle(NoButtonStyle())
+        mainBody.contentShape(Rectangle())
     }
 }
 

@@ -18,7 +18,7 @@ struct LoggedInView: View {
         if onboardingModel.isUserOnboarded {
             MainAppView(notificationsModel: appState.notificationsModel, currentUser: currentUser)
         } else {
-            OnboardingView(onboardingModel: appState.onboardingModel)
+            OnboardingView().environmentObject(appState.onboardingModel)
         }
     }
 }

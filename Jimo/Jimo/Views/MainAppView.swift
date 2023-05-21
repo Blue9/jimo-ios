@@ -101,6 +101,7 @@ struct MainAppView: View {
     var mainBody: some View {
         UITabView(selection: selectionIndex) {
             DeepLinkableFeedTab(
+                navigationState: deepLinkManager.navigationState,
                 notificationsModel: notificationsModel,
                 onCreatePostTap: { globalViewState.createPostPresented = true }
             )

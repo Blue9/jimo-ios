@@ -10,9 +10,9 @@ import SwiftUI
 struct EditPreferences: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
+    @EnvironmentObject var navigationState: NavigationState
 
-    @ObservedObject var settingsViewModel: SettingsViewModel
-    @State private var showSubmitFeedback = false
     @State private var showConfirmDelete = false
 
     var body: some View {
@@ -50,7 +50,7 @@ struct EditPreferences: View {
 
                         Button("Submit feedback", action: {
                             showConfirmDelete = false
-                            showSubmitFeedback = true
+                            navigationState.push(.feedback)
                         })
 
                         Button("Cancel", role: .cancel, action: {
@@ -89,9 +89,6 @@ struct EditPreferences: View {
                     }
                 }
             }
-        }
-        .navDestination(isPresented: $showSubmitFeedback) {
-            Feedback()
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarColor(UIColor(Color("background")))

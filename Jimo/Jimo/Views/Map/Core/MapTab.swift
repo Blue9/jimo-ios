@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct MapTab: View {
+    @StateObject private var navigationState = NavigationState()
+
     var body: some View {
-        Navigator {
+        Navigator(state: navigationState) {
             MapViewV2()
                 .navigationBarHidden(true)
                 .trackScreen(.mapTab)

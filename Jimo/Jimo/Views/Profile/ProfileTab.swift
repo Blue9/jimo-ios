@@ -11,6 +11,7 @@ import PopupView
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @StateObject private var navigationState = NavigationState()
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject private var searchViewModel = SearchViewModel()
     @StateObject private var suggestedViewModel = SuggestedUserCarouselViewModel()
@@ -18,55 +19,58 @@ struct ProfileTab: View {
 
     let currentUser: PublicUser?
 
-    @State private var showSettings = false
     @State private var showCreatePost = false
 
     var body: some View {
-        Navigator {
-            if let currentUser = currentUser {
-                Profile(
-                    initialUser: currentUser,
-                    editPost: self.editPost(_:)
-                )
-                .sheet(isPresented: $showCreatePost, onDismiss: createPostVM.resetAll) {
-                    CreatePostWithModel(createPostVM: createPostVM, presented: $showCreatePost)
-                }
-                .background(Color("background"))
-                // When swiping back from search users sometimes adds a black bar where keyboard would be
-                // This fixes that (this didn't happen on profile, only feed, but this is extra safe
-                .ignoresSafeArea(.keyboard, edges: .all)
-                .navDestination(isPresented: $showSettings) {
-                    Settings(settingsViewModel: settingsViewModel)
-                        .environmentObject(appState)
-                        .environmentObject(globalViewState)
-                }
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationBarColor(UIColor(Color("background")))
-                .navigationTitle(Text("My Profile"))
-                .toolbar(content: {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button { self.showSettings = true } label: {
-                            Image(systemName: "gearshape")
-                        }
-                    }
-                })
-                .trackScreen(.profileTab)
-            } else {
-                AnonymousProfilePlaceholder()
-                    .redacted(reason: .placeholder)
-                    .overlay(ProfileSignUpNudge())
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(Text("Profile"))
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                appState.signOut()
-                            } label: {
-                                Text("Sign out").foregroundColor(.blue)
-                            }
-                        }
-                    }
+        Navigator(state: navigationState) {
+            mainBody
+        }
+        .environmentObject(appState)
+        .environmentObject(globalViewState)
+        .environmentObject(settingsViewModel)
+    }
+
+    @ViewBuilder var mainBody: some View {
+        if let currentUser = currentUser {
+            Profile(
+                initialUser: currentUser,
+                editPost: self.editPost(_:)
+            )
+            .sheet(isPresented: $showCreatePost, onDismiss: createPostVM.resetAll) {
+                CreatePostWithModel(createPostVM: createPostVM, presented: $showCreatePost)
             }
+            .background(Color("background"))
+            // When swiping back from search users sometimes adds a black bar where keyboard would be
+            // This fixes that (this didn't happen on profile, only feed, but this is extra safe
+            .ignoresSafeArea(.keyboard, edges: .all)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarColor(UIColor(Color("background")))
+            .navigationTitle(Text("My Profile"))
+            .toolbar(content: {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        navigationState.push(.settings)
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            })
+            .trackScreen(.profileTab)
+        } else {
+            AnonymousProfilePlaceholder()
+                .redacted(reason: .placeholder)
+                .overlay(ProfileSignUpNudge())
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationTitle(Text("Profile"))
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            appState.signOut()
+                        } label: {
+                            Text("Sign out").foregroundColor(.blue)
+                        }
+                    }
+                }
         }
     }
 

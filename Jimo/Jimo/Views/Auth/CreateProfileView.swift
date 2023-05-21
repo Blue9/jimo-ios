@@ -17,12 +17,6 @@ struct CreateProfileView: View {
     @StateObject private var viewModel = ViewModel()
 
     var body: some View {
-        Navigator {
-            mainBody
-        }
-    }
-
-    var mainBody: some View {
         ZStack {
             VStack(spacing: 20) {
                 HStack {
@@ -129,7 +123,6 @@ struct CreateProfileView: View {
         } customize: {
             $0.type(.toast).position(.bottom).autohideIn(2)
         }
-        .navigationBarHidden(true)
         .trackScreen(.createProfile)
     }
 }

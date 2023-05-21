@@ -16,12 +16,13 @@ struct Feed: View {
     @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
+
     @StateObject var feedViewModel = ViewModel()
     @StateObject var discoverViewModel = DiscoverViewModel()
 
     @State private var feedType: FeedType = .following
     @State private var showEnableLocationButton = false
-    @State private var navigationDestination: FeedItem.Destination?
     @State private var shareAction: ShareAction?
 
     var onCreatePostTap: () -> Void
@@ -87,9 +88,6 @@ struct Feed: View {
                 isPresented: Binding(get: { self.shareAction != nil }, set: { self.shareAction = $0 ? shareAction : nil })
             )
         }
-        .navigation(destination: $navigationDestination) {
-            navigationDestination?.view()
-        }
         .background(Color("background"))
         .onAppear {
             showEnableLocationButton = PermissionManager.shared.getLocation() == nil
@@ -102,7 +100,11 @@ struct Feed: View {
     var initializedFeed: some View {
         RefreshableScrollView {
             ForEach(feedViewModel.feed) { post in
-                FeedItem(post: post, navigate: { self.navigationDestination = $0 }, showShareSheet: { shareAction = .post(post) })
+                FeedItem(
+                    post: post,
+                    navigate: { navigationState.push($0) },
+                    showShareSheet: { shareAction = .post(post) }
+                )
             }
         } onRefresh: { onFinish in
             feedViewModel.refreshFeed(appState: appState, globalViewState: viewState, onFinish: onFinish)
@@ -119,7 +121,11 @@ struct Feed: View {
             }
 
             ForEach(discoverViewModel.posts) { post in
-                FeedItem(post: post, navigate: { self.navigationDestination = $0 }, showShareSheet: { shareAction = .post(post) })
+                FeedItem(
+                    post: post,
+                    navigate: { navigationState.push($0) },
+                    showShareSheet: { shareAction = .post(post) }
+                )
             }
         } onRefresh: { onFinish in
             discoverViewModel.loadDiscoverPage(appState: appState, onFinish: onFinish)

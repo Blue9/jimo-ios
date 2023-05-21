@@ -106,21 +106,22 @@ class SettingsViewModel: ObservableObject {
 struct Settings: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @ObservedObject var settingsViewModel: SettingsViewModel
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
+    @EnvironmentObject var navigationState: NavigationState
 
     var body: some View {
         Form {
             Section(header: Text("Profile")) {
-                NavigationLink {
-                    EditProfile()
+                Button {
+                    navigationState.push(.editProfile)
                 } label: {
                     Text("Edit profile")
                 }
             }
 
             Section(header: Text("Preferences")) {
-                NavigationLink {
-                    EditPreferences(settingsViewModel: settingsViewModel)
+                Button {
+                    navigationState.push(.editPreferences)
                 } label: {
                     Text("Edit preferences")
                 }
@@ -128,8 +129,8 @@ struct Settings: View {
             .disabled(settingsViewModel.loading)
 
             Section(header: Text("Account")) {
-                NavigationLink {
-                    Feedback()
+                Button {
+                    navigationState.push(.feedback)
                 } label: {
                     Text("Submit feedback")
                 }

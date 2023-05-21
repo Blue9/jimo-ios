@@ -15,6 +15,7 @@ struct HomeMenu: View {
     @EnvironmentObject var viewState: GlobalViewState
     @StateObject var viewModel = ViewModel()
     @State private var currentWallpaperIndex = 0
+    @StateObject private var navigationState = NavigationState()
 
     let height = UIScreen.main.bounds.height
 
@@ -30,8 +31,12 @@ struct HomeMenu: View {
     let wallpaperTimer = Timer.publish(every: 6, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        Navigator {
-            mainBody.navigationBarHidden(true)
+        Navigator(state: navigationState) {
+            mainBody
+                .navigationBarHidden(true)
+                .onChange(of: navigationState.path) { newValue in
+                    print("Navigation path changed to \(newValue)")
+                }
         }
     }
 
@@ -71,8 +76,8 @@ struct HomeMenu: View {
             .scaledToFit()
             Spacer()
             VStack(spacing: 3) {
-                NavigationLink {
-                    EnterPhoneNumber(onVerify: {})
+                Button {
+                    navigationState.push(.enterPhoneNumber)
                 } label: {
                     LargeButton("Sign Up")
                 }
@@ -86,8 +91,8 @@ struct HomeMenu: View {
                     VStack { Divider().frame(maxWidth: 100) }
                 }
 
-                NavigationLink {
-                    EnterPhoneNumber(onVerify: {})
+                Button {
+                    navigationState.push(.enterPhoneNumber)
                 } label: {
                     Text("Sign in to an existing account")
                         .font(.system(size: 16))

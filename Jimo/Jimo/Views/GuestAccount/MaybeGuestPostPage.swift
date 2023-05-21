@@ -10,8 +10,9 @@ import SwiftUI
 struct MaybeGuestPostPage: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
-    var post: Post
+    @EnvironmentObject var navigationState: NavigationState
 
+    var post: Post
     var showSignUpAlert: (SignUpTapSource) -> Void
 
     var body: some View {
@@ -23,6 +24,9 @@ struct MaybeGuestPostPage: View {
                 }
         } else {
             PostPage(post: post)
+                .onTapGesture {
+                    navigationState.push(.post(post: post, showSaveButton: false))
+                }
         }
     }
 }

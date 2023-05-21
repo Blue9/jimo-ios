@@ -48,20 +48,19 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(isPresented: $globalViewState.showSignUpPage) {
-            Navigator {
-                EnterPhoneNumber(onVerify: {
-                    globalViewState.showSignUpPage = false
-                })
-                .navigationTitle(Text("Sign up"))
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button {
-                            globalViewState.showSignUpPage = false
-                        } label: {
-                            Image(systemName: "xmark").foregroundColor(Color("foreground"))
+            FakeNavigator {
+                EnterPhoneNumber()
+                // TODO globalViewState.showSignUpPage = false on verify
+                    .navigationTitle(Text("Sign up"))
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button {
+                                globalViewState.showSignUpPage = false
+                            } label: {
+                                Image(systemName: "xmark").foregroundColor(Color("foreground"))
+                            }
                         }
                     }
-                }
             }
         }
         .popup(isPresented: !$networkMonitor.connected) {
@@ -121,25 +120,20 @@ private struct FailedToLoadView: View {
     @EnvironmentObject var appState: AppState
 
     var body: some View {
-        Navigator {
-            VStack {
+        VStack {
+            HStack {
                 Spacer()
-                Button("Could not connect. Tap to try again.") {
-                    appState.refreshCurrentUser()
+                Button("Sign out") {
+                    appState.signOut()
                 }
-                Spacer()
+            }.padding()
+            Spacer()
+            Button("Could not connect. Tap to try again.") {
+                appState.refreshCurrentUser()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(Text("Loading profile"))
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Sign out") {
-                        appState.signOut()
-                    }
-                }
-            }
+            Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

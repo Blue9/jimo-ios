@@ -10,11 +10,12 @@ import SwiftUIPager
 
 struct CityPlaces: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var onboardingModel: OnboardingModel
+
     @StateObject private var viewModel = ViewModel()
     @State private var showWarning = false
 
     let city: String
-    let done: () -> Void
 
     var body: some View {
         VStack {
@@ -48,7 +49,7 @@ struct CityPlaces: View {
             presenting: viewModel.places,
             actions: { places in
                 Button("Try again", action: { submitPlaces(places) })
-                Button("Continue without saving", action: done)
+                Button("Continue without saving", action: onboardingModel.step)
                 Button("Close", role: .cancel, action: {})
             },
             message: { _ in
@@ -65,7 +66,7 @@ struct CityPlaces: View {
                 appState: appState,
                 complete: { success in
                     if success {
-                        done()
+                        onboardingModel.step()
                     } else {
                         DispatchQueue.main.async {
                             showWarning = true

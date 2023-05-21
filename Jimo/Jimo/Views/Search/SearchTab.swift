@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct SearchTab: View {
+    @StateObject private var navigationState = NavigationState()
+
     var body: some View {
-        Navigator {
+        Navigator(state: navigationState) {
             SearchUsers()
                 .trackScreen(.searchTab)
                 .ignoresSafeArea(.keyboard, edges: .all)

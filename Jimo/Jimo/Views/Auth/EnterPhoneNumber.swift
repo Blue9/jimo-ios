@@ -11,10 +11,9 @@ import Combine
 import PhoneNumberKit
 
 struct EnterPhoneNumber: View {
+    @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var appState: AppState
     @StateObject private var viewModel = ViewModel()
-
-    var onVerify: () -> Void
 
     var body: some View {
         ZStack {
@@ -27,12 +26,12 @@ struct EnterPhoneNumber: View {
                     .frame(height: 40, alignment: .center)
                     .padding(10)
                     .background(RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
+                        .stroke(Colors.linearGradient, style: StrokeStyle(lineWidth: 2)))
                     .padding(.bottom, 20)
 
-                Button(action: {
-                    viewModel.getCode(appState: appState)
-                }) {
+                Button {
+                    viewModel.getCode(navigationState: navigationState, appState: appState)
+                } label: {
                     if viewModel.loading {
                         ProgressView()
                             .font(.system(size: 20))
@@ -69,12 +68,6 @@ struct EnterPhoneNumber: View {
                 .font(.caption)
                 .foregroundColor(.gray)
             }
-            .navDestination(isPresented: $viewModel.nextStep) {
-                VerifyPhoneNumber(onVerify: onVerify)
-            }
-            .navDestination(isPresented: $viewModel.showSecretEmailPage) {
-                EmailLogin()
-            }
             .padding(.horizontal, 30)
             .frame(maxHeight: .infinity)
             .background(Color("background").edgesIgnoringSafeArea(.all))
@@ -98,13 +91,9 @@ extension EnterPhoneNumber {
 
         @Published var phoneNumber: JimoPhoneNumberInput?
         @Published var showError = false
-        @Published var nextStep: Bool = false
 
         @Published private(set) var error = ""
         @Published private(set) var loading = false
-
-        /// Hack to allow logging in with emails
-        @Published var showSecretEmailPage = false
 
         func setError(_ error: String) {
             withAnimation {
@@ -113,11 +102,11 @@ extension EnterPhoneNumber {
             }
         }
 
-        func getCode(appState: AppState) {
+        func getCode(navigationState: NavigationState, appState: AppState) {
             hideKeyboard()
 
             if case .secretMenu = phoneNumber {
-                showSecretEmailPage = true
+                navigationState.push(.emailLogin)
                 return
             }
             guard case let .number(number) = phoneNumber else {
@@ -145,7 +134,7 @@ extension EnterPhoneNumber {
                     }
                     withAnimation {
                         self.error = ""
-                        self.nextStep = true
+                        navigationState.push(.verifyPhoneNumber)
                     }
                 })
                 .store(in: &cancelBag)

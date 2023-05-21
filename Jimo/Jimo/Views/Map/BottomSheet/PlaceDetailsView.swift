@@ -52,6 +52,7 @@ struct PlaceDetailsView: View {
 private struct BasePlaceDetailsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
     @ObservedObject var viewModel: PlaceDetailsViewModel
 
     var showSignUpAlert: (SignUpTapSource) -> Void
