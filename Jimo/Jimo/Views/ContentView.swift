@@ -16,6 +16,7 @@ struct ContentView: View {
 
     @StateObject var networkMonitor = NetworkConnectionMonitor()
     @StateObject var appVersionModel = AppVersionModel()
+    @StateObject private var guestNavigationState = NavigationState()
 
     var body: some View {
         ZStack {
@@ -48,7 +49,7 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(isPresented: $globalViewState.showSignUpPage) {
-            FakeNavigator {
+            NavigationStack(path: $guestNavigationState.path) {
                 EnterPhoneNumber()
                 // TODO globalViewState.showSignUpPage = false on verify
                     .navigationTitle(Text("Sign up"))
@@ -61,7 +62,15 @@ struct ContentView: View {
                             }
                         }
                     }
-            }
+                    .navigationDestination(for: NavDestination.self) { destination in
+                        switch destination {
+                        case .verifyPhoneNumber:
+                            VerifyPhoneNumber(onVerify: { globalViewState.showSignUpPage = false })
+                        default:
+                            destination.view
+                        }
+                    }
+            }.environmentObject(guestNavigationState)
         }
         .popup(isPresented: !$networkMonitor.connected) {
             Toast(text: "No internet connection", type: .error)
