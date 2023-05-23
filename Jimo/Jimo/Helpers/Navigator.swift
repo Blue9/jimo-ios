@@ -6,15 +6,16 @@
 //
 
 import SwiftUI
+import NavigationBackport
 
 struct Navigator<Content>: View where Content: View {
     @ObservedObject var state: NavigationState
     var content: () -> Content
 
     var body: some View {
-        NavigationStack(path: $state.path) {
+        NBNavigationStack(path: $state.path) {
             content()
-                .navigationDestination(for: NavDestination.self, destination: \.view)
+                .nbNavigationDestination(for: NavDestination.self, destination: \.view)
         }.environmentObject(state)
     }
 }
@@ -24,6 +25,6 @@ struct FakeNavigator<Content>: View where Content: View {
     var content: () -> Content
 
     var body: some View {
-        NavigationStack(root: content)
+        NBNavigationStack(root: content)
     }
 }

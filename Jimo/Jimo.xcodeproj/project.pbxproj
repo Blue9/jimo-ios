@@ -156,6 +156,7 @@
 		C7B6E72B2999F13A00B6C017 /* FirstOpenPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B6E72A2999F13A00B6C017 /* FirstOpenPopup.swift */; };
 		C7B91FE5282448BA00F383BC /* ShareButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE4282448BA00F383BC /* ShareButtonView.swift */; };
 		C7B91FE7282449C700F383BC /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B91FE6282449C700F383BC /* ActivityView.swift */; };
+		C7BED3242A1D3494002EB82C /* NavigationBackport in Frameworks */ = {isa = PBXBuildFile; productRef = C7BED3232A1D3494002EB82C /* NavigationBackport */; };
 		C7C3F04A255A744A00B9D3B3 /* LocationSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F049255A744A00B9D3B3 /* LocationSearch.swift */; };
 		C7C3F05A255A755C00B9D3B3 /* PlaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C3F044255A734600B9D3B3 /* PlaceSearch.swift */; };
 		C7CA51B82999D52600F9D160 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = C7CA51B72999D52600F9D160 /* PopupView */; };
@@ -381,6 +382,7 @@
 			files = (
 				C71D2B0F298870A200646656 /* FirebaseMessaging in Frameworks */,
 				C71D2B09298870A200646656 /* FirebaseAnalyticsSwift in Frameworks */,
+				C7BED3242A1D3494002EB82C /* NavigationBackport in Frameworks */,
 				C71D2B0B298870A200646656 /* FirebaseAuth in Frameworks */,
 				84BE5D1C292740DE00240B01 /* BottomSheet in Frameworks */,
 				C7D947CE287BF310001B38A2 /* Collections in Frameworks */,
@@ -957,6 +959,7 @@
 				C71D2B0E298870A200646656 /* FirebaseMessaging */,
 				C71D2B10298870A200646656 /* FirebaseRemoteConfigSwift */,
 				C7CA51B72999D52600F9D160 /* PopupView */,
+				C7BED3232A1D3494002EB82C /* NavigationBackport */,
 			);
 			productName = GoodplacesApp;
 			productReference = C75C2EDB25561309009B6ADA /* Jimo.app */;
@@ -1038,6 +1041,7 @@
 				84BE5D1A292740DE00240B01 /* XCRemoteSwiftPackageReference "BottomSheet" */,
 				C71D2B07298870A200646656 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				C7CA51B62999D52600F9D160 /* XCRemoteSwiftPackageReference "PopupView" */,
+				C7BED3222A1D3493002EB82C /* XCRemoteSwiftPackageReference "NavigationBackport" */,
 			);
 			productRefGroup = C75C2EDC25561309009B6ADA /* Products */;
 			projectDirPath = "";
@@ -1442,7 +1446,7 @@
 				DEVELOPMENT_TEAM = FL6G2R3Q86;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Jimo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1468,7 +1472,7 @@
 				DEVELOPMENT_TEAM = FL6G2R3Q86;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Jimo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1648,6 +1652,14 @@
 				minimumVersion = 10.0.0;
 			};
 		};
+		C7BED3222A1D3493002EB82C /* XCRemoteSwiftPackageReference "NavigationBackport" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/johnpatrickmorgan/NavigationBackport";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.8.1;
+			};
+		};
 		C7CA51B62999D52600F9D160 /* XCRemoteSwiftPackageReference "PopupView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/PopupView.git";
@@ -1719,6 +1731,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C71D2B07298870A200646656 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseRemoteConfigSwift;
+		};
+		C7BED3232A1D3494002EB82C /* NavigationBackport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C7BED3222A1D3493002EB82C /* XCRemoteSwiftPackageReference "NavigationBackport" */;
+			productName = NavigationBackport;
 		};
 		C7CA51B72999D52600F9D160 /* PopupView */ = {
 			isa = XCSwiftPackageProductDependency;

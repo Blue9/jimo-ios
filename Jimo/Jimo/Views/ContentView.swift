@@ -8,6 +8,7 @@
 import SwiftUI
 import PopupView
 import FirebaseRemoteConfig
+import NavigationBackport
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
@@ -49,7 +50,7 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(isPresented: $globalViewState.showSignUpPage) {
-            NavigationStack(path: $guestNavigationState.path) {
+            NBNavigationStack(path: $guestNavigationState.path) {
                 EnterPhoneNumber()
                     .navigationTitle(Text("Sign up"))
                     .toolbar {
@@ -61,7 +62,7 @@ struct ContentView: View {
                             }
                         }
                     }
-                    .navigationDestination(for: NavDestination.self) { destination in
+                    .nbNavigationDestination(for: NavDestination.self) { destination in
                         switch destination {
                         case .verifyPhoneNumber:
                             VerifyPhoneNumber(onVerify: { globalViewState.showSignUpPage = false })
