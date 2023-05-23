@@ -92,13 +92,3 @@ struct CityOnboarding: View {
         }
     }
 }
-
-struct CityOnboarding_Previews: PreviewProvider {
-    static var previews: some View {
-        Navigator {
-            CityOnboarding(selectCity: {_ in})
-                .navigationBarHidden(true)
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-        }
-    }
-}

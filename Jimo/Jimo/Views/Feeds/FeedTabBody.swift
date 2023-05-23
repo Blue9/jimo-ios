@@ -11,16 +11,10 @@ struct FeedTabBody: View {
     @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
-    @ObservedObject var notificationsModel: NotificationBadgeModel
+    @EnvironmentObject var notificationFeedVM: NotificationFeedViewModel
+    @EnvironmentObject var navigationState: NavigationState
 
-    @State private var showFeedback = false
-    @State private var showNotifications = false
-
-    @StateObject private var notificationFeedVM = NotificationFeedViewModel()
-
-    var notificationBellBadgePresent: Bool {
-        notificationsModel.unreadNotifications > 0 || notificationFeedVM.shouldRequestNotificationPermissions
-    }
+    var notificationBellBadgePresent: Bool
 
     var onCreatePostTap: () -> Void
 
@@ -58,11 +52,6 @@ struct FeedTabBody: View {
                 // When swiping back from search users sometimes adds a black bar where keyboard would be
                 // This fixes that
                 .ignoresSafeArea(.keyboard, edges: .all)
-                .navDestination(isPresented: $showNotifications) {
-                    NotificationFeed(notificationFeedVM: notificationFeedVM)
-                        .environmentObject(appState)
-                        .environmentObject(globalViewState)
-                }
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarColor(UIColor(Color("background")))
                 .toolbar(content: {
@@ -77,7 +66,7 @@ struct FeedTabBody: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             Analytics.track(.tapNotificationBell, parameters: ["badge_present": notificationBellBadgePresent])
-                            self.showNotifications = true
+                            navigationState.push(.notificationFeed)
                         }) {
                             notificationFeedIcon
                         }

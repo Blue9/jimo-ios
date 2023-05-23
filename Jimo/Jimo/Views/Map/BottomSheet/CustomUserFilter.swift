@@ -85,7 +85,7 @@ struct CustomUserFilter: View {
     }
 
     var body: some View {
-        Navigator {
+        FakeNavigator {
             ScrollView {
                 MapSearchField(
                     text: $viewModel.query,

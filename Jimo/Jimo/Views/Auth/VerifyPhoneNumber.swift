@@ -36,9 +36,9 @@ struct VerifyPhoneNumber: View {
                         isFocused = true
                     }
 
-                Button(action: {
+                Button {
                     viewModel.verifyPhoneNumber(appState: appState, onVerify: onVerify)
-                }) {
+                } label: {
                     Text("Submit")
                         .frame(minWidth: 0, maxWidth: .infinity)
                         .frame(height: 60)

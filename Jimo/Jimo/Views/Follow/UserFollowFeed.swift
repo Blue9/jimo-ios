@@ -155,6 +155,7 @@ struct FollowFeedItemView: View {
     @StateObject var followFeedItemVM = FollowFeedItemVM()
 
     let item: FollowFeedItem
+    var navigate: (NavDestination) -> Void
     let defaultProfileImage = Image(systemName: "person.crop.circle")
 
     var isCurrentUser: Bool {
@@ -205,8 +206,8 @@ struct FollowFeedItemView: View {
     }
 
     var body: some View {
-        NavigationLink {
-            ProfileScreen(initialUser: item.user)
+        Button {
+            navigate(.profile(user: item.user))
         } label: {
             HStack {
                 profilePicture(user: item.user)
@@ -234,6 +235,7 @@ struct FollowFeedItemView: View {
 struct FollowFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
 
     @StateObject var followFeedVM = FollowFeedVM()
     @State private var initialized = false
@@ -245,12 +247,13 @@ struct FollowFeed: View {
     var body: some View {
         RefreshableScrollView {
             ForEach(followFeedVM.feedItems) { item in
-                FollowFeedItemView(item: item)
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-                    .padding(.horizontal, 10)
-                    .frame(width: UIScreen.main.bounds.width)
-                    .fixedSize()
+                FollowFeedItemView(
+                    item: item,
+                    navigate: { navigationState.push($0) }
+                )
+                .padding(.horizontal, 10)
+                .frame(width: UIScreen.main.bounds.width)
+                .fixedSize()
             }
         } onRefresh: { onFinish in
             followFeedVM.refreshFollows(

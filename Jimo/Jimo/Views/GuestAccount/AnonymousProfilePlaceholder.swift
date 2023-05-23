@@ -125,7 +125,7 @@ private struct AnonymousProfileHeaderView: View {
 
     @ViewBuilder
     fileprivate func headerButtonText(
-        _ dest: Profile.Destination,
+        _ dest: NavDestination,
         _ text: String,
         _ buttonImage: String? = nil
     ) -> some View {
@@ -150,7 +150,7 @@ private struct AnonymousProfileHeaderView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 headerButtonText(.editProfile, "Edit profile", "square.and.pencil")
-                headerButtonText(.submitFeedback, "Submit feedback", nil)
+                headerButtonText(.feedback, "Submit feedback", nil)
             }
             .padding(.horizontal, 20)
         }

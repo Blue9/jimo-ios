@@ -8,7 +8,14 @@
 import SwiftUI
 
 class DeepLinkManager: ObservableObject {
-    @Published var presentableEntity: DeepLinkEntity?
+    @Published var presentableEntity: DeepLinkEntity? {
+        didSet {
+            if presentableEntity != oldValue && presentableEntity != nil {
+                navigationState.push(.deepLink(entity: presentableEntity!))
+            }
+        }
+    }
+    var navigationState = NavigationState()
 }
 
 /// What type of detail page we want to open based on the deeplink URL

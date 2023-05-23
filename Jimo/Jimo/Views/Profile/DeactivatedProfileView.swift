@@ -12,15 +12,6 @@ struct DeactivatedProfileView: View {
     @EnvironmentObject var globalViewState: GlobalViewState
 
     var body: some View {
-        Navigator {
-            deactivatedProfileView
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle(Text("Goodbye"))
-        }
-    }
-
-    @ViewBuilder
-    var deactivatedProfileView: some View {
         VStack(spacing: 50) {
             Text("Your account is marked for permanent deletion. Your data is not visible to anyone and will be permanently deleted in the next 24 hours.")
                 .bold()

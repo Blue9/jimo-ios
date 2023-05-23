@@ -33,7 +33,7 @@ struct CreatePostWithModel: View {
     }
 
     var body: some View {
-        Navigator {
+        FakeNavigator {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(createPostVM.createOrEdit.title)

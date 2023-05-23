@@ -8,59 +8,47 @@
 import SwiftUI
 
 struct FeedItem: View {
-    enum Destination: Hashable {
-        case post(Post)
-        case user(PublicUser)
-        case map(Post)
-
-        @ViewBuilder func view() -> some View {
-            switch self {
-            case let .post(post):
-                ViewPost(initialPost: post)
-            case let .user(user):
-                ProfileScreen(initialUser: user)
-            case let .map(post):
-                LiteMapView(post: post)
-            }
-        }
-    }
-
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
 
     @StateObject var postVM = PostVM()
 
     var post: Post
-    var navigate: (Destination?) -> Void
+    var navigate: (NavDestination) -> Void
     var showShareSheet: () -> Void
 
     var body: some View {
         VStack {
-            PostHeader(postVM: postVM, post: post, navigate: { self.navigate(.user($0)) }, showShareSheet: showShareSheet)
+            PostHeader(
+                postVM: postVM,
+                post: post,
+                navigate: { self.navigate(.profile(user: $0)) },
+                showShareSheet: showShareSheet
+            )
 
             PostImage(post: post)
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
                 .contentShape(Rectangle())
                 .clipped()
                 .onTapGesture {
-                    self.navigate(.post(post))
+                    self.navigate(.post(post: post))
                 }
 
             VStack(spacing: 5) {
                 PostPlaceName(post: post).onTapGesture {
                     Analytics.track(.postPlaceNameTap)
-                    self.navigate(.map(post))
+                    self.navigate(.liteMapView(post: post))
                 }
                 PostCaption(post: post)
                     .lineLimit(3)
                     .onTapGesture {
-                        self.navigate(.post(post))
+                        self.navigate(.post(post: post))
                     }
             }
             PostFooter(
                 viewModel: postVM,
                 post: post,
-                onCommentTap: { self.navigate(.post(post)) }
+                onCommentTap: { self.navigate(.post(post: post)) }
             )
 
             Rectangle()

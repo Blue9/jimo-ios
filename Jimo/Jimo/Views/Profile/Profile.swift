@@ -8,28 +8,9 @@
 import SwiftUI
 
 struct Profile: View {
-    enum Destination: Hashable {
-        case editProfile, submitFeedback, post(Post), followers(username: String), following(username: String)
-
-        @ViewBuilder
-        func view() -> some View {
-            switch self {
-            case .editProfile:
-                EditProfile()
-            case .submitFeedback:
-                Feedback()
-            case let .post(post):
-                ViewPost(initialPost: post)
-            case let .followers(username):
-                FollowFeed(navTitle: "Followers", type: .followers, username: username)
-            case let .following(username):
-                FollowFeed(navTitle: "Following", type: .following, username: username)
-            }
-        }
-    }
-
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
     @StateObject var profileVM = ProfileVM()
 
     let initialUser: PublicUser
@@ -43,7 +24,6 @@ struct Profile: View {
 
     @State private var showUserOptions = false
     @State private var confirmBlockUser = false
-    @State private var navigationDestination: Destination?
     @State private var shareAction: ShareAction?
 
     var user: PublicUser {
@@ -60,7 +40,6 @@ struct Profile: View {
             ProfileHeaderView(
                 profileVM: profileVM,
                 shareProfile: { self.shareAction = .profile(user) },
-                navigate: { self.navigationDestination = $0 },
                 initialUser: initialUser
             ).padding(.bottom, 10)
 
@@ -73,7 +52,7 @@ struct Profile: View {
 
                 ForEach(profileVM.posts) { post in
                     Button {
-                        self.navigationDestination = .post(post)
+                        navigationState.push(.post(post: post))
                     } label: {
                         if let editPost = editPost {
                             PostGridCell(post: post)
@@ -113,9 +92,6 @@ struct Profile: View {
             )
         }
         .font(.system(size: 15))
-        .navigation(destination: $navigationDestination) {
-            navigationDestination?.view()
-        }
     }
 
     @ViewBuilder
@@ -196,6 +172,7 @@ struct Profile: View {
 
 struct ProfileScreen: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var navigationState: NavigationState
     @StateObject private var createPostVM = CreatePostVM()
     @State private var showCreatePostSheet = false
     var initialUser: PublicUser
@@ -225,14 +202,13 @@ struct ProfileScreen: View {
 private struct ProfileHeaderView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
 
     @ObservedObject var profileVM: ProfileVM
 
     @State private var showCreatePostView = false
 
     var shareProfile: () -> Void
-    var navigate: (Profile.Destination?) -> Void
-
     let initialUser: User
 
     var user: User {
@@ -256,7 +232,7 @@ private struct ProfileHeaderView: View {
                     .background(Color.white)
                     .cornerRadius(40)
                     .padding(.trailing)
-                ProfileStatsView(profileVM: profileVM, initialUser: initialUser, navigate: navigate)
+                ProfileStatsView(profileVM: profileVM, initialUser: initialUser)
             }.padding(.leading, 20)
 
             HStack(spacing: 0) {
@@ -280,8 +256,7 @@ private struct ProfileHeaderView: View {
                 ProfileActionButtonView(
                     profileVM: profileVM,
                     initialUser: initialUser,
-                    shareProfile: shareProfile,
-                    navigate: navigate
+                    shareProfile: shareProfile
                 )
 
                 // Cannot share blocked user profile
@@ -304,12 +279,12 @@ private struct ProfileHeaderView: View {
 
     @ViewBuilder
     fileprivate func headerButtonText(
-        _ dest: Profile.Destination,
+        _ dest: NavDestination,
         _ text: String,
         _ buttonImage: String? = nil
     ) -> some View {
         Button {
-            self.navigate(dest)
+            navigationState.push(dest)
         } label: {
             HStack(spacing: 3) {
                 if let buttonImage = buttonImage {
@@ -333,8 +308,8 @@ private struct ProfileHeaderView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 headerButtonText(.editProfile, "Edit profile", "square.and.pencil")
-                headerButtonText(.submitFeedback, "Submit feedback", "exclamationmark.bubble")
-                headerButtonText(.submitFeedback, "Report a problem", "exclamationmark.triangle")
+                headerButtonText(.feedback, "Submit feedback", "exclamationmark.bubble")
+                headerButtonText(.feedback, "Report a problem", "exclamationmark.triangle")
             }
             .padding(.horizontal, 20)
         }
@@ -344,12 +319,11 @@ private struct ProfileHeaderView: View {
 struct ProfileStatsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
 
     @ObservedObject var profileVM: ProfileVM
 
     let initialUser: User
-
-    var navigate: (Profile.Destination?) -> Void
 
     var user: User {
         profileVM.user ?? initialUser
@@ -365,7 +339,9 @@ struct ProfileStatsView: View {
             .padding(.trailing, 10)
             Spacer()
 
-            Button { navigate(.followers(username: user.username)) } label: {
+            Button {
+                navigationState.push(.followers(username: user.username))
+            } label: {
                 VStack {
                     Text(user.followerCount.kFormatted).bold()
                     Text("Followers")
@@ -374,7 +350,9 @@ struct ProfileStatsView: View {
             .padding(.trailing, 10)
             Spacer()
 
-            Button { navigate(.following(username: user.username)) } label: {
+            Button {
+                navigationState.push(.following(username: user.username))
+            } label: {
                 VStack {
                     Text(user.followingCount.kFormatted).bold()
                     Text("Following")
@@ -390,11 +368,11 @@ struct ProfileStatsView: View {
 struct ProfileActionButtonView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
+    @EnvironmentObject var navigationState: NavigationState
     @ObservedObject var profileVM: ProfileVM
 
     let initialUser: User
     let shareProfile: () -> Void
-    let navigate: (Profile.Destination) -> Void
 
     var user: User {
         profileVM.user ?? initialUser

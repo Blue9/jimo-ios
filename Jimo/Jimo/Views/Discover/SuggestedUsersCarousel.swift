@@ -52,11 +52,17 @@ struct SuggestedUsersCarousel: View {
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var viewModel: SuggestedUserCarouselViewModel
 
+    var navigate: (NavDestination) -> Void
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 ForEach(viewModel.users, id: \.self) { item in
-                    SuggestedUserCard(viewModel: viewModel, item: item)
+                    SuggestedUserCard(
+                        viewModel: viewModel,
+                        navigate: navigate,
+                        item: item
+                    )
                 }
             }.padding()
         }
@@ -152,6 +158,8 @@ private struct SuggestedUserCard: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var viewState: GlobalViewState
     @ObservedObject var viewModel: SuggestedUserCarouselViewModel
+
+    var navigate: (NavDestination) -> Void
     var item: SuggestedUserItem
 
     var user: PublicUser {
@@ -207,8 +215,8 @@ private struct SuggestedUserCard: View {
     }
 
     var body: some View {
-        NavigationLink {
-            ProfileScreen(initialUser: user)
+        Button {
+            navigate(.profile(user: user))
         } label: {
             VStack {
                 profilePicture

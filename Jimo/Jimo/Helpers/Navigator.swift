@@ -6,26 +6,25 @@
 //
 
 import SwiftUI
+import NavigationBackport
 
-// https://developer.apple.com/forums/thread/716310
 struct Navigator<Content>: View where Content: View {
-    var path: Binding<[AnyHashable]>?
-    @ViewBuilder var content: () -> Content
-
-    init(path: Binding<[AnyHashable]>? = nil, @ViewBuilder content: @escaping () -> Content) {
-        self.path = path
-        self.content = content
-    }
+    @ObservedObject var state: NavigationState
+    var content: () -> Content
 
     var body: some View {
-        if #available(iOS 16, *) {
-            if let path = path {
-                NavigationStack(path: path, root: content)
-            } else {
-                NavigationStack(root: content)
-            }
-        } else {
-            NavigationView(content: content).navigationViewStyle(.stack)
-        }
+        NBNavigationStack(path: $state.path) {
+            content()
+                .nbNavigationDestination(for: NavDestination.self, destination: \.view)
+        }.environmentObject(state)
+    }
+}
+
+// Useful for easier styling using toolbars and navigation title
+struct FakeNavigator<Content>: View where Content: View {
+    var content: () -> Content
+
+    var body: some View {
+        NBNavigationStack(root: content)
     }
 }

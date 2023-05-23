@@ -10,8 +10,9 @@ import SwiftUI
 struct NotificationFeed: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var globalViewState: GlobalViewState
+    @EnvironmentObject var notificationFeedVM: NotificationFeedViewModel
+    @EnvironmentObject var navigationState: NavigationState
 
-    @ObservedObject var notificationFeedVM: NotificationFeedViewModel
     @State private var showShareProfileOverlay = false
 
     @ViewBuilder
@@ -42,10 +43,11 @@ struct NotificationFeed: View {
             }
 
             ForEach(notificationFeedVM.feedItems) { item in
-                NotificationFeedItem(item: item)
-                    .environmentObject(appState)
-                    .environmentObject(globalViewState)
-                    .padding(.horizontal, 10)
+                NotificationFeedItem(
+                    item: item,
+                    navigate: { navigationState.push($0) }
+                )
+                .padding(.horizontal, 10)
             }
 
             if !notificationFeedVM.loading {
@@ -87,6 +89,7 @@ private struct NotificationFeedItem: View {
     @State private var relativeTime: String = ""
 
     let item: NotificationItem
+    var navigate: (NavDestination) -> Void
     let defaultProfileImage: Image = Image(systemName: "person.crop.circle")
 
     var user: PublicUser {
@@ -113,27 +116,26 @@ private struct NotificationFeedItem: View {
         }
     }
 
-    @ViewBuilder var destinationView: some View {
+    var navDestination: NavDestination {
         if item.type == ItemType.like || item.type == ItemType.save {
             if let post = item.post {
-                ViewPost(initialPost: post)
+                return .post(post: post)
             }
         } else if item.type == ItemType.comment {
             if let post = item.post {
-                ViewPost(initialPost: post, highlightedComment: item.comment)
+                return .post(post: post, highlightedComment: item.comment)
             }
-        } else {
-            ProfileScreen(initialUser: item.user)
         }
+        return .profile(user: item.user)
     }
 
     var body: some View {
-        NavigationLink {
-            destinationView
+        Button {
+            navigate(navDestination)
         } label: {
             HStack {
-                NavigationLink {
-                    ProfileScreen(initialUser: user)
+                Button {
+                    navigate(.profile(user: item.user))
                 } label: {
                     profilePicture
                 }
