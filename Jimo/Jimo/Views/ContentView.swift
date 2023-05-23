@@ -51,7 +51,6 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $globalViewState.showSignUpPage) {
             NavigationStack(path: $guestNavigationState.path) {
                 EnterPhoneNumber()
-                // TODO globalViewState.showSignUpPage = false on verify
                     .navigationTitle(Text("Sign up"))
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
