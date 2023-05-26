@@ -67,7 +67,7 @@ struct Feed: View {
                     HStack {
                         Picker("Feed Type", selection: $feedType) {
                             Label("Following", systemImage: "person.3.fill").tag(FeedType.following)
-                            Label("For You", systemImage: "wand.and.stars").tag(FeedType.forYou)
+                            Label("Global", systemImage: "wand.and.stars").tag(FeedType.forYou)
                         }
                         .pickerStyle(.segmented)
                     }

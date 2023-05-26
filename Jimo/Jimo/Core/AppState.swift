@@ -99,9 +99,6 @@ class AppState: ObservableObject {
     var signingOut = false
     var registeringToken = false
 
-    var locationPingTimer: Timer?
-    var locationPingCancellable: AnyCancellable?
-
     var me: PublicUser? {
         if case let .user(user) = currentUser {
             return user
@@ -124,33 +121,6 @@ class AppState: ObservableObject {
             name: Notification.Name(rawValue: "FCMToken"),
             object: nil)
         self.initializeRemoteConfig()
-    }
-
-    func locationPingBackground() {
-        self.locationPingTimer?.invalidate()
-        let pingConfig = RemoteConfig.remoteConfig().configValue(forKey: "locationPingInterval").numberValue.doubleValue
-        let pingInterval = pingConfig == 0 ? 120.0 : pingConfig
-        let timer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] timer in
-            guard let location = PermissionManager.shared.locationManager.location else {
-                return
-            }
-            guard let self = self else {
-                timer.invalidate()
-                return
-            }
-            let pingConfig = RemoteConfig.remoteConfig().configValue(forKey: "locationPingInterval").numberValue.doubleValue
-            let pingInterval = pingConfig == 0 ? 60.0 : pingConfig
-            if pingInterval != timer.timeInterval {
-                print("Refreshing location ping timer")
-                self.locationPingBackground()
-            }
-            print("Pinging location")
-            self.locationPingCancellable = self.apiClient.pingLocation(Location(coord: location.coordinate))
-                .sink(receiveCompletion: {_ in}, receiveValue: {_ in})
-        }
-        timer.tolerance = 2
-        RunLoop.current.add(timer, forMode: .common)
-        self.locationPingTimer = timer
     }
 
     func relativeTime(for date: Date) -> String {
@@ -755,16 +725,12 @@ class AppState: ObservableObject {
     private func authHandler(auth: Firebase.Auth, user: Firebase.User?) {
         DispatchQueue.main.async {
             if let user = user {
-                #if !DEBUG
-                self.locationPingBackground()
-                #endif
                 if user.isAnonymous {
                     self.currentUser = .anonymous
                 } else {
                     self.refreshCurrentUser()
                 }
             } else {
-                self.locationPingTimer?.invalidate()
                 if self.signingOut {
                     self.signingOut = false
                 }

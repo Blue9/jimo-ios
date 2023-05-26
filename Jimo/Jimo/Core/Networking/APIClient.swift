@@ -25,10 +25,6 @@ struct Endpoint {
         return apiURL.url
     }
 
-    static func pingLocation() -> Endpoint {
-        .init(path: "/location/ping")
-    }
-
     // MARK: - Onboarding endpoints
 
     static func contacts() -> Endpoint {
@@ -279,10 +275,6 @@ class APIClient: ObservableObject {
      */
     init() {
         self.authClient = .init()
-    }
-
-    func pingLocation(_ location: Location) -> AnyPublisher<SimpleResponse, APIError> {
-        return doRequest(endpoint: .pingLocation(), httpMethod: "POST", body: PingLocationRequest(location: location))
     }
 
     // MARK: - Onboarding endpoints

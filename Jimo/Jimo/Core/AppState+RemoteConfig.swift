@@ -10,9 +10,7 @@ import FirebaseRemoteConfig
 
 extension AppState {
     func initializeRemoteConfig() {
-        RemoteConfig.remoteConfig().setDefaults([
-            "locationPingInterval": 120.0 as NSObject
-        ])
+
         self.refreshRemoteConfig()
     }
 

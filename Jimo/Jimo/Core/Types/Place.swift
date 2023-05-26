@@ -10,10 +10,6 @@ import MapKit
 
 typealias PlaceId = String
 
-struct PingLocationRequest: Codable, Equatable, Hashable {
-    var location: Location
-}
-
 struct Place: Identifiable, Codable, Equatable, Hashable {
     var id: PlaceId {
         placeId
