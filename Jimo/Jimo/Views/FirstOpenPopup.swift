@@ -14,12 +14,12 @@ struct FirstOpenPopup: View {
     var body: some View {
         VStack(spacing: 12) {
             Text("Welcome to Jimo!")
-                .foregroundColor(.black)
+                .foregroundColor(Color("foreground"))
                 .font(.system(size: 20))
 
             welcomeText
                 .font(.system(size: 12))
-                .foregroundColor(.black)
+                .foregroundColor(Color("foreground"))
                 .opacity(0.6)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 12)
@@ -27,7 +27,7 @@ struct FirstOpenPopup: View {
             buttons
         }
         .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
-        .background(Color.white.cornerRadius(10))
+        .background(Color("background").cornerRadius(10))
         .padding(.horizontal, 16)
     }
 

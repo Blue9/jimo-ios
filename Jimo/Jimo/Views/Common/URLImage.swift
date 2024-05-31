@@ -28,9 +28,9 @@ struct URLImage: View {
         WebImage(
             url: realUrl,
             context: [.imageThumbnailPixelSize: CGSize(width: maxDim, height: maxDim)]
-        )
-        .resizable()
-        .placeholder {
+        ) { image in
+            image.resizable()
+        } placeholder: {
             if let view = loading {
                 AnyView(view.resizable())
             } else {
