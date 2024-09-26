@@ -29,7 +29,11 @@ We speak to the [Jimo server](https://github.com/Blue9/jimo-server) for all app-
 
 This project requires Xcode to build and run. Start by opening the Jimo.xcodeproj project file to set up your project.
 
-Note: This project uses Firebase for authentication and analytics. Right now it comes with a `GoogleService-Info.plist` that points to the production Firebase config, but if you're testing with a local server you may want to change that for better control over your authentication.
+Note: This project uses Firebase for authentication and analytics.
+
+You need to create a Firebase project and place the generated GoogleService-Info.plist in Jimo/Jimo/GoogleService-Info.plist (in the same folder as the existing Info.plist).
+
+This isn't a "secure" file as it's exposed to users and publicly available to anyone who has the app, so it may be worth publishing the production app's plist in the repo to make it easier to get started. If you have any strong opinions on that, feel free to open an issue.
 
 ## Running
 
