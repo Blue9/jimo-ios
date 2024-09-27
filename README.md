@@ -1,6 +1,6 @@
 # Jimo iOS
 
-Jimo is an open-source social map app built in SwiftUI.
+[Jimo](https://apps.apple.com/us/app/jimo-be-the-guide/id1541360118) is an open-source social map app built in SwiftUI.
 It lets you save and share your favorite restaurants, activities, attractions, places to stay, shops, and more with friends.
 - Map: Easily see what trusted recs are near you or explore recs from across the globe in an interactive map view. Access a business’s phone number, website, and directions.
 - Feed: Stay up to date with your friends’ latest recommendations. Like posts and find inspiration for new places to visit.
